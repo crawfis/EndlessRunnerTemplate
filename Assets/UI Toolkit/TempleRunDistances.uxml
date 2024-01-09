@@ -1,0 +1,17 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI%20Toolkit/PlainUI_Styles.uss?fileID=7433441132597879392&amp;guid=1ab195081bf6c8e42ac7c15dce98631b&amp;type=3#PlainUI_Styles" />
+    <ui:VisualElement style="flex-grow: 1;">
+        <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="_totalDistanceLabel" />
+    </ui:VisualElement>
+    <ui:VisualElement name="_leftRightPanel" style="flex-grow: 1; flex-direction: row;">
+        <ui:VisualElement style="flex-grow: 1; max-height: initial;">
+            <ui:Label tabindex="-1" text="Distance Until Death" parse-escape-sequences="true" display-tooltip-when-elided="true" name="LeftLabel" class="DeathLabel" style="flex-shrink: 1; font-size: 16px;" />
+            <ui:Label tabindex="-1" text="0 m" parse-escape-sequences="true" display-tooltip-when-elided="true" name="_leftDeathDistance" style="flex-shrink: 1;" />
+        </ui:VisualElement>
+        <ui:VisualElement style="flex-grow: 1; max-height: initial;">
+            <ui:Label tabindex="-1" text="Distance Until Death" parse-escape-sequences="true" display-tooltip-when-elided="true" name="RightLabel" class="DeathLabel" style="flex-shrink: 1; font-size: 16px;" />
+            <ui:Label tabindex="-1" text="0 m" parse-escape-sequences="true" display-tooltip-when-elided="true" name="_rightDeathDistance" style="flex-shrink: 1;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:Label tabindex="-1" text="Go left or right before distance reaches zero, but only after it falls below target threshold." parse-escape-sequences="true" display-tooltip-when-elided="true" name="Instructions" class="InstructionsLabel" style="flex-shrink: 1;" />
+</ui:UXML>

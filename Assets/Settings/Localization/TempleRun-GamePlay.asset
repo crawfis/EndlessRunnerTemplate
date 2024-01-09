@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5be51871efa6c3e4eae1703925c8f5ac, type: 3}
+  m_Name: TempleRun-GamePlay
+  m_EditorClassIdentifier: 
+  m_SharedTableData: {fileID: 11400000, guid: fee987273261e2841a796d8f3897f55a, type: 2}
+  m_Tables:
+  - {fileID: 11400000, guid: db94e9b544fe269429b30ac7b942b8fc, type: 2}
+  - {fileID: 11400000, guid: 2b5deac0f6225ec4c9107a6040f7253b, type: 2}
+  - {fileID: 11400000, guid: 0d6abcca022be1c46b245ca95302bbb0, type: 2}
+  - {fileID: 11400000, guid: d414b1a5eb3360f4fa9e84403dd52e39, type: 2}
+  - {fileID: 11400000, guid: 02db60b1137e5cc409b690d4d8bda8da, type: 2}
+  - {fileID: 11400000, guid: a6080afa6b5896947b7e893721838642, type: 2}
+  - {fileID: 11400000, guid: b07ae1b55a4d3d0478b904baa958d82a, type: 2}
+  - {fileID: 11400000, guid: 1d465b981dc6ae6458ba293a4a02ad4d, type: 2}
+  - {fileID: 11400000, guid: 958c8cd3fc83f6b4299b26b746e6a38f, type: 2}
+  m_Extensions: []
+  m_Group: String Table
+  references:
+    version: 2
+    RefIds: []

@@ -1,0 +1,76 @@
+{
+    "name": "LeftRightJumpSlide",
+    "maps": [
+        {
+            "name": "Player",
+            "id": "fe3dfc6a-dd57-4706-b2f0-118079bce4dc",
+            "actions": [
+                {
+                    "name": "Right",
+                    "type": "Button",
+                    "id": "b5b7711a-829a-440c-873f-116ce7e78acd",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Left",
+                    "type": "Button",
+                    "id": "3ab098ca-7704-4646-923a-8f05143e70ad",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "706c37e0-3576-4aa9-bf39-7cb24e9f1598",
+                    "path": "<Keyboard>/d",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Right",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a1f6755e-e0df-44e0-bdb2-6bb5eb4b3bf0",
+                    "path": "<Gamepad>/dpad/right",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Right",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e7920561-9b6d-445b-a0b7-8eda36a18f20",
+                    "path": "<Gamepad>/dpad/left",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Left",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "76f03926-a69e-48c1-bf4a-16a73c8ac9ab",
+                    "path": "<Keyboard>/a",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Left",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
