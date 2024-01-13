@@ -15,7 +15,7 @@ namespace CrawfisSoftware.TempleRun
     /// Random distances (_random) could be replaced with a list of possible distances, but a better / cleaner solution would
     /// be to have another class subscribe to the event, massage the data and publish a new event. This may be needed
     /// for example to map the distance to a number of tiles.</remarks>
-    public class TrackManager : MonoBehaviour
+    public class TrackManager : TrackManagerAbstract
     {
         // Todo: Remove MonoBehaviour
         const int TrackLength = 5;
@@ -45,7 +45,7 @@ namespace CrawfisSoftware.TempleRun
             EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.RightTurnSucceeded, OnTurnSucceeded);
         }
 
-        public void AdvanceToNextSegment()
+        public override void AdvanceToNextSegment()
         {
             _ = _trackSegments.Dequeue();
             AddTrackSegment();
@@ -70,7 +70,7 @@ namespace CrawfisSoftware.TempleRun
             {
                 AddTrackSegment();
             }
-            EventsPublisherTempleRun.Instance.PublishEvent(KnownEvents.ActiveTrackChanged, this, (Direction.Left, _trackSegments.Peek()));
+            EventsPublisherTempleRun.Instance.PublishEvent(KnownEvents.ActiveTrackChanged, this, (Direction.Right, _trackSegments.Peek()));
         }
 
         private void OnTurnSucceeded(object sender, object data)

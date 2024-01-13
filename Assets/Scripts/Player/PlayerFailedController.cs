@@ -11,8 +11,8 @@ namespace CrawfisSoftware.TempleRun
     /// </summary>
     internal class PlayerFailedController : MonoBehaviour
     {
-        [SerializeField] private TrackManager _trackManager;
-
+        //[SerializeField] private TrackManagerAbstract _trackManager;
+        [SerializeField] private TurnController _turnController;
         private Coroutine _pauseCoroutine;
         private Coroutine _advanceTrackCoroutine;
 
@@ -25,7 +25,7 @@ namespace CrawfisSoftware.TempleRun
         {
             _pauseCoroutine = StartCoroutine(PauseGame());
             // Note: This starts immediately and runs in parallel with the above coroutine.
-            _advanceTrackCoroutine = StartCoroutine(AdvanceTrack());
+            _advanceTrackCoroutine = StartCoroutine(AdvanceAfterFailure());
         }
         private IEnumerator PauseGame()
         {
@@ -34,11 +34,12 @@ namespace CrawfisSoftware.TempleRun
             EventsPublisherTempleRun.Instance.PublishEvent(KnownEvents.Resume, this, null);
         }
 
-        private IEnumerator AdvanceTrack()
+        private IEnumerator AdvanceAfterFailure()
         {
             // Wait until pause is almost over before advancing the player to the next track segment.
             yield return new WaitForSecondsRealtime(GameConstants.ZeroHoldForResumeDelay);
-            _trackManager.AdvanceToNextSegment();
+            //_trackManager.AdvanceToNextSegment();
+            _turnController.ForceTurn();
         }
 
         private void OnDestroy()

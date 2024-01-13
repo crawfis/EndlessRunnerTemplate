@@ -148,8 +148,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e0a229ce68b7d44bb553364d725183c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _currentSeed: 1804926861
-  _generateNewSeed: 1
+  _currentSeed: 1098071
+  _generateNewSeed: 0
   _fixedSeedList: {fileID: 11400000, guid: 24cb6de9f55e1fd4dbf1bc3e64e1cbcc, type: 2}
   _seedIndex: -1
 --- !u!4 &525015472

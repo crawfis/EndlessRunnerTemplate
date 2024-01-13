@@ -6,6 +6,9 @@ namespace CrawfisSoftware.AssetManagement
     public class EventsPublisher : IEventsPublisher
     {
         public static IEventsPublisher Instance { get; private set; }
+
+        private bool _publishingAnEvent = false;
+        private Queue<(string eventName, object sender, object data)> _publishQueue = new();
         static EventsPublisher()
         {
             Instance = new EventsPublisher();
@@ -36,10 +39,24 @@ namespace CrawfisSoftware.AssetManagement
 
         public void PublishEvent(string eventName, object sender, object data)
         {
-            foreach (IEventsPublisher publisher in _eventsPublishers) { publisher.PublishEvent(eventName, sender, data); }
+            _publishQueue.Enqueue((eventName, sender, data));
+            if (!_publishingAnEvent) 
+            {
+                PublishQueueEvents();
+            }
         }
 
-        // Todo: This will return duplicates if the same event is registered at several layers of the stack. May want to filter.
+        private void PublishQueueEvents()
+        {
+            _publishingAnEvent = true;
+            while (_publishQueue.Count > 0)
+            {
+                (string eventName, object sender, object data) = _publishQueue.Dequeue();
+                foreach (IEventsPublisher publisher in _eventsPublishers) { publisher.PublishEvent(eventName, sender, data); }
+            }
+            _publishingAnEvent = false;
+        }
+
         public void RegisterEvent(string eventName)
         {
             _eventsPublishers.Peek().RegisterEvent(eventName);

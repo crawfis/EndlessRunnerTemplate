@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace CrawfisSoftware.TempleRun
 {
@@ -10,7 +11,7 @@ namespace CrawfisSoftware.TempleRun
     ///    Subscribes: ActiveTrackChanged - adjusts the next valid turn distance.
     ///    Publishes: LeftTurnSucceeded, RightTurnSucceeded
     /// </summary>
-    internal class PlayerController : MonoBehaviour
+    internal class TurnController : MonoBehaviour
     {
         [SerializeField] private DistanceTracker _distanceTracker;
         
@@ -19,7 +20,17 @@ namespace CrawfisSoftware.TempleRun
         float _turnAvailableDistance;
         // Possible Bug: If Direction is changed to a Flag, then _nextTrackDirection needs to be masked. Could be done now just in case.
         private Direction _nextTrackDirection;
+        private readonly Dictionary<Direction,KnownEvents> _turnMapping = new()
+        { 
+            [Direction.Left] = KnownEvents.LeftTurnSucceeded,
+            [Direction.Right] = KnownEvents.RightTurnSucceeded,
+            [Direction.Both] = KnownEvents.RightTurnSucceeded
+        };
 
+        public void ForceTurn()
+        {
+            OnTurnRequested(this, null, _turnMapping[_nextTrackDirection]);
+        }
         private void Awake()
         {
             EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.LeftTurnRequested, OnLeftTurnRequested);
