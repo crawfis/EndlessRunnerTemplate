@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace CrawfisSoftware.TempleRun
@@ -26,8 +25,14 @@ namespace CrawfisSoftware.TempleRun
             _maxSpeed = Blackboard.Instance.GameConfig.MaxSpeed;
             _acceleration = Blackboard.Instance.GameConfig.Acceleration;
             _speed = _initialSpeed;
+            EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.PlayerFailed, OnResetSpeed);
             EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.GameStarted, OnGameStarted);
             EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.GameOver, OnGameOver);
+        }
+
+        private void OnResetSpeed(object arg1, object arg2)
+        {
+            _speed = _initialSpeed;
         }
 
         private void OnGameStarted(object sender, object data)
@@ -59,6 +64,7 @@ namespace CrawfisSoftware.TempleRun
 
         private void OnDestroy()
         {
+            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.PlayerFailed, OnResetSpeed);
             EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.GameStarted, OnGameStarted);
             EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.GameOver, OnGameOver);
             DeleteCoroutine();
