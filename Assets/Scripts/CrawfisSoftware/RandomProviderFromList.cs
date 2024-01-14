@@ -24,7 +24,7 @@ namespace CrawfisSoftware.Unity3D.Utility
                 _seedIndex = -1;
                 seed = _random.Next();
             }
-            else if(_seedIndex == -1)
+            else if (_seedIndex == -1)
             {
                 // Randomly select from list.
                 _seedIndex = _random.Next(0, _fixedSeedList.List.Count);

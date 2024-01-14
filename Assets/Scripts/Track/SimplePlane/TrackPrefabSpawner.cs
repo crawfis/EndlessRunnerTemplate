@@ -29,21 +29,21 @@ namespace CrawfisSoftware.TempleRun
             EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.ActiveTrackChanged, OnTrackChanged);
             EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.LeftTurnSucceeded, OnLeftTurn);
             EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.RightTurnSucceeded, OnRightTurn);
-             var parent = new GameObject("Generated Level");
+            var parent = new GameObject("Generated Level");
             _parentTransform = parent.transform;
         }
 
         private void OnLeftTurn(object sender, object data)
         {
             UpdateRotation(Direction.Left);
-            _directionIndex = (_directionIndex == 0) ? 3 : _directionIndex-1;
+            _directionIndex = (_directionIndex == 0) ? 3 : _directionIndex - 1;
             PreSpawnUpdateAnchorPoint();
         }
 
         private void OnRightTurn(object sender, object data)
         {
             UpdateRotation(Direction.Right);
-            _directionIndex = (_directionIndex+1) % 4;
+            _directionIndex = (_directionIndex + 1) % 4;
             PreSpawnUpdateAnchorPoint();
         }
 

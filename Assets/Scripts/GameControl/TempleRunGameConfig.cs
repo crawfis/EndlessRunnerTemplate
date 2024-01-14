@@ -13,7 +13,7 @@ namespace CrawfisSoftware.TempleRun
         [SerializeField] public float MaxSpeed = 8f;
         [SerializeField] public float Acceleration = 0.2f;
         [SerializeField] public int StartRunway = 10;
-        [SerializeField] public float SafeTurnDistance = 5f; 
+        [SerializeField] public float SafeTurnDistance = 5f;
         [SerializeField, Range(2, 92)] public int MinDistance = 3;
         [SerializeField, Range(2, 92)] public int MaxDistance = 9;
         // At this point, this file should be re-factored into several classes. Leaving it here to make a point.

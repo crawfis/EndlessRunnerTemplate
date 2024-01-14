@@ -40,7 +40,7 @@ namespace CrawfisSoftware.AssetManagement
         public void PublishEvent(string eventName, object sender, object data)
         {
             _publishQueue.Enqueue((eventName, sender, data));
-            if (!_publishingAnEvent) 
+            if (!_publishingAnEvent)
             {
                 PublishQueueEvents();
             }

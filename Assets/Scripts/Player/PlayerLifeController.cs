@@ -23,7 +23,7 @@
         {
             // Todo: Check playerID
             _numberOfLives--;
-            if(_numberOfLives <= 0)
+            if (_numberOfLives <= 0)
             {
                 EventsPublisherTempleRun.Instance.PublishEvent(KnownEvents.PlayerDied, this, _playerID);
             }

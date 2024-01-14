@@ -12,8 +12,8 @@ namespace CrawfisSoftware.TempleRun
     internal class DistanceController : MonoBehaviour
     {
         [SerializeField] private DistanceTracker _distanceTracker;
-        
-        private float _initialSpeed;    
+
+        private float _initialSpeed;
         private float _maxSpeed;
         private float _acceleration;
         private float _speed;
@@ -72,7 +72,7 @@ namespace CrawfisSoftware.TempleRun
 
         private void DeleteCoroutine()
         {
-            if(_coroutine != null) StopCoroutine(_coroutine);
+            if (_coroutine != null) StopCoroutine(_coroutine);
             _coroutine = null;
         }
     }

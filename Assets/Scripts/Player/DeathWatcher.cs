@@ -1,5 +1,4 @@
-﻿using CrawfisSoftware.AssetManagement;
-using System;
+﻿using System;
 using UnityEngine;
 
 namespace CrawfisSoftware.TempleRun

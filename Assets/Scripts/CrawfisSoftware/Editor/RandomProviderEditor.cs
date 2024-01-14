@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.UIElements;
@@ -129,11 +128,11 @@ namespace CrawfisSoftware.Unity3D.Utility
             _generateCheckBox.label = "Auto-generate new seed on play";
             _generateCheckBox.value = _checkBoxProperty.boolValue;
             _generateCheckBox.RegisterCallback<ChangeEvent<bool>>((toggleAutoSeed) =>
-                { 
-                    if (toggleAutoSeed.newValue) HideExplicitSeedPanel(); 
+                {
+                    if (toggleAutoSeed.newValue) HideExplicitSeedPanel();
                     else ShowExplicitSeedPanel();
                     _randomProvider.SetAutoGenerateSeed(toggleAutoSeed.newValue);
-                }, 
+                },
                 TrickleDown.NoTrickleDown);
 
             _root.Add(_generateCheckBox);
