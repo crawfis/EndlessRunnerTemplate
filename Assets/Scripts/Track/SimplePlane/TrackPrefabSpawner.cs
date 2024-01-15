@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace CrawfisSoftware.TempleRun
 {
+    [Obsolete("Use SplineCreator2D and SplinePrefabSpawner instead.")]
     public class TrackPrefabSpawner : MonoBehaviour
     {
         [SerializeField] private float _widthScale = 1.0f;
