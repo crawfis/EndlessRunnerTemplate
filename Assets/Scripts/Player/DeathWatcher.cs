@@ -15,7 +15,6 @@ namespace CrawfisSoftware.TempleRun
     /// <remarks> For local multi-player we may need a player ID. Would be good to include this in the event data.</remarks>
     internal class DeathWatcher : MonoBehaviour
     {
-        [SerializeField] private DistanceTracker _distanceTracker;
 
         private float _currentSegmentDistance = 0f;
         private bool _isRunning = false;
@@ -30,11 +29,12 @@ namespace CrawfisSoftware.TempleRun
 
         private void Update()
         {
-            if (_isRunning && _gameStarted && _distanceTracker.DistanceTravelled >= _currentSegmentDistance)
+            float distance = Blackboard.Instance.DistanceTracker.DistanceTravelled;
+            if (_isRunning && _gameStarted && distance >= _currentSegmentDistance)
             {
                 _isRunning = false;
                 Debug.Log(string.Format("Player Died at Distance: {0}", (int)_currentSegmentDistance));
-                EventsPublisherTempleRun.Instance.PublishEvent(KnownEvents.PlayerFailed, this, _distanceTracker.DistanceTravelled);
+                EventsPublisherTempleRun.Instance.PublishEvent(KnownEvents.PlayerFailed, this, distance);
             }
         }
 

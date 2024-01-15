@@ -11,8 +11,6 @@ namespace CrawfisSoftware.TempleRun
     /// </summary>
     internal class DistanceController : MonoBehaviour
     {
-        [SerializeField] private DistanceTracker _distanceTracker;
-
         private float _initialSpeed;
         private float _maxSpeed;
         private float _acceleration;
@@ -47,6 +45,7 @@ namespace CrawfisSoftware.TempleRun
 
         IEnumerator UpdateAfterGameStart()
         {
+            DistanceTracker _distanceTracker = Blackboard.Instance.DistanceTracker;
             while (true)
             {
                 _distanceTracker.UpdateDistance(_speed * Time.deltaTime);

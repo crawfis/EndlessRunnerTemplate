@@ -9,6 +9,7 @@ namespace CrawfisSoftware.TempleRun
         [SerializeField] private RandomProviderFromList _randomProvider;
         public System.Random MasterRandom { get { return _randomProvider.RandomGenerator; } }
         public TempleRunGameConfig GameConfig { get; set; }
+        internal DistanceTracker DistanceTracker { get; set; }
 
         private void Awake()
         {

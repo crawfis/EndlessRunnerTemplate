@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace CrawfisSoftware.TempleRun.Assets.Scripts.Track.SimplePlane
+namespace CrawfisSoftware.TempleRun
 {
     internal class SplinePrefabSpawner : MonoBehaviour
     {
@@ -14,12 +14,12 @@ namespace CrawfisSoftware.TempleRun.Assets.Scripts.Track.SimplePlane
         private int _trackNumber = 1;
         private void Awake()
         {
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.SplinePointAdded, OnTrackChanged);
+            EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.SplinePointAdded, OnSplineChanged);
             var parent = new GameObject("Generated Level");
             _parentTransform = parent.transform;
         }
 
-        private void OnTrackChanged(object sender, object data)
+        private void OnSplineChanged(object sender, object data)
         {
             var splineCreator = sender as SplineCreator2D;
             if (splineCreator == null || splineCreator.LinearSpline.Count < 2) return;
@@ -29,7 +29,7 @@ namespace CrawfisSoftware.TempleRun.Assets.Scripts.Track.SimplePlane
             Vector3 point2 = splineCreator.LinearSpline[count - 1];
             float zScale = Mathf.Abs(Vector3.Distance(point1, point2));
             Vector3 direction = (point2 - point1).normalized;
-            Vector3 widthOffset = 0.5f * _widthScale * direction;
+            Vector3 widthOffset = -splineCreator.Offset * direction;
 
             // Rotation to look at point 2
             Quaternion rotation = Quaternion.LookRotation(direction); 
@@ -44,7 +44,7 @@ namespace CrawfisSoftware.TempleRun.Assets.Scripts.Track.SimplePlane
 
         private void OnDestroy()
         {
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.SplinePointAdded, OnTrackChanged);
+            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.SplinePointAdded, OnSplineChanged);
         }
     }
 }

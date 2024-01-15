@@ -31,11 +31,11 @@ namespace CrawfisSoftware.TempleRun
             var gameConfig = Blackboard.Instance.GameConfig;
             Initialize(gameConfig.StartRunway, gameConfig.MinDistance,
                 gameConfig.MaxDistance, Blackboard.Instance.MasterRandom);
+            EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.GameStarted, OnGameStarted);
         }
 
-        public void Start()
+        public void OnGameStarted(object sender, object data)
         {
-            // Todo: Remove Start and make CreateInitialTrack public
             CreateInitialTrack();
         }
 

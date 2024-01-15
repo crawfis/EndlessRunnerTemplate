@@ -10,7 +10,6 @@ namespace CrawfisSoftware.TempleRun
     internal class GUIController : MonoBehaviour
     {
         [SerializeField] private UIDocument _uiDocument;
-        [SerializeField] private DistanceTracker _distanceTracker;
 
         private float _trackDistance;
 
@@ -30,9 +29,10 @@ namespace CrawfisSoftware.TempleRun
 
         private void Update()
         {
-            int displayDistance = (int)(_distanceTracker.DistanceTravelled + 0.5f);
+            float distance = Blackboard.Instance.DistanceTracker.DistanceTravelled;
+            int displayDistance = (int)(distance + 0.5f);
             _totalDistanceLabel.text = displayDistance.ToString() + "m";
-            int _distanceUntilDeath = (int)(_trackDistance - _distanceTracker.DistanceTravelled);
+            int _distanceUntilDeath = (int)(_trackDistance - distance);
 
             _leftDeathDistanceLabel.text = (_nextTrackDirection == Direction.Right) ? "" : _distanceUntilDeath.ToString();
             _rightDeathDistanceLabel.text = (_nextTrackDirection == Direction.Left) ? "" : _distanceUntilDeath.ToString();

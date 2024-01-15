@@ -87,5 +87,12 @@ namespace CrawfisSoftware.TempleRun
                     throw new InvalidOperationException();
             }
         }
+
+        private void OnDestroy()
+        {
+            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.ActiveTrackChanged, OnTrackChanged);
+            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.LeftTurnSucceeded, OnLeftTurn);
+            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.RightTurnSucceeded, OnRightTurn);
+        }
     }
 }

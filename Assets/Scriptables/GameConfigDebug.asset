@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bd9900aa909520c4bbb091a46bccb200, type: 3}
-  m_Name: GameConfigInsane
+  m_Name: GameConfigDebug
   m_EditorClassIdentifier: 
-  InitialSpeed: 8
-  MaxSpeed: 40
-  Acceleration: 0.4
+  InitialSpeed: 5
+  MaxSpeed: 100
+  Acceleration: 2
   StartRunway: 10
-  SafeTurnDistance: 2
-  MinDistance: 10
-  MaxDistance: 22
-  InputCoolDownForTurns: 3
+  SafeTurnDistance: 9
+  MinDistance: 9
+  MaxDistance: 11
+  InputCoolDownForTurns: 0
   NumberOfLives: 2147483647
