@@ -19,10 +19,5 @@ namespace CrawfisSoftware.TempleRun
             var (_, segmentDistance) = ((Direction direction, float segmentDistance))data;
             _materialToScale.mainTextureScale = new Vector2(1, segmentDistance);
         }
-
-        private void OnDestroy()
-        {
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.ActiveTrackChanged, OnActiveTrack);
-        }
     }
 }

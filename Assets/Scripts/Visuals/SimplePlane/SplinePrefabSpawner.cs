@@ -8,6 +8,7 @@ namespace CrawfisSoftware.TempleRun
         [SerializeField] private float _heightScale = 1.0f;
         [Tooltip("The prefab should have it's origin at the bottom-center with positive z-axis being the forward direction.")]
         [SerializeField] private GameObject _prefab;
+        [SerializeField] private float _debugDestroyDelayTime = 4f;
 
         private Transform _parentTransform;
         private GameObject _currentTrack;
@@ -21,6 +22,7 @@ namespace CrawfisSoftware.TempleRun
 
         private void OnSplineChanged(object sender, object data)
         {
+            GameObject.Destroy(_currentTrack, _debugDestroyDelayTime);
             var splineCreator = sender as SplineCreator2D;
             if (splineCreator == null || splineCreator.LinearSpline.Count < 2) return;
             // Create prefab from the last two points.

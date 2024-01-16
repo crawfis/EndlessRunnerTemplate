@@ -1005,6 +1005,7 @@ MonoBehaviour:
   _widthScale: 1
   _heightScale: 1
   _prefab: {fileID: 8852823418534297949, guid: bdc402e5612434a41ac842660d328149, type: 3}
+  _debugDestroyDelayTime: 0
 --- !u!1001 &1856391550
 PrefabInstance:
   m_ObjectHideFlags: 0
