@@ -8,7 +8,6 @@ namespace CrawfisSoftware.AssetManagement
         public static IEventsPublisher Instance { get; private set; }
 
         private bool _publishingAnEvent = false;
-        private Queue<(string eventName, object sender, object data)> _publishQueue = new();
         static EventsPublisher()
         {
             Instance = new EventsPublisher();
@@ -39,22 +38,7 @@ namespace CrawfisSoftware.AssetManagement
 
         public void PublishEvent(string eventName, object sender, object data)
         {
-            _publishQueue.Enqueue((eventName, sender, data));
-            if (!_publishingAnEvent)
-            {
-                PublishQueueEvents();
-            }
-        }
-
-        private void PublishQueueEvents()
-        {
-            //_publishingAnEvent = true;
-            while (_publishQueue.Count > 0)
-            {
-                (string eventName, object sender, object data) = _publishQueue.Dequeue();
-                foreach (IEventsPublisher publisher in _eventsPublishers) { publisher.PublishEvent(eventName, sender, data); }
-            }
-            _publishingAnEvent = false;
+            foreach (IEventsPublisher publisher in _eventsPublishers) { publisher.PublishEvent(eventName, sender, data); }
         }
 
         public void RegisterEvent(string eventName)
