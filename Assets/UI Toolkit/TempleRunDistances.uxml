@@ -3,7 +3,7 @@
     <ui:VisualElement style="flex-grow: 1;">
         <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="_totalDistanceLabel" />
     </ui:VisualElement>
-    <ui:VisualElement name="_leftRightPanel" style="flex-grow: 1; flex-direction: row;">
+    <ui:VisualElement name="_leftRightPanel" style="flex-grow: 1; flex-direction: row; visibility: hidden;">
         <ui:VisualElement style="flex-grow: 1; max-height: initial;">
             <ui:Label tabindex="-1" text="Distance Until Death" parse-escape-sequences="true" display-tooltip-when-elided="true" name="LeftLabel" class="DeathLabel" style="flex-shrink: 1; font-size: 16px;" />
             <ui:Label tabindex="-1" text="0 m" parse-escape-sequences="true" display-tooltip-when-elided="true" name="_leftDeathDistance" style="flex-shrink: 1;" />
@@ -13,5 +13,5 @@
             <ui:Label tabindex="-1" text="0 m" parse-escape-sequences="true" display-tooltip-when-elided="true" name="_rightDeathDistance" style="flex-shrink: 1;" />
         </ui:VisualElement>
     </ui:VisualElement>
-    <ui:Label tabindex="-1" text="Go left or right before distance reaches zero, but only after it falls below target threshold." parse-escape-sequences="true" display-tooltip-when-elided="true" name="Instructions" class="InstructionsLabel" style="flex-shrink: 1;" />
+    <ui:Label tabindex="-1" text="Go left or right before distance reaches zero, but only after it falls below target threshold." parse-escape-sequences="true" display-tooltip-when-elided="true" name="Instructions" class="InstructionsLabel" style="flex-shrink: 1; visibility: hidden;" />
 </ui:UXML>
