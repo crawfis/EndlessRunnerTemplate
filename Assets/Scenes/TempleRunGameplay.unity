@@ -323,7 +323,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _turnController: {fileID: 1587033301}
-  _turnDistance: 0.1
+  _turnDistance: 0.6
 --- !u!1 &874220656
 GameObject:
   m_ObjectHideFlags: 0

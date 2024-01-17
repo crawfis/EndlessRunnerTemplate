@@ -48,7 +48,7 @@ namespace CrawfisSoftware.AssetManagement
 
         private void PublishQueueEvents()
         {
-            _publishingAnEvent = true;
+            //_publishingAnEvent = true;
             while (_publishQueue.Count > 0)
             {
                 (string eventName, object sender, object data) = _publishQueue.Dequeue();

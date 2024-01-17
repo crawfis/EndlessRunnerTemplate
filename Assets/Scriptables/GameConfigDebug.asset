@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd9900aa909520c4bbb091a46bccb200, type: 3}
   m_Name: GameConfigDebug
   m_EditorClassIdentifier: 
-  InitialSpeed: 5
-  MaxSpeed: 100
+  InitialSpeed: 1
+  MaxSpeed: 1
   Acceleration: 2
-  StartRunway: 10
+  StartRunway: 4
   SafeTurnDistance: 9
   MinDistance: 9
   MaxDistance: 11

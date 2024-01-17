@@ -8,6 +8,7 @@ namespace CrawfisSoftware.AssetManagement
         // Define the events that occur in the game
         private readonly Dictionary<string, Action<object, object>> events = new Dictionary<string, Action<object, object>>();
         private readonly List<Action<string, object, object>> allSubscribers = new List<Action<string, object, object>>();
+        private Queue<(string eventName, Delegate callback, object sender, object data)> _callbackQueue = new();
 
         public void RegisterEvent(string eventName)
         {
@@ -46,17 +47,42 @@ namespace CrawfisSoftware.AssetManagement
                 //eventDelegate(sender, data);
                 var callbacks = eventDelegate.GetInvocationList();
                 foreach (var callback in callbacks)
+                    _callbackQueue.Enqueue((string.Empty, callback, sender, data));
+                //    try
+                //    {
+                //        callback.DynamicInvoke(sender, data);
+                //    }
+                //    catch (Exception e)
+                //    {
+                //        UnityEngine.Debug.LogError($"Exception publishing {eventName}: {callback.Target} {e.InnerException.Message} {e.InnerException.StackTrace} {e.InnerException.Source}");
+                //    }
+            }
+            foreach (var handler in allSubscribers)
+                _callbackQueue.Enqueue((eventName, handler, sender, data));
+                //handler(eventName, sender, data);
+
+            while(_callbackQueue.Count > 0)
+            {
+                var message = _callbackQueue.Dequeue();
+                eventName = message.eventName;
+                var callback = message.callback;
+                sender = message.sender;
+                data = message.data;
+                //foreach (var callback in callbacks)
+                {
                     try
                     {
-                        callback.DynamicInvoke(sender, data);
+                        if(string.IsNullOrEmpty(eventName))
+                            callback.DynamicInvoke(message.sender, message.data);
+                        else
+                            callback.DynamicInvoke(eventName, message.sender, message.data);
                     }
                     catch (Exception e)
                     {
-                        UnityEngine.Debug.LogError($"Exception publishing {eventName}: {callback.Target} {e.InnerException.Message} {e.InnerException.StackTrace} {e.InnerException.Source}");
+                        UnityEngine.Debug.LogError($"Exception publishing {message.eventName}: {callback.Target} {e.InnerException.Message} {e.InnerException.StackTrace} {e.InnerException.Source}");
                     }
+                }
             }
-            foreach (var handler in allSubscribers)
-                handler(eventName, sender, data);
         }
 
         public IEnumerable<string> GetRegisteredEvents()

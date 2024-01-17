@@ -11,15 +11,15 @@ namespace CrawfisSoftware.TempleRun
     ///    Subscribes to the Turn Succeeded events (LeftTurnSucceeded, RightTurnSucceeded)
     ///    Publishes an event each time it provides a new track. Data is a tuple (Direction, distance)
     /// </summary>
-    /// <remarks> Obstacle and gap distances should be in a separate class(es)
+    /// <remarks> Obstacle and gap distances should be in a separate class(es).
     /// Random distances (_random) could be replaced with a list of possible distances, but a better / cleaner solution would
     /// be to have another class subscribe to the event, massage the data and publish a new event. This may be needed
     /// for example to map the distance to a number of tiles.</remarks>
     public class TrackManager : TrackManagerAbstract
     {
         // Todo: Remove MonoBehaviour
-        const int TrackLength = 5;
-        private readonly Queue<float> _trackSegments = new(TrackLength);
+        const int TrackLength = 3;
+        private readonly Queue<(Direction direction,float distance)> _trackSegments = new(TrackLength);
         private float _startDistance = 10f;
         private float _minDistance = 3;
         private float _maxDistance = 9;
@@ -49,7 +49,7 @@ namespace CrawfisSoftware.TempleRun
         {
             _ = _trackSegments.Dequeue();
             AddTrackSegment();
-            EventsPublisherTempleRun.Instance.PublishEvent(KnownEvents.ActiveTrackChanged, this, (GetNewDirection(), _trackSegments.Peek()));
+            EventsPublisherTempleRun.Instance.PublishEvent(KnownEvents.ActiveTrackChanged, this, _trackSegments.Peek());
         }
 
         private void Initialize(float startDistance, float minDistance, float maxDistance, System.Random random)
@@ -65,12 +65,14 @@ namespace CrawfisSoftware.TempleRun
         private void CreateInitialTrack()
         {
             _maxDistance = Mathf.Max(_minDistance, _maxDistance);
-            _trackSegments.Enqueue(_startDistance);
+            var newTrackSegment = (GetNewDirection(), _startDistance);
+            _trackSegments.Enqueue(newTrackSegment);
+            EventsPublisherTempleRun.Instance.PublishEvent(KnownEvents.TrackSegmentCreated, this, newTrackSegment);
             for (int i = 1; i < TrackLength; i++)
             {
                 AddTrackSegment();
             }
-            EventsPublisherTempleRun.Instance.PublishEvent(KnownEvents.ActiveTrackChanged, this, (Direction.Right, _trackSegments.Peek()));
+            EventsPublisherTempleRun.Instance.PublishEvent(KnownEvents.ActiveTrackChanged, this, _trackSegments.Peek());
         }
 
         private void OnTurnSucceeded(object sender, object data)
@@ -81,7 +83,9 @@ namespace CrawfisSoftware.TempleRun
         private void AddTrackSegment()
         {
             float segmentLength = (float)_random.NextDouble() * (_maxDistance - _minDistance) + _minDistance;
-            _trackSegments.Enqueue(segmentLength);
+            var newTrackSegment = (GetNewDirection(), segmentLength);
+            _trackSegments.Enqueue(newTrackSegment);
+            EventsPublisherTempleRun.Instance.PublishEvent(KnownEvents.TrackSegmentCreated, this, newTrackSegment);
         }
 
         private Direction GetNewDirection()
@@ -91,7 +95,7 @@ namespace CrawfisSoftware.TempleRun
             {
                 < 0.4f => Direction.Left,
                 < 0.8f => Direction.Right,
-                _ => Direction.Both,
+                _ => Direction.Left,
             };
         }
     }
