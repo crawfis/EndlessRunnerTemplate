@@ -18,14 +18,14 @@ namespace CrawfisSoftware.TempleRun
     public class TrackManager : TrackManagerAbstract
     {
         // Todo: Remove MonoBehaviour
-        const int TrackLength = 3;
-        private readonly Queue<(Direction direction,float distance)> _trackSegments = new(TrackLength);
-        private float _startDistance = 10f;
-        private float _minDistance = 3;
-        private float _maxDistance = 9;
-        private System.Random _random;
+        protected const int TrackLength = 12;
+        protected readonly Queue<(Direction direction,float distance)> _trackSegments = new(TrackLength);
+        protected float _startDistance = 10f;
+        protected float _minDistance = 3;
+        protected float _maxDistance = 9;
+        protected System.Random _random;
 
-        private void Awake()
+        protected virtual void Awake()
         {
             // Todo: Remove Awake and move to a constructor w/o the Blackboard.
             var gameConfig = Blackboard.Instance.GameConfig;
@@ -34,12 +34,12 @@ namespace CrawfisSoftware.TempleRun
             EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.GameStarted, OnGameStarted);
         }
 
-        public void OnGameStarted(object sender, object data)
+        protected virtual void OnGameStarted(object sender, object data)
         {
             CreateInitialTrack();
         }
 
-        public void OnDestroy()
+        protected virtual void OnDestroy()
         {
             EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.LeftTurnSucceeded, OnTurnSucceeded);
             EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.RightTurnSucceeded, OnTurnSucceeded);
@@ -52,7 +52,7 @@ namespace CrawfisSoftware.TempleRun
             EventsPublisherTempleRun.Instance.PublishEvent(KnownEvents.ActiveTrackChanged, this, _trackSegments.Peek());
         }
 
-        private void Initialize(float startDistance, float minDistance, float maxDistance, System.Random random)
+        protected virtual void Initialize(float startDistance, float minDistance, float maxDistance, System.Random random)
         {
             _startDistance = startDistance;
             _minDistance = minDistance;
@@ -62,7 +62,7 @@ namespace CrawfisSoftware.TempleRun
             EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.RightTurnSucceeded, OnTurnSucceeded);
         }
 
-        private void CreateInitialTrack()
+        protected virtual void CreateInitialTrack()
         {
             _maxDistance = Mathf.Max(_minDistance, _maxDistance);
             var newTrackSegment = (GetNewDirection(), _startDistance);
@@ -75,20 +75,25 @@ namespace CrawfisSoftware.TempleRun
             EventsPublisherTempleRun.Instance.PublishEvent(KnownEvents.ActiveTrackChanged, this, _trackSegments.Peek());
         }
 
-        private void OnTurnSucceeded(object sender, object data)
+        protected virtual void OnTurnSucceeded(object sender, object data)
         {
             AdvanceToNextSegment();
         }
 
-        private void AddTrackSegment()
+        protected virtual void AddTrackSegment()
         {
-            float segmentLength = (float)_random.NextDouble() * (_maxDistance - _minDistance) + _minDistance;
+            float segmentLength = GetNewSegmentLength();
             var newTrackSegment = (GetNewDirection(), segmentLength);
             _trackSegments.Enqueue(newTrackSegment);
             EventsPublisherTempleRun.Instance.PublishEvent(KnownEvents.TrackSegmentCreated, this, newTrackSegment);
         }
 
-        private Direction GetNewDirection()
+        protected virtual float GetNewSegmentLength()
+        {
+            return (float)_random.NextDouble() * (_maxDistance - _minDistance) + _minDistance;
+        }
+
+        protected virtual Direction GetNewDirection()
         {
             float randomValue = (float)_random.NextDouble();
             return randomValue switch

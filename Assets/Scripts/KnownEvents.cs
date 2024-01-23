@@ -4,12 +4,10 @@
     {
         LeftTurnRequested, LeftTurnSucceeded,
         RightTurnRequested, RightTurnSucceeded,
-        ActiveTrackChanged,
         PlayerFailed, PlayerDied,
         GameStarted, GameOver, Pause, Resume,
         CountdownStarted, CountdownTick,
-        SplinePointAdded,
-        TrackSegmentCreated,
-        CurrentSplineChanged
+        SplineSegmentCreated, CurrentSplineChanged,
+        ActiveTrackChanged, TrackSegmentCreated
     };
 }

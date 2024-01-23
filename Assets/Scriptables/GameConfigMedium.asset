@@ -13,10 +13,11 @@ MonoBehaviour:
   m_Name: GameConfigMedium
   m_EditorClassIdentifier: 
   InitialSpeed: 5
-  MaxSpeed: 10
-  Acceleration: 0.2
+  MaxSpeed: 40
+  Acceleration: 0.5
   StartRunway: 10
   SafeTurnDistance: 4
   MinDistance: 7
   MaxDistance: 14
   InputCoolDownForTurns: 1
+  NumberOfLives: 21474

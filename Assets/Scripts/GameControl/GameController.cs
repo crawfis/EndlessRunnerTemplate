@@ -26,17 +26,15 @@ namespace CrawfisSoftware.TempleRun
 
         private void Start()
         {
-            //_playerLifeController = new PlayerLifeController(int.MaxValue, 0);
-            _playerLifeController = new PlayerLifeController(3, 0);
             _ = StartCoroutine(StartGame());
         }
 
         private IEnumerator StartGame()
         {
-            //Time.timeScale = 0.0f;
+            yield return null;
+            _playerLifeController = new PlayerLifeController(Blackboard.Instance.GameConfig.NumberOfLives, 0);
             yield return new WaitForSecondsRealtime(GameConstants.StartDelay);
             EventsPublisherTempleRun.Instance.PublishEvent(KnownEvents.GameStarted, this, null);
-            //Time.timeScale = 1.0f;
         }
 
         private void OnPlayerDied(object sender, object data)

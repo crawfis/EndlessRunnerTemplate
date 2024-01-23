@@ -35,6 +35,8 @@ namespace CrawfisSoftware.TempleRun
 
         private void OnGameStarted(object sender, object data)
         {
+            float initialDistance = Blackboard.Instance.TrackWidthOffset;
+            //Blackboard.Instance.DistanceTracker.UpdateDistance(initialDistance);
             _coroutine = StartCoroutine(UpdateAfterGameStart());
         }
 

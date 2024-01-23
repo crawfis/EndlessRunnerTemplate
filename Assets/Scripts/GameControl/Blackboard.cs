@@ -5,11 +5,12 @@ namespace CrawfisSoftware.TempleRun
 {
     public class Blackboard : MonoBehaviour
     {
-        public static Blackboard Instance { get; private set; }
         [SerializeField] private RandomProviderFromList _randomProvider;
+        public static Blackboard Instance { get; private set; }
         public System.Random MasterRandom { get { return _randomProvider.RandomGenerator; } }
         public TempleRunGameConfig GameConfig { get; set; }
         internal DistanceTracker DistanceTracker { get; set; }
+        public float TrackWidthOffset { get; set; } = 1f;
 
         private void Awake()
         {

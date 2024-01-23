@@ -208,7 +208,7 @@ Transform:
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
   m_LocalRotation: {x: 0.28188184, y: -0, z: -0, w: 0.9594492}
-  m_LocalPosition: {x: 0, y: 3, z: -3.5}
+  m_LocalPosition: {x: 0, y: 4, z: -3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -441,6 +441,7 @@ Transform:
   m_Children:
   - {fileID: 2123936081}
   - {fileID: 1634100394}
+  - {fileID: 756380250}
   - {fileID: 1856391551}
   - {fileID: 1283783015}
   m_Father: {fileID: 0}
@@ -696,6 +697,55 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 601301084}
   m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &756380249
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 756380250}
+  - component: {fileID: 756380251}
+  m_Layer: 0
+  m_Name: VoxelSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &756380250
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 756380249}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 494007424}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &756380251
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 756380249}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10acbc3e6100f004890f6cfae8e8cba8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _widthScale: 1
+  _heightScale: 1
+  _prefab: {fileID: 2515103981258710022, guid: 97a73f865fb73a448b1d263f971398b8, type: 3}
+  _maxTrackSegments: 3
+  _debugDestroyDelayTime: 4
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
@@ -771,7 +821,7 @@ Transform:
   m_GameObject: {fileID: 961756920}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -0.5}
+  m_LocalPosition: {x: 0, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -791,7 +841,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _objectToMove: {fileID: 961756921}
-  _widthScale: 1
 --- !u!1 &1071799295
 GameObject:
   m_ObjectHideFlags: 0
@@ -910,6 +959,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _widthScale: 1
   _heightScale: 1
+  _anchorPoint: {x: 0, y: 0, z: 0}
 --- !u!1 &1439617503
 GameObject:
   m_ObjectHideFlags: 3
@@ -1014,7 +1064,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1634100394}
-  - component: {fileID: 1634100395}
   - component: {fileID: 1634100396}
   m_Layer: 0
   m_Name: TrackSpawner
@@ -1022,7 +1071,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1634100394
 Transform:
   m_ObjectHideFlags: 0
@@ -1038,21 +1087,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 494007424}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1634100395
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1634100393}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dc0958132cf17f94ea0cd00ee2d2995a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _widthScale: 1
-  _heightScale: 1
-  _prefab: {fileID: 8852823418534297949, guid: bdc402e5612434a41ac842660d328149, type: 3}
 --- !u!114 &1634100396
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1065,11 +1099,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e8e4c030fab3594697223f7c12f9ddd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _widthScale: 1
-  _heightScale: 1
   _prefab: {fileID: 8852823418534297949, guid: bdc402e5612434a41ac842660d328149, type: 3}
-  _maxTrackSegments: 3
-  _debugDestroyDelayTime: 0.1
+  _maxTrackSegments: 8
+  _debugDestroyDelayTime: 134
 --- !u!1001 &1856391550
 PrefabInstance:
   m_ObjectHideFlags: 0
