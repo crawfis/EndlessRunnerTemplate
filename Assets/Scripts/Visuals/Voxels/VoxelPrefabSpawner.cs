@@ -15,13 +15,15 @@ namespace CrawfisSoftware.TempleRun
         [SerializeField] private float _debugDestroyDelayTime = 4f;
 
         private Transform _parentTransform;
-        private readonly Queue<GameObject> _spawnedTracks = new();
+        private readonly Dictionary<(Vector3 point1, Vector3 point2, Direction turnDirection), GameObject> _spawnedTracks = new();
         private GameObject _currentTrack;
         private int _trackNumber = 1;
+        private GameObject _lastTrackSegment = null;
 
         private void Awake()
         {
             EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.SplineSegmentCreated, OnSplineChanged);
+            EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.CurrentSplineChanged, OnActiveSplineChanged);
             var parent = new GameObject("Generated Level");
             _parentTransform = parent.transform;
         }
@@ -37,7 +39,7 @@ namespace CrawfisSoftware.TempleRun
             // Rotation to look at point 2
             Quaternion rotation = Quaternion.LookRotation(direction);
             var track = new GameObject(string.Format("Track {0:D2}-{0:D2}", _trackNumber));
-            _spawnedTracks.Enqueue(track);
+            _spawnedTracks.Add((point1, point2, turnDirection), track);
             Transform trackTransform = track.transform;
             trackTransform.parent = _parentTransform;
             trackTransform.SetLocalPositionAndRotation(point1, rotation);
@@ -51,7 +53,14 @@ namespace CrawfisSoftware.TempleRun
 
         private void OnActiveSplineChanged(object sender, object data)
         {
-            // Delete some old voxels.
+            if(_lastTrackSegment != null) Destroy(_lastTrackSegment, _debugDestroyDelayTime);
+            (Vector3 point1, Vector3 point2, Direction turnDirection) = ((Vector3, Vector3, Direction))data;
+            if (_spawnedTracks.TryGetValue((point1, point2, turnDirection), out var track))
+            {
+                _lastTrackSegment = track;
+            }
+            else
+            { _lastTrackSegment = null; }
         }
         private void OnDestroy()
         {
