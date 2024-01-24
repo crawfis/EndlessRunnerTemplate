@@ -12,28 +12,14 @@ namespace CrawfisSoftware.TempleRun
             return Mathf.FloorToInt(length+0.5f);
         }
 
-        // A different Direction strategy just for grins.
+        // A different Direction strategy just to show flexibility
+        // We simply alternate between turning left and turning right.
         protected override Direction GetNewDirection()
         {
-            //float randomValue = (float)_random.NextDouble();
-            //return randomValue switch
-            //{
-            //    < 0.4f => Direction.Left,
-            //    < 0.8f => Direction.Right,
-            //    _ => Direction.Left,
-            //};
-            Direction newDirection = Direction.Both;
-            switch (_lastDirection)
+            Direction newDirection = Direction.Right;
+            if (_lastDirection == Direction.Right)
             {
-                case Direction.Left:
-                    newDirection = Direction.Right;
-                    break;
-                case Direction.Right:
-                    newDirection = Direction.Left;
-                    break;
-                default:
-                    newDirection = Direction.Both;
-                    break;
+                newDirection = Direction.Left;
             }
             _lastDirection = newDirection;
             return newDirection;
