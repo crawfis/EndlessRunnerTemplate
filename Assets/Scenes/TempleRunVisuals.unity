@@ -741,9 +741,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 10acbc3e6100f004890f6cfae8e8cba8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _widthScale: 1
-  _heightScale: 1
-  _prefab: {fileID: 2515103981258710022, guid: 97a73f865fb73a448b1d263f971398b8, type: 3}
+  _widthScale: 2
+  _heightScale: 4
+  _prefab: {fileID: 2515103981258710022, guid: 35233d84e3420b64295fc145b9d6c0e8, type: 3}
   _maxTrackSegments: 3
   _debugDestroyDelayTime: 4
 --- !u!1 &832575517
@@ -957,8 +957,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7937fcdc7c6adc54bbb2893fee7a2b3d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _widthScale: 1
-  _heightScale: 1
+  _widthScale: 2
   _anchorPoint: {x: 0, y: 0, z: 0}
 --- !u!1 &1439617503
 GameObject:

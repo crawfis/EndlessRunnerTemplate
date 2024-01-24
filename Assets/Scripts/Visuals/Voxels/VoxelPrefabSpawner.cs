@@ -32,7 +32,7 @@ namespace CrawfisSoftware.TempleRun
             // Create prefab from the last two points.
             (Vector3 point1, Vector3 point2, Direction turnDirection) = ((Vector3, Vector3, Direction))data;
             Vector3 direction = (point2 - point1);
-            int numberOfVoxels = Mathf.FloorToInt(direction.magnitude + 0.2f);
+            int numberOfVoxels = Mathf.FloorToInt(direction.magnitude / _heightScale + 0.2f);
             direction = Vector3.Normalize(direction);
             // Rotation to look at point 2
             Quaternion rotation = Quaternion.LookRotation(direction);
@@ -44,7 +44,7 @@ namespace CrawfisSoftware.TempleRun
             for (int i = 0; i < numberOfVoxels; i++)
             {
                 var trackSegment = Instantiate<GameObject>(_prefab, trackTransform);
-                trackSegment.transform.localPosition = new Vector3(0, 0, _widthScale * i);
+                trackSegment.transform.localPosition = new Vector3(0, 0, _heightScale * i);
             }
             _trackNumber++;
         }

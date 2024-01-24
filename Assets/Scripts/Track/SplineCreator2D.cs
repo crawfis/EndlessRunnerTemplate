@@ -7,7 +7,6 @@ namespace CrawfisSoftware.TempleRun
     public class SplineCreator2D : MonoBehaviour
     {
         [SerializeField] private float _widthScale = 1.0f;
-        [SerializeField] private float _heightScale = 1.0f;
         [SerializeField] private Vector3 _anchorPoint = Vector3.zero;
 
         public List<(Vector3 point1, Vector3 point2, Direction endDirection)> Splines { get; private set; } = new();
@@ -51,7 +50,7 @@ namespace CrawfisSoftware.TempleRun
 
         private void CreateSplineSegment(float distance, Direction direction)
         {
-            var point1 = _anchorPoint + (_heightScale * distance) * _directionAxes[_directionIndex];
+            var point1 = _anchorPoint + distance * _directionAxes[_directionIndex];
             Splines.Add((_anchorPoint, point1, direction));
             EventsPublisherTempleRun.Instance.PublishEvent(KnownEvents.SplineSegmentCreated, this, Splines[^1]);
             _totalDistance += Vector3.Distance(point1, _point0);

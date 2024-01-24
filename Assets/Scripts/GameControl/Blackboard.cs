@@ -11,6 +11,7 @@ namespace CrawfisSoftware.TempleRun
         public TempleRunGameConfig GameConfig { get; set; }
         internal DistanceTracker DistanceTracker { get; set; }
         public float TrackWidthOffset { get; set; } = 1f;
+        public float TileLength { get; set; } = 4f;
 
         private void Awake()
         {

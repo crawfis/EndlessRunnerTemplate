@@ -15,7 +15,7 @@ MonoBehaviour:
   InitialSpeed: 5
   MaxSpeed: 40
   Acceleration: 0.5
-  StartRunway: 10
+  StartRunway: 8
   SafeTurnDistance: 4
   MinDistance: 7
   MaxDistance: 14

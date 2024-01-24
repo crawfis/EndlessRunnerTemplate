@@ -9,7 +9,7 @@ namespace CrawfisSoftware.TempleRun
         protected override float GetNewSegmentLength()
         {
             float length = base.GetNewSegmentLength();
-            return Mathf.FloorToInt(length+0.5f);
+            return Blackboard.Instance.TileLength * Mathf.FloorToInt((length + 0.5f) / Blackboard.Instance.TileLength);
         }
 
         // A different Direction strategy just to show flexibility
