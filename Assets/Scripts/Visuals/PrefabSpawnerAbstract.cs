@@ -8,6 +8,7 @@ namespace CrawfisSoftware.TempleRun
         [Tooltip("The prefab should have it's origin at the bottom-center with positive z-axis being the forward direction.")]
         [SerializeField] protected GameObject _prefab;
         [SerializeField] protected float _widthScale = 1;
+        [SerializeField] protected float _heightScale = 1.0f;
         [Tooltip("Delete any older track segments keeping at most this number of prefabs.")]
         [SerializeField] protected float _debugDestroyDelayTime = 4f;
 
