@@ -7,7 +7,8 @@
         PlayerFailed, PlayerDied,
         GameStarted, GameOver, Pause, Resume,
         CountdownStarted, CountdownTick,
-        SplineSegmentCreated, CurrentSplineChanged,
-        ActiveTrackChanged, TrackSegmentCreated
+        SplineSegmentCreated, CurrentSplineChanging, CurrentSplineChanged,
+        ActiveTrackChanging, ActiveTrackChanged, TrackSegmentCreated,
+        TeleportStarted, TeleportEnded
     };
 }

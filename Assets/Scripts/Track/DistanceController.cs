@@ -16,6 +16,7 @@ namespace CrawfisSoftware.TempleRun
         private float _acceleration;
         private float _speed;
         private Coroutine _coroutine;
+        private bool _isMoving = true;
 
         private void Awake()
         {
@@ -26,6 +27,8 @@ namespace CrawfisSoftware.TempleRun
             EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.PlayerFailed, OnResetSpeed);
             EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.GameStarted, OnGameStarted);
             EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.GameOver, OnGameOver);
+            EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.TeleportStarted, OnTeleportStarted);
+            EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.TeleportEnded, OnTeleportEnded);
         }
 
         private void OnResetSpeed(object arg1, object arg2)
@@ -45,14 +48,27 @@ namespace CrawfisSoftware.TempleRun
             DeleteCoroutine();
         }
 
+        private void OnTeleportStarted(object sender, object data)
+        {
+            _isMoving = false;
+        }
+
+        private void OnTeleportEnded(object sender, object data)
+        {
+            _isMoving = true;
+        }
+
         IEnumerator UpdateAfterGameStart()
         {
             DistanceTracker _distanceTracker = Blackboard.Instance.DistanceTracker;
             while (true)
             {
-                _distanceTracker.UpdateDistance(_speed * Time.deltaTime);
-                _speed += _acceleration * Time.deltaTime;
-                _speed = Mathf.Clamp(_speed, _initialSpeed, _maxSpeed);
+                if (_isMoving)
+                {
+                    _distanceTracker.UpdateDistance(_speed * Time.deltaTime);
+                    _speed += _acceleration * Time.deltaTime;
+                    _speed = Mathf.Clamp(_speed, _initialSpeed, _maxSpeed);
+                }
                 yield return new WaitForEndOfFrame();
             }
         }
@@ -68,6 +84,8 @@ namespace CrawfisSoftware.TempleRun
             EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.PlayerFailed, OnResetSpeed);
             EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.GameStarted, OnGameStarted);
             EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.GameOver, OnGameOver);
+            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.TeleportStarted, OnTeleportStarted);
+            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.TeleportEnded, OnTeleportEnded);
             DeleteCoroutine();
         }
 

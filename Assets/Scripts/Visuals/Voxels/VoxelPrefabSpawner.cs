@@ -1,71 +1,76 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace CrawfisSoftware.TempleRun
 {
-    public class VoxelPrefabSpawner : MonoBehaviour
+    public class VoxelPrefabSpawner : PrefabSpawnerAbstract
     {
-        [SerializeField] private float _widthScale = 1.0f;
-        [SerializeField] private float _heightScale = 1.0f;
-        [Tooltip("The prefab should have it's origin at the bottom-center with positive z-axis being the forward direction.")]
-        [SerializeField] private GameObject _prefab;
-        [Tooltip("Delete any older track segments keeping at most this number of prefabs.")]
-        [SerializeField] private int _maxTrackSegments = 3;
-        [SerializeField] private float _debugDestroyDelayTime = 4f;
+        //[Tooltip("The prefab should have it's origin at the bottom-center with positive z-axis being the forward direction.")]
+        //[SerializeField] protected GameObject _prefab;
+        //[SerializeField] protected float _widthScale = 1.0f;
+        [SerializeField] protected float _heightScale = 1.0f;
+        //[Tooltip("Delete any older track segments keeping at most this number of prefabs.")]
+        //[SerializeField] private float _debugDestroyDelayTime = 4f;
 
-        private Transform _parentTransform;
-        private readonly Dictionary<(Vector3 point1, Vector3 point2, Direction turnDirection), GameObject> _spawnedTracks = new();
-        private GameObject _currentTrack;
-        private int _trackNumber = 1;
-        private GameObject _lastTrackSegment = null;
+        //private Transform _parentTransform;
+        //private readonly Dictionary<int, GameObject> _spawnedTracks = new();
+        //private int _currentTrackID = -1;
+        //private int _trackNumber = 0;
 
-        private void Awake()
+        //private void Awake()
+        //{
+        //    SubscribeToEvents();
+        //}
+
+        //private void SubscribeToEvents()
+        //{
+        //    EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.SplineSegmentCreated, OnSplineCreated);
+        //    EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.TeleportEnded, OnActiveSplineChanged);
+        //    var parent = new GameObject("Generated Level");
+        //    _parentTransform = parent.transform;
+        //}
+
+        //private void OnSplineCreated(object sender, object data)
+        //{
+        //    var splineCreator = sender as SplineCreator2D;
+        //    // Create prefab from the last two points.
+        //    (Vector3 point1, Vector3 point2, Direction turnDirection) = ((Vector3, Vector3, Direction))data;
+        //    Vector3 direction = (point2 - point1);
+        //    var unitDirection = direction.normalized;
+        //    // Rotation to look at point 2
+        //    Quaternion rotation = Quaternion.LookRotation(unitDirection);
+        //    var track = new GameObject(string.Format("Track {0:D2}-{0:D2}", _trackNumber));
+        //    _spawnedTracks.Add(_trackNumber, track);
+        //    Transform trackTransform = track.transform;
+        //    trackTransform.parent = _parentTransform;
+        //    trackTransform.SetLocalPositionAndRotation(point1, rotation);
+        //    CreateTrack(direction, trackTransform);
+        //    _trackNumber++;
+        //}
+
+        protected override void CreateTrack(Vector3 direction, Transform trackTransform)
         {
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.SplineSegmentCreated, OnSplineChanged);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.CurrentSplineChanged, OnActiveSplineChanged);
-            var parent = new GameObject("Generated Level");
-            _parentTransform = parent.transform;
-        }
-
-        private void OnSplineChanged(object sender, object data)
-        {
-            var splineCreator = sender as SplineCreator2D;
-            // Create prefab from the last two points.
-            (Vector3 point1, Vector3 point2, Direction turnDirection) = ((Vector3, Vector3, Direction))data;
-            Vector3 direction = (point2 - point1);
             int numberOfVoxels = Mathf.FloorToInt(direction.magnitude / _heightScale + 0.2f);
-            direction = Vector3.Normalize(direction);
-            // Rotation to look at point 2
-            Quaternion rotation = Quaternion.LookRotation(direction);
-            var track = new GameObject(string.Format("Track {0:D2}-{0:D2}", _trackNumber));
-            _spawnedTracks.Add((point1, point2, turnDirection), track);
-            Transform trackTransform = track.transform;
-            trackTransform.parent = _parentTransform;
-            trackTransform.SetLocalPositionAndRotation(point1, rotation);
             for (int i = 0; i < numberOfVoxels; i++)
             {
                 var trackSegment = Instantiate<GameObject>(_prefab, trackTransform);
                 trackSegment.transform.localPosition = new Vector3(0, 0, _heightScale * i);
             }
-            _trackNumber++;
         }
 
-        private void OnActiveSplineChanged(object sender, object data)
-        {
-            if(_lastTrackSegment != null) Destroy(_lastTrackSegment, _debugDestroyDelayTime);
-            (Vector3 point1, Vector3 point2, Direction turnDirection) = ((Vector3, Vector3, Direction))data;
-            if (_spawnedTracks.TryGetValue((point1, point2, turnDirection), out var track))
-            {
-                _lastTrackSegment = track;
-            }
-            else
-            { _lastTrackSegment = null; }
-        }
-        private void OnDestroy()
-        {
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.SplineSegmentCreated, OnSplineChanged);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.CurrentSplineChanged, OnActiveSplineChanged);
-        }
+        //private void OnActiveSplineChanged(object sender, object data)
+        //{
+        //    if (_currentTrackID >=0 && _spawnedTracks.TryGetValue(_currentTrackID, out var track))
+        //    {
+        //        Destroy(track, _debugDestroyDelayTime);
+        //        _spawnedTracks.Remove(_currentTrackID);
+        //    }
+        //    _currentTrackID++;
+        //}
+        //private void OnDestroy()
+        //{
+        //    EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.SplineSegmentCreated, OnSplineCreated);
+        //    EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.TeleportEnded, OnActiveSplineChanged);
+        //}
     }
 }
