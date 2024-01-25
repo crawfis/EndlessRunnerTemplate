@@ -65,6 +65,7 @@ namespace CrawfisSoftware.TempleRun
         private void OnDestroy()
         {
             EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.SplineSegmentCreated, OnSplineChanged);
+            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.CurrentSplineChanged, OnActiveSplineChanged);
         }
     }
 }
