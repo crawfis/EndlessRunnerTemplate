@@ -4,7 +4,7 @@ namespace CrawfisSoftware.TempleRun
 {
     public class VoxelPrefabSpawner : PrefabSpawnerAbstract
     {
-         protected override void CreateTrack(Vector3 direction, Transform trackTransform)
+        protected override void CreateTrack(Vector3 direction, Transform trackTransform)
         {
             int numberOfVoxels = Mathf.FloorToInt(direction.magnitude / _heightScale + 0.2f);
             for (int i = 0; i < numberOfVoxels; i++)

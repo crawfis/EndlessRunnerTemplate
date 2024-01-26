@@ -15,7 +15,7 @@ namespace CrawfisSoftware.TempleRun
     {
         public float TurnAvailableDistance { get { return _turnAvailableDistance; } }
         public float TurnFailedDistance { get { return _trackDistance; } }
-        public Direction TurnDirection {  get {  return _nextTrackDirection; } }
+        public Direction TurnDirection { get { return _nextTrackDirection; } }
 
         private float _safeTurnDistance = 1f;
         private float _trackDistance = 0;
@@ -37,7 +37,7 @@ namespace CrawfisSoftware.TempleRun
         {
             EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.LeftTurnRequested, OnLeftTurnRequested);
             EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.RightTurnRequested, OnRightTurnRequested);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.ActiveTrackChanged, OnTrackChanged);
+            EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.ActiveTrackChanging, OnTrackChanged);
             _safeTurnDistance = Blackboard.Instance.GameConfig.SafeTurnDistance;
         }
 
@@ -79,7 +79,7 @@ namespace CrawfisSoftware.TempleRun
         {
             EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.LeftTurnRequested, OnLeftTurnRequested);
             EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.RightTurnRequested, OnRightTurnRequested);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.ActiveTrackChanged, OnTrackChanged);
+            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.ActiveTrackChanging, OnTrackChanged);
         }
     }
 }

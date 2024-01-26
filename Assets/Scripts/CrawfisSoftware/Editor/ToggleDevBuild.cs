@@ -1,8 +1,7 @@
-﻿using CrawfisSoftware.Unity3D.Utility;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
-namespace GTMY.EditorUtil
+namespace CrawfisSoftware.Unity3D.Utility
 {
     /// <summary>
     /// This will add a menu that allows you to toggle the build or compiler setting DEV_BUILD.

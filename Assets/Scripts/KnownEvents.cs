@@ -8,7 +8,7 @@
         GameStarted, GameOver, Pause, Resume,
         CountdownStarted, CountdownTick,
         SplineSegmentCreated, CurrentSplineChanging, CurrentSplineChanged,
-        ActiveTrackChanging, ActiveTrackChanged, TrackSegmentCreated,
+        ActiveTrackChanging, TrackSegmentCreated,
         TeleportStarted, TeleportEnded
     };
 }

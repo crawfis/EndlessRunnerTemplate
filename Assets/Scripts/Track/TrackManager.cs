@@ -19,7 +19,7 @@ namespace CrawfisSoftware.TempleRun
     {
         // Todo: Remove MonoBehaviour
         protected const int TrackLength = 12;
-        protected readonly Queue<(Direction direction,float distance)> _trackSegments = new(TrackLength);
+        protected readonly Queue<(Direction direction, float distance)> _trackSegments = new(TrackLength);
         protected float _startDistance = 10f;
         protected float _minDistance = 3;
         protected float _maxDistance = 9;
@@ -49,7 +49,7 @@ namespace CrawfisSoftware.TempleRun
         {
             _ = _trackSegments.Dequeue();
             AddTrackSegment();
-            EventsPublisherTempleRun.Instance.PublishEvent(KnownEvents.ActiveTrackChanged, this, _trackSegments.Peek());
+            EventsPublisherTempleRun.Instance.PublishEvent(KnownEvents.ActiveTrackChanging, this, _trackSegments.Peek());
         }
 
         protected virtual void Initialize(float startDistance, float minDistance, float maxDistance, System.Random random)
@@ -72,11 +72,12 @@ namespace CrawfisSoftware.TempleRun
             {
                 AddTrackSegment();
             }
-            EventsPublisherTempleRun.Instance.PublishEvent(KnownEvents.ActiveTrackChanged, this, _trackSegments.Peek());
+            EventsPublisherTempleRun.Instance.PublishEvent(KnownEvents.ActiveTrackChanging, this, _trackSegments.Peek());
         }
 
         protected virtual void OnTurnSucceeded(object sender, object data)
         {
+            EventsPublisherTempleRun.Instance.PublishEvent(KnownEvents.ActiveTrackChanging, this, _trackSegments.Peek());
             AdvanceToNextSegment();
         }
 

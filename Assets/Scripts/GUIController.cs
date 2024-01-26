@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace CrawfisSoftware.TempleRun
@@ -24,7 +23,7 @@ namespace CrawfisSoftware.TempleRun
             _rightDeathDistanceLabel = root.Q<Label>("_rightDeathDistance");
             _totalDistanceLabel = root.Q<Label>("_totalDistanceLabel" +
                 "");
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.ActiveTrackChanged, OnTrackChanged);
+            EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.ActiveTrackChanging, OnTrackChanged);
         }
 
         private void Update()
@@ -40,14 +39,14 @@ namespace CrawfisSoftware.TempleRun
 
         private void OnTrackChanged(object sender, object data)
         {
-            var tuple = (ValueTuple<Direction, float>)data;
-            _nextTrackDirection = tuple.Item1;
-            _trackDistance += tuple.Item2;
+            (Direction direction, float distance) = ((Direction, float))data;
+            _nextTrackDirection = direction;
+            _trackDistance += distance;
         }
 
         private void OnDestroy()
         {
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.ActiveTrackChanged, OnTrackChanged);
+            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.ActiveTrackChanging, OnTrackChanged);
 
         }
     }

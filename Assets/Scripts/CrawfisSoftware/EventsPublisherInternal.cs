@@ -59,9 +59,9 @@ namespace CrawfisSoftware.AssetManagement
             }
             foreach (var handler in allSubscribers)
                 _callbackQueue.Enqueue((eventName, handler, sender, data));
-                //handler(eventName, sender, data);
+            //handler(eventName, sender, data);
 
-            while(_callbackQueue.Count > 0)
+            while (_callbackQueue.Count > 0)
             {
                 var message = _callbackQueue.Dequeue();
                 eventName = message.eventName;
@@ -72,7 +72,7 @@ namespace CrawfisSoftware.AssetManagement
                 {
                     try
                     {
-                        if(string.IsNullOrEmpty(eventName))
+                        if (string.IsNullOrEmpty(eventName))
                             callback.DynamicInvoke(message.sender, message.data);
                         else
                             callback.DynamicInvoke(eventName, message.sender, message.data);

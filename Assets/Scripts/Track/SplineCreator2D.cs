@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Drawing;
 using UnityEngine;
 
 namespace CrawfisSoftware.TempleRun
@@ -12,10 +11,9 @@ namespace CrawfisSoftware.TempleRun
         private int _directionIndex = 0; // Start in the positive z direction.
         float _totalSplineDistance = 0;
         float _totalEventDistance = 0;
-        //private int _trackCounter = 0;
 
         public Queue<(Vector3 point1, Vector3 point2, Direction endDirection)> Splines { get; private set; } = new();
-        public (Vector3 point1,  Vector3 point2, Direction endDirection) ActiveSpline
+        public (Vector3 point1, Vector3 point2, Direction endDirection) ActiveSpline
         {
             get
             {
@@ -26,13 +24,14 @@ namespace CrawfisSoftware.TempleRun
 
         private void Start()
         {
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.ActiveTrackChanged, OnTrackChanged);
+            EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.ActiveTrackChanging, OnTrackChanged);
             EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.TrackSegmentCreated, OnTrackCreated);
             EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.GameStarted, OnGameStarted);
         }
 
         private void OnGameStarted(object sender, object data)
         {
+            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.GameStarted, OnGameStarted);
             Debug.Log("GameStarted in SplineCreator2D");
         }
 
@@ -49,7 +48,6 @@ namespace CrawfisSoftware.TempleRun
         private void CreateSplineSegment(float distance, Direction direction)
         {
             var point1 = _anchorPoint + distance * _directionAxes[_directionIndex];
-            //Splines.Add((_anchorPoint, point1, direction));
             Splines.Enqueue((_anchorPoint, point1, direction));
             EventsPublisherTempleRun.Instance.PublishEvent(KnownEvents.SplineSegmentCreated, this, (_anchorPoint, point1, direction));
             _totalSplineDistance += Vector3.Distance(point1, _point0);
@@ -59,9 +57,9 @@ namespace CrawfisSoftware.TempleRun
 
         private void OnTrackChanged(object sender, object data)
         {
+            EventsPublisherTempleRun.Instance.PublishEvent(KnownEvents.CurrentSplineChanging, this, ActiveSpline);
             EventsPublisherTempleRun.Instance.PublishEvent(KnownEvents.CurrentSplineChanged, this, ActiveSpline);
             _ = Splines.Dequeue();
-            //_trackCounter++;
         }
 
         private void OnTrackCreated(object sender, object data)
@@ -79,7 +77,7 @@ namespace CrawfisSoftware.TempleRun
 
         private void OnDestroy()
         {
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.ActiveTrackChanged, OnTrackChanged);
+            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.ActiveTrackChanging, OnTrackChanged);
             EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.TrackSegmentCreated, OnTrackCreated);
         }
     }

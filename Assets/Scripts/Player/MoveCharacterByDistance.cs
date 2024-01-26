@@ -25,7 +25,7 @@ namespace CrawfisSoftware.TempleRun
             _currentDirection = (point2 - point1).normalized;
             _lastAnchorPoint = point1;
             _lastAnchorDistance = Blackboard.Instance.DistanceTracker.DistanceTravelled;
-            _objectToMove.localPosition = new Vector3(_lastAnchorPoint.x, _yPosition, _lastAnchorPoint.z);
+            _objectToMove.localPosition = new Vector3(point1.x, _yPosition, point1.z);
             SetRotation(_currentDirection);
         }
 

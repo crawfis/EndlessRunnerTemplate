@@ -1,6 +1,4 @@
-﻿using Unity.VisualScripting;
-
-namespace CrawfisSoftware.TempleRun
+﻿namespace CrawfisSoftware.TempleRun
 {
     /// <summary>
     /// Manages the number of lives a player has, converting the PlayerFailed event to a PlayerDied event when 
