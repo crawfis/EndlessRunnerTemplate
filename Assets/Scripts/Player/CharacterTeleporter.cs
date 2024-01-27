@@ -17,7 +17,8 @@ namespace CrawfisSoftware.TempleRun
 
         private void OnTeleportStarted(object sender, object data)
         {
-            var (teleportTime, (point1, point2, _)) = ((float, (Vector3 point1, Vector3 point2, Direction direction)))data;
+            var (teleportTime, splineData) = ((float, object))data;
+            var (point1, point2, _) = ((Vector3 point1, Vector3 point2, Direction direction))splineData;
             // Create prefab from the two points.
             //var (point1, point2, _) = ((Vector3 point1, Vector3 point2, Direction direction))(splineData);
             Vector3 targetDirection = (point2 - point1).normalized;
@@ -29,21 +30,26 @@ namespace CrawfisSoftware.TempleRun
         private IEnumerator SmoothlyTeleport(float teleportTime, Vector3 targetPosition, Quaternion targetDirection)
         {
             float timeRemaining = teleportTime;
+            float maxTurnRate = 90f / teleportTime;
+            Vector3 initialPosition = _objectToMove.localPosition;
+            Quaternion initialRotation = _objectToMove.localRotation;
             while (timeRemaining > 0)
             {
-                _objectToMove.localPosition = Vector3.Lerp(_objectToMove.localPosition, targetPosition, (1f - timeRemaining / teleportTime));
-                _objectToMove.localRotation = Quaternion.RotateTowards(_objectToMove.localRotation, targetDirection, 1);
+                float t = (1f - timeRemaining / teleportTime);
+                Vector3 position = Vector3.Lerp(initialPosition, targetPosition, t);
+                //Quaternion rotation = Quaternion.RotateTowards(initialRotation, targetDirection, maxTurnRate * Time.deltaTime);
+                Quaternion rotation = Quaternion.Slerp(initialRotation, targetDirection, t);
+                _objectToMove.SetLocalPositionAndRotation(position, rotation);
                 timeRemaining -= Time.deltaTime;
                 yield return null;
             }
             _objectToMove.localPosition = targetPosition;
             _objectToMove.localRotation = targetDirection;
-            //EventsPublisherTempleRun.Instance.PublishEvent(KnownEvents.TeleportEnded, this, (targetPosition, targetDirection));
         }
 
         private void OnDestroy()
         {
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.CurrentSplineChanging, OnTeleportStarted);
+            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.TeleportStarted, OnTeleportStarted);
         }
     }
 }

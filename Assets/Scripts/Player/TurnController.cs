@@ -37,7 +37,7 @@ namespace CrawfisSoftware.TempleRun
         {
             EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.LeftTurnRequested, OnLeftTurnRequested);
             EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.RightTurnRequested, OnRightTurnRequested);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.ActiveTrackChanging, OnTrackChanged);
+            EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.ActiveTrackChanging, OnTrackChanging);
             _safeTurnDistance = Blackboard.Instance.GameConfig.SafeTurnDistance;
         }
 
@@ -46,7 +46,6 @@ namespace CrawfisSoftware.TempleRun
             float distance = Blackboard.Instance.DistanceTracker.DistanceTravelled;
             if (distance > _turnAvailableDistance)
             {
-                Blackboard.Instance.DistanceTracker.UpdateDistance(_trackDistance - distance);
                 EventsPublisherTempleRun.Instance.PublishEvent(turnSucceedEvent, this, distance);
             }
         }
@@ -67,7 +66,7 @@ namespace CrawfisSoftware.TempleRun
             }
         }
 
-        private void OnTrackChanged(object sender, object data)
+        private void OnTrackChanging(object sender, object data)
         {
             var (direction, segmentDistance) = ((Direction direction, float segmentDistance))data;
             _nextTrackDirection = direction;
@@ -79,7 +78,7 @@ namespace CrawfisSoftware.TempleRun
         {
             EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.LeftTurnRequested, OnLeftTurnRequested);
             EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.RightTurnRequested, OnRightTurnRequested);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.ActiveTrackChanging, OnTrackChanged);
+            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.ActiveTrackChanging, OnTrackChanging);
         }
     }
 }

@@ -208,7 +208,7 @@ Transform:
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
   m_LocalRotation: {x: 0.28188184, y: -0, z: -0, w: 0.9594492}
-  m_LocalPosition: {x: 0, y: 4, z: -3}
+  m_LocalPosition: {x: 0, y: 3, z: -3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -713,7 +713,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &756380250
 Transform:
   m_ObjectHideFlags: 0
@@ -741,10 +741,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 10acbc3e6100f004890f6cfae8e8cba8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _prefab: {fileID: 2515103981258710022, guid: 35233d84e3420b64295fc145b9d6c0e8, type: 3}
   _widthScale: 2
   _heightScale: 4
-  _prefab: {fileID: 2515103981258710022, guid: 35233d84e3420b64295fc145b9d6c0e8, type: 3}
-  _maxTrackSegments: 3
   _debugDestroyDelayTime: 0.1
 --- !u!1 &832575517
 GameObject:
@@ -805,6 +804,7 @@ GameObject:
   m_Component:
   - component: {fileID: 961756921}
   - component: {fileID: 961756922}
+  - component: {fileID: 961756923}
   m_Layer: 0
   m_Name: Character
   m_TagString: Untagged
@@ -821,7 +821,7 @@ Transform:
   m_GameObject: {fileID: 961756920}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -838,6 +838,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e7fa1a44387abc94db4da9402648231e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _objectToMove: {fileID: 961756921}
+--- !u!114 &961756923
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 961756920}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 619648b8bc9759f4e82d8cb63ebe0456, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _objectToMove: {fileID: 961756921}
@@ -1069,7 +1082,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1634100394
 Transform:
   m_ObjectHideFlags: 0
@@ -1099,8 +1112,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _prefab: {fileID: 8852823418534297949, guid: bdc402e5612434a41ac842660d328149, type: 3}
   _widthScale: 1
-  _maxTrackSegments: 8
-  _debugDestroyDelayTime: 134
+  _heightScale: 1
+  _debugDestroyDelayTime: 4
 --- !u!1001 &1856391550
 PrefabInstance:
   m_ObjectHideFlags: 0

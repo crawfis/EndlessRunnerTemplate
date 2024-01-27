@@ -24,8 +24,9 @@ namespace CrawfisSoftware.TempleRun
 
         private void Start()
         {
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.ActiveTrackChanging, OnTrackChanged);
+            EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.ActiveTrackChanging, OnTrackChanging);
             EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.TrackSegmentCreated, OnTrackCreated);
+            EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.TeleportEnded, OnTrackChanged);
             EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.GameStarted, OnGameStarted);
         }
 
@@ -55,9 +56,13 @@ namespace CrawfisSoftware.TempleRun
             _anchorPoint = point1;
         }
 
-        private void OnTrackChanged(object sender, object data)
+        private void OnTrackChanging(object sender, object data)
         {
             EventsPublisherTempleRun.Instance.PublishEvent(KnownEvents.CurrentSplineChanging, this, ActiveSpline);
+        }
+
+        private void OnTrackChanged(object sender, object data)
+        {
             EventsPublisherTempleRun.Instance.PublishEvent(KnownEvents.CurrentSplineChanged, this, ActiveSpline);
             _ = Splines.Dequeue();
         }

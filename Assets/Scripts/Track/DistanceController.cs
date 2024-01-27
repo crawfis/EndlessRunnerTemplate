@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace CrawfisSoftware.TempleRun
@@ -17,6 +18,7 @@ namespace CrawfisSoftware.TempleRun
         private float _speed;
         private Coroutine _coroutine;
         private bool _isMoving = true;
+        private float _trackDistance = 0;
 
         private void Awake()
         {
@@ -29,6 +31,7 @@ namespace CrawfisSoftware.TempleRun
             EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.GameOver, OnGameOver);
             EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.TeleportStarted, OnTeleportStarted);
             EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.TeleportEnded, OnTeleportEnded);
+            //EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.ActiveTrackChanging, OnTrackChanging);
         }
 
         private void OnResetSpeed(object arg1, object arg2)
@@ -48,6 +51,12 @@ namespace CrawfisSoftware.TempleRun
             DeleteCoroutine();
         }
 
+        //private void OnTrackChanging(object sender, object data)
+        //{
+        //    var (_, segmentDistance) = ((Direction direction, float segmentDistance))data;
+        //    _trackDistance += segmentDistance;
+        //}
+
         private void OnTeleportStarted(object sender, object data)
         {
             _isMoving = false;
@@ -56,6 +65,9 @@ namespace CrawfisSoftware.TempleRun
         private void OnTeleportEnded(object sender, object data)
         {
             _isMoving = true;
+            Blackboard.Instance.DistanceTracker.UpdateDistance(_trackDistance - Blackboard.Instance.DistanceTracker.DistanceTravelled);
+            var (point1, point2, _) = ((Vector3 point1, Vector3 point2, Direction direction))data;
+            _trackDistance += Vector3.Magnitude(point1 - point2);
         }
 
         IEnumerator UpdateAfterGameStart()

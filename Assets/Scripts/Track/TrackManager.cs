@@ -77,7 +77,6 @@ namespace CrawfisSoftware.TempleRun
 
         protected virtual void OnTurnSucceeded(object sender, object data)
         {
-            EventsPublisherTempleRun.Instance.PublishEvent(KnownEvents.ActiveTrackChanging, this, _trackSegments.Peek());
             AdvanceToNextSegment();
         }
 

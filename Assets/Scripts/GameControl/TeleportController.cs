@@ -8,15 +8,15 @@ namespace CrawfisSoftware.TempleRun
         [SerializeField] private float _teleportDuration = 1.0f;
         private void Awake()
         {
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.CurrentSplineChanging, OnActiveSplineChanged);
+            EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.CurrentSplineChanging, OnActiveSplineChanging);
         }
 
         private void OnDestroy()
         {
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.CurrentSplineChanging, OnActiveSplineChanged);
+            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.CurrentSplineChanging, OnActiveSplineChanging);
         }
 
-        private void OnActiveSplineChanged(object sender, object data)
+        private void OnActiveSplineChanging(object sender, object data)
         {
             StartCoroutine(TeleportWithDelay(data));
         }

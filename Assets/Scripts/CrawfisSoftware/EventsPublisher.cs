@@ -7,7 +7,6 @@ namespace CrawfisSoftware.AssetManagement
     {
         public static IEventsPublisher Instance { get; private set; }
 
-        private bool _publishingAnEvent = false;
         static EventsPublisher()
         {
             Instance = new EventsPublisher();
