@@ -2,7 +2,12 @@
 
 namespace CrawfisSoftware.TempleRun
 {
-    internal class TrackManagerForVoxels : TrackManager
+    /// <summary>
+    /// Overrides the TrackManager's GetNewSegmentLength and returns the nearest whole number.
+    /// Also uses and alternating strategy for turns.
+    ///     Dependencies: TrackManager
+    /// </summary>
+    public class TrackManagerForVoxels : TrackManager
     {
         protected Direction _lastDirection = Direction.Right;
 

@@ -1,14 +1,15 @@
 ﻿using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace CrawfisSoftware.TempleRun
 {
     /// <summary>
     /// Speed controller that updates a DistanceTracker.
-    ///    Dependencies: DistanceTracker and GameConfig (from Blackboard)
+    ///    Dependencies: Blackboard, DistanceTracker and GameConfig (from Blackboard)
     ///    Subscribes: GameStarted
     ///    Subscribes: GameOver
+    ///    Subscribes: TeleportStarted
+    ///    Subscribes: TeleportEnded
     /// </summary>
     internal class DistanceController : MonoBehaviour
     {

@@ -6,12 +6,12 @@ namespace CrawfisSoftware.TempleRun
     /// <summary>
     /// Maps input events to game events. Will check if a turn request is the proper direction and within 
     ///    the turn distance. If so, it will fire a turn successful event.
-    ///    Dependencies: DistanceTracker, EventsPublisherTempleRun
+    ///    Dependencies: Blackboard, DistanceTracker, EventsPublisherTempleRun
     ///    Subscribes: LeftTurnRequested and RightTurnRequested. If it is a valid turn published corresponding turn successful event.
     ///    Subscribes: ActiveTrackChanged - adjusts the next valid turn distance.
     ///    Publishes: LeftTurnSucceeded, RightTurnSucceeded
     /// </summary>
-    internal class TurnController : MonoBehaviour
+    public class TurnController : MonoBehaviour
     {
         public float TurnAvailableDistance { get { return _turnAvailableDistance; } }
         public float TurnFailedDistance { get { return _trackDistance; } }

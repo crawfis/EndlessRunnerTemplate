@@ -4,17 +4,19 @@ using UnityEngine;
 namespace CrawfisSoftware.TempleRun
 {
     /// <summary>
-    /// Provides new track distance for each turn. It does one thing. It publishes a new track segment 
-    ///       when needed (when AdvanceToNextSegment is called).
+    /// Provides new track distance for each turn. It publishes a new track segment 
+    ///       when needed (either to create visuals or to determine the currently active track).
     ///    Dependencies: EventsPublisherTempleRun and (currently) BlackBoard.GameConfig, Blackboard.MasterRandom
     ///        The Blackboard can be removed my having GameController create this instance and passing in data to the constructor.
     ///    Subscribes to the Turn Succeeded events (LeftTurnSucceeded, RightTurnSucceeded)
-    ///    Publishes an event each time it provides a new track. Data is a tuple (Direction, distance)
+    ///    Publishes: TrackSegmentCreated. Useful for creating prefabs. Several of these will be created at the start. Data is a tuple (Direction, distance)
+    ///    Publishes: ActiveTrackChanging. The track that we are transitioning to. Data is a tuple (Direction, distance)
     /// </summary>
     /// <remarks> Obstacle and gap distances should be in a separate class(es).
     /// Random distances (_random) could be replaced with a list of possible distances, but a better / cleaner solution would
     /// be to have another class subscribe to the event, massage the data and publish a new event. This may be needed
     /// for example to map the distance to a number of tiles.</remarks>
+    /// <remarks>Used as a base class for integer-based tracks (voxels or tiles) and a fixed set of track lengths.</remarks>
     public class TrackManager : TrackManagerAbstract
     {
         // Todo: Remove MonoBehaviour

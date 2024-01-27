@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace CrawfisSoftware.TempleRun
 {
+    /// <summary>
+    /// Space for "global" variables using a singleton.
+    /// </summary>
     public class Blackboard : MonoBehaviour
     {
         [SerializeField] private RandomProviderFromList _randomProvider;

@@ -3,6 +3,11 @@ using UnityEngine;
 
 namespace CrawfisSoftware.TempleRun
 {
+    /// <summary>
+    /// Moves the Character smoothly from the current position to the start of the new spline.
+    ///    Dependency: EventsPublisherTempleRun
+    ///    Subscribes: TeleportStarted
+    /// </summary>
     public class CharacterTeleporter : MonoBehaviour
     {
         [SerializeField] private Transform _objectToMove;

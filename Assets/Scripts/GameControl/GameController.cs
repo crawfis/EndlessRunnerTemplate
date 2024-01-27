@@ -4,8 +4,8 @@ using UnityEngine;
 namespace CrawfisSoftware.TempleRun
 {
     /// <summary>
-    /// Overall game control handling pausing, resuming and player failing.
-    ///    Dependency: PlayerLifeController, EventsPublisherTempleRun
+    /// Overall game control handling game initialization, pausing, resuming and player dying (triggering a Game Over).
+    ///    Dependency: GameInitialization, EventsPublisherTempleRun
     ///    Subscribes: PlayerDied - Publishes a GameOver event
     ///    Subscribes: Pause - pauses be setting time scale to zero
     ///    Subscribes: Resume - resets the time scale to one
@@ -14,11 +14,10 @@ namespace CrawfisSoftware.TempleRun
     /// </summary>
     internal class GameController : MonoBehaviour
     {
-        private PlayerLifeController _playerLifeController; // Example of using a non-MonoBehaviour class
-
+        private GameInitialization _gameInitializer;
         private void Awake()
         {
-            //Time.timeScale = 0.0f;
+            _gameInitializer = new GameInitialization(Blackboard.Instance.GameConfig.NumberOfLives);
             EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.PlayerDied, OnPlayerDied);
             EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.Pause, OnPause);
             EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.Resume, OnResume);
@@ -32,7 +31,6 @@ namespace CrawfisSoftware.TempleRun
         private IEnumerator StartGame()
         {
             yield return null;
-            _playerLifeController = new PlayerLifeController(Blackboard.Instance.GameConfig.NumberOfLives, 0);
             yield return new WaitForSecondsRealtime(GameConstants.StartDelay);
             EventsPublisherTempleRun.Instance.PublishEvent(KnownEvents.GameStarted, this, null);
         }
@@ -44,6 +42,7 @@ namespace CrawfisSoftware.TempleRun
 
         private void OnPause(object sender, object data)
         {
+            // Todo: Distance Controller can easily handle this, but just stopping the distance progression.
             Time.timeScale = 0.0f;
         }
 
@@ -56,6 +55,7 @@ namespace CrawfisSoftware.TempleRun
         private void OnDestroy()
         {
             UnsubscribeToEvents();
+            _gameInitializer.Dispose();
         }
 
         private void UnsubscribeToEvents()

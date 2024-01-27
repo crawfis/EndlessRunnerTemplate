@@ -2,7 +2,11 @@
 
 namespace CrawfisSoftware.TempleRun
 {
-    internal class InitializeDistanceTracker : MonoBehaviour
+    /// <summary>
+    /// Simple class that creates a distance tracker and assigns it to the Blackboard.
+    /// Unused - Moved to GameInitialization.
+    /// </summary>
+    public class InitializeDistanceTracker : MonoBehaviour
     {
         private void Start()
         {

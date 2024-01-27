@@ -3,7 +3,12 @@ using UnityEngine;
 
 namespace CrawfisSoftware.TempleRun
 {
-    internal class GameOverController : MonoBehaviour
+    /// <summary>
+    /// Handles quitting.
+    ///    Dependency: EventsPublisherTempleRun
+    ///    Subscribes: GameOver - Currently it quits the application.
+    /// </summary>
+    public class GameOverController : MonoBehaviour
     {
         private void Start()
         {

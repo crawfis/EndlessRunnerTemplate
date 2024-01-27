@@ -2,7 +2,12 @@
 
 namespace CrawfisSoftware.TempleRun
 {
-    internal class MoveCharacterByDistance : MonoBehaviour
+    /// <summary>
+    /// Moves the player along the current spline.
+    ///    Dependencies: Blackboard, DistanceTracker, EventsPublisherTempleRun
+    ///    Subscribes: CurrentSplineChanged
+    /// </summary>
+    public class MoveCharacterByDistance : MonoBehaviour
     {
         [SerializeField] private Transform _objectToMove;
 

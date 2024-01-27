@@ -3,8 +3,19 @@ using UnityEngine;
 
 namespace CrawfisSoftware.TempleRun
 {
+    /// <summary>
+    /// Converts the TrackSegments and their directions to Vector3 linear splines.
+    ///    Dependencies: Blackboard, EventsPublisherTempleRun
+    ///    Subscribes: ActiveTrackChanging
+    ///    Subscribes: TrackSegmentCreated
+    ///    Subscribes: GameStarted
+    ///    Subscribes: TeleportEnded
+    ///    Publishes: CurrentSplineChanging
+    ///    Publishes: CurrentSplineChanged
+    /// </summary>
     public class SplineCreator2D : MonoBehaviour
     {
+        [Tooltip("The initial position of the starting track and the character")]
         [SerializeField] private Vector3 _anchorPoint = Vector3.zero;
 
         private readonly Vector3[] _directionAxes = { new(0, 0, 1), new(1, 0, 0), new(0, 0, -1), new(-1, 0, 0) };
@@ -84,6 +95,8 @@ namespace CrawfisSoftware.TempleRun
         {
             EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.ActiveTrackChanging, OnTrackChanged);
             EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.TrackSegmentCreated, OnTrackCreated);
+            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.TeleportEnded, OnTrackChanged);
+            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.GameStarted, OnGameStarted);
         }
     }
 }

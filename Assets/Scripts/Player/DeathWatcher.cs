@@ -6,7 +6,7 @@ namespace CrawfisSoftware.TempleRun
     /// Compares the distance from DistanceTracker and compares it to the current track length. Fires the PlayerFailed event if the
     /// distance is greater than (or equal) the active track distance.
     ///    Dependencies: DistanceTracker, EventsPublisherTempleRun
-    ///    Subscribes: ActiveTrackChanged - increased the active track length
+    ///    Subscribes: ActiveTrackChanging - increased the active track length
     ///    Subscribes: GameStarted - useful if there is a delay between when the tracks are sent and the player has control.
     ///    Subscribes: GameEnded - useful if multiple players and we need to stop the checking.
     ///    Publishes: PlayerFailed event. Data is the current player distance.

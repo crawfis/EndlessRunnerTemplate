@@ -2,9 +2,18 @@
 
 namespace CrawfisSoftware.TempleRun
 {
-    internal class AIController : MonoBehaviour
+    /// <summary>
+    /// Deterministic (and perfect?) AI that triggers a turn request whenever the current
+    /// distances gets within a user-specified value of the end of the currently discovered track.
+    ///    Dependency: TurnController, EventsPublisherTempleRun
+    ///    Subscribes: GameStarted
+    ///    Publishes: LeftTurnRequested
+    ///    Publishes: RightTurnRequested
+    /// </summary>
+    public class AIController : MonoBehaviour
     {
         [SerializeField] private TurnController _turnController;
+        [Tooltip("Distance from far wall to turn. Should be between (0,opening size]. Can try to turn easy but the difficulty config will determine if possible.")]
         [SerializeField] private float _turnDistance = .1f;
 
         private bool _gameStarted = false;
