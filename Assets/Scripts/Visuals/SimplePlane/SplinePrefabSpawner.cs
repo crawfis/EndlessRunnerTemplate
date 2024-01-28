@@ -10,11 +10,10 @@ namespace CrawfisSoftware.TempleRun
             Blackboard.Instance.TrackWidthOffset = 0.5f * _widthScale;
         }
 
-        protected override void CreateTrack(Vector3 direction, Transform trackTransform)
+        protected override void CreateTrack(float magnitude, Transform trackTransform, Direction endCapDirection)
         {
-            float zScale = direction.magnitude;
             var trackSegment = Instantiate<GameObject>(_prefab, trackTransform);
-            trackSegment.transform.localScale = new Vector3(1, 1, zScale);
+            trackSegment.transform.localScale = new Vector3(_widthScale, 1, magnitude);
         }
     }
 }

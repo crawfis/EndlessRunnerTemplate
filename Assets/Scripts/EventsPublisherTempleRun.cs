@@ -10,7 +10,7 @@ namespace CrawfisSoftware.TempleRun
     /// Avoids the problem with strings and misspelling when dealing with the EventsPublisher. Several of these could be used with
     /// different enum types for more modularity.
     /// </summary>
-    internal class EventsPublisherTempleRun : MonoBehaviour
+    public class EventsPublisherTempleRun : MonoBehaviour
     {
         public static EventsPublisherTempleRun Instance { get; private set; }
         public static Dictionary<KnownEvents, string> KnownEventsMap { get; private set; } = new();

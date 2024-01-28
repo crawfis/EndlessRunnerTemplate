@@ -5,8 +5,10 @@ namespace CrawfisSoftware.TempleRun
 {
     /// <summary>
     /// Updates the UXML document for the current distances. Could be broken into different classes.
+    ///    Dependencies: Blackboard, DistanceTracker, EventsPublisherTempleRun
+    ///    Subscribes: ActiveTrackChanging
     /// </summary>
-    internal class GUIController : MonoBehaviour
+    public class GUIController : MonoBehaviour
     {
         [SerializeField] private UIDocument _uiDocument;
 
@@ -23,7 +25,7 @@ namespace CrawfisSoftware.TempleRun
             _rightDeathDistanceLabel = root.Q<Label>("_rightDeathDistance");
             _totalDistanceLabel = root.Q<Label>("_totalDistanceLabel" +
                 "");
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.ActiveTrackChanging, OnTrackChanged);
+            EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.ActiveTrackChanging, OnTrackChanging);
         }
 
         private void Update()
@@ -37,7 +39,7 @@ namespace CrawfisSoftware.TempleRun
             _rightDeathDistanceLabel.text = (_nextTrackDirection == Direction.Left) ? "" : _distanceUntilDeath.ToString();
         }
 
-        private void OnTrackChanged(object sender, object data)
+        private void OnTrackChanging(object sender, object data)
         {
             (Direction direction, float distance) = ((Direction, float))data;
             _nextTrackDirection = direction;
@@ -46,7 +48,7 @@ namespace CrawfisSoftware.TempleRun
 
         private void OnDestroy()
         {
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.ActiveTrackChanging, OnTrackChanged);
+            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.ActiveTrackChanging, OnTrackChanging);
 
         }
     }

@@ -5,7 +5,7 @@ namespace CrawfisSoftware.TempleRun
     /// <summary>
     /// Compares the distance from DistanceTracker and compares it to the current track length. Fires the PlayerFailed event if the
     /// distance is greater than (or equal) the active track distance.
-    ///    Dependencies: DistanceTracker, EventsPublisherTempleRun
+    ///    Dependencies: Blackboard, DistanceTracker, EventsPublisherTempleRun
     ///    Subscribes: ActiveTrackChanging - increased the active track length
     ///    Subscribes: GameStarted - useful if there is a delay between when the tracks are sent and the player has control.
     ///    Subscribes: GameEnded - useful if multiple players and we need to stop the checking.
@@ -21,7 +21,7 @@ namespace CrawfisSoftware.TempleRun
 
         private void Awake()
         {
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.ActiveTrackChanging, OnTrackChanged);
+            EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.ActiveTrackChanging, OnTrackChanging);
             EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.GameStarted, OnGameStarted);
             EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.GameOver, OnGameEnded);
         }
@@ -39,12 +39,12 @@ namespace CrawfisSoftware.TempleRun
 
         private void OnDestroy()
         {
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.ActiveTrackChanging, OnTrackChanged);
+            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.ActiveTrackChanging, OnTrackChanging);
             EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.GameStarted, OnGameStarted);
             EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.GameOver, OnGameEnded);
         }
 
-        private void OnTrackChanged(object sender, object data)
+        private void OnTrackChanging(object sender, object data)
         {
             _isRunning = true;
             (Direction _, float distance) = ((Direction, float))data;

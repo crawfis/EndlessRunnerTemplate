@@ -208,7 +208,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bfab8d7afafb29744bb0e8a0b5543e29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _validTrackLengths: {fileID: 11400000, guid: 58c32525ff8eec345a9fcd9d0f3d9f6d, type: 2}
+  _validTrackLengths: {fileID: 11400000, guid: ce92da35dc02cf1408d67a368d202999, type: 2}
 --- !u!1 &331296744
 GameObject:
   m_ObjectHideFlags: 0

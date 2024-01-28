@@ -8,9 +8,9 @@ namespace CrawfisSoftware.TempleRun
         private Material _materialToScale;
         private void Start()
         {
+            // Assuming a texture surface, tiles the texture according the newly scaled up prefab.
             _materialToScale = _targetGameObject.GetComponent<MeshRenderer>().material;
-            float zScale = transform.localScale.z;
-            _materialToScale.mainTextureScale = new Vector2(1, zScale);
+            _materialToScale.mainTextureScale = new Vector2(transform.localScale.x, transform.localScale.z);
             // Todo: capture current scale, etc.
         }
     }

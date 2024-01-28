@@ -43,11 +43,11 @@ namespace CrawfisSoftware.TempleRun
             Transform trackTransform = track.transform;
             trackTransform.parent = _parentTransform;
             trackTransform.SetLocalPositionAndRotation(point1, rotation);
-            CreateTrack(direction, trackTransform);
+            CreateTrack(direction.magnitude, trackTransform, turnDirection);
             _trackNumber++;
         }
 
-        protected abstract void CreateTrack(Vector3 direction, Transform trackTransform);
+        protected abstract void CreateTrack(float length, Transform trackTransform, Direction endCapDirection);
 
         private void OnActiveSplineChanged(object sender, object data)
         {

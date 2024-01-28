@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 
 namespace CrawfisSoftware.TempleRun
 {
-    internal class InputController : MonoBehaviour
+    public class InputController : MonoBehaviour
     {
         [SerializeField] private InputActionAsset _inputAsset;
 

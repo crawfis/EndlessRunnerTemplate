@@ -41,6 +41,14 @@ namespace CrawfisSoftware.TempleRun
             EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.GameStarted, OnGameStarted);
         }
 
+        private void OnDestroy()
+        {
+            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.ActiveTrackChanging, OnTrackChanging);
+            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.TrackSegmentCreated, OnTrackCreated);
+            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.TeleportEnded, OnTrackChanged);
+            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.GameStarted, OnGameStarted);
+        }
+
         private void OnGameStarted(object sender, object data)
         {
             EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.GameStarted, OnGameStarted);
@@ -89,14 +97,6 @@ namespace CrawfisSoftware.TempleRun
                 case Direction.Right: TurnRight(); break;
             }
             _anchorPoint += Blackboard.Instance.TrackWidthOffset * _directionAxes[_directionIndex];
-        }
-
-        private void OnDestroy()
-        {
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.ActiveTrackChanging, OnTrackChanged);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.TrackSegmentCreated, OnTrackCreated);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.TeleportEnded, OnTrackChanged);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.GameStarted, OnGameStarted);
         }
     }
 }

@@ -3,6 +3,10 @@ using UnityEngine;
 
 namespace CrawfisSoftware.TempleRun
 {
+    /// <summary>
+    /// Overrides the TrackManager's GetNewSegmentLength and returns one of the values from a list of integers.
+    ///     Dependencies: TrackManager, IntListScriptable
+    /// </summary>
     public class TrackManagerList : TrackManager
     {
         [SerializeField] private IntListScriptable _validTrackLengths;
