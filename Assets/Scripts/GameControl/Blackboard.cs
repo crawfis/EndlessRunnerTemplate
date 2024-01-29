@@ -25,5 +25,11 @@ namespace CrawfisSoftware.TempleRun
             }
             Instance = this;
         }
+
+        //[RuntimeInitializeOnLoadMethod]
+        //public static void InitializeOnPlay()
+        //{
+        //Instance = null;
+        //}
     }
 }

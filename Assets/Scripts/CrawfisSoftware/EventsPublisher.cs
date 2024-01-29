@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace CrawfisSoftware.AssetManagement
 {
@@ -73,5 +74,11 @@ namespace CrawfisSoftware.AssetManagement
             }
         }
 
+        [RuntimeInitializeOnLoadMethod]
+        public static void ResetOnPlayMode()
+        {
+            Instance?.Clear();
+            //Instance = null;
+        }
     }
 }

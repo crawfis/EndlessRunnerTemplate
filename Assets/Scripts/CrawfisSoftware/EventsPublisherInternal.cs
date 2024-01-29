@@ -66,8 +66,6 @@ namespace CrawfisSoftware.AssetManagement
                 var message = _callbackQueue.Dequeue();
                 eventName = message.eventName;
                 var callback = message.callback;
-                sender = message.sender;
-                data = message.data;
                 //foreach (var callback in callbacks)
                 {
                     try
@@ -109,5 +107,4 @@ namespace CrawfisSoftware.AssetManagement
             return this;
         }
     }
-
 }

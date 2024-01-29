@@ -24,11 +24,11 @@ EditorSettings:
   m_EnableEditorAsyncCPUTextureLoading: 0
   m_AsyncShaderCompilation: 1
   m_PrefabModeAllowAutoSave: 1
-  m_EnterPlayModeOptionsEnabled: 0
+  m_EnterPlayModeOptionsEnabled: 1
   m_EnterPlayModeOptions: 3
-  m_GameObjectNamingDigits: 1
-  m_GameObjectNamingScheme: 0
-  m_AssetNamingUsesSpace: 1
+  m_GameObjectNamingDigits: 2
+  m_GameObjectNamingScheme: 1
+  m_AssetNamingUsesSpace: 0
   m_InspectorUseIMGUIDefaultInspector: 0
   m_UseLegacyProbeSampleCount: 0
   m_SerializeInlineMappingsOnOneLine: 0

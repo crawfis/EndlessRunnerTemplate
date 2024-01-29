@@ -13,9 +13,10 @@ namespace CrawfisSoftware.Unity3D.Utility
     /// </summary>
     public static class EditorPlayFirstSceneAlways
     {
-        [InitializeOnLoadMethod]
+        [InitializeOnEnterPlayMode]
         private static void OnLoad()
         {
+            EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
 
             // Ensure at least one build scene exist.

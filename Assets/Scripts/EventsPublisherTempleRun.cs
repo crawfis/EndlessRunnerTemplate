@@ -1,6 +1,5 @@
 ﻿using CrawfisSoftware.AssetManagement;
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace CrawfisSoftware.TempleRun
@@ -13,7 +12,6 @@ namespace CrawfisSoftware.TempleRun
     public class EventsPublisherTempleRun : MonoBehaviour
     {
         public static EventsPublisherTempleRun Instance { get; private set; }
-        public static Dictionary<KnownEvents, string> KnownEventsMap { get; private set; } = new();
 
         private void Awake()
         {
@@ -46,9 +44,15 @@ namespace CrawfisSoftware.TempleRun
             foreach (KnownEvents eventEnum in Enum.GetValues(typeof(KnownEvents)))
             {
                 string eventName = eventEnum.ToString();
-                KnownEventsMap.Add(eventEnum, eventName);
                 EventsPublisher.Instance.RegisterEvent(eventName);
             }
+        }
+
+        [RuntimeInitializeOnLoadMethod]
+        public static void InitializeOnPlay()
+        {
+            if (Instance != null) Destroy(Instance);
+            //Instance = null;
         }
     }
 }
