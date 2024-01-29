@@ -1,0 +1,16 @@
+{
+    "name": "Crawfis.Events.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:09e3fa0be84777648b2ab858ad06858a"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
