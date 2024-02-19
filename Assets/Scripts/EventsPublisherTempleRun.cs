@@ -1,6 +1,4 @@
 ﻿using CrawfisSoftware.AssetManagement;
-using System;
-using UnityEngine;
 
 namespace CrawfisSoftware.TempleRun
 {
@@ -9,50 +7,7 @@ namespace CrawfisSoftware.TempleRun
     /// Avoids the problem with strings and misspelling when dealing with the EventsPublisher. Several of these could be used with
     /// different enum types for more modularity.
     /// </summary>
-    public class EventsPublisherTempleRun : MonoBehaviour
+    public class EventsPublisherTempleRun : EventsPublisherEnums<KnownEvents>
     {
-        public static EventsPublisherTempleRun Instance { get; private set; }
-
-        private void Awake()
-        {
-            if (Instance != null && Instance != this)
-            {
-                Destroy(this);
-                return;
-            }
-            Instance = this;
-            RegisterKnownEvents();
-        }
-
-        public void PublishEvent(KnownEvents eventEnum, object sender, object data)
-        {
-            EventsPublisher.Instance.PublishEvent(eventEnum.ToString(), sender, data);
-        }
-
-        public void SubscribeToEvent(KnownEvents eventEnum, Action<object, object> callback)
-        {
-            EventsPublisher.Instance.SubscribeToEvent(eventEnum.ToString(), callback);
-        }
-
-        public void UnsubscribeToEvent(KnownEvents eventEnum, Action<object, object> callback)
-        {
-            EventsPublisher.Instance.UnsubscribeToEvent(eventEnum.ToString(), callback);
-        }
-
-        private static void RegisterKnownEvents()
-        {
-            foreach (KnownEvents eventEnum in Enum.GetValues(typeof(KnownEvents)))
-            {
-                string eventName = eventEnum.ToString();
-                EventsPublisher.Instance.RegisterEvent(eventName);
-            }
-        }
-
-        [RuntimeInitializeOnLoadMethod]
-        public static void InitializeOnPlay()
-        {
-            if (Instance != null) Destroy(Instance);
-            //Instance = null;
-        }
     }
 }

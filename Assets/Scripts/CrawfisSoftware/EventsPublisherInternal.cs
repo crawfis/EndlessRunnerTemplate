@@ -46,39 +46,30 @@ namespace CrawfisSoftware.AssetManagement
             {
                 //eventDelegate(sender, data);
                 var callbacks = eventDelegate.GetInvocationList();
+                // Queue up each callback. This ensures that if a callback publishes an event, that the
+                // other callbacks for *this* event are called before the newly published event's callbacks.
                 foreach (var callback in callbacks)
                     _callbackQueue.Enqueue((string.Empty, callback, sender, data));
-                //    try
-                //    {
-                //        callback.DynamicInvoke(sender, data);
-                //    }
-                //    catch (Exception e)
-                //    {
-                //        UnityEngine.Debug.LogError($"Exception publishing {eventName}: {callback.Target} {e.InnerException.Message} {e.InnerException.StackTrace} {e.InnerException.Source}");
-                //    }
             }
             foreach (var handler in allSubscribers)
                 _callbackQueue.Enqueue((eventName, handler, sender, data));
-            //handler(eventName, sender, data);
+                //handler(eventName, sender, data);
 
             while (_callbackQueue.Count > 0)
             {
                 var message = _callbackQueue.Dequeue();
                 eventName = message.eventName;
                 var callback = message.callback;
-                //foreach (var callback in callbacks)
+                try
                 {
-                    try
-                    {
-                        if (string.IsNullOrEmpty(eventName))
-                            callback.DynamicInvoke(message.sender, message.data);
-                        else
-                            callback.DynamicInvoke(eventName, message.sender, message.data);
-                    }
-                    catch (Exception e)
-                    {
-                        UnityEngine.Debug.LogError($"Exception publishing {message.eventName}: {callback.Target} {e.InnerException.Message} {e.InnerException.StackTrace} {e.InnerException.Source}");
-                    }
+                    if (string.IsNullOrEmpty(eventName))
+                        callback.DynamicInvoke(message.sender, message.data);
+                    else
+                        callback.DynamicInvoke(eventName, message.sender, message.data);
+                }
+                catch (Exception e)
+                {
+                    UnityEngine.Debug.LogError($"Exception publishing {message.eventName}: {callback.Target} {e.InnerException.Message} {e.InnerException.StackTrace} {e.InnerException.Source}");
                 }
             }
         }
