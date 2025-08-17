@@ -23,7 +23,7 @@ namespace CrawfisSoftware.TempleRun
             EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.GameStarted, OnGameStarted);
         }
 
-        private void OnGameStarted(object arg1, object arg2)
+        private void OnGameStarted(string EventName, object arg1, object arg2)
         {
             _gameStarted = true;
         }

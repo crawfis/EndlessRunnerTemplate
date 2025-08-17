@@ -13,17 +13,15 @@ MonoBehaviour:
   m_Name: Localization-Assets-Shared
   m_EditorClassIdentifier: 
   m_GroupName: Localization-Assets-Shared
-  m_Data:
-    m_SerializedData: []
   m_GUID: 38ba2e7a5e7c03545b355fe3c8bffeab
   m_SerializeEntries:
-  - m_GUID: fee987273261e2841a796d8f3897f55a
-    m_Address: Assets/Settings/Localization/TempleRun-GamePlay Shared Data.asset
+  - m_GUID: 07f5b3640a8073a49bb68b75e09f89fb
+    m_Address: Assets/Settings/Localization/Localization-Assets Shared Data.asset
     m_ReadOnly: 1
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 07f5b3640a8073a49bb68b75e09f89fb
-    m_Address: Assets/Settings/Localization/Localization-Assets Shared Data.asset
+  - m_GUID: fee987273261e2841a796d8f3897f55a
+    m_Address: Assets/Settings/Localization/TempleRun-GamePlay Shared Data.asset
     m_ReadOnly: 1
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

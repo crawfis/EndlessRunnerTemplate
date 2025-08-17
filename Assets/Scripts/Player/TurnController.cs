@@ -50,7 +50,7 @@ namespace CrawfisSoftware.TempleRun
             }
         }
 
-        private void OnLeftTurnRequested(object sender, object data)
+        private void OnLeftTurnRequested(string eventName, object sender, object data)
         {
             if (_nextTrackDirection != Direction.Right)
             {
@@ -58,7 +58,7 @@ namespace CrawfisSoftware.TempleRun
             }
         }
 
-        private void OnRightTurnRequested(object sender, object data)
+        private void OnRightTurnRequested(string eventName, object sender, object data)
         {
             if (_nextTrackDirection != Direction.Left)
             {
@@ -66,7 +66,7 @@ namespace CrawfisSoftware.TempleRun
             }
         }
 
-        private void OnTrackChanging(object sender, object data)
+        private void OnTrackChanging(string eventName, object sender, object data)
         {
             var (direction, segmentDistance) = ((Direction direction, float segmentDistance))data;
             _nextTrackDirection = direction;

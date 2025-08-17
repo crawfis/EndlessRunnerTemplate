@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+
 using UnityEngine;
 
 namespace CrawfisSoftware.TempleRun
@@ -24,7 +25,7 @@ namespace CrawfisSoftware.TempleRun
             EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.CurrentSplineChanging, OnActiveSplineChanging);
         }
 
-        private void OnActiveSplineChanging(object sender, object data)
+        private void OnActiveSplineChanging(string EventName, object sender, object data)
         {
             StartCoroutine(TeleportWithDelay(data));
         }

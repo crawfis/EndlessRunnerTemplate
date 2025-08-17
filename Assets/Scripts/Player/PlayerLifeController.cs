@@ -21,7 +21,7 @@ namespace CrawfisSoftware.TempleRun
             EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.PlayerFailed, OnPlayerFailed);
         }
 
-        private void OnPlayerFailed(object sender, object data)
+        private void OnPlayerFailed(string eventName, object sender, object data)
         {
             // Todo: Check playerID
             _numberOfLives--;

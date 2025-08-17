@@ -1,4 +1,4 @@
-﻿using CrawfisSoftware.AssetManagement;
+﻿using CrawfisSoftware.Events;
 
 namespace CrawfisSoftware.TempleRun
 {
@@ -7,7 +7,7 @@ namespace CrawfisSoftware.TempleRun
     /// Avoids the problem with strings and misspelling when dealing with the EventsPublisher. Several of these could be used with
     /// different enum types for more modularity.
     /// </summary>
-    public class EventsPublisherTempleRun : EventsPublisherEnums<KnownEvents>
+    public class EventsPublisherTempleRun : EventsPublisherEnumsSingleton<KnownEvents>
     {
     }
 }

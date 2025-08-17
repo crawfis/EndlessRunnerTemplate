@@ -13,12 +13,16 @@ MonoBehaviour:
   m_Name: Localization-Locales
   m_EditorClassIdentifier: 
   m_GroupName: Localization-Locales
-  m_Data:
-    m_SerializedData: []
   m_GUID: a5548bb233978834f867599a6e19799f
   m_SerializeEntries:
-  - m_GUID: 7541a2ed845fe3e40860070c13d4c71d
-    m_Address: Arabic (ar)
+  - m_GUID: 13eed1d5abd84ba469085120ba9d1692
+    m_Address: Chinese (Simplified) (zh-Hans)
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 373a04ab5d61f79419f8949df204efee
+    m_Address: English (en)
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale
@@ -29,8 +33,14 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 373a04ab5d61f79419f8949df204efee
-    m_Address: English (en)
+  - m_GUID: 7541a2ed845fe3e40860070c13d4c71d
+    m_Address: Arabic (ar)
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a138080d16291bd4ba5b2603a13ec605
+    m_Address: Japanese (ja)
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale
@@ -47,8 +57,8 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: a138080d16291bd4ba5b2603a13ec605
-    m_Address: Japanese (ja)
+  - m_GUID: dcd8379a536600c4f967e83c983a4c3d
+    m_Address: Portuguese (pt)
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale
@@ -59,20 +69,8 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: dcd8379a536600c4f967e83c983a4c3d
-    m_Address: Portuguese (pt)
-    m_ReadOnly: 1
-    m_SerializedLabels:
-    - Locale
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: f4fd83e198179314ead78887da844013
     m_Address: Chinese (Simplified) (zh)
-    m_ReadOnly: 1
-    m_SerializedLabels:
-    - Locale
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 13eed1d5abd84ba469085120ba9d1692
-    m_Address: Chinese (Simplified) (zh-Hans)
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale

@@ -49,7 +49,7 @@ namespace CrawfisSoftware.TempleRun
             EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.GameStarted, OnGameStarted);
         }
 
-        private void OnGameStarted(object sender, object data)
+        private void OnGameStarted(string eventName, object sender, object data)
         {
             EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.GameStarted, OnGameStarted);
             Debug.Log("GameStarted in SplineCreator2D");
@@ -75,18 +75,18 @@ namespace CrawfisSoftware.TempleRun
             _anchorPoint = point1;
         }
 
-        private void OnTrackChanging(object sender, object data)
+        private void OnTrackChanging(string eventName, object sender, object data)
         {
             EventsPublisherTempleRun.Instance.PublishEvent(KnownEvents.CurrentSplineChanging, this, ActiveSpline);
         }
 
-        private void OnTrackChanged(object sender, object data)
+        private void OnTrackChanged(string eventName, object sender, object data)
         {
             EventsPublisherTempleRun.Instance.PublishEvent(KnownEvents.CurrentSplineChanged, this, ActiveSpline);
             _ = Splines.Dequeue();
         }
 
-        private void OnTrackCreated(object sender, object data)
+        private void OnTrackCreated(string eventName, object sender, object data)
         {
             var (direction, segmentDistance) = ((Direction direction, float segmentDistance))data;
             CreateSplineSegment(segmentDistance, direction);

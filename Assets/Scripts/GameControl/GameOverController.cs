@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+
 using UnityEngine;
 
 namespace CrawfisSoftware.TempleRun
@@ -15,7 +16,7 @@ namespace CrawfisSoftware.TempleRun
             EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.GameOver, OnGameOver);
         }
 
-        private void OnGameOver(object sender, object data)
+        private void OnGameOver(string EventName, object sender, object data)
         {
             EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.GameOver, OnGameOver);
             StartCoroutine(Quit());

@@ -44,19 +44,19 @@ namespace CrawfisSoftware.TempleRun
             EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.GameOver, OnGameEnded);
         }
 
-        private void OnTrackChanging(object sender, object data)
+        private void OnTrackChanging(string eventName, object sender, object data)
         {
             _isRunning = true;
             (Direction _, float distance) = ((Direction, float))data;
             _currentSegmentDistance += distance;
         }
 
-        private void OnGameStarted(object sender, object data)
+        private void OnGameStarted(string eventName, object sender, object data)
         {
             _gameStarted = true;
         }
 
-        private void OnGameEnded(object sender, object data)
+        private void OnGameEnded(string eventName, object sender, object data)
         {
             _gameStarted = false;
         }

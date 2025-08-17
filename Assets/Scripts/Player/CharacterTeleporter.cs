@@ -20,7 +20,7 @@ namespace CrawfisSoftware.TempleRun
             _yPosition = transform.localPosition.y;
         }
 
-        private void OnTeleportStarted(object sender, object data)
+        private void OnTeleportStarted(string eventName, object sender, object data)
         {
             var (teleportTime, splineData) = ((float, object))data;
             var (point1, point2, _) = ((Vector3 point1, Vector3 point2, Direction direction))splineData;

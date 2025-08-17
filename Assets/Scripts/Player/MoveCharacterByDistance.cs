@@ -23,7 +23,7 @@ namespace CrawfisSoftware.TempleRun
             _yPosition = transform.localPosition.y;
         }
 
-        private void OnSplineChanged(object sender, object data)
+        private void OnSplineChanged(string eventName, object sender, object data)
         {
             // Create prefab from the two points.
             var (point1, point2, direction) = ((Vector3 point1, Vector3 point2, Direction direction))(data);

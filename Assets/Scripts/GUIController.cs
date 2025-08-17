@@ -39,7 +39,7 @@ namespace CrawfisSoftware.TempleRun
             _rightDeathDistanceLabel.text = (_nextTrackDirection == Direction.Left) ? "" : _distanceUntilDeath.ToString();
         }
 
-        private void OnTrackChanging(object sender, object data)
+        private void OnTrackChanging(string EventName, object sender, object data)
         {
             (Direction direction, float distance) = ((Direction, float))data;
             _nextTrackDirection = direction;

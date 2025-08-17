@@ -13,8 +13,6 @@ MonoBehaviour:
   m_Name: Localization-Asset-Tables-Arabic (ar)
   m_EditorClassIdentifier: 
   m_GroupName: Localization-Asset-Tables-Arabic (ar)
-  m_Data:
-    m_SerializedData: []
   m_GUID: 5c6e7d7026187ce43a3b484e62d0ca8f
   m_SerializeEntries:
   - m_GUID: c8e37511aa60d1d40b649f6c9889f79f

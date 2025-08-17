@@ -36,7 +36,7 @@ namespace CrawfisSoftware.TempleRun
             EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.GameStarted, OnGameStarted);
         }
 
-        protected virtual void OnGameStarted(object sender, object data)
+        protected virtual void OnGameStarted(string eventName, object sender, object data)
         {
             CreateInitialTrack();
         }
@@ -77,7 +77,7 @@ namespace CrawfisSoftware.TempleRun
             EventsPublisherTempleRun.Instance.PublishEvent(KnownEvents.ActiveTrackChanging, this, _trackSegments.Peek());
         }
 
-        protected virtual void OnTurnSucceeded(object sender, object data)
+        protected virtual void OnTurnSucceeded(string eventName, object sender, object data)
         {
             AdvanceToNextSegment();
         }

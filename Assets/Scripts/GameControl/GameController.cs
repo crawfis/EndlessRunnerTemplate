@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+
 using UnityEngine;
 
 namespace CrawfisSoftware.TempleRun
@@ -35,18 +36,18 @@ namespace CrawfisSoftware.TempleRun
             EventsPublisherTempleRun.Instance.PublishEvent(KnownEvents.GameStarted, this, null);
         }
 
-        private void OnPlayerDied(object sender, object data)
+        private void OnPlayerDied(string EventName, object sender, object data)
         {
             EventsPublisherTempleRun.Instance.PublishEvent(KnownEvents.GameOver, this, null);
         }
 
-        private void OnPause(object sender, object data)
+        private void OnPause(string EventName, object sender, object data)
         {
             // Todo: Distance Controller can easily handle this, but just stopping the distance progression.
             Time.timeScale = 0.0f;
         }
 
-        private void OnResume(object sender, object data)
+        private void OnResume(string EventName, object sender, object data)
         {
             Time.timeScale = 1.0f;
         }

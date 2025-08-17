@@ -29,7 +29,7 @@ namespace CrawfisSoftware.TempleRun
             _parentTransform = parent.transform;
         }
 
-        private void OnSplineCreated(object sender, object data)
+        private void OnSplineCreated(string eventName, object sender, object data)
         {
             var splineCreator = sender as SplineCreator2D;
             // Create prefab from the last two points.
@@ -49,7 +49,7 @@ namespace CrawfisSoftware.TempleRun
 
         protected abstract void CreateTrack(float length, Transform trackTransform, Direction endCapDirection);
 
-        private void OnActiveSplineChanged(object sender, object data)
+        private void OnActiveSplineChanged(string eventName, object sender, object data)
         {
             if (_currentTrackID >= 0 && _spawnedTracks.TryGetValue(_currentTrackID, out var track))
             {

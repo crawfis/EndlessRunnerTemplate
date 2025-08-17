@@ -35,19 +35,19 @@ namespace CrawfisSoftware.TempleRun
             //EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.ActiveTrackChanging, OnTrackChanging);
         }
 
-        private void OnResetSpeed(object arg1, object arg2)
+        private void OnResetSpeed(string eventName, object sender, object data)
         {
             _speed = _initialSpeed;
         }
 
-        private void OnGameStarted(object sender, object data)
+        private void OnGameStarted(string eventName, object sender, object data)
         {
             float initialDistance = Blackboard.Instance.TrackWidthOffset;
             //Blackboard.Instance.DistanceTracker.UpdateDistance(initialDistance);
             _coroutine = StartCoroutine(UpdateAfterGameStart());
         }
 
-        private void OnGameOver(object sender, object data)
+        private void OnGameOver(string eventName, object sender, object data)
         {
             DeleteCoroutine();
         }
@@ -58,12 +58,12 @@ namespace CrawfisSoftware.TempleRun
         //    _trackDistance += segmentDistance;
         //}
 
-        private void OnTeleportStarted(object sender, object data)
+        private void OnTeleportStarted(string eventName, object sender, object data)
         {
             _isMoving = false;
         }
 
-        private void OnTeleportEnded(object sender, object data)
+        private void OnTeleportEnded(string eventName, object sender, object data)
         {
             _isMoving = true;
             Blackboard.Instance.DistanceTracker.UpdateDistance(_trackDistance - Blackboard.Instance.DistanceTracker.DistanceTravelled);
