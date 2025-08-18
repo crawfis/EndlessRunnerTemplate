@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+
 using UnityEngine;
 
 namespace CrawfisSoftware.TempleRun
@@ -43,6 +44,7 @@ namespace CrawfisSoftware.TempleRun
 
         protected virtual void OnDestroy()
         {
+            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.GameStarted, OnGameStarted);
             EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.LeftTurnSucceeded, OnTurnSucceeded);
             EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.RightTurnSucceeded, OnTurnSucceeded);
         }

@@ -42,5 +42,9 @@ namespace CrawfisSoftware.TempleRun
                     break;
             }
         }
+        private void OnDestroy()
+        {
+            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.GameStarted, OnGameStarted);
+        }
     }
 }
