@@ -4,7 +4,7 @@ namespace CrawfisSoftware.TempleRun
 {
     /// <summary>
     /// Loads a configuration ScriptableObject and puts in on the Blackboard
-    /// Dependencies: Blackboad, TempleRunGameConfig
+    /// Dependencies: Blackboard, TempleRunGameConfig
     /// </summary>
     public class LoadGameConfig : MonoBehaviour
     {

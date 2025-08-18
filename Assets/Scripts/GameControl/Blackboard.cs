@@ -1,4 +1,8 @@
 ﻿using CrawfisSoftware.Unity3D.Utility;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 using UnityEngine;
 
 namespace CrawfisSoftware.TempleRun
@@ -12,7 +16,11 @@ namespace CrawfisSoftware.TempleRun
         public static Blackboard Instance { get; private set; }
         public System.Random MasterRandom { get { return _randomProvider.RandomGenerator; } }
         public TempleRunGameConfig GameConfig { get; set; }
-        internal DistanceTracker DistanceTracker { get; set; }
+        internal DistanceTracker DistanceTracker
+        {
+            get;
+            set;
+        }
         public float TrackWidthOffset { get; set; } = 1f;
         public float TileLength { get; set; } = 4f;
 
@@ -26,10 +34,12 @@ namespace CrawfisSoftware.TempleRun
             Instance = this;
         }
 
-        //[RuntimeInitializeOnLoadMethod]
-        //public static void InitializeOnPlay()
-        //{
-        //Instance = null;
-        //}
+#if UNITY_EDITOR
+        [InitializeOnEnterPlayMode()]
+        public static void InitializeOnPlay()
+        {
+            Instance = null;
+        }
+#endif
     }
 }

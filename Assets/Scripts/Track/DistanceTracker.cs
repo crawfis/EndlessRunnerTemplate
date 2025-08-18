@@ -1,7 +1,7 @@
 ﻿namespace CrawfisSoftware.TempleRun
 {
     /// <summary>
-    /// A simple class to update a float distance and retreive it.
+    /// A simple class to update a float distance and retrieve it.
     /// </summary>
     public class DistanceTracker
     {

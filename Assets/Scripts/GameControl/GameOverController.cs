@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using CrawfisSoftware.Events;
+
+using System.Collections;
 
 using UnityEngine;
 
@@ -24,10 +26,11 @@ namespace CrawfisSoftware.TempleRun
         private IEnumerator Quit()
         {
             yield return new WaitForSecondsRealtime(GameConstants.QuitDelay);
-            // For a more complex game with many scenes, we may want to access the EventsPublisher (in another script)
-            // and flush all events from it (calling Pop).
             // This shows the proper way to quit a game both in Editor and with a build
 #if UNITY_EDITOR
+            // Needed in Unity editor to clear any subscribers who forgot to unsubscribe.
+            // Useful to put a breakpoint here to see if there are any subscribers left.
+            EventsPublisher.Instance.Clear();
             UnityEditor.EditorApplication.isPlaying = false;
 #endif
             Application.Quit();
