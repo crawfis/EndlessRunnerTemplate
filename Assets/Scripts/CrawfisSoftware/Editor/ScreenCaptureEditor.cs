@@ -13,11 +13,9 @@ namespace CrawfisSoftware.Utility
         private static string directory = "Screenshots/Capture/";
         private static string sPath;
         private static string latestScreenshotPath = string.Empty;
-        private static bool sTempHideGizmos = true;
         private static Color cleanCameraBackgroundColor = new Color(0.6f, 0.8f, 0.2f, 1f); // Default similar to yellowGreen
 
         // --- Instance Fields ---
-        private bool hideGizmos = true; // Default to hiding gizmos
         private bool initDone = false;
         private GUIStyle bigText;
 
@@ -41,26 +39,26 @@ namespace CrawfisSoftware.Utility
             }
 
             GUILayout.Label("Game Screen Capture", bigText);
+            GUILayout.Label("Resolution: " + GetResolution());
             if (GUILayout.Button("Game screenshot"))
             {
                 TakeGameScreenshot();
             }
-            GUILayout.Label("Resolution: " + GetResolution());
 
             EditorGUILayout.Space();
 
             GUILayout.Label("Scene Screen Capture", bigText);
-            hideGizmos = EditorGUILayout.Toggle("Hide Gizmos/Handles", hideGizmos);
-            cleanCameraBackgroundColor = EditorGUILayout.ColorField("Clean Camera BG Color", cleanCameraBackgroundColor);
+            GUILayout.Label("Resolution: " + GetResolution());
             if (GUILayout.Button("Scene screenshot (Current View)"))
             {
-                SceneScreenshotGizmos(hideGizmos);
+                SceneScreenshotGizmos();
             }
+            EditorGUILayout.Space();
             if (GUILayout.Button("Scene screenshot (Clean Camera)"))
             {
                 SceneScreenshotCleanCamera();
             }
-            GUILayout.Label("Resolution: " + GetResolution());
+            cleanCameraBackgroundColor = EditorGUILayout.ColorField("Clean Camera BG Color", cleanCameraBackgroundColor);
 
             EditorGUILayout.Space();
             EditorGUILayout.Space();
@@ -104,13 +102,12 @@ namespace CrawfisSoftware.Utility
         [MenuItem("Crawfis/Screenshots/Scene View", priority = 3)]
         private static void TakeSceneScreenshot()
         {
-            SceneScreenshotGizmos(true);
+            SceneScreenshotGizmos();
         }
 
         // --- Screenshot Methods ---
-        private static void SceneScreenshotGizmos(bool hideGizmos)
+        private static void SceneScreenshotGizmos()
         {
-            sTempHideGizmos = hideGizmos;
             EnsureDirectoryExists();
             var path = GenerateScreenshotPath("Scene");
             sPath = path;
@@ -202,8 +199,7 @@ namespace CrawfisSoftware.Utility
                 var mode = sv.cameraMode.drawMode;
                 if (!Enum.IsDefined(typeof(DrawCameraMode), mode) || mode == 0)
                     mode = DrawCameraMode.Textured;
-                Handles.DrawCamera(rect, srcCam, mode, !sTempHideGizmos);
-                Handles.DrawCamera(rect, srcCam, mode, false);
+                Handles.DrawCamera(rect, srcCam, mode, true);
                 var tl = HandleUtility.GUIPointToScreenPixelCoordinate(rect.min);
                 var br = HandleUtility.GUIPointToScreenPixelCoordinate(rect.max);
                 int px = Mathf.RoundToInt(Mathf.Min(tl.x, br.x));
