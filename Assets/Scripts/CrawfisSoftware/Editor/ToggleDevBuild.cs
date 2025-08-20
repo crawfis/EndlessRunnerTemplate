@@ -1,4 +1,5 @@
 ﻿using UnityEditor;
+
 using UnityEngine;
 
 namespace CrawfisSoftware.Unity3D.Utility
@@ -39,6 +40,5 @@ namespace CrawfisSoftware.Unity3D.Utility
             Menu.SetChecked(MENU_LOCATION, IsDevBuild);
             return !Application.isPlaying;
         }
-
     }
 }

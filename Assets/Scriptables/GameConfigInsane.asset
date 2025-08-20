@@ -20,4 +20,4 @@ MonoBehaviour:
   MinDistance: 21
   MaxDistance: 21
   InputCoolDownForTurns: 0
-  NumberOfLives: 2147483647
+  NumberOfLives: 3
