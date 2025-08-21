@@ -10,6 +10,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2db9258d9eb56874192f9538c4140bd6, type: 3}
-  m_Name: fixedSeedsList
+  m_Name: RandomSeeds
   m_EditorClassIdentifier: Crawfis.Events::CrawfisSoftware.Unity3D.Utility.IntListScriptable
   List: 

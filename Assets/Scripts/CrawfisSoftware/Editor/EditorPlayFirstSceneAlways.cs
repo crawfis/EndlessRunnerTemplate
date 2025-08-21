@@ -15,10 +15,30 @@ namespace CrawfisSoftware.Unity3D.Utility
         private const string PREF_KEY = "PlayFirstSceneAlwaysEnabled";
         private const string MENU_LOCATION = "Crawfis/Play Scene 0 Always";
 
-        static EditorPlayFirstSceneAlways()
+        // Ensure setup happens after the Editor is loaded (domain reload/compile), before entering Play Mode.
+        [InitializeOnLoadMethod]
+        private static void InitializeOnEditorLoad()
         {
-            // Ensure the menu is checked/unchecked on load
+            // Keep menu in sync
             Menu.SetChecked(MENU_LOCATION, IsEnabled);
+
+            // Ensure the playModeStartScene is set to the first scene in Build Settings if enabled
+            if (IsEnabled)
+            {
+                if (EditorBuildSettings.scenes != null && EditorBuildSettings.scenes.Length > 0)
+                {
+                    EditorSceneManager.playModeStartScene = AssetDatabase.LoadAssetAtPath<SceneAsset>(EditorBuildSettings.scenes[0].path);
+                }
+                else
+                {
+                    // No scenes in Build Settings. Make sure we don't point to an invalid scene.
+                    EditorSceneManager.playModeStartScene = null;
+                }
+            }
+
+            // Register play mode change callback
+            EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
+            EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
         }
 
         private static bool IsEnabled
@@ -34,8 +54,15 @@ namespace CrawfisSoftware.Unity3D.Utility
             Menu.SetChecked(MENU_LOCATION, IsEnabled);
             if (IsEnabled)
             {
-                // SetProperties Play Mode scene to first scene defined in build settings.
-                EditorSceneManager.playModeStartScene = AssetDatabase.LoadAssetAtPath<SceneAsset>(EditorBuildSettings.scenes[0].path);
+                // Set Play Mode scene to first scene defined in build settings, if any.
+                if (EditorBuildSettings.scenes != null && EditorBuildSettings.scenes.Length > 0)
+                {
+                    EditorSceneManager.playModeStartScene = AssetDatabase.LoadAssetAtPath<SceneAsset>(EditorBuildSettings.scenes[0].path);
+                }
+                else
+                {
+                    EditorSceneManager.playModeStartScene = null;
+                }
             }
             else
             {
@@ -52,18 +79,6 @@ namespace CrawfisSoftware.Unity3D.Utility
             return !Application.isPlaying;
         }
 
-        [InitializeOnEnterPlayMode]
-        private static void OnLoad()
-        {
-            EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
-            EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
-
-            if (!IsEnabled)
-                return;
-            // Ensure at least one build scene exist.
-            if (EditorBuildSettings.scenes.Length == 0)
-                return;
-        }
         private static void OnPlayModeStateChanged(PlayModeStateChange state)
         {
             if (!IsEnabled)

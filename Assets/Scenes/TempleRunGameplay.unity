@@ -38,12 +38,12 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 12
+  serializedVersion: 13
+  m_BakeOnSceneLoad: 0
   m_GISettings:
     serializedVersion: 2
     m_BounceScale: 1
@@ -180,7 +180,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &226459356
 Transform:
   m_ObjectHideFlags: 0
@@ -208,6 +208,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bfab8d7afafb29744bb0e8a0b5543e29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _numberOfLookAheadTracks: 2
   _validTrackLengths: {fileID: 11400000, guid: ce92da35dc02cf1408d67a368d202999, type: 2}
 --- !u!1 &331296744
 GameObject:
@@ -371,7 +372,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _turnController: {fileID: 1587033301}
-  _turnDistance: 0.9
+  _turnDistance: 0.1
 --- !u!1 &874220656
 GameObject:
   m_ObjectHideFlags: 0
@@ -432,7 +433,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1009615617
 Transform:
   m_ObjectHideFlags: 0
@@ -460,6 +461,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82bf893c918aab54799322dadc80fd11, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _numberOfLookAheadTracks: 12
 --- !u!1 &1587033300
 GameObject:
   m_ObjectHideFlags: 0
@@ -533,6 +535,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 786da896cc025e549adbd544ef86ed52, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _numberOfLookAheadTracks: 12
 --- !u!4 &1839240074
 Transform:
   m_ObjectHideFlags: 0

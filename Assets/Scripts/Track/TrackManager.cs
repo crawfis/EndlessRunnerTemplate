@@ -20,9 +20,8 @@ namespace CrawfisSoftware.TempleRun
     /// <remarks>Used as a base class for integer-based tracks (voxels or tiles) and a fixed set of track lengths.</remarks>
     public class TrackManager : TrackManagerAbstract
     {
-        // Todo: Remove MonoBehaviour
-        protected const int TrackLength = 12;
-        protected readonly Queue<(Direction direction, float distance)> _trackSegments = new(TrackLength);
+        [SerializeField] int _numberOfLookAheadTracks = 12;
+        protected Queue<(Direction direction, float distance)> _trackSegments;
         protected float _startDistance = 10f;
         protected float _minDistance = 3;
         protected float _maxDistance = 9;
@@ -30,7 +29,7 @@ namespace CrawfisSoftware.TempleRun
 
         protected virtual void Awake()
         {
-            // Todo: Remove Awake and move to a constructor w/o the Blackboard.
+            _trackSegments = new(_numberOfLookAheadTracks);
             var gameConfig = Blackboard.Instance.GameConfig;
             Initialize(gameConfig.StartRunway, gameConfig.MinDistance,
                 gameConfig.MaxDistance, Blackboard.Instance.MasterRandom);
@@ -72,7 +71,7 @@ namespace CrawfisSoftware.TempleRun
             var newTrackSegment = (GetNewDirection(), _startDistance);
             _trackSegments.Enqueue(newTrackSegment);
             EventsPublisherTempleRun.Instance.PublishEvent(KnownEvents.TrackSegmentCreated, this, newTrackSegment);
-            for (int i = 1; i < TrackLength; i++)
+            for (int i = 1; i < _numberOfLookAheadTracks; i++)
             {
                 AddTrackSegment();
             }

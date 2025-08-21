@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 
 using UnityEngine;
 
@@ -10,8 +11,8 @@ namespace CrawfisSoftware.TempleRun
         [SerializeField] protected GameObject _prefab;
         [SerializeField] protected float _widthScale = 1;
         [SerializeField] protected float _heightScale = 1.0f;
-        [Tooltip("Delete any older track segments keeping at most this number of prefabs.")]
-        [SerializeField] protected float _debugDestroyDelayTime = 4f;
+        [Tooltip("Delete any older track segments keeping them alive for this duration.")]
+        [SerializeField] protected float _debugDestroyDelayTime = 0.05f;
 
         protected Transform _parentTransform;
         protected readonly Dictionary<int, GameObject> _spawnedTracks = new();
@@ -54,10 +55,16 @@ namespace CrawfisSoftware.TempleRun
         {
             if (_currentTrackID >= 0 && _spawnedTracks.TryGetValue(_currentTrackID, out var track))
             {
-                Destroy(track, _debugDestroyDelayTime);
+                StartCoroutine(DeactivateCoroutine(track, _debugDestroyDelayTime));
                 _spawnedTracks.Remove(_currentTrackID);
             }
             _currentTrackID++;
+        }
+        private IEnumerator DeactivateCoroutine(GameObject target, float delay)
+        {
+            yield return new WaitForSeconds(delay);
+            target?.SetActive(false);
+            Destroy(target);
         }
         private void OnDestroy()
         {
