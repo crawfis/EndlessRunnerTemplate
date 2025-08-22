@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
+
 using UnityEngine;
 
-namespace CrawfisSoftware.Unity3D.Utility
+namespace CrawfisSoftware.Scriptables
 {
     public class ScriptableListGeneric<T> : ScriptableObject
     {

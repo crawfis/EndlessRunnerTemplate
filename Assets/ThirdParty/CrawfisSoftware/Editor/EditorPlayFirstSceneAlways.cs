@@ -4,7 +4,7 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace CrawfisSoftware.Unity3D.Utility
+namespace CrawfisSoftware.Utility
 {
     /// <summary>
     /// This script overrides the default behavior when pressing Play to mimic it as if you loaded the first scene in the Build index and then hit Play.

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Crawfis.CSE5559.Lab1
+namespace CrawfisSoftware.AssetManagement
 {
     public static class GameObjectExtensions
     {

@@ -1,11 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using CrawfisSoftware.Scriptables;
+
+using System.Collections.Generic;
 using System.Linq;
+
 using UnityEditor;
 using UnityEditor.UIElements;
+
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace CrawfisSoftware.Unity3D.Utility
+namespace CrawfisSoftware.Utility
 {
     [UnityEditor.CustomEditor(typeof(RandomProviderFromList), true)]
     public class RandomProviderEditor : Editor

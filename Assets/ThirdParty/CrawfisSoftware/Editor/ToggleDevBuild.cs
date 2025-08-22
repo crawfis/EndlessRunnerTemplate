@@ -2,7 +2,7 @@
 
 using UnityEngine;
 
-namespace CrawfisSoftware.Unity3D.Utility
+namespace CrawfisSoftware.Utility
 {
     /// <summary>
     /// This will add a menu that allows you to toggle the build or compiler setting DEV_BUILD.

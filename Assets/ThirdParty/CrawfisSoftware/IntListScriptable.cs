@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace CrawfisSoftware.Unity3D.Utility
+namespace CrawfisSoftware.Scriptables
 {
     [CreateAssetMenu(fileName = "intList", menuName = "CrawfisSoftware/Create Scriptable: List<int>")]
     public class IntListScriptable : ScriptableListGeneric<int>

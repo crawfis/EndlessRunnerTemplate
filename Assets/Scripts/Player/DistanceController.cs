@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+
 using UnityEngine;
 
 namespace CrawfisSoftware.TempleRun
@@ -81,15 +82,10 @@ namespace CrawfisSoftware.TempleRun
                     _distanceTracker.UpdateDistance(_speed * Time.deltaTime);
                     _speed += _acceleration * Time.deltaTime;
                     _speed = Mathf.Clamp(_speed, _initialSpeed, _maxSpeed);
+                    Blackboard.Instance.CurrentSpeed = _speed;
                 }
                 yield return new WaitForEndOfFrame();
             }
-        }
-
-        // Typically called when a player loses a life.
-        public void Reset()
-        {
-            _speed = _initialSpeed;
         }
 
         private void OnDestroy()

@@ -246,6 +246,7 @@ Transform:
   - {fileID: 874220657}
   - {fileID: 635303660}
   - {fileID: 2118381532}
+  - {fileID: 1581898277}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &414482095
@@ -343,7 +344,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &635303660
 Transform:
   m_ObjectHideFlags: 0
@@ -462,6 +463,52 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _numberOfLookAheadTracks: 12
+--- !u!1 &1581898276
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1581898277}
+  - component: {fileID: 1581898278}
+  m_Layer: 0
+  m_Name: InputController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1581898277
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1581898276}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 331296745}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1581898278
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1581898276}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0744b191ea70ab246b9cf61d61799942, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _inputAsset: {fileID: -944628639613478452, guid: e5d1312428e16c344aadeea670c8d578,
+    type: 3}
 --- !u!1 &1587033300
 GameObject:
   m_ObjectHideFlags: 0
@@ -651,6 +698,8 @@ GameObject:
   - component: {fileID: 2145456646}
   - component: {fileID: 2145456645}
   - component: {fileID: 2145456647}
+  - component: {fileID: 2145456648}
+  - component: {fileID: 2145456649}
   m_Layer: 0
   m_Name: LoadVisuals
   m_TagString: Untagged
@@ -698,7 +747,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9757640d57a48e4b971e04bef7fc493, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _sceneName: TempleRunTrackVisuals
+--- !u!114 &2145456648
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2145456644}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9757640d57a48e4b971e04bef7fc493, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
   _sceneName: TempleRunGuiOverlay
+--- !u!114 &2145456649
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2145456644}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9757640d57a48e4b971e04bef7fc493, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _sceneName: TempleRunEnvironment
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

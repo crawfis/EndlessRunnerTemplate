@@ -98,7 +98,7 @@ namespace CrawfisSoftware.TempleRun
                     ""name"": ""Right"",
                     ""type"": ""Button"",
                     ""id"": ""b5b7711a-829a-440c-873f-116ce7e78acd"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -138,6 +138,17 @@ namespace CrawfisSoftware.TempleRun
                 },
                 {
                     ""name"": """",
+                    ""id"": ""e14651af-5830-44aa-880e-66be625c4615"",
+                    ""path"": ""<Keyboard>/rightArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Right"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""e7920561-9b6d-445b-a0b7-8eda36a18f20"",
                     ""path"": ""<Gamepad>/dpad/left"",
                     ""interactions"": """",
@@ -151,6 +162,17 @@ namespace CrawfisSoftware.TempleRun
                     ""name"": """",
                     ""id"": ""76f03926-a69e-48c1-bf4a-16a73c8ac9ab"",
                     ""path"": ""<Keyboard>/a"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Left"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c7c7bb8f-a2de-490f-9acb-b5ba291cbd43"",
+                    ""path"": ""<Keyboard>/leftArrow"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",

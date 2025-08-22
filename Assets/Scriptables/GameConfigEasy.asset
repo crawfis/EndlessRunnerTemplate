@@ -13,10 +13,11 @@ MonoBehaviour:
   m_Name: GameConfigEasy
   m_EditorClassIdentifier: 
   InitialSpeed: 5
-  MaxSpeed: 8
-  Acceleration: 0.2
+  MaxSpeed: 30
+  Acceleration: 1
   StartRunway: 10
   SafeTurnDistance: 5
   MinDistance: 9
   MaxDistance: 18
   InputCoolDownForTurns: 0
+  NumberOfLives: 11

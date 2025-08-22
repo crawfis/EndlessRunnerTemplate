@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace CrawfisSoftware.Unity3D.Utility
+namespace CrawfisSoftware.Utility
 {
     /// <summary>
     /// Master control for consistent random number generation.

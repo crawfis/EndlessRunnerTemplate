@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 using UnityEngine;
 
-namespace Crawfis.CSE5559.Lab1
+namespace CrawfisSoftware.Spawners
 {
     internal class GridSpawner : MonoBehaviour
     {

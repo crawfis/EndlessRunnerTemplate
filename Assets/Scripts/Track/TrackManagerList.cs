@@ -1,4 +1,5 @@
-﻿using CrawfisSoftware.Unity3D.Utility;
+﻿using CrawfisSoftware.Scriptables;
+
 using UnityEngine;
 
 namespace CrawfisSoftware.TempleRun

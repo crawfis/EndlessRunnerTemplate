@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace CrawfisSoftware.Unity3D.Utility
+namespace CrawfisSoftware.Scriptables
 {
     [CreateAssetMenu(fileName = "randomSeed", menuName = "delete me")]
     public class ScriptableInt : ScriptableObject

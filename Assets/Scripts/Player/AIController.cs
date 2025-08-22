@@ -15,6 +15,7 @@ namespace CrawfisSoftware.TempleRun
         [SerializeField] private TurnController _turnController;
         [Tooltip("Distance from far wall to turn. Should be between (0,opening size]. Can try to turn easy but the difficulty config will determine if possible.")]
         [SerializeField] private float _turnDistance = .1f;
+        [SerializeField] private bool _isEnabled = true;
 
         private bool _gameStarted = false;
 
@@ -31,7 +32,7 @@ namespace CrawfisSoftware.TempleRun
         private void Update()
         {
             float distance = Blackboard.Instance.DistanceTracker.DistanceTravelled;
-            if (!_gameStarted || _turnController.TurnFailedDistance - _turnDistance > distance) return;
+            if (!_gameStarted || !_isEnabled || _turnController.TurnFailedDistance - _turnDistance > distance) return;
             switch (_turnController.TurnDirection)
             {
                 case Direction.Left:

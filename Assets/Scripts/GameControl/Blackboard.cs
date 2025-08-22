@@ -1,4 +1,4 @@
-﻿using CrawfisSoftware.Unity3D.Utility;
+﻿using CrawfisSoftware.Utility;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -16,13 +16,10 @@ namespace CrawfisSoftware.TempleRun
         public static Blackboard Instance { get; private set; }
         public System.Random MasterRandom { get { return _randomProvider.RandomGenerator; } }
         public TempleRunGameConfig GameConfig { get; set; }
-        internal DistanceTracker DistanceTracker
-        {
-            get;
-            set;
-        }
+        public DistanceTracker DistanceTracker { get; set; }
         public float TrackWidthOffset { get; set; } = 1f;
         public float TileLength { get; set; } = 4f;
+        public float CurrentSpeed { get; set; }
 
         private void Awake()
         {

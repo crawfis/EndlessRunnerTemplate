@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+
 using UnityEditor;
 using UnityEditor.Build;
 
-namespace CrawfisSoftware.Unity3D.Utility
+namespace CrawfisSoftware.Utility
 {
     /// <summary>
     /// Allows editor scripts to "define" scripting symbols. Currently works only for standalone builds.

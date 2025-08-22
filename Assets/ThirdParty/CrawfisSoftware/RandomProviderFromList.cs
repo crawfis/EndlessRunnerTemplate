@@ -1,6 +1,8 @@
-﻿using UnityEngine;
+﻿using CrawfisSoftware.Scriptables;
 
-namespace CrawfisSoftware.Unity3D.Utility
+using UnityEngine;
+
+namespace CrawfisSoftware.Utility
 {
     public class RandomProviderFromList : RandomProvider
     {
