@@ -64,8 +64,9 @@ namespace CrawfisSoftware.TempleRun
             //If lazy, uncomment the next line to clear all subscribers.
             //EventsPublisher.Instance.Clear();
             UnityEditor.EditorApplication.isPlaying = false;
-#endif
+#else
             Application.Quit();
+#endif
         }
     }
 }

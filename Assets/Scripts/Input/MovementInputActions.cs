@@ -1,10 +1,13 @@
-﻿using System.Collections;
+﻿using CrawfisSoftware.TempleRun.Input;
+
+using System.Collections;
+
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace CrawfisSoftware.TempleRun
 {
-    public class InputController : MonoBehaviour
+    public class MovementInputActions : MonoBehaviour
     {
         [SerializeField] private InputActionAsset _inputAsset;
 

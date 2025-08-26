@@ -20,8 +20,6 @@ namespace CrawfisSoftware.TempleRun
         {
             _gameInitializer = new GameInitialization(Blackboard.Instance.GameConfig.NumberOfLives);
             EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.PlayerDied, OnPlayerDied);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.Pause, OnPause);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.Resume, OnResume);
         }
 
         private void Start()
@@ -41,18 +39,6 @@ namespace CrawfisSoftware.TempleRun
             EventsPublisherTempleRun.Instance.PublishEvent(KnownEvents.GameOver, this, null);
         }
 
-        private void OnPause(string EventName, object sender, object data)
-        {
-            // Todo: Distance Controller can easily handle this, but just stopping the distance progression.
-            Time.timeScale = 0.0f;
-        }
-
-        private void OnResume(string EventName, object sender, object data)
-        {
-            Time.timeScale = 1.0f;
-        }
-
-
         private void OnDestroy()
         {
             UnsubscribeToEvents();
@@ -62,8 +48,6 @@ namespace CrawfisSoftware.TempleRun
         private void UnsubscribeToEvents()
         {
             EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.PlayerDied, OnPlayerDied);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.Pause, OnPause);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.Resume, OnResume);
         }
     }
 }
