@@ -6,17 +6,19 @@ using UnityEngine;
 
 namespace CrawfisSoftware.TempleRun.Audio
 {
+    [RequireComponent(typeof(AudioSource))]
     internal class Metronome : MonoBehaviour
     {
         [SerializeField] private AudioClip _tickSound;
         [SerializeField] private float _speedTimeScale = 6f;
+        [SerializeField] private AudioSource _audioSource;
 
         private Coroutine _metronomeCoroutine;
         private void Awake()
         {
             var leftClipProvider = new AudioClipProvider(new System.Random());
             leftClipProvider.AddClip(_tickSound);
-            var leftFactory = new AudioFactoryPooled(this, null);
+            var leftFactory = new AudioFactoryPooled(this, this.gameObject);
             //AudioFactoryRegistry.Instance.RegisterAudioFactory("TurnLeftPooledAudio", leftFactory);
             ISfxAudioPlayer sfxAudioPlayer = SfxAudioPlayerFactory.Instance.CreateSfxAudioPlayer("Metronome", leftFactory, leftClipProvider);
 

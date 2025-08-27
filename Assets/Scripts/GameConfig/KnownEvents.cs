@@ -4,7 +4,7 @@
     {
         LeftTurnRequested, LeftTurnSucceeded,
         RightTurnRequested, RightTurnSucceeded,
-        PlayerFailed, PlayerDied,
+        PlayerFailing, PlayerFailed, PlayerDied,
         GameStarted, GameOver, Pause, Resume, PauseToggle,
         CountdownStarted, CountdownTick,
         SplineSegmentCreated, CurrentSplineChanging, CurrentSplineChanged,

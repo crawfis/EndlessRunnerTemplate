@@ -18,7 +18,7 @@ namespace CrawfisSoftware.TempleRun
         {
             _numberOfLives = numberOfLives;
             _playerID = playerID;
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.PlayerFailed, OnPlayerFailed);
+            EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.PlayerFailing, OnPlayerFailed);
         }
 
         private void OnPlayerFailed(string eventName, object sender, object data)
@@ -39,7 +39,7 @@ namespace CrawfisSoftware.TempleRun
 
         public void Dispose()
         {
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.PlayerFailed, OnPlayerFailed);
+            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.PlayerFailing, OnPlayerFailed);
         }
     }
 }

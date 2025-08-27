@@ -28,7 +28,7 @@ namespace CrawfisSoftware.TempleRun
             _maxSpeed = Blackboard.Instance.GameConfig.MaxSpeed;
             _acceleration = Blackboard.Instance.GameConfig.Acceleration;
             _speed = _initialSpeed;
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.PlayerFailed, OnResetSpeed);
+            EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.PlayerFailing, OnResetSpeed);
             EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.GameStarted, OnGameStarted);
             EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.GameOver, OnGameOver);
             EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.TeleportStarted, OnTeleportStarted);
@@ -90,7 +90,7 @@ namespace CrawfisSoftware.TempleRun
 
         private void OnDestroy()
         {
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.PlayerFailed, OnResetSpeed);
+            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.PlayerFailing, OnResetSpeed);
             EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.GameStarted, OnGameStarted);
             EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.GameOver, OnGameOver);
             EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.TeleportStarted, OnTeleportStarted);

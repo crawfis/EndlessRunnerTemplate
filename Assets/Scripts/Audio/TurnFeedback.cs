@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace CrawfisSoftware.TempleRun.Audio
 {
+    [RequireComponent(typeof(AudioSource))]
     internal class TurnFeedback : MonoBehaviour
     {
         [SerializeField] private AudioClip _turnLeftAudioClips;
@@ -13,7 +14,7 @@ namespace CrawfisSoftware.TempleRun.Audio
         {
             var leftClipProvider = new AudioClipProvider(new System.Random());
             leftClipProvider.AddClip(_turnLeftAudioClips);
-            var leftFactory = new AudioFactoryPooled(this, null);
+            var leftFactory = new AudioFactoryPooled(this, this.gameObject);
             //AudioFactoryRegistry.Instance.RegisterAudioFactory("TurnLeftPooledAudio", leftFactory);
             ISfxAudioPlayer sfxAudioPlayer = SfxAudioPlayerFactory.Instance.CreateSfxAudioPlayer("leftTurnFeedback", leftFactory, leftClipProvider);
             EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.LeftTurnSucceeded, (_, _, _) =>
@@ -23,7 +24,7 @@ namespace CrawfisSoftware.TempleRun.Audio
 
             var rightClipProvider = new AudioClipProvider(new System.Random());
             rightClipProvider.AddClip(_turnRightAudioClips);
-            var rightFactory = new AudioFactoryPooled(this, null);
+            var rightFactory = new AudioFactoryPooled(this, this.gameObject);
             //AudioFactoryRegistry.Instance.RegisterAudioFactory("TurnRightPooledAudio", rightFactory);
             ISfxAudioPlayer sfxRightAudioPlayer = SfxAudioPlayerFactory.Instance.CreateSfxAudioPlayer("rightTurnFeedback", rightFactory, rightClipProvider);
 

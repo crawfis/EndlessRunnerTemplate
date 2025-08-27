@@ -33,7 +33,7 @@ namespace CrawfisSoftware.TempleRun
             {
                 _isRunning = false;
                 Debug.Log(string.Format("Player Died at Distance: {0}", (int)_currentSegmentDistance));
-                EventsPublisherTempleRun.Instance.PublishEvent(KnownEvents.PlayerFailed, this, distance);
+                EventsPublisherTempleRun.Instance.PublishEvent(KnownEvents.PlayerFailing, this, distance);
             }
         }
 

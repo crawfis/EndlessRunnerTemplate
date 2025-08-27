@@ -33,12 +33,15 @@ namespace CrawfisSoftware.GameControl
         {
             _isPaused = false;
             Time.timeScale = 1f;
+
         }
 
         public void TogglePauseResume()
         {
-            if (_isPaused) Resume();
-            else Pause();
+            if (_isPaused)
+                EventsPublisherTempleRun.Instance.PublishEvent(KnownEvents.Resume, this, null);
+            else
+                EventsPublisherTempleRun.Instance.PublishEvent(KnownEvents.Pause, this, null);
         }
 
         private void OnPauseToggle(string eventName, object sender, object data)

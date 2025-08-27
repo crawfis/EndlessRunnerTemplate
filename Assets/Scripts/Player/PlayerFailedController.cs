@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+
 using UnityEngine;
 
 namespace CrawfisSoftware.TempleRun
@@ -18,16 +19,16 @@ namespace CrawfisSoftware.TempleRun
 
         private void Awake()
         {
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.PlayerFailed, OnPlayerFailed);
+            EventsPublisherTempleRun.Instance.SubscribeToEvent(KnownEvents.PlayerFailing, OnPlayerFailing);
         }
 
-        private void OnPlayerFailed(string eventName, object sender, object data)
+        private void OnPlayerFailing(string eventName, object sender, object data)
         {
-            _pauseCoroutine = StartCoroutine(PauseGame());
+            _pauseCoroutine = StartCoroutine(DeathDelay());
             // Note: This starts immediately and runs in parallel with the above coroutine.
             _advanceTrackCoroutine = StartCoroutine(AdvanceAfterFailure());
         }
-        private IEnumerator PauseGame()
+        private IEnumerator DeathDelay()
         {
             EventsPublisherTempleRun.Instance.PublishEvent(KnownEvents.Pause, this, null);
             yield return new WaitForSecondsRealtime(GameConstants.ResumeDelay);
@@ -45,7 +46,7 @@ namespace CrawfisSoftware.TempleRun
         private void OnDestroy()
         {
             StopAllCoroutines(); // Saved them so could call individually instead.
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.PlayerFailed, OnPlayerFailed);
+            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.PlayerFailing, OnPlayerFailing);
         }
     }
 }
