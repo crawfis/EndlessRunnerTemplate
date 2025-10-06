@@ -33,5 +33,10 @@ namespace CrawfisSoftware.TempleRun.Audio
                 AudioManagerSingleton.Instance.PlaySfx("rightTurnFeedback", 1);
             });
         }
+        private void OnDestroy()
+        {
+            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.LeftTurnSucceeded, (_, _, _) =>
+            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.RightTurnSucceeded, (_, _, _) =>
+        }
     }
 }
