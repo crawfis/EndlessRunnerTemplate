@@ -38,8 +38,8 @@ namespace CrawfisSoftware.TempleRun.Audio
         }
         private void OnDestroy()
         {
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.LeftTurnSucceeded, (_, _, _) =>
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.RightTurnSucceeded, (_, _, _) =>
+            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.LeftTurnSucceeded, PlayLeftTurnSound);
+            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(KnownEvents.RightTurnSucceeded, PlayRightTurnSound);
         }
     }
 }
