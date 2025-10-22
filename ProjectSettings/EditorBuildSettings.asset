@@ -21,6 +21,9 @@ EditorBuildSettings:
     path: Assets/Scenes/TempleRunTrackVisuals.unity
     guid: 1b830593780cdf84f8dfc9c8fd813cc0
   - enabled: 1
+    path: Assets/Scenes/TempleRunTrackPCG.unity
+    guid: db28af7ef1fe91046bbe0377e0421f98
+  - enabled: 1
     path: Assets/Scenes/TempleRunSfx.unity
     guid: de0ef9bd24412eb4c956d5a3aec9a1d5
   - enabled: 1
