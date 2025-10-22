@@ -1,0 +1,85 @@
+name: "User Story"
+description: "Create a user story with acceptance criteria and estimate."
+title: "[Story] "
+labels:
+  - "type:story"
+body:
+  - type: markdown
+    attributes:
+      value: "Use this form for user stories. Fill Acceptance Criteria and Definition of Done."
+  - type: input
+    id: persona
+    attributes:
+      label: "Persona (who?)"
+      description: "E.g., 'As a logged-in user' or 'As an admin'"
+      placeholder: "As a ..."
+      required: true
+  - type: input
+    id: need
+    attributes:
+      label: "Need (what?)"
+      description: "What the user wants to do"
+      placeholder: "I want to ..."
+      required: true
+  - type: textarea
+    id: benefit
+    attributes:
+      label: "Benefit (why?)"
+      description: "Why does the user need this?"
+      placeholder: "So that ..."
+      required: true
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: "Acceptance Criteria"
+      description: "List clear, testable acceptance criteria (one per line)."
+      placeholder: "- Given ...\n- When ...\n- Then ..."
+      required: true
+  - type: textarea
+    id: definition_of_done
+    attributes:
+      label: "Definition of Done"
+      description: "Checklist for 'done' (tests, docs, e2e, accessibility, etc.)"
+      placeholder: "- Unit tests added\n- Integration tests\n- Updated docs"
+      required: true
+  - type: dropdown
+    id: estimate
+    attributes:
+      label: "Estimate"
+      description: "Story points or size"
+      options:
+        - "0.5"
+        - "1"
+        - "2"
+        - "3"
+        - "5"
+        - "8"
+        - "13"
+        - "Unestimated"
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: "Priority"
+      options:
+        - "critical"
+        - "high"
+        - "medium"
+        - "low"
+      required: true
+  - type: input
+    id: components
+    attributes:
+      label: "Components / Area"
+      description: "Which app area this touches (optional)"
+      placeholder: "gameplay, ui, audio, input"
+  - type: input
+    id: related
+    attributes:
+      label: "Related issues / dependencies"
+      description: "Comma-separated issue numbers or URLs"
+      placeholder: "#123, #124"
+  - type: assignees
+    id: assignees
+    attributes:
+      label: "Assignees"
