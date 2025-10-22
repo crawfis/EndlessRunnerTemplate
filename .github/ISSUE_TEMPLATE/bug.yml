@@ -1,0 +1,44 @@
+name: Bug Report
+description: Report a bug to help us improve!
+title: "[BUG]: "
+labels: [bug, needs-triage]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting a bug! Please provide as much detail as possible.
+  - type: input
+    id: bug-summary
+    attributes:
+      label: Bug Summary
+      description: A brief summary of the issue.
+      placeholder: "e.g., 'App crashes when saving a file.'"
+    validations:
+      required: true
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: |
+        Provide clear steps to reproduce the issue.
+        1. 
+        2. 
+        3. 
+      placeholder: "1. Go to... 2. Click on... 3. Observe..."
+    validations:
+      required: true
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: Actual Behavior
+      description: What actually happened, including any error messages?
+    validations:
+      required: true

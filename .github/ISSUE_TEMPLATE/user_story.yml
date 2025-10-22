@@ -1,5 +1,5 @@
 name: "User Story"
-about: "Create a user story with acceptance criteria and estimate."
+description: "Create a user story with acceptance criteria and estimate."
 title: "[Story] "
 labels:
   - "type:story"
