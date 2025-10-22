@@ -11,12 +11,14 @@ body:
     id: summary
     attributes:
       label: "Short summary"
+    validations:
       required: true
   - type: textarea
     id: description
     attributes:
       label: "Description"
       description: "Describe what needs to be done"
+    validations:
       required: true
   - type: input
     id: parent
@@ -43,7 +45,3 @@ body:
         - "high"
         - "medium"
         - "low"
-  - type: assignees
-    id: assignees
-    attributes:
-      label: "Assignees"
