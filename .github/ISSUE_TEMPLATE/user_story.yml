@@ -13,6 +13,7 @@ body:
       label: "Persona (who?)"
       description: "E.g., 'As a logged-in user' or 'As an admin'"
       placeholder: "As a ..."
+    validations:
       required: true
   - type: input
     id: need
@@ -20,6 +21,7 @@ body:
       label: "Need (what?)"
       description: "What the user wants to do"
       placeholder: "I want to ..."
+    validations:
       required: true
   - type: textarea
     id: benefit
@@ -27,6 +29,7 @@ body:
       label: "Benefit (why?)"
       description: "Why does the user need this?"
       placeholder: "So that ..."
+    validations:
       required: true
   - type: textarea
     id: acceptance_criteria
@@ -34,6 +37,7 @@ body:
       label: "Acceptance Criteria"
       description: "List clear, testable acceptance criteria (one per line)."
       placeholder: "- Given ...\n- When ...\n- Then ..."
+    validations:
       required: true
   - type: textarea
     id: definition_of_done
@@ -41,6 +45,7 @@ body:
       label: "Definition of Done"
       description: "Checklist for 'done' (tests, docs, e2e, accessibility, etc.)"
       placeholder: "- Unit tests added\n- Integration tests\n- Updated docs"
+    validations:
       required: true
   - type: dropdown
     id: estimate
@@ -66,6 +71,7 @@ body:
         - "high"
         - "medium"
         - "low"
+    validations:
       required: true
   - type: input
     id: components
@@ -79,7 +85,3 @@ body:
       label: "Related issues / dependencies"
       description: "Comma-separated issue numbers or URLs"
       placeholder: "#123, #124"
-  - type: assignees
-    id: assignees
-    attributes:
-      label: "Assignees"
