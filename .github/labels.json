@@ -1,0 +1,16 @@
+[
+  { "name": "type:story", "color": "0e8a16", "description": "User story or feature" },
+  { "name": "type:task", "color": "0366d6", "description": "Small task or subtask" },
+  { "name": "type:bug", "color": "d73a4a", "description": "Bug or defect" },
+  { "name": "type:chore", "color": "6f42c1", "description": "Maintenance or chore" },
+  { "name": "priority:critical", "color": "b60205", "description": "Critical priority" },
+  { "name": "priority:high", "color": "d93f0b", "description": "High priority" },
+  { "name": "priority:medium", "color": "ffd33d", "description": "Medium priority" },
+  { "name": "priority:low", "color": "0c8a8a", "description": "Low priority" },
+  { "name": "status:blocked", "color": "5319e7", "description": "Blocked by dependency" },
+  { "name": "status:needs-info", "color": "f9c513", "description": "Needs more information" },
+  { "name": "ready-for-dev", "color": "1d76db", "description": "Story has been groomed and is ready for development" },
+  { "name": "area:gameplay", "color": "0e8a16", "description": "Gameplay area" },
+  { "name": "area:ui", "color": "fbca04", "description": "User interface" },
+  { "name": "area:audio", "color": "7057ff", "description": "Audio and sound" }
+]
