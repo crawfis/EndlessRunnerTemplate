@@ -61,6 +61,7 @@ body:
         - "8"
         - "13"
         - "Unestimated"
+    validations:
       required: true
   - type: dropdown
     id: priority
