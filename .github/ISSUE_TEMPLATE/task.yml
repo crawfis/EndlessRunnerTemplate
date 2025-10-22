@@ -1,5 +1,5 @@
 name: "Task"
-description: "Create a task associated with a story or as a standalone work item."
+about: "Create a task associated with a story or as a standalone work item."
 title: "[Task] "
 labels:
   - "type:task"
