@@ -6,33 +6,48 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/BootStrap.unity
-    guid: 72a40dca9aa5f2f41b974d0f84159de2
+    path: Assets/GameFlow/Scenes/Boot/0_BootStrap_Game_Only.unity
+    guid: 10d4dc5198481d440b2d4413bac71f8c
   - enabled: 1
-    path: Assets/Scenes/TempleRunGameplay.unity
+    path: Assets/GameFlow/Scenes/Boot/Game_Boot_0_Test_Initialization.unity
+    guid: 042dfcce94c920f4b838a6b4c0eb77a0
+  - enabled: 1
+    path: Assets/GameFlow/Scenes/Boot/Game_Boot_1_UI.unity
+    guid: d5b81091373cb5245b2da2b188c7322a
+  - enabled: 1
+    path: Assets/GameFlow/Scenes/Boot/Game_Boot_2_Play.unity
+    guid: b1176f7300a6cb3448601f97f1097659
+  - enabled: 1
+    path: Assets/TempleRun/Scenes/Gameplay/TempleRunGameplay.unity
     guid: 5c8a07c9987c8cb4b871067833f229ca
   - enabled: 1
-    path: Assets/Scenes/TempleRunGuiOverlay.unity
-    guid: 22df7bc11514f2c4499de2a200d43841
-  - enabled: 1
-    path: Assets/Scenes/TempleRunVisuals.unity
-    guid: 6d8aeb17918f53f4b99db3e5de9fa60d
-  - enabled: 1
-    path: Assets/Scenes/TempleRunTrackVisuals.unity
-    guid: 1b830593780cdf84f8dfc9c8fd813cc0
-  - enabled: 1
-    path: Assets/Scenes/TempleRunTrackPCG.unity
+    path: Assets/TempleRun/Scenes/Gameplay/TempleRunTrackPCG.unity
     guid: db28af7ef1fe91046bbe0377e0421f98
   - enabled: 1
-    path: Assets/Scenes/TempleRunSfx.unity
+    path: Assets/TempleRun/Scenes/Gameplay/TempleRunEnvironment.unity
+    guid: 7399d8211a2525c4e8f545cc9f952967
+  - enabled: 1
+    path: Assets/TempleRun/Scenes/Gameplay/TempleRunGuiOverlay.unity
+    guid: 22df7bc11514f2c4499de2a200d43841
+  - enabled: 1
+    path: Assets/TempleRun/Scenes/Gameplay/TempleRunPlayerVisuals.unity
+    guid: c4ae64d535a72d746808d12a6e421bfd
+  - enabled: 1
+    path: Assets/TempleRun/Scenes/Gameplay/TempleRunSfx.unity
     guid: de0ef9bd24412eb4c956d5a3aec9a1d5
   - enabled: 1
-    path: Assets/Scenes/TempleRunEnvironment.unity
-    guid: 7399d8211a2525c4e8f545cc9f952967
+    path: Assets/TempleRun/Scenes/Gameplay/TempleRunTrackVisuals.unity
+    guid: 1b830593780cdf84f8dfc9c8fd813cc0
+  - enabled: 1
+    path: Assets/TempleRun/Scenes/Gameplay/TempleRunCollectables.unity
+    guid: 4a8956cae12af614d8ba57204bc4b128
+  - enabled: 1
+    path: Assets/TempleRun/Scenes/Gameplay/TempleRunObstacles.unity
+    guid: 2e4399bebcc0efe4a8aa653c6bb99ff5
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: 9dd285d0b329cb5408566176ac04d737,
       type: 2}
-    com.unity.input.settings: {fileID: 11400000, guid: d86446681f5779f449a6b34d852d0953,
+    com.unity.input.settings: {fileID: 11400000, guid: 927e1e4f9d0247e48811243d9f43a50c,
       type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 8de051f95e9d6814aa0777570e80c745,
       type: 3}

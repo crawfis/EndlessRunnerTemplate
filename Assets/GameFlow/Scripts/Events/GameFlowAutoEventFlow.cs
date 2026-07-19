@@ -1,6 +1,4 @@
 using CrawfisSoftware.Events;
-using CrawfisSoftware.UGS;
-using CrawfisSoftware.UGS.Events;
 
 using System;
 using System.Collections.Generic;

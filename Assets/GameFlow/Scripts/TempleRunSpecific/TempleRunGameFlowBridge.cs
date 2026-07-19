@@ -1,6 +1,4 @@
 using CrawfisSoftware.TempleRun;
-using CrawfisSoftware.UGS;
-using CrawfisSoftware.UGS.Events;
 
 using System;
 using System.Collections.Generic;
@@ -37,28 +35,16 @@ namespace CrawfisSoftware.GameFlow.Events
             { GameFlowEvents.GameScenesLoaded, TempleRunEvents.TempleRunScenesReady },
         };
 
-        // TempleRun → UGS passthrough (bypasses GameFlow — this bridge is the authorized crossing point)
-        private Dictionary<TempleRunEvents, UGS_EventsEnum> _autoTempleRun2UGSEvents = new Dictionary<TempleRunEvents, UGS_EventsEnum>()
-        {
-            // Distance updates for achievement tracking
-            { TempleRunEvents.DistanceUpdated, UGS_EventsEnum.UGS_DistanceUpdated },
-
-            // Coin collection for economy sync and achievement tracking
-            { TempleRunEvents.CoinCollected, UGS_EventsEnum.UGS_CoinUpdated },
-        };
-
         protected virtual void Awake()
         {
             EventsPublisherTempleRun.Instance.SubscribeToAllEnumEvents(AutoFireGameFlowEventFromTempleRunEvent);
             EventsPublisherGameFlow.Instance.SubscribeToAllEnumEvents(AutoFireTempleRunEventFromGameFlowEvent);
-            EventsPublisherTempleRun.Instance.SubscribeToAllEnumEvents(AutoFireUGSEventFromTempleRunEvent);
         }
 
         protected virtual void OnDestroy()
         {
             EventsPublisherTempleRun.Instance.UnsubscribeToAllEnumEvents(AutoFireGameFlowEventFromTempleRunEvent);
             EventsPublisherGameFlow.Instance.UnsubscribeToAllEnumEvents(AutoFireTempleRunEventFromGameFlowEvent);
-            EventsPublisherTempleRun.Instance.UnsubscribeToAllEnumEvents(AutoFireUGSEventFromTempleRunEvent);
         }
 
         private void AutoFireGameFlowEventFromTempleRunEvent(string eventName, object sender, object data)
@@ -71,19 +57,6 @@ namespace CrawfisSoftware.GameFlow.Events
             if (_autoTempleRun2GameFlowEvents.TryGetValue(templeRunEvent, out GameFlowEvents autoEvent))
             {
                 EventsPublisherGameFlow.Instance.PublishEvent(autoEvent, sender, data);
-            }
-        }
-
-        private void AutoFireUGSEventFromTempleRunEvent(string eventName, object sender, object data)
-        {
-            ReadOnlySpan<char> input = eventName.AsSpan();
-            int index = input.LastIndexOf('/');
-            if (index < 0) return;
-            string result = input.Slice(index + 1).ToString();
-            TempleRunEvents templeRunEvent = (TempleRunEvents)Enum.Parse(typeof(TempleRunEvents), result);
-            if (_autoTempleRun2UGSEvents.TryGetValue(templeRunEvent, out UGS_EventsEnum autoEvent))
-            {
-                EventsPublisherUGS.Instance.PublishEvent(autoEvent, sender, data);
             }
         }
 
