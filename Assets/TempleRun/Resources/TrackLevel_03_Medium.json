@@ -1,0 +1,14 @@
+{
+  "Version": "2.0",
+  "LevelName": "Medium Temple",
+  "LevelNumber": 3,
+  "DifficultyRating": 5.0,
+  "LaneCount": 3,
+  "LaneWidth": 2.0,
+  "SegmentRegistryFile": "TrackSegments_Registry",
+  "StartSegmentId": "start",
+  "ActiveSegmentTags": ["opening", "straight"],
+  "ActiveSegmentIds": [],
+  "Segments": [],
+  "Connections": []
+}

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi:noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<ui:Style src="../../USS/Overlay.uss" />
+<ui:VisualElement name="OverlayRoot" class="screen fill dim">
+  <ui:Label text="Game Over" class="title" />
+  <ui:VisualElement class="menu-col">
+    <ui:Button name="BtnRetry" text="Retry" />
+    <ui:Button name="BtnMenu" text="Main Menu" />
+  </ui:VisualElement>
+</ui:VisualElement>
+</ui:UXML>

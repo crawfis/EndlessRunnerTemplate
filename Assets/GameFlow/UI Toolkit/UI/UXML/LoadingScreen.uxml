@@ -1,0 +1,7 @@
+<UXML xmlns="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/GameFlow/UI%20Toolkit/UI/USS/LoadingScreen.uss?fileID=7433441132597879392&amp;guid=fc64bd04148a9274eba3261635e7e04c&amp;type=3#LoadingScreen"/>
+    <VisualElement class="loading-screen-background">
+        <Label text="Loading..." class="loading-text"/>
+        <ProgressBar name="LoadingProgressBar" class="loading-progress-bar"/>
+    </VisualElement>
+</UXML>

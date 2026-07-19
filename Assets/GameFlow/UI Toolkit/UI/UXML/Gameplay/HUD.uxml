@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi:noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<ui:Style src="../../USS/HUD.uss" />
+<ui:VisualElement name="HUDRoot" class="screen fill">
+  <ui:Label name="Score" text="Score: 000000" class="hud-top-left mono" />
+  <ui:Label name="Timer" text="00:00" class="hud-top-right mono" />
+  <ui:VisualElement name="Notifications" class="hud-bottom-center" />
+</ui:VisualElement>
+</ui:UXML>

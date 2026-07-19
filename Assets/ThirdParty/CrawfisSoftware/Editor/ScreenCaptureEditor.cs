@@ -10,7 +10,7 @@ namespace CrawfisSoftware.Utility
     public class ScreenCaptureEditor : EditorWindow
     {
         // --- Static Fields ---
-        private static string directory = "Screenshots/Capture/";
+        private static string directory = "ScreenshotsSoftware/Capture/";
         private static string sPath;
         private static string latestScreenshotPath = string.Empty;
         private static Color cleanCameraBackgroundColor = new Color(0.6f, 0.8f, 0.2f, 1f); // Default similar to yellowGreen
@@ -71,13 +71,13 @@ namespace CrawfisSoftware.Utility
         }
 
         // --- Menu Items ---
-        [MenuItem("Crawfis/Screenshots/Open Screenshot Window", priority = 1)]
+        [MenuItem("CrawfisSoftware/Screenshots/Open Screenshot Window", priority = 1)]
         public static void ShowWindow()
         {
             GetWindow(typeof(ScreenCaptureEditor));
         }
 
-        [MenuItem("Crawfis/Screenshots/Reveal in Explorer", priority = 4)]
+        [MenuItem("CrawfisSoftware/Screenshots/Reveal in Explorer", priority = 4)]
         private static void ShowFolder()
         {
             if (File.Exists(latestScreenshotPath))
@@ -89,7 +89,7 @@ namespace CrawfisSoftware.Utility
             EditorUtility.RevealInFinder(directory);
         }
 
-        [MenuItem("Crawfis/Screenshots/Game View", priority = 2)]
+        [MenuItem("CrawfisSoftware/Screenshots/Game View", priority = 2)]
         private static void TakeGameScreenshot()
         {
             EnsureDirectoryExists();
@@ -99,7 +99,7 @@ namespace CrawfisSoftware.Utility
             Debug.Log($"Screenshot saved: <b>{path}</b> with resolution <b>{GetResolution()}</b>");
         }
 
-        [MenuItem("Crawfis/Screenshots/Scene View", priority = 3)]
+        [MenuItem("CrawfisSoftware/Screenshots/Scene View", priority = 3)]
         private static void TakeSceneScreenshot()
         {
             SceneScreenshotGizmos();

@@ -1,0 +1,14 @@
+{
+  "Version": "2.0",
+  "LevelName": "Easy Temple",
+  "LevelNumber": 2,
+  "DifficultyRating": 3.0,
+  "LaneCount": 5,
+  "LaneWidth": 0.5,
+  "SegmentRegistryFile": "TrackSegments_Registry",
+  "StartSegmentId": "start",
+  "ActiveSegmentTags": ["opening", "hard"],
+  "ActiveSegmentIds": [],
+  "Segments": [],
+  "Connections": []
+}

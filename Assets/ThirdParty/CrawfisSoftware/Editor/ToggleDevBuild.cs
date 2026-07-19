@@ -9,7 +9,7 @@ namespace CrawfisSoftware.Utility
     /// </summary>
     internal class ToggleDevBuild : EditorWindow
     {
-        private const string MENU_LOCATION = "Crawfis/Compile as Dev Build";
+        private const string MENU_LOCATION = "CrawfisSoftware/Compile as Dev Build";
         internal const string DEV_BUILD_SYMBOL = "DEV_BUILD";
 
         internal static bool IsDevBuild
