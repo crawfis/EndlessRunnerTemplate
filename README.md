@@ -1,88 +1,120 @@
-# Endless Runner
-_(based on the design goals explained in this template: `crawfis/TempleRun1-NoArt)_
+# Endless Runner Template
 
-This is an initial project template I use in my CSE 5912: Game Design and Development Capstone course at The Ohio State University
-## Main Goals of This Repo
-- Provide a file structure
-- Provide some basic and useful Editor scripts
-- Include some key packages, including the Event Publishing system
-- Show an example of using additive scenes
-- Show how to have a basic Bootstrap scene
-- Show an example of using events for communication and keeping your code clean
-- Show how to separate gameplay from the actual visual and audio elements
+An open-source **Unity 6 endless-runner template** built around a strict **event-driven
+architecture**. It is a working game — procedurally generated track, turning, lane changes,
+jumping, sliding, dashing, obstacles, coins, and power-ups — structured so that every system
+communicates through a typed event bus rather than direct references. Use it as a starting
+point for your own runner, or as a reference for decoupled, event-driven Unity design.
 
-It relies on three other repos:
-- `crawfis/EventsPublisher`: Event system for Unity
-- `crawfis/RandomProvider`: Unity tool to set and create random seeds and control the random process
-- `crawfis/GTMY.Audio`: Audio Manager Unity package that can use Addressables
----
-## Scene Loading Overview
-When running, the **BootStrap** scene is loaded first. It additively adds two scenes:
-- `TempleRunTrackPCG`: to create the abstract track creation
-- `TempleRunGameplay`: has most of the controllers (distance, turning, and others)
-`TempleRunGameplay` once loaded will load the remaining **5 other scenes** dealing with graphics, sound, environment and audio. The **8 scenes** and their hierarchies are shown below.
+## Highlights
 
+- **Event-driven core.** No cross-system method calls. Three event domains
+  (`GameFlow`, `TempleRun`, `UserInitiated`) communicate through singleton publishers, with
+  declarative auto-chaining and a single cross-domain bridge.
+- **Additive scene composition.** A persistent bootstrap scene loads UI and gameplay scenes
+  additively; gameplay is split from visuals, audio, and environment.
+- **Data-driven track generation.** Track segments and per-level rulesets are authored in
+  JSON and selected at runtime by tag/difficulty. Includes an in-editor Track Level Editor.
+- **Full runner mechanics.** Turns, lane changes, jump, slide, dash, obstacles, coins,
+  power-ups (speed, score multiplier, coin magnet, shield), countdown, and a level selector
+  with unlock/best-score persistence.
+- **AI-assistant tooling.** A `CLAUDE.md` guide and six project skills that enforce and
+  automate the event-system conventions.
 
-The file KnownEvents has a list of all of the events used in this simple example. There really should be several more: TurnCancelled, TurningStarted, ...
+## Requirements
 
----
-## Scenes Loaded when running
-### BootStrap
-- Temp Camera – needed to avoid problems on Android.
-- Global
-- Blackboard – Not the best Software Engineering, but useful.
-- RandomProvider – Seed, store and provide reproducibility
-- EventsPublisher – The main event pump to learn and focus on
-- QuitController – Clean up and quit gracefully
-- GameConfig – ScriptableObject based game control
-- LoadGamePlay – Controls what scenes to load next
-- Ullnput – Unity’s Event System and UI Input Module
-### TempleRunGameplay
-- Controllers
-- GameController – Initialize your game and handle player death, etc.
-- PauseController – Handle Pause, Resume and Toggle
-- DistanceController – Temple Run distance tracker
-- TurnController – Handle Turn requests
-- CollisionController – Handle failed turns
-- DeathWatcher – Player dying and number of lives
-- AI – Automatically play / test the game
-- TeleportController – Handle a successful turn request
-- InputController – Handle the various Input Actions: Play controls and Game controls.
-- LoadVisuals – Controls what scenes to load next
-### TempleRunTrackPCG
-- PathCreation (only one should be enabled)
-- TrackManager – Random track lengths
-- VoxelTrackManager – Integer constrained track lengths
-- TrackLengthList – Track lengths from a specified set (ScriptableObject)
-- TrackController – Handles events and direction changes, preserving the overall spline of the track.
-### TempleRunVisuals
-- Character
-- Virtual Camera
-- Capsule
-### TempleRunTrackVisuals
-- TrackSpawner – A plane prefab with a script to stretch it to the track segment size.
-- VoxelSpawner – Spawn enough prefabs based on the track length.
-- StartingPlatform – A visual to see as the scene loads. Can be deleted.
-- Generated Level – Parent object for the resulting track generation
-### TempleRunGuiOverlay
-- UI – A UI Document that just shows the distance travelled
-### TempleRunEnvironment
-- Environment
-- Main Camera
-- Directional Light
-- Global Volume
-### TempleRunSfx
-- Music – One version of the music player available in the Audio package
-- Metronome – A speed-based metronome
-- TurnFeedback – Sounds to play on successful turns
-- Cleanup – Resets the singletons
----
-## Game Development Tasks
-First, integrate a **main menu**. A starter package project for this that has localization support is here. Use **UI Toolkit** for everything.
-- `crawfis/ConsumerUI_RxGames`: Unity Localization Sample
-I will talk about how to use **Google Sheets (or Excel)** to create new localization tables, and the scripts included here to fetch translation tables from Google Sheets if there is interest. This example also shows how to load dynamic UI elements (ignore the fake data for that).
-You should also create an initial **Credit screen**. Data drive and update it when you use any 3rd party assets. Keep track of asset licenses as well (or url’s to them). Also add these tasks to this scrum:
-- Change the **Company** and **Product** and version number (use `0.1.0` format) in the Player Settings.
-- Change the **Root namespace** in the Editor Settings
-- Determine each team member’s interests. Pick several of the features below to learn about and implement. A few extra features to just research and plan out for future reference. Focus on reusable components while learning some good code structure and how to keep separation of concerns in your software.
-Pick ones that you are interested in programming and/or may be used in your final (undefined) game. Create a scrum session for these features or user stories and then break down into (very) small tasks. Tasks for research and design should also be included, particularly for more complex or unknown tasks. The artifacts you develop show your team what you have accomplished.
+- **Unity 6000.5** (developed on `6000.5.2f1`), Universal Render Pipeline.
+- Git (the project pulls two dependencies as git packages — see below).
+
+## Getting Started
+
+1. Clone the repository and open it in Unity 6000.5.
+2. Open `Assets/GameFlow/Scenes/Boot/0_BootStrap_Game_Only.unity`.
+3. Enter Play Mode. The bootstrap scene loads the UI and gameplay scenes additively and
+   takes you to the main menu → level select → gameplay.
+
+## Architecture
+
+### Event domains
+
+All communication between systems goes through the `EventsPublisher` event bus. Each domain
+owns its own enum and singleton publisher:
+
+| Domain | Enum | Responsibility |
+|--------|------|----------------|
+| **GameFlow** | `GameFlowEvents` | App/session lifecycle: loading, menus, level select, pause, config, quit |
+| **TempleRun** | `TempleRunEvents` | Gameplay: player actions, countdown, track/spline generation, collisions, coins, power-ups |
+| **UserInitiated** | `UserInitiatedEvents` | Raw input: turn/lane/jump/slide/dash/pause/quit requests |
+
+Events auto-chain within a domain via dictionary mappings (`*AutoEventFlow.cs`), and cross
+between `TempleRun` and `GameFlow` only through `TempleRunGameFlowBridge`. Domain code never
+references another domain's events directly — that isolation is the core discipline of the
+template.
+
+```
+USER INPUT (UserInitiatedEvents)
+    ↓
+TEMPLERUN GAMEPLAY (TempleRunEvents)
+    ↓  (via TempleRunGameFlowBridge)
+GAMEFLOW SESSION (GameFlowEvents)
+```
+
+### Scene structure
+
+Scenes load additively from `0_BootStrap_Game_Only`:
+
+- **Boot chain:** `0_BootStrap_Game_Only` → `Game_Boot_0_Test_Initialization` →
+  `Game_Boot_1_UI` (menus, level selector, HUD panels) → `Game_Boot_2_Play` (event
+  publishers, bridge, difficulty).
+- **Gameplay:** `TempleRunGameplay` + `TempleRunTrackPCG`, which in turn load the visuals,
+  player, obstacles, collectables, environment, SFX, and GUI overlay scenes.
+
+Gameplay logic is kept separate from its visual and audio representation so either can be
+swapped without touching the other.
+
+### Track generation
+
+Track generation is a three-stage, fully event-decoupled pipeline:
+
+1. **Segment selection** (`TrackManager`) — picks abstract segments from a library filtered
+   by the active level's tags/difficulty.
+2. **Geometry** (`PathProvider`) — turns each segment into an Entrance → Pivot → Exit spline
+   (axis-aligned 90° turns), including "Either" T-junctions resolved by the player's choice.
+3. **Visuals** (`PrefabSpawnerAbstract` subclasses) — spawns and recycles track geometry.
+
+Segments live in `Assets/TempleRun/Resources/TrackSegments_Registry.json`; per-level rulesets
+live in `TrackLevel_*.json`. Author them with **`CrawfisSoftware > Track Level Editor`** or the
+`/generate-segments` skill.
+
+## Extending the Template
+
+Because everything is event-driven, adding a feature starts with the events, not the code.
+The project ships with skills (see `.claude/skills/`) that enforce the conventions:
+
+- `/list-events` — review the current event landscape
+- `/add-event` — add events to the correct domain with proper naming/numbering
+- `/add-auto-chain` — wire same-domain auto-progressions
+- `/add-bridge-mapping` — wire cross-domain bridges
+- `/audit-events` — scan for anti-patterns (missing unsubscriptions, cross-domain leaks, cycles)
+- `/generate-segments` — author track segments
+
+See [CLAUDE.md](CLAUDE.md) for the full architecture guide and conventions.
+
+### A good first exercise
+
+`Assets/_Common/Events/AutoEventFlowBase.cs` is an intentional empty placeholder. The
+auto-flow and bridge classes each re-implement the same event-dispatch logic; consolidating it
+into a shared base class is a self-contained refactor that teaches the dispatch mechanism.
+
+## Dependencies
+
+Pulled automatically as git packages (`Packages/manifest.json`):
+
+- [`crawfis/EventsPublisher`](https://github.com/crawfis/EventsPublisher) — the event bus
+- [`crawfis/GTMY.Audio`](https://github.com/crawfis/GTMY.Audio) — audio manager (Addressables-capable)
+
+Random-seed utilities are vendored under `Assets/ThirdParty/CrawfisSoftware/`.
+
+## License
+
+See [LICENSE.txt](LICENSE.txt).
