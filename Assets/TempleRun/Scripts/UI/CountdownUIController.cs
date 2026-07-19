@@ -63,7 +63,7 @@ namespace CrawfisSoftware.TempleRun.UI
             if (_countdownUI == null) return;
             _countdownUI.gameObject.SetActive(on);
             if (_countdownUI.rootVisualElement != null)
-                _countdownUI.rootVisualElement.visible = on;
+                _countdownUI.rootVisualElement.style.display = on ? DisplayStyle.Flex : DisplayStyle.None;
         }
     }
 }

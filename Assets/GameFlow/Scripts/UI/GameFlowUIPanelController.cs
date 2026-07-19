@@ -26,7 +26,7 @@ namespace CrawfisSoftware.GameFlow.UI
 
         void Awake()
         {
-            if (gameOverUI) gameOverUI.rootVisualElement.visible = false;
+            if (gameOverUI) gameOverUI.rootVisualElement.style.display = DisplayStyle.None;
 
             Go(UIState.Loading);
 
@@ -76,7 +76,7 @@ namespace CrawfisSoftware.GameFlow.UI
             if (!doc) return;
             doc.gameObject.SetActive(on);
             if (doc.rootVisualElement != null)
-                doc.rootVisualElement.visible = on;
+                doc.rootVisualElement.style.display = on ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
         public void Go(UIState s)

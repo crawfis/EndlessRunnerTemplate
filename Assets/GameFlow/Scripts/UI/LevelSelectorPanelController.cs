@@ -19,7 +19,7 @@ namespace CrawfisSoftware.GameFlow.UI
 
         private void Awake()
         {
-            _levelSelectorUI.rootVisualElement.visible = false;
+            _levelSelectorUI.rootVisualElement.style.display = DisplayStyle.None;
 
             EventsPublisherGameFlow.Instance.SubscribeToEvent(
                 GameFlowEvents.LevelSelectorShowing, StartShowPanel);
@@ -51,15 +51,15 @@ namespace CrawfisSoftware.GameFlow.UI
 
         private void ShowPanel()
         {
-            _levelSelectorUI.rootVisualElement.visible = true;
+            _levelSelectorUI.rootVisualElement.style.display = DisplayStyle.Flex;
             EventsPublisherGameFlow.Instance.PublishEvent(
                 GameFlowEvents.LevelSelectorShown, this, null);
         }
 
         private void HidePanel()
         {
-            if (!_levelSelectorUI.rootVisualElement.visible) return;
-            _levelSelectorUI.rootVisualElement.visible = false;
+            if (_levelSelectorUI.rootVisualElement.style.display == DisplayStyle.None) return;
+            _levelSelectorUI.rootVisualElement.style.display = DisplayStyle.None;
             EventsPublisherGameFlow.Instance.PublishEvent(
                 GameFlowEvents.LevelSelectorHidden, this, null);
         }

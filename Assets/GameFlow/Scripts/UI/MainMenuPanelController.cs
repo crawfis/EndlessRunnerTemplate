@@ -10,7 +10,7 @@ namespace CrawfisSoftware.GameFlow.UI
         public UIDocument menuUI;
         private void Awake()
         {
-            menuUI.rootVisualElement.visible = GameState.IsMainMenuActive;
+            menuUI.rootVisualElement.style.display = GameState.IsMainMenuActive ? DisplayStyle.Flex : DisplayStyle.None;
             EventsPublisherGameFlow.Instance.SubscribeToEvent(GameFlowEvents.GameplayNotReady, StartHidePanel);
             EventsPublisherGameFlow.Instance.SubscribeToEvent(GameFlowEvents.GameScenesLoading, StartHidePanel);
             EventsPublisherGameFlow.Instance.SubscribeToEvent(GameFlowEvents.LevelSelectorShowing, StartHidePanel);
@@ -37,13 +37,13 @@ namespace CrawfisSoftware.GameFlow.UI
 
         private void ShowPanel()
         {
-            menuUI.rootVisualElement.visible = true;
+            menuUI.rootVisualElement.style.display = DisplayStyle.Flex;
             EventsPublisherGameFlow.Instance.PublishEvent(GameFlowEvents.MainMenuShown, this, null);
         }
 
         private void HidePanel()
         {
-            menuUI.rootVisualElement.visible = false;
+            menuUI.rootVisualElement.style.display = DisplayStyle.None;
             EventsPublisherGameFlow.Instance.PublishEvent(GameFlowEvents.MainMenuHidden, this, null);
         }
     }
