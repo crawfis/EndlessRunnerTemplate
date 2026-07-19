@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 19101, guid: 0000000000000000e000000000000000, type: 0}
   m_Name: PS_Login
   m_EditorClassIdentifier: 
-  themeUss: {fileID: 11400000, guid: a58e1f704f3ab1147998494d3c38d478, type: 3}
+  themeUss: {fileID: -4733365628477956816, guid: b886c2221727a64478707961a5a3f7b1,
+    type: 3}
   m_DisableNoThemeWarning: 0
   m_TargetTexture: {fileID: 0}
   m_RenderMode: 0
