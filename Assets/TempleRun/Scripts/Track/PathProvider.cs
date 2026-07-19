@@ -93,7 +93,7 @@ namespace CrawfisSoftware.TempleRun
                 {
                     // Approach only — exit direction unknown until player swipes.
                     Vector3 entrance = _anchorPoint;
-                    Vector3 pivot = entrance + definition.ToPivotDistance * _directionAxes[_directionIndex];
+                    Vector3 pivot = entrance + definition.EntranceDistance * _directionAxes[_directionIndex];
                     PublishSplineSegment(entrance, pivot, Direction.Either, definition);
                     _pendingEitherDefinition = definition;
                     _pendingEitherSequenceIndex = seqIdx;
@@ -114,7 +114,7 @@ namespace CrawfisSoftware.TempleRun
                 case Direction.Straight:
                 {
                     Vector3 entrance = _anchorPoint;
-                    Vector3 exit = entrance + definition.ToPivotDistance * _directionAxes[_directionIndex];
+                    Vector3 exit = entrance + definition.EntranceDistance * _directionAxes[_directionIndex];
                     PublishSplineSegment(entrance, exit, Direction.Straight, definition);
 
                     PublishGeometry(new SegmentGeometryData
@@ -134,7 +134,7 @@ namespace CrawfisSoftware.TempleRun
                 case Direction.Right:
                 {
                     Vector3 entrance = _anchorPoint;
-                    Vector3 approachEnd = entrance + definition.ToPivotDistance * _directionAxes[_directionIndex];
+                    Vector3 approachEnd = entrance + definition.EntranceDistance * _directionAxes[_directionIndex];
 
                     // Approach sub-spline: entrance -> approachEnd (straight to turn point).
                     PublishSplineSegment(entrance, approachEnd, Direction.Straight, definition);
@@ -185,7 +185,7 @@ namespace CrawfisSoftware.TempleRun
             // Publish updated geometry with resolved exit.
             PublishGeometry(new SegmentGeometryData
             {
-                ApproachStart = adjustedPivot - _pendingEitherDefinition.ToPivotDistance * _directionAxes[_directionIndex], // approximate
+                ApproachStart = adjustedPivot - _pendingEitherDefinition.EntranceDistance * _directionAxes[_directionIndex], // approximate
                 Pivot         = adjustedPivot,
                 ExitEnd       = exit,
                 Direction     = chosen,

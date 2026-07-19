@@ -88,7 +88,7 @@ namespace CrawfisSoftware.TempleRun
         /// For Straight segments Pivot coincides with Exit so this equals Length.
         /// Set by NormalizeSegments() when 0.
         /// </summary>
-        public float ToPivotDistance = 0f;
+        public float EntranceDistance = 0f;
 
         /// <summary>
         /// Distance from Entrance to Pivot (the turn / placeholder point).
@@ -257,17 +257,17 @@ namespace CrawfisSoftware.TempleRun
             foreach (var seg in segments)
             {
                 // EntranceDistance: default to Length (covers full segment for Straight)
-                if (seg.ToPivotDistance <= 0f)
-                    seg.ToPivotDistance = seg.Length;
+                if (seg.EntranceDistance <= 0f)
+                    seg.EntranceDistance = seg.Length;
 
                 // Recompute Length from parts when ExitDistance is specified
                 if (seg.ExitDistance > 0f)
-                    seg.Length = seg.ToPivotDistance + seg.ExitDistance;
+                    seg.Length = seg.EntranceDistance + seg.ExitDistance;
                 //seg.Direction = Enum.Parse<Direction>(seg.DirectionString);
                 if (seg.Direction == Direction.Straight)
                     seg.TurnFailureDistance = float.MaxValue;
                 else if (seg.TurnFailureDistance <= 0)
-                    seg.TurnFailureDistance = seg.ToPivotDistance + 1; // + Width/2 ;
+                    seg.TurnFailureDistance = seg.EntranceDistance + 1; // + Width/2 ;
                 // Default TeleportDistance for segments that have an exit section
                 if (seg.TeleportDistance <= 0f && seg.ExitDistance > 0f)
                     seg.TeleportDistance = seg.ExitDistance * 0.5f;
