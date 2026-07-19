@@ -134,6 +134,7 @@ GameObject:
   - component: {fileID: 139164726}
   - component: {fileID: 139164725}
   - component: {fileID: 139164730}
+  - component: {fileID: 139164731}
   m_Layer: 0
   m_Name: LevelSelection
   m_TagString: Untagged
@@ -178,7 +179,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 929176109984a6c4aa6ab409c2b3a24d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CrawfisSoftware.GameFlow.UI.LevelSelectorController
-  _uiDocument: {fileID: 139164730}
+  _uiDocument: {fileID: 139164731}
   _levelRegistry: {fileID: 11400000, guid: 384033d78ef23c242ab664183ab8f3c6, type: 2}
 --- !u!114 &139164728
 MonoBehaviour:
@@ -192,7 +193,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1865dd514751dbd469c114a8a78f7f60, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CrawfisSoftware.GameFlow.UI.LevelSelectorPanelController
-  _levelSelectorUI: {fileID: 139164730}
+  _levelSelectorUI: {fileID: 139164731}
 --- !u!4 &139164729
 Transform:
   m_ObjectHideFlags: 0
@@ -267,6 +268,30 @@ PanelRenderer:
   m_PivotReferenceSize: 0
   m_Pivot: 0
   m_Position: 0
+--- !u!114 &139164731
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 139164723}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
+  m_PanelSettings: {fileID: 11400000, guid: 4c8011be1283eb042ad4a0e7a6f30d4a, type: 2}
+  m_ParentUI: {fileID: 0}
+  sourceAsset: {fileID: 9197481963319205126, guid: a34e8bb67fbcaaf41ba515d7b427f48a,
+    type: 3}
+  m_SortingOrder: 0
+  m_Position: 0
+  m_WorldSpaceSizeMode: 1
+  m_WorldSpaceWidth: 1920
+  m_WorldSpaceHeight: 1080
+  m_PivotReferenceSize: 0
+  m_Pivot: 0
+  m_WorldSpaceCollider: {fileID: 0}
 --- !u!1 &183286776
 GameObject:
   m_ObjectHideFlags: 0
@@ -494,7 +519,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3577acdd2a9c54f41a3ffdf1a6980853, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CrawfisSoftware.UI.MainMenuController
-  _uiDocument: {fileID: 803952793}
+  _uiDocument: {fileID: 0}
 --- !u!1931382934 &803952793
 PanelRenderer:
   m_ObjectHideFlags: 0
