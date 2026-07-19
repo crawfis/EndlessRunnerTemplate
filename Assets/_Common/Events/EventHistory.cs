@@ -21,6 +21,11 @@ namespace CrawfisSoftware.Events
             }
         }
 
+        private void OnDestroy()
+        {
+            EventsPublisher.Instance.UnsubscribeToAllEvents(OnEventPublished);
+        }
+
         private void OnEventPublished(string eventName, object sender, object data)
         {
             if (!_interestedEventsHashSet.Contains(eventName)) return;

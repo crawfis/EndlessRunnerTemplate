@@ -25,8 +25,9 @@ namespace CrawfisSoftware.TempleRun
         void OnEnable()
         {
             _playerControls.PlayerTouch.Enable();
-            _playerControls.PlayerTouch.InitialPress.performed += ctx => OnPress(true, ctx.ReadValue<float>());
-            //_playerControls.PlayerTouch.EndOfSwipe.canceled += ctx => OnPress(false, 0);
+            // Use a named handler so OnDisable can actually remove it. A lambda here
+            // would allocate a new delegate instance that -= can never match.
+            _playerControls.PlayerTouch.InitialPress.performed += OnInitialPressPerformed;
             _swipePressed = _playerControls.PlayerTouch.InitialPress;
             _swipePressed.Enable();
             _swipePosition = _playerControls.PlayerTouch.EndOfSwipe;
@@ -35,11 +36,15 @@ namespace CrawfisSoftware.TempleRun
 
         void OnDisable()
         {
-            _playerControls.PlayerTouch.InitialPress.performed -= ctx => OnPress(true, ctx.ReadValue<float>());
-            //_playerControls.PlayerTouch.EndOfSwipe.canceled -= ctx => OnPress(false, 0);
+            _playerControls.PlayerTouch.InitialPress.performed -= OnInitialPressPerformed;
             _swipePressed.Disable();
             _swipePosition.Disable();
             _playerControls.PlayerTouch.Disable();
+        }
+
+        private void OnInitialPressPerformed(InputAction.CallbackContext ctx)
+        {
+            OnPress(true, ctx.ReadValue<float>());
         }
 
         private void Update()

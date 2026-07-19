@@ -26,6 +26,13 @@ namespace CrawfisSoftware.TempleRun.Input
             _pauseToggleAction.Enable();
             _pauseToggleAction.performed += PauseResumeToggle_performed;
         }
+        private void OnDestroy()
+        {
+            if (_quitAction != null) _quitAction.performed -= TEMP_GameQuit;
+            if (_pauseToggleAction != null) _pauseToggleAction.performed -= PauseResumeToggle_performed;
+            _inputActions?.Dispose();
+        }
+
         private void TEMP_GameQuit(InputAction.CallbackContext obj)
         {
             EventsPublisherUserInitiated.Instance.PublishEvent(UserInitiatedEvents.UserQuitRequested, this, UnityEngine.Time.time);
