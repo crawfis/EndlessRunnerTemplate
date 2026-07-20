@@ -13,7 +13,7 @@ namespace CrawfisSoftware.Utility
     public static class EditorPlayFirstSceneAlways
     {
         private const string PREF_KEY = "PlayFirstSceneAlwaysEnabled";
-        private const string MENU_LOCATION = "Crawfis/Play Scene 0 Always";
+        private const string MENU_LOCATION = "CrawfisSoftware/Play Scene 0 Always";
 
         // Ensure setup happens after the Editor is loaded (domain reload/compile), before entering Play Mode.
         [InitializeOnLoadMethod]

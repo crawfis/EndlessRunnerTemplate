@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd01fb55015ba9f46ab84a81ad584f9c, type: 3}
+  m_Name: Level_01_Config
+  m_EditorClassIdentifier: Assembly-CSharp::CrawfisSoftware.GameFlow.Config.LevelConfig
+  LevelName: Level 1
+  Description: The basic prototype
+  Thumbnail: {fileID: 0}
+  SortOrder: 0
+  GameplaySceneName: TempleRunGameplay
+  Difficulty:
+    DifficultyName: Easy
+    InitialSpeed: 5
+    MaxSpeed: 80
+    Acceleration: 0.2
+    StartRunway: 8
+    MinTrackLength: 4
+    MaxTrackLength: 19
+    SafePreTurnDistance: 5
+    SafePostTurnDistance: 0.5
+    InputCoolDownForTurns: 1
+    NumberOfLives: 2
+    ObstacleSpawnRate: 1
+    CoinSpawnRate: 0.8
+    PowerUpSpawnRate: 0.15
+    ScoreMultiplier: 1
+    EnableAdvancedObstacles: 0
+  TrackLevelResourcePath: TrackLevel_02_Easy
+  UnlockScoreThreshold: 0
+  UnlockRequirementDescription: 

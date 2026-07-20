@@ -23,7 +23,7 @@ namespace CrawfisSoftware.AssetManagement
             else
                 instance = GameObject.Instantiate(prefab);
 #else
-            instance = Instantiate(prefab);
+            instance = GameObject.Instantiate(prefab);
 #endif
             OnInstanceCreated?.Invoke(instance, InstanceCount++);
             return instance;

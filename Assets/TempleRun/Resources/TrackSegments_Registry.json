@@ -1,0 +1,36 @@
+{
+  "Version": "2.0",
+  "Segments": [
+    {
+      "Id": "start",
+      "Direction": "Right",
+      "Length": 12.0,
+	  "EntranceDistance": 7.0,
+	  "ExitDistance": 5.0,
+      "Weight": 1.0,
+      "MaxRepeat": 1,
+      "DifficultyRating": 0.0,
+      "Tags": ["opening"]
+    },
+
+    { "Id": "straight_08",  "Direction": "Straight",  "Length": 8.0,  "Weight": 1.0, "MaxRepeat": 1, "DifficultyRating": 1.0, "Tags": ["straight"] },
+    { "Id": "straight_12",  "Direction": "Straight",  "Length": 12.0, "Weight": 1.0, "MaxRepeat": 1, "DifficultyRating": 1.0, "Tags": ["straight"] },
+
+    { "Id": "either_08",  "Direction": "Either",  "EntranceDistance": 7.0, "ExitDistance": 3.0, "Weight": 1.0, "MaxRepeat": 2, "DifficultyRating": 1.0, "Tags": ["either"] },
+    { "Id": "either_12",  "Direction": "Either",  "EntranceDistance": 11.0, "ExitDistance": 4.0, "Weight": 1.0, "MaxRepeat": 2, "DifficultyRating": 1.0, "Tags": ["either"] },
+
+    { "Id": "left_28",  "Direction": "Left",  "EntranceDistance": 27.0, "ExitDistance": 1.0, "Weight": 1.0, "MaxRepeat": 2, "DifficultyRating": 1.0, "Tags": ["beginner"] },
+    { "Id": "left_24",  "Direction": "Left",  "EntranceDistance": 24.0, "ExitDistance": 1.0, "Weight": 1.0, "MaxRepeat": 2, "DifficultyRating": 2.0, "Tags": ["beginner"] },
+    { "Id": "left_20",  "Direction": "Left",  "EntranceDistance": 19.0, "ExitDistance": 1.0, "Weight": 1.0, "MaxRepeat": 2, "DifficultyRating": 3.0, "Tags": ["easy"] },
+    { "Id": "left_16",  "Direction": "Left",  "EntranceDistance": 15.0, "ExitDistance": 1.0, "Weight": 1.0, "MaxRepeat": 2, "DifficultyRating": 4.0, "Tags": ["easy"] },
+    { "Id": "left_12",  "Direction": "Left",  "EntranceDistance": 11.0,  "ExitDistance": 1.0, "Weight": 1.0, "MaxRepeat": 3, "DifficultyRating": 6.0, "Tags": ["medium"] },
+    { "Id": "left_08",  "Direction": "Left",  "EntranceDistance": 7.0,  "ExitDistance": 7.0, "Weight": 1.0, "MaxRepeat": 4, "DifficultyRating": 8.0, "Tags": ["hard"] },
+
+    { "Id": "right_28", "Direction": "Right", "EntranceDistance": 27.0, "ExitDistance": 1.0, "Weight": 1.0, "MaxRepeat": 2, "DifficultyRating": 1.0, "Tags": ["beginner"] },
+    { "Id": "right_24", "Direction": "Right", "EntranceDistance": 23.0, "ExitDistance": 1.0, "Weight": 1.0, "MaxRepeat": 2, "DifficultyRating": 2.0, "Tags": ["beginner"] },
+    { "Id": "right_20", "Direction": "Right", "EntranceDistance": 19.0, "ExitDistance": 1.0, "Weight": 1.0, "MaxRepeat": 2, "DifficultyRating": 3.0, "Tags": ["easy"] },
+    { "Id": "right_16", "Direction": "Right", "EntranceDistance": 15.0, "ExitDistance": 1.0, "Weight": 1.0, "MaxRepeat": 2, "DifficultyRating": 4.0, "Tags": ["easy"] },
+    { "Id": "right_12", "Direction": "Right", "EntranceDistance": 11.0,  "ExitDistance": 1.0, "Weight": 1.0, "MaxRepeat": 3, "DifficultyRating": 6.0, "Tags": ["medium"] },
+    { "Id": "right_08", "Direction": "Right", "EntranceDistance": 5.0,  "ExitDistance": 5.0, "Weight": 1.0, "MaxRepeat": 4, "DifficultyRating": 8.0, "Tags": ["hard"] }
+  ]
+}

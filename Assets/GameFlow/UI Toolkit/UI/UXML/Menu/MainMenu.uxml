@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/GameFlow/UI%20Toolkit/UI/USS/Menu.uss?fileID=7433441132597879392&amp;guid=120c70983ab7d5c4cb6a1078da115432&amp;type=3#Menu"/>
+    <ui:VisualElement name="MenuRoot" class="screen fill">
+        <ui:Label text="Crawfis Dash" class="title" style="-unity-font-style: bold-and-italic; font-size: 64px;"/>
+        <ui:VisualElement class="menu-col">
+            <ui:Button name="BtnPlay" text="Play"/>
+            <ui:Button name="BtnOptions" text="Options"/>
+            <ui:Button name="BtnQuit" text="Quit"/>
+            <ui:Button name="BtnSignOut" text="Sign 
+Out"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

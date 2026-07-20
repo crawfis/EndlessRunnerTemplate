@@ -1,0 +1,14 @@
+{
+  "Version": "2.0",
+  "LevelName": "Beginner Temple",
+  "LevelNumber": 1,
+  "DifficultyRating": 1.5,
+  "LaneCount": 3,
+  "LaneWidth": 2.0,
+  "SegmentRegistryFile": "TrackSegments_Registry",
+  "StartSegmentId": "start",
+  "ActiveSegmentTags": ["opening", "beginner"],
+  "ActiveSegmentIds": [],
+  "Segments": [],
+  "Connections": []
+}

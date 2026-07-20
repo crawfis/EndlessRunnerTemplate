@@ -1,0 +1,10 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/GameFlow/UI%20Toolkit/UI/USS/LevelSelector.uss?fileID=7433441132597879392&amp;guid=00000000000000000000000000000000&amp;type=3#LevelSelector"/>
+    <ui:VisualElement name="LevelSelectorRoot" class="screen fill">
+        <ui:Label text="Select Level" class="title" style="-unity-font-style: bold-and-italic; font-size: 64px;"/>
+        <ui:ScrollView name="LevelContainer" class="level-grid"/>
+        <ui:VisualElement class="menu-col">
+            <ui:Button name="BtnBack" text="Back"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
