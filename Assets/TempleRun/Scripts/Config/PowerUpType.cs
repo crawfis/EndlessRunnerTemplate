@@ -10,5 +10,8 @@ namespace CrawfisSoftware.TempleRun.GameConfig
         CoinMagnet,
         Shield,
         ScoreMultiplier,
+        // Appended (M1 phase A4). Safe to append: existing values 0-3 keep their int mapping,
+        // so serialized PowerUpDefinition assets are unaffected. Proves the IPowerUpEffect seam.
+        CoinDoubler,
     }
 }
