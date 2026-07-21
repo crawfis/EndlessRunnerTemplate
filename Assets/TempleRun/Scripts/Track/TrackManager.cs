@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 using UnityEngine;
 
+using CrawfisSoftware.TempleRun.Track;
+
 namespace CrawfisSoftware.TempleRun
 {
     /// <summary>
@@ -32,8 +34,13 @@ namespace CrawfisSoftware.TempleRun
         protected float _maxDistance = 9;
         protected System.Random _random;
         private TrackSegmentLibrary _segmentLibrary;
+        // The pluggable selection policy. Default reproduces the previous
+        // TrackSegmentLibrary.SelectNext behaviour exactly (ungated weighted random).
+        private ISegmentSelector _selector = new WeightedDifficultySelector();
         private string _lastSegmentId;
+        private TrackSegmentDefinition _lastSegmentDefinition;
         private int _lastSegmentRepeatCount;
+        private int _segmentIndex;
         private bool _isInitialized = false;
 
         // Set when an Either (T-junction) segment is at the tail of the lookahead queue.
@@ -165,13 +172,32 @@ namespace CrawfisSoftware.TempleRun
         {
             if (_segmentLibrary != null)
             {
+                // The library is the read-only data view; the selector is the policy.
+                ISegmentPool pool = _segmentLibrary;
+
+                // Thread the same state the old TrackSegmentLibrary calls used:
+                //   Previous            <- _lastSegmentDefinition (Previous?.Id == _lastSegmentId)
+                //   PreviousRepeatCount <- _lastSegmentRepeatCount
+                //   Random              <- _random (same seeded instance)
+                // DistanceTravelled/SegmentIndex are new context only used by
+                // distance-/index-aware selectors; the default selector ignores them.
+                var distanceTracker = Blackboard.Instance.DistanceTracker;
+                var ctx = new SelectionContext(
+                    _lastSegmentDefinition,
+                    _lastSegmentRepeatCount,
+                    distanceTracker != null ? distanceTracker.DistanceTravelled : 0f,
+                    _segmentIndex,
+                    _random);
+
                 var segmentDefinition = isStartSegment
-                    ? _segmentLibrary.GetStartSegment(_random)
-                    : _segmentLibrary.SelectNext(_lastSegmentId, _lastSegmentRepeatCount, _random);
+                    ? _selector.SelectStart(pool, ctx)
+                    : _selector.SelectNext(pool, ctx);
 
                 if (segmentDefinition != null)
                 {
                     UpdateRepeatTracking(segmentDefinition.Id);
+                    _lastSegmentDefinition = segmentDefinition;
+                    _segmentIndex++;
                     var direction = segmentDefinition.Direction;
                     return new TrackSegmentInfo(segmentDefinition, direction);
                 }
