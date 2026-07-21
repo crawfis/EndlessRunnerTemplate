@@ -91,9 +91,9 @@ namespace CrawfisSoftware.TempleRun
         public float EntranceDistance = 0f;
 
         /// <summary>
-        /// Distance from Entrance to Pivot (the turn / placeholder point).
-        /// For Straight segments Pivot coincides with Exit so this equals Length.
-        /// Set by NormalizeSegments() when 0.
+        /// Distance past the Entrance beyond which a required turn is considered failed.
+        /// Set by NormalizeSegments(): float.MaxValue for Straight (never fails), otherwise
+        /// EntranceDistance + 1 when left at 0.
         /// </summary>
         public float TurnFailureDistance = 0f;
 

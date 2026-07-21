@@ -4,6 +4,11 @@ using UnityEngine;
 
 namespace CrawfisSoftware.TempleRun
 {
+    /// <summary>
+    /// Applies pause/resume to the player (Time.timeScale) when the pause lifecycle completes.
+    ///    Subscribes: TempleRunEvents.PlayerPaused, TempleRunEvents.PlayerResumed
+    ///    Publishes: TempleRunEvents.PlayerPauseRequested, TempleRunEvents.PlayerResumeRequested
+    /// </summary>
     public class PlayerPauseController : MonoBehaviour
     {
         private bool _isPaused = false;

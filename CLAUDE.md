@@ -4,6 +4,11 @@ This file provides guidance for AI assistants working with the EndlessRunner cod
 open-source Unity 6 endless-runner template demonstrating an event-driven architecture. For
 a human-facing overview, see [README.md](README.md).
 
+**Deep-dive docs:** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) (diagrams),
+[docs/EVENTS.md](docs/EVENTS.md) (event catalog), [docs/TRACKS.md](docs/TRACKS.md) (track
+system), [docs/ADDING_A_MECHANIC.md](docs/ADDING_A_MECHANIC.md) (worked example),
+[docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md) (Unity caveats).
+
 ## Quick Reference
 
 ### Essential Commands

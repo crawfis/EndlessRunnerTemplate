@@ -1,0 +1,169 @@
+# Track Generation
+
+The track is generated procedurally from JSON-authored **segments**, selected at runtime by a
+per-level ruleset. This doc covers the pipeline, the data model, the JSON schema, and the
+geometry math. Source: `Assets/TempleRun/Scripts/Track/`, data in
+`Assets/TempleRun/Resources/`.
+
+## Pipeline
+
+Three decoupled stages, communicating only through events:
+
+```mermaid
+flowchart LR
+    A["1. Selection<br/>TrackManager<br/><i>picks abstract segments<br/>from TrackSegmentLibrary</i>"]
+      -->|TrackSegmentCreated| B
+    B["2. Geometry<br/>PathProvider<br/><i>Entrance→Pivot→Exit spline</i>"]
+      -->|SplineSegmentCreated<br/>SegmentGeometryReady| C
+    C["3. Visuals + spawns<br/>PrefabSpawner*, Spawner*<br/><i>track mesh, obstacles,<br/>coins, power-ups</i>"]
+```
+
+1. **Selection** — `TrackManager` keeps a look-ahead queue, asks `TrackSegmentLibrary` for the
+   next segment (weighted, optionally difficulty-gated), and publishes `TrackSegmentCreated`
+   plus `ActiveTrackChanging` as the player advances.
+2. **Geometry** — `PathProvider` converts each abstract segment into a concrete
+   Entrance → Pivot → Exit spline (axis-aligned 90° turns) and publishes `SplineSegmentCreated`
+   (visual geometry) and `SegmentGeometryReady` (full geometry incl. pivot/exit).
+   `SegmentTransitionController` and `SegmentAdvanceTrigger` drive the per-segment
+   enter/exit lifecycle from travelled distance.
+3. **Visuals & spawns** — `PrefabSpawnerAbstract` subclasses build/recycle the track mesh;
+   `SpawnerBase` subclasses (obstacles, coins, power-ups) place objects per the segment's
+   spawn mode. `SpawnPrefabRegistry` maps `PrefabTag` strings → prefabs.
+
+## The two-file data model
+
+Segments are authored once in a shared **registry**, and each **level** is a thin ruleset that
+selects a subset of the registry by tag or id.
+
+- **Registry** — `TrackSegments_Registry.json` (`TrackSegmentRegistryDefinition`): the full
+  pool of `TrackSegmentDefinition`s.
+- **Level ruleset** — `TrackLevel_*.json` (`TrackSegmentLibraryDefinition`): names a
+  `SegmentRegistryFile`, a `StartSegmentId`, lane config, and either `ActiveSegmentTags` or
+  `ActiveSegmentIds` to filter the pool. Its own `Segments` list is usually empty and filled
+  by merging from the registry at load (`MergeRegistrySegments`).
+
+Loading (`TrackSegmentLibrary.LoadFromResources`):
+
+```mermaid
+flowchart TD
+    L["TrackLevel_0X.json"] --> M{"level.Segments empty<br/>and SegmentRegistryFile set?"}
+    M -- yes --> R["Load registry, merge segments<br/>matching ActiveSegmentIds<br/>(else ActiveSegmentTags,<br/>else all) + StartSegmentId"]
+    M -- no --> S["Use level.Segments as-is"]
+    R --> N["NormalizeSegments()"]
+    S --> N
+    N --> LIB["TrackSegmentLibrary (runtime)"]
+```
+
+## Segment geometry: the 3-point model
+
+Every segment is **Entrance → Pivot → Exit**:
+
+```
+Entrance ──EntranceDistance──▶ Pivot ──ExitDistance──▶ Exit
+                               (turn)   (post-turn run-out)
+```
+
+| Field | Meaning |
+|-------|---------|
+| `EntranceDistance` | distance from Entrance to Pivot (the turn point). For `Straight`, Pivot == Exit so this equals `Length`. |
+| `ExitDistance` | distance from Pivot to Exit in the post-turn direction. `0` for Straight; `> 0` for Left/Right/Either. |
+| `Length` | total segment length. Recomputed as `EntranceDistance + ExitDistance` when `ExitDistance > 0`. |
+| `TurnFailureDistance` | how far past the pivot the player may go before failing a required turn. `float.MaxValue` for Straight; else `EntranceDistance + 1`. |
+| `TeleportDistance` | where the player "lands" after the turn animation, measured from the pivot. Must be `< ExitDistance`. Defaults to `ExitDistance * 0.5`. |
+
+### Normalization rules (`NormalizeSegments`, run once at load)
+
+```
+if EntranceDistance <= 0:  EntranceDistance = Length
+if ExitDistance    >  0:  Length = EntranceDistance + ExitDistance
+if Direction == Straight: TurnFailureDistance = float.MaxValue
+elif TurnFailureDistance <= 0: TurnFailureDistance = EntranceDistance + 1
+if TeleportDistance <= 0 and ExitDistance > 0: TeleportDistance = ExitDistance * 0.5
+```
+
+> **Historical gotcha.** The JSON key is `EntranceDistance`. An earlier version named the C#
+> field `ToPivotDistance`, so `JsonUtility` silently dropped the value and every segment fell
+> back to `EntranceDistance = Length` — corrupting turn geometry. The field is now
+> `EntranceDistance` to match the JSON. If you rename a JSON key, remember `JsonUtility` binds
+> **by exact field name** and drops anything it doesn't recognize, with no error.
+
+## Selection at runtime
+
+`TrackSegmentLibrary.SelectNext(previousId, repeatCount, random, targetDifficulty, range)`:
+
+1. If the previous segment has explicit `Connections`, candidates are limited to those.
+   Otherwise all active segments are candidates.
+2. `MaxRepeat` filters out a segment that would repeat too many times consecutively.
+3. When `targetDifficulty >= 0`, candidates are gated to `DifficultyRating` within `± range`
+   (falls back to ungated if that leaves nothing).
+4. A **weighted** random pick uses each segment's `Weight`.
+
+## JSON schema
+
+### Registry (`TrackSegments_Registry.json`)
+```jsonc
+{
+  "Version": "2.0",
+  "Segments": [
+    {
+      "Id": "left_28",           // unique id
+      "Direction": "Left",       // Straight | Left | Right | Either
+      "EntranceDistance": 27.0,  // → Pivot
+      "ExitDistance": 1.0,       // Pivot → Exit (0 for Straight)
+      "Weight": 1.0,             // selection weight
+      "MaxRepeat": 2,            // max consecutive repeats (0 = unlimited)
+      "DifficultyRating": 1.0,   // used by difficulty gating
+      "Tags": ["beginner"]       // used by level tag-filtering
+      // optional: Length, Role, SpeedMultiplier, BlockedLanes, LaneHeights,
+      //           ActiveLanes, SpawnMode, SpawnSlots, VisualTheme, SpawnSeed,
+      //           TurnFailureDistance, TeleportDistance
+    }
+  ]
+}
+```
+
+### Level ruleset (`TrackLevel_0X.json`)
+```jsonc
+{
+  "Version": "2.0",
+  "LevelName": "Beginner Temple",
+  "LevelNumber": 1,
+  "DifficultyRating": 1.5,
+  "LaneCount": 3,
+  "LaneWidth": 2.0,
+  "SegmentRegistryFile": "TrackSegments_Registry",  // Resources name, no extension
+  "StartSegmentId": "start",
+  "ActiveSegmentTags": ["opening", "beginner"],     // OR use ActiveSegmentIds
+  "ActiveSegmentIds": [],
+  "Segments": [],       // usually empty → merged from registry by tag/id
+  "Connections": []     // optional explicit adjacency: [{ "FromId": "...", "ToId": "..." }]
+}
+```
+
+### Spawn slots (Preset / Hybrid spawn modes)
+```jsonc
+{
+  "NormalizedPosition": 0.5,   // 0–1 along the segment
+  "Lane": 0,                   // 0 = centre, negative = left, positive = right
+  "Height": 0.0,
+  "Type": "Obstacle",          // Obstacle | Coin | PowerUp | Hazard
+  "PrefabTag": "crate",        // resolved via SpawnPrefabRegistry
+  "Weight": 1.0,               // Hybrid selection weight
+  "Required": true             // true = always; false = probabilistic
+}
+```
+
+## Either / T-junctions
+
+A segment with `Direction: "Either"` presents a branch. `PathProvider` publishes only the
+approach spline and stashes the pending exit; generation halts until the player commits with
+`SegmentRequested` (data: `Direction`), then the exit geometry is resolved and re-published
+with the same sequence index.
+
+## Authoring
+
+- **Editor:** `CrawfisSoftware > Track Level Editor` — a three-panel window for editing the
+  registry and level rulesets.
+- **AI skill:** `/generate-segments` — prompt-driven segment creation into the registry by
+  direction / length range / difficulty range / tags (reads the registry first to avoid
+  duplicate ids and match naming like `left_28`).

@@ -4,6 +4,12 @@ using UnityEngine;
 
 namespace CrawfisSoftware.TempleRun
 {
+    /// <summary>
+    /// Toggles pause state from raw input and applies it when the pause lifecycle completes.
+    ///    Subscribes: UserInitiatedEvents.UserPauseToggle, TempleRunEvents.PlayerPaused,
+    ///                TempleRunEvents.PlayerResumed
+    ///    Publishes: TempleRunEvents.PlayerPauseRequested, TempleRunEvents.PlayerResumeRequested
+    /// </summary>
     public class PauseController : MonoBehaviour
     {
         private bool _isPaused = false;

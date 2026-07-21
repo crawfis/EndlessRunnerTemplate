@@ -33,6 +33,18 @@ point for your own runner, or as a reference for decoupled, event-driven Unity d
 3. Enter Play Mode. The bootstrap scene loads the UI and gameplay scenes additively and
    takes you to the main menu → level select → gameplay.
 
+## Documentation
+
+| Doc | What |
+|-----|------|
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Event domains, run sequence, and scene composition (with diagrams) |
+| [docs/EVENTS.md](docs/EVENTS.md) | Full event catalog: every event, value, auto-chain, and bridge mapping |
+| [docs/TRACKS.md](docs/TRACKS.md) | Track generation pipeline, JSON schema, and segment geometry |
+| [docs/ADDING_A_MECHANIC.md](docs/ADDING_A_MECHANIC.md) | End-to-end walkthrough: adding a gameplay mechanic |
+| [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md) | Unity 6000.5 caveats (UIDocument/Panel Renderer, build order, JsonUtility) |
+| [CLAUDE.md](CLAUDE.md) | AI-assistant guide: conventions and the event-system rules |
+| [docs/specs/](docs/specs/) | Design specs for proposed extensions |
+
 ## Architecture
 
 ### Event domains
