@@ -113,6 +113,14 @@ namespace CrawfisSoftware.TempleRun
         /// Defaults to ExitDistance * 0.5 in NormalizeSegments().
         /// </summary>
         public float TeleportDistance = 0f;
+
+        /// <summary>
+        /// Optional turn radius (world units) for rounded corners, read by
+        /// <see cref="Track.Geometry.ArcTurnBuilder"/>. Default 0 means a hard 90° corner —
+        /// geometry is bit-identical to the default <see cref="Track.Geometry.AxisAligned90Builder"/>.
+        /// Ignored by the default builder and by non-turn segments.
+        /// </summary>
+        public float TurnRadius = 0f;
     }
 
     [Serializable]
