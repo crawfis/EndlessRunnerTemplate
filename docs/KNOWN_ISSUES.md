@@ -25,7 +25,12 @@ longer receive new features."* The rendering quirk reproduces in the source proj
   which reliably repaints and fixed the loading, game-over, level-selector, and countdown panels.
 - The scenes are committed with clean `u!114` UIDocuments and correct references.
 
-**If a panel still renders blank / loses its UIDocument reference:**
+**The forward fix (recommended).** Migrate the panels to `PanelRenderer` — the modern component
+whose `UIReloaded` callback and content persistence remove this class of first-render bug. See the
+plan in [specs/PANEL_RENDERER_MIGRATION.md](specs/PANEL_RENDERER_MIGRATION.md) and the reusable
+[playbooks/uidocument-to-panel-renderer.md](playbooks/uidocument-to-panel-renderer.md).
+
+**If a panel still renders blank / loses its UIDocument reference (before migrating):**
 1. Don't hand-edit the `.unity` YAML to "fix" a UIDocument reference — the migration renumbers
    the component ids, so a hand-wired id points at the wrong component after the next open.
    Re-assign the reference in the **Inspector** instead (drag the panel's UI Document onto the

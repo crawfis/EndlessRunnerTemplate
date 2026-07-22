@@ -43,7 +43,8 @@ point for your own runner, or as a reference for decoupled, event-driven Unity d
 | [docs/ADDING_A_MECHANIC.md](docs/ADDING_A_MECHANIC.md) | End-to-end walkthrough: adding a gameplay mechanic |
 | [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md) | Unity 6000.5 caveats (UIDocument/Panel Renderer, build order, JsonUtility) |
 | [CLAUDE.md](CLAUDE.md) | AI-assistant guide: conventions and the event-system rules |
-| [docs/specs/](docs/specs/) | Design specs for proposed extensions |
+| [docs/specs/](docs/specs/) | Design specs and migration plans for proposed changes |
+| [docs/playbooks/](docs/playbooks/) | Portable, project-agnostic upgrade guides (e.g. UIDocument → PanelRenderer) |
 
 ## Architecture
 
