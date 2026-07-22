@@ -14,14 +14,12 @@ namespace CrawfisSoftware.GameFlow.Events
     /// COMPLETE GAME FLOW TIMELINE (from actual event trace)
     /// ========================================================================================
     ///
-    /// --- BOOT / INITIALIZATION (driven by UGS, see UGSAutoEventFlow + UGSGameFlowBridge) ---
-    /// [UGS] UnityServicesInitialized
-    /// [UGS] CheckForExistingSession -> CheckForExistingSessionSucceeded
-    /// [UGS] PlayerAuthenticating -> PlayerAuthenticated
-    /// [BRIDGE: UGS->GameFlow] PlayerAuthenticated -> GameplayReady
+    /// --- BOOT / INITIALIZATION (non-UGS) ---
+    /// (The UGS template authenticated then bridged PlayerAuthenticated -> GameplayReady. This
+    ///  template has no UGS: the loading screen finishing is the boot-done signal.)
+    /// [Published] LoadingScreenShown -> (delay) -> LoadingScreenHidden
+    /// [AUTO] LoadingScreenHidden -> GameplayReady
     /// [AUTO] GameplayReady -> MainMenuShowRequested
-    /// [UGS] RemoteConfigFetching -> RemoteConfigFetched -> RemoteConfigUpdated
-    /// [BRIDGE: UGS->GameFlow] RemoteConfigUpdated -> LoadingScreenHideRequested
     /// [AUTO] MainMenuShowRequested -> MainMenuShowing
     /// [AUTO] LoadingScreenHideRequested -> LoadingScreenHiding
     /// [Published] DifficultySettingsApplied
@@ -81,14 +79,11 @@ namespace CrawfisSoftware.GameFlow.Events
     /// [Published] GameEnded
     /// [BRIDGE: GameFlow->UGS] GameEnded -> LeaderboardOpening
     ///
-    /// --- POST-GAME UGS UI LOOP (see UGSAutoEventFlow) ---
-    /// [UGS] LeaderboardOpening -> LeaderboardOpened
-    /// [UGS] LeaderboardCloseRequested -> LeaderboardClosing -> LeaderboardClosed
-    /// [UGS] AchievementsOpenRequested -> AchievementsOpening
-    /// [UGS] AchievementsCloseRequested -> AchievementsClosing -> AchievementsClosed
-    /// [UGS] RewardAdWatching -> RewardAdWatched
-    /// [UGS] PlayerAuthenticating -> PlayerAuthenticated (loop back)
-    /// [BRIDGE: UGS->GameFlow] PlayerAuthenticated -> GameplayReady
+    /// --- POST-GAME -> BACK TO MAIN MENU (non-UGS) ---
+    /// (In the UGS template this was a leaderboard/achievements/ad loop that ended in
+    ///  PlayerAuthenticated -> GameplayReady. This template has no UGS, so GameEnded
+    ///  re-signals GameplayReady directly.)
+    /// [AUTO] GameEnded -> GameplayReady
     /// [AUTO] GameplayReady -> MainMenuShowRequested -> MainMenuShowing
     /// [Published] MainMenuShown
     ///
@@ -178,7 +173,11 @@ namespace CrawfisSoftware.GameFlow.Events
             // ================================================================================
 
             // --- Boot -> Main Menu ---
-            // After authentication completes, UGSGameFlowBridge fires GameplayReady
+            // In the UGS template, UGSGameFlowBridge fired GameplayReady after authentication.
+            // This template has no UGS: the loading screen finishing IS the "boot done" signal,
+            // so LoadingScreenHidden re-signals GameplayReady. (Previously this only happened via
+            // the Test_AutoFireEventOnStart helper object in the scene.)
+            { GameFlowEvents.LoadingScreenHidden, GameFlowEvents.GameplayReady },
             { GameFlowEvents.GameplayReady, GameFlowEvents.MainMenuShowRequested },
 
             // --- Level Selected -> Scene Loading ---
@@ -192,7 +191,14 @@ namespace CrawfisSoftware.GameFlow.Events
             // --- Player Death -> Game End ---
             // After game ends, unload gameplay scenes
             { GameFlowEvents.GameEnding, GameFlowEvents.GameScenesUnloadRequested },
-            // After unload, UGSGameFlowBridge triggers LeaderboardOpening via GameEnded
+
+            // --- Game Ended -> back to Main Menu ---
+            // In the UGS template the post-game loop returned to the menu via
+            // GameEnded -> LeaderboardOpening -> ... -> PlayerAuthenticated -> GameplayReady.
+            // This template has no UGS, so close the loop directly: GameEnded re-signals
+            // GameplayReady, which already auto-chains to MainMenuShowRequested -> MainMenuShowing.
+            // (Previously this only happened via the Test_AutoFireEvent helper object in the scene.)
+            { GameFlowEvents.GameEnded, GameFlowEvents.GameplayReady },
         };
 
         protected virtual void Awake()

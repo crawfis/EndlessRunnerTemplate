@@ -7,22 +7,44 @@ namespace CrawfisSoftware.GameFlow.UI
 {
     /// <summary>
     /// Wires the main menu buttons to GameFlow events.
+    ///    Dependencies: PanelRenderer (main menu panel)
     ///    Subscribes: none
     ///    Publishes: LevelSelectorShowRequested, QuitRequested
     /// </summary>
     class MainMenuController : MonoBehaviour
     {
-        [SerializeField] private UIDocument _uiDocument;
-        [SerializeField] private Button _startGameButton;
-        [SerializeField] private Button _quitGameButton;
+        [SerializeField] private PanelRenderer _panel;
+        private Button _startGameButton;
+        private Button _quitGameButton;
+
+        private VisualElement _root;
 
         private void OnEnable()
         {
-            var root = _uiDocument.rootVisualElement;
+            _panel.RegisterUIReloadCallback(OnUIReload);
+        }
+
+        private void OnDisable()
+        {
+            _panel.UnregisterUIReloadCallback(OnUIReload);
+            if (_startGameButton != null) _startGameButton.clicked -= OnStartGameButtonClicked;
+            if (_quitGameButton != null) _quitGameButton.clicked -= OnQuitButtonClicked;
+        }
+
+        // The PanelRenderer surfaces its visual tree only through this callback (it has no
+        // root-tree property). It can fire again on LiveReload, so wiring is idempotent:
+        // unhook before re-hooking.
+        private void OnUIReload(PanelRenderer renderer, VisualElement root)
+        {
+            _root = root;
+
+            if (_startGameButton != null) _startGameButton.clicked -= OnStartGameButtonClicked;
             _startGameButton = root.Q<Button>("BtnPlay");
-            _startGameButton.clicked += OnStartGameButtonClicked;
+            if (_startGameButton != null) _startGameButton.clicked += OnStartGameButtonClicked;
+
+            if (_quitGameButton != null) _quitGameButton.clicked -= OnQuitButtonClicked;
             _quitGameButton = root.Q<Button>("BtnQuit");
-            _quitGameButton.clicked += OnQuitButtonClicked;
+            if (_quitGameButton != null) _quitGameButton.clicked += OnQuitButtonClicked;
 
             // No authentication in the non-UGS template: hide the sign-out button if present.
             var signOutButton = root.Q<Button>("BtnSignOut");
@@ -30,12 +52,6 @@ namespace CrawfisSoftware.GameFlow.UI
             {
                 signOutButton.style.display = DisplayStyle.None;
             }
-        }
-
-        private void OnDisable()
-        {
-            if (_startGameButton != null) _startGameButton.clicked -= OnStartGameButtonClicked;
-            if (_quitGameButton != null) _quitGameButton.clicked -= OnQuitButtonClicked;
         }
 
         private void OnQuitButtonClicked()

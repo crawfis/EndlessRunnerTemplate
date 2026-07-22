@@ -9,29 +9,31 @@ namespace CrawfisSoftware.GameFlow.UI
     /// <summary>
     /// Handles level selector button logic. Creates level cards dynamically
     /// from a LevelRegistry, checks unlock status, and publishes selection events.
-    ///    Dependencies: LevelRegistry, LevelProgressManager
+    ///    Dependencies: PanelRenderer (level selector panel), LevelRegistry, LevelProgressManager
     ///    Subscribes: GameFlowEvents.LevelSelectorShowing
     ///    Publishes: GameFlowEvents.LevelSelected (data: LevelConfig),
     ///               GameFlowEvents.MainMenuShowRequested (back button)
     /// </summary>
     class LevelSelectorController : MonoBehaviour
     {
-        [SerializeField] private UIDocument _uiDocument;
+        [SerializeField] private PanelRenderer _panel;
         [SerializeField] private LevelRegistry _levelRegistry;
 
+        private VisualElement _root;
         private VisualElement _levelContainer;
         private Button _backButton;
 
         private void OnEnable()
         {
-            var root = _uiDocument.rootVisualElement;
-            _levelContainer = root.Q<VisualElement>("LevelContainer");
-            _backButton = root.Q<Button>("BtnBack");
-            if (_backButton != null)
-                _backButton.clicked += OnBackClicked;
+            _panel.RegisterUIReloadCallback(OnUIReload);
 
             EventsPublisherGameFlow.Instance.SubscribeToEvent(
                 GameFlowEvents.LevelSelectorShowing, OnShowing);
+        }
+
+        private void OnDisable()
+        {
+            _panel.UnregisterUIReloadCallback(OnUIReload);
         }
 
         private void OnDestroy()
@@ -41,6 +43,24 @@ namespace CrawfisSoftware.GameFlow.UI
 
             EventsPublisherGameFlow.Instance.UnsubscribeToEvent(
                 GameFlowEvents.LevelSelectorShowing, OnShowing);
+        }
+
+        // The PanelRenderer surfaces its visual tree only through this callback (it has no
+        // root-tree property). It can fire again on LiveReload, so wiring is idempotent.
+        // We (re)populate here as well so cards exist even if the tree arrives after a
+        // LevelSelectorShowing event (callback-timing safety).
+        private void OnUIReload(PanelRenderer renderer, VisualElement root)
+        {
+            _root = root;
+            _levelContainer = root.Q<VisualElement>("LevelContainer");
+
+            if (_backButton != null)
+                _backButton.clicked -= OnBackClicked;
+            _backButton = root.Q<Button>("BtnBack");
+            if (_backButton != null)
+                _backButton.clicked += OnBackClicked;
+
+            PopulateLevels();
         }
 
         private void OnShowing(string eventName, object sender, object data)

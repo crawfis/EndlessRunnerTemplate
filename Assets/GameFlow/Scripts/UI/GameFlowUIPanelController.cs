@@ -1,4 +1,4 @@
-﻿using CrawfisSoftware.Events;
+using CrawfisSoftware.Events;
 using CrawfisSoftware.GameFlow.Events;
 using CrawfisSoftware.GameFlow.GameConfig;
 
@@ -12,29 +12,61 @@ namespace CrawfisSoftware.GameFlow.UI
     /// <summary>
     /// GameFlow-domain UI panel controller. Manages loading screen and game over overlay.
     /// Countdown and HUD are now managed by TempleRun-domain CountdownUIController.
-    ///    Dependencies: GameConstants
+    ///    Dependencies: PanelRenderer (gameOver + loading panels), GameConstants
     ///    Subscribes: GameFlowEvents.GameStarting, GameFlowEvents.GameStarted, GameFlowEvents.GameEnding
     ///    Publishes: GameFlowEvents.LoadingScreenShown, GameFlowEvents.LoadingScreenHidden, GameFlowEvents.GameEnded
     /// </summary>
     public class GameFlowUIPanelController : MonoBehaviour
     {
-        [Header("UIDocuments (drag from scene)")]
-        public UIDocument gameOverUI;
-        public UIDocument loadingUI;
+        [Header("Panels (drag from scene)")]
+        public PanelRenderer gameOverUI;
+        public PanelRenderer loadingUI;
 
         private bool _isSignedIn = true;
 
+        private VisualElement _gameOverRoot;
+        private VisualElement _loadingRoot;
+        private bool _gameOverVisible;
+        private bool _loadingVisible;
+
         void Awake()
         {
-            if (gameOverUI) gameOverUI.rootVisualElement.style.display = DisplayStyle.None;
-
-            Go(UIState.Loading);
+            // Loading is shown immediately; gameOver starts hidden. Visibility is applied to each
+            // panel's root style.display once its UIReload callback delivers the tree. The
+            // PanelRenderers stay enabled at all times (we never toggle enabled - see the
+            // UUM-146174 note in MainMenuPanelController).
+            _loadingVisible = true;
+            _gameOverVisible = false;
 
             EventsPublisherGameFlow.Instance.SubscribeToEvent(GameFlowEvents.GameStarting, OnGameStarting);
             EventsPublisherGameFlow.Instance.SubscribeToEvent(GameFlowEvents.GameStarted, OnGameStarted);
             EventsPublisherGameFlow.Instance.SubscribeToEvent(GameFlowEvents.GameEnding, OnGameEnding);
 
             StartCoroutine(ShowLoadingRoutine(GameConstants.DefaultLoadingDisplayTime));
+        }
+
+        private void OnEnable()
+        {
+            if (loadingUI) loadingUI.RegisterUIReloadCallback(OnLoadingUIReload);
+            if (gameOverUI) gameOverUI.RegisterUIReloadCallback(OnGameOverUIReload);
+        }
+
+        private void OnDisable()
+        {
+            if (loadingUI) loadingUI.UnregisterUIReloadCallback(OnLoadingUIReload);
+            if (gameOverUI) gameOverUI.UnregisterUIReloadCallback(OnGameOverUIReload);
+        }
+
+        private void OnLoadingUIReload(PanelRenderer renderer, VisualElement root)
+        {
+            _loadingRoot = root;
+            ApplyLoading();
+        }
+
+        private void OnGameOverUIReload(PanelRenderer renderer, VisualElement root)
+        {
+            _gameOverRoot = root;
+            ApplyGameOver();
         }
 
         private void OnDestroy()
@@ -71,24 +103,16 @@ namespace CrawfisSoftware.GameFlow.UI
             EventsPublisherGameFlow.Instance.PublishEvent(GameFlowEvents.LoadingScreenHidden, this, null);
         }
 
-        void SetActive(UIDocument doc, bool on)
-        {
-            if (!doc) return;
-            doc.gameObject.SetActive(on);
-            if (doc.rootVisualElement != null)
-                doc.rootVisualElement.style.display = on ? DisplayStyle.Flex : DisplayStyle.None;
-        }
-
         public void Go(UIState s)
         {
-            SetActive(gameOverUI, s == UIState.GameOverOverlay);
-            SetActive(loadingUI, s == UIState.Loading);
+            SetGameOverVisible(s == UIState.GameOverOverlay);
+            SetLoadingVisible(s == UIState.Loading);
         }
 
         public void ShowGameOver()
         {
             if (!gameOverUI) { Debug.LogWarning("GameOver UXML not set"); return; }
-            SetActive(gameOverUI, true);
+            SetGameOverVisible(true);
             StartCoroutine(ShowGameOverRoutine());
         }
 
@@ -97,6 +121,30 @@ namespace CrawfisSoftware.GameFlow.UI
             yield return new WaitForSecondsRealtime(GameConstants.GameOverDisplayTime);
             EventsPublisherGameFlow.Instance.PublishEvent(GameFlowEvents.GameEnded, this, null);
             Go(UIState.None);
+        }
+
+        private void SetGameOverVisible(bool on)
+        {
+            _gameOverVisible = on;
+            ApplyGameOver();
+        }
+
+        private void SetLoadingVisible(bool on)
+        {
+            _loadingVisible = on;
+            ApplyLoading();
+        }
+
+        private void ApplyGameOver()
+        {
+            if (_gameOverRoot != null)
+                _gameOverRoot.style.display = _gameOverVisible ? DisplayStyle.Flex : DisplayStyle.None;
+        }
+
+        private void ApplyLoading()
+        {
+            if (_loadingRoot != null)
+                _loadingRoot.style.display = _loadingVisible ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
         public enum UIState { None, Menu, Loading, GameOverOverlay }

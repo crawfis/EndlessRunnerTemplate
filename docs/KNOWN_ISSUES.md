@@ -25,10 +25,17 @@ longer receive new features."* The rendering quirk reproduces in the source proj
   which reliably repaints and fixed the loading, game-over, level-selector, and countdown panels.
 - The scenes are committed with clean `u!114` UIDocuments and correct references.
 
-**The forward fix (recommended).** Migrate the panels to `PanelRenderer` — the modern component
-whose `UIReloaded` callback and content persistence remove this class of first-render bug. See the
-plan in [specs/PANEL_RENDERER_MIGRATION.md](specs/PANEL_RENDERER_MIGRATION.md) and the reusable
+**The forward fix (in progress on `feature/panel-renderer`).** Migrate the panels to `PanelRenderer`.
+See the plan in [specs/PANEL_RENDERER_MIGRATION.md](specs/PANEL_RENDERER_MIGRATION.md), the
+[Phase 3 swap checklist](specs/PANEL_RENDERER_PHASE3_CHECKLIST.md), and the reusable
 [playbooks/uidocument-to-panel-renderer.md](playbooks/uidocument-to-panel-renderer.md).
+
+> ⚠ **The migration alone is not a silver bullet.** `PanelRenderer` does **not** preserve content
+> when disabled (disable tears the tree down; enable rebuilds it), and it has its own first-render
+> trap — **Unity bug UUM-146174**: disabling a `PanelRenderer` in `Awake` stops `UIReloaded` from
+> firing on a later enable, reproducing the same blank-until-toggle symptom. The controllers on
+> `feature/panel-renderer` work around it by never disabling in `Awake` — they init enabled and hide
+> in the first `UIReloaded`. Keep that pattern when adding panels.
 
 **If a panel still renders blank / loses its UIDocument reference (before migrating):**
 1. Don't hand-edit the `.unity` YAML to "fix" a UIDocument reference — the migration renumbers

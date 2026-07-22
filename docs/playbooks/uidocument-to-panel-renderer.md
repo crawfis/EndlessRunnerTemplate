@@ -18,10 +18,17 @@ project in 6.5 may prompt or auto-migrate; doing it deliberately avoids surprise
 | | `UIDocument` (old) | `PanelRenderer` (new) |
 |--|--------------------|------------------------|
 | Rendering | needs a hidden companion renderer | **native `Renderer` component** |
-| Content on disable | **destroys** content, recreates on enable | **preserves** content in memory |
+| Content on disable | destroys content, recreates on enable | **also tears the tree down** (disable removes visual elements + cleans up resources); enable rebuilds it and re-fires `UIReloaded` |
 | Tree access | `rootVisualElement` property, any time | **only via `UIReloaded` callback** (no `rootVisualElement`) |
-| Reliable `OnEnable` / LiveReload | flaky (blank-until-toggle bugs) | callback fires on load & live reload |
+| Reliable `OnEnable` / LiveReload | flaky (blank-until-toggle bugs) | callback fires on load & live reload — **but see the Awake-disable bug below** |
 | World-space UI | limited | improved |
+
+> **Correction / caveat.** Early guidance (including earlier drafts of this playbook) claimed
+> `PanelRenderer` *preserves* content when disabled. It does **not** — the Unity Manual states
+> "when you disable it, Unity removes its visual elements from the hierarchy and cleans up
+> resources," and re-enabling rebuilds the tree and fires `UIReloaded` again. Treat `enabled` as a
+> teardown/rebuild toggle, and **re-cache any queried elements in every `UIReloaded`**, since the
+> old element references are dead after a disable.
 
 ## API mapping
 
@@ -34,7 +41,7 @@ project in 6.5 may prompt or auto-migrate; doing it deliberately avoids surprise
 | `_doc.visualTreeAsset` | `_panel.visualTreeAsset` |
 | `_doc.sortingOrder` | (set via `panelSettings` / inspector) |
 | `gameObject.AddComponent<UIDocument>()` | `gameObject.AddComponent<PanelRenderer>()` |
-| show/hide via `rootVisualElement.style.display` | **`_panel.enabled = true/false`** (content persists) |
+| show/hide via `rootVisualElement.style.display` | **`_panel.enabled = true/false`** (teardown/rebuild; re-caches on the next `UIReloaded`) |
 
 ### Callback registration
 
@@ -80,11 +87,26 @@ private void OnUIReload(PanelRenderer r, VisualElement root) {
 
 ### Pattern 2 — "show/hide a panel"
 
-Prefer the component's `enabled` (leverages content persistence):
+Use the component's `enabled` for whole-panel show/hide:
 
 ```csharp
 // BEFORE:  _menuUI.rootVisualElement.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
 // AFTER:   _menuPanel.enabled = show;
+```
+
+**But do NOT set the initial hidden state in `Awake`** — see the Awake-disable bug in Gotchas.
+Let the panel init enabled (so `UIReloaded` fires once), then hide it inside the first `UIReloaded`:
+
+```csharp
+private bool _initialized;
+void OnEnable()  => _panel.RegisterUIReloadCallback(OnUIReload);
+void OnDisable() => _panel.UnregisterUIReloadCallback(OnUIReload);
+void OnUIReload(PanelRenderer r, VisualElement root) {
+    // re-cache queried elements here EVERY time (disable tore the old ones down)...
+    if (_initialized) return;
+    _initialized = true;
+    _panel.enabled = startVisible;   // first hide happens post-init, not in Awake
+}
 ```
 
 If you need element-level layout control instead of whole-panel toggling, cache `_root` from the
@@ -110,11 +132,21 @@ serialized references. Do the swap in the Inspector:
 - **Always `UnregisterUIReloadCallback` in `OnDisable`/`OnDestroy`** — mirror every register.
 - **The callback can fire more than once** (LiveReload). Make element wiring idempotent (unhook
   handlers before re-hooking).
-- **Initial visibility:** set it when the root first arrives (in the callback) or via `enabled`,
-  not in `Awake` (the tree may not exist yet).
-- **`style.display` vs `enabled`:** `enabled=false` now *preserves* content (no destroy/recreate),
-  so it's the correct show/hide. Verify it doesn't hide child `PanelRenderer`s unexpectedly via the
-  `parentUI` hierarchy in your layout.
+- **⚠ Do not disable a PanelRenderer in `Awake` — Unity bug UUM-146174.** If you set
+  `enabled = false` in `Awake` (before the component's first init completes), a later
+  `enabled = true` **no longer fires `UIReloaded`**, so the tree never rebuilds and the panel
+  renders **blank until a manual Inspector toggle**. Confirmed by Unity staff ("This is a bug. We'll
+  fix it soon.") The reliable workaround: let the panel init enabled, then apply the initial hide in
+  the **first** `UIReloaded` (see Pattern 2). A post-init disable→enable behaves like the editor
+  toggle and repaints correctly. (Alternative workaround some teams use: keep the open/close logic on
+  a separate GameObject and toggle the *panel's whole GameObject* `SetActive` instead of the
+  component's `enabled`.)
+- **Initial visibility:** set it in the first `UIReloaded`, not in `Awake` (per the bug above; the
+  tree also may not exist yet in `Awake`).
+- **`style.display` vs `enabled`:** `enabled` is the whole-panel show/hide, but it is a
+  teardown/rebuild (it does **not** preserve content), so re-cache queried elements on every
+  `UIReloaded`. Verify it doesn't hide child `PanelRenderer`s unexpectedly via the `parentUI`
+  hierarchy in your layout.
 - **Serialized references will go null** on the component swap — re-wire them in the Inspector; do
   not try to fix them in YAML.
 

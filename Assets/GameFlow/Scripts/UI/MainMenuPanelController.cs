@@ -1,21 +1,36 @@
-﻿using CrawfisSoftware.GameFlow.Events;
+using CrawfisSoftware.GameFlow.Events;
 
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace CrawfisSoftware.GameFlow.UI
 {
+    /// <summary>
+    /// Shows/hides the Main Menu PanelRenderer based on GameFlow events.
+    ///    Dependencies: PanelRenderer (main menu panel)
+    ///    Subscribes: GameplayNotReady, GameScenesLoading, LevelSelectorShowing (hide),
+    ///                MainMenuShowing (show)
+    ///    Publishes: MainMenuShown, MainMenuHidden
+    /// </summary>
     class MainMenuPanelController : MonoBehaviour
     {
-        public UIDocument menuUI;
+        public PanelRenderer menuUI;
+
+        private VisualElement _root;
+        private bool _visible;
+
         private void Awake()
         {
-            menuUI.rootVisualElement.style.display = GameState.IsMainMenuActive ? DisplayStyle.Flex : DisplayStyle.None;
+            _visible = GameState.IsMainMenuActive;
             EventsPublisherGameFlow.Instance.SubscribeToEvent(GameFlowEvents.GameplayNotReady, StartHidePanel);
             EventsPublisherGameFlow.Instance.SubscribeToEvent(GameFlowEvents.GameScenesLoading, StartHidePanel);
             EventsPublisherGameFlow.Instance.SubscribeToEvent(GameFlowEvents.LevelSelectorShowing, StartHidePanel);
             EventsPublisherGameFlow.Instance.SubscribeToEvent(GameFlowEvents.MainMenuShowing, StartShowPanel);
         }
+
+        private void OnEnable() => menuUI.RegisterUIReloadCallback(OnUIReload);
+
+        private void OnDisable() => menuUI.UnregisterUIReloadCallback(OnUIReload);
 
         private void OnDestroy()
         {
@@ -25,26 +40,39 @@ namespace CrawfisSoftware.GameFlow.UI
             EventsPublisherGameFlow.Instance.UnsubscribeToEvent(GameFlowEvents.MainMenuShowing, StartShowPanel);
         }
 
-        private void StartShowPanel(string eventName, object sender, object data)
+        // Show/hide is driven by the root's style.display while the PanelRenderer stays ENABLED at
+        // all times. We deliberately do NOT toggle PanelRenderer.enabled: disabling tears the visual
+        // tree down, and Unity bug UUM-146174 means a later enable may not re-fire UIReloaded (blank
+        // panel). Re-applying our own _visible state on every reload also avoids any race with when
+        // the tree first arrives relative to a show/hide event.
+        private void OnUIReload(PanelRenderer renderer, VisualElement root)
         {
-            ShowPanel();
+            _root = root;
+            ApplyVisibility();
         }
 
-        private void StartHidePanel(string eventName, object sender, object data)
-        {
-            HidePanel();
-        }
+        private void StartShowPanel(string eventName, object sender, object data) => ShowPanel();
+
+        private void StartHidePanel(string eventName, object sender, object data) => HidePanel();
 
         private void ShowPanel()
         {
-            menuUI.rootVisualElement.style.display = DisplayStyle.Flex;
+            _visible = true;
+            ApplyVisibility();
             EventsPublisherGameFlow.Instance.PublishEvent(GameFlowEvents.MainMenuShown, this, null);
         }
 
         private void HidePanel()
         {
-            menuUI.rootVisualElement.style.display = DisplayStyle.None;
+            _visible = false;
+            ApplyVisibility();
             EventsPublisherGameFlow.Instance.PublishEvent(GameFlowEvents.MainMenuHidden, this, null);
+        }
+
+        private void ApplyVisibility()
+        {
+            if (_root != null)
+                _root.style.display = _visible ? DisplayStyle.Flex : DisplayStyle.None;
         }
     }
 }
