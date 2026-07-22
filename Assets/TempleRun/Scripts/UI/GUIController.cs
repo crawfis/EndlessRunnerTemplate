@@ -27,7 +27,13 @@ namespace CrawfisSoftware.TempleRun
             EventsPublisherTempleRun.Instance.SubscribeToEvent(TempleRunEvents.ActiveTrackChanging, OnTrackChanging);
         }
 
-        private void OnEnable() => _panel.RegisterUIReloadCallback(OnUIReload);
+        private void OnEnable()
+        {
+            _panel.RegisterUIReloadCallback(OnUIReload);
+            // The HUD is always visible; keep the PanelRenderer enabled so its tree builds and the
+            // labels resolve, even if the scene authored the component disabled.
+            _panel.enabled = true;
+        }
 
         private void OnDisable() => _panel.UnregisterUIReloadCallback(OnUIReload);
 

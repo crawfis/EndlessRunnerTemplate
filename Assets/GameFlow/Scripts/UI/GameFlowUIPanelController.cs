@@ -47,8 +47,19 @@ namespace CrawfisSoftware.GameFlow.UI
 
         private void OnEnable()
         {
-            if (loadingUI) loadingUI.RegisterUIReloadCallback(OnLoadingUIReload);
-            if (gameOverUI) gameOverUI.RegisterUIReloadCallback(OnGameOverUIReload);
+            // Visibility is driven by style.display, so both PanelRenderers must stay enabled for
+            // their trees to build. The scene may author gameOver (or loading) disabled, so force
+            // them on here - after registering, to catch the resulting reload.
+            if (loadingUI)
+            {
+                loadingUI.RegisterUIReloadCallback(OnLoadingUIReload);
+                loadingUI.enabled = true;
+            }
+            if (gameOverUI)
+            {
+                gameOverUI.RegisterUIReloadCallback(OnGameOverUIReload);
+                gameOverUI.enabled = true;
+            }
         }
 
         private void OnDisable()

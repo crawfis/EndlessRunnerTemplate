@@ -28,7 +28,14 @@ namespace CrawfisSoftware.GameFlow.UI
             EventsPublisherGameFlow.Instance.SubscribeToEvent(GameFlowEvents.MainMenuShowing, StartShowPanel);
         }
 
-        private void OnEnable() => menuUI.RegisterUIReloadCallback(OnUIReload);
+        private void OnEnable()
+        {
+            menuUI.RegisterUIReloadCallback(OnUIReload);
+            // Visibility is driven by style.display, so the PanelRenderer must stay enabled for its
+            // tree to build and fire UIReload. The scene may author it disabled (panels that "start
+            // hidden"), so force it on here - after registering, to catch the resulting reload.
+            menuUI.enabled = true;
+        }
 
         private void OnDisable() => menuUI.UnregisterUIReloadCallback(OnUIReload);
 

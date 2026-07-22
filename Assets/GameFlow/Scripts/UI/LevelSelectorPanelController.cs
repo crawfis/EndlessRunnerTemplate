@@ -33,7 +33,13 @@ namespace CrawfisSoftware.GameFlow.UI
                 GameFlowEvents.MainMenuShowing, StartHidePanel);
         }
 
-        private void OnEnable() => _levelSelectorUI.RegisterUIReloadCallback(OnUIReload);
+        private void OnEnable()
+        {
+            _levelSelectorUI.RegisterUIReloadCallback(OnUIReload);
+            // Keep the PanelRenderer enabled (visibility is via style.display); the scene may author
+            // it disabled. See MainMenuPanelController for the rationale.
+            _levelSelectorUI.enabled = true;
+        }
 
         private void OnDisable() => _levelSelectorUI.UnregisterUIReloadCallback(OnUIReload);
 
