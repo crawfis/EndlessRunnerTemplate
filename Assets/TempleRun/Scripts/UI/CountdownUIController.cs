@@ -42,8 +42,8 @@ namespace CrawfisSoftware.TempleRun.UI
                 TempleRunEvents.CountdownEnded, OnCountdownEnded);
         }
 
-        // The PanelRenderer surfaces its visual tree only through this callback (there is no
-        // rootVisualElement). The callback fires while the panel loads enabled, so we cache the
+        // The PanelRenderer surfaces its visual tree only through this callback (it has no
+        // root-tree property). The callback fires while the panel loads enabled, so we cache the
         // label here and hide the panel once — content persists, so re-enabling shows it again.
         private void OnUIReload(PanelRenderer renderer, VisualElement root)
         {

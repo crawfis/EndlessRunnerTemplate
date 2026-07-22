@@ -31,8 +31,8 @@ namespace CrawfisSoftware.TempleRun
 
         private void OnDisable() => _panel.UnregisterUIReloadCallback(OnUIReload);
 
-        // The PanelRenderer surfaces its visual tree only through this callback (there is no
-        // rootVisualElement). Cache the HUD labels here; Update() guards until they arrive.
+        // The PanelRenderer surfaces its visual tree only through this callback (it has no
+        // root-tree property). Cache the HUD labels here; Update() guards until they arrive.
         private void OnUIReload(PanelRenderer renderer, VisualElement root)
         {
             _root = root;

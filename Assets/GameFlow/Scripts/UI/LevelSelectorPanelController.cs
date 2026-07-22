@@ -6,8 +6,9 @@ using UnityEngine.UIElements;
 namespace CrawfisSoftware.GameFlow.UI
 {
     /// <summary>
-    /// Shows/hides the Level Selector UIDocument panel based on GameFlow events.
+    /// Shows/hides the Level Selector PanelRenderer based on GameFlow events.
     /// Follows the same pattern as MainMenuPanelController.
+    ///    Dependencies: PanelRenderer (level selector panel)
     ///    Subscribes: GameFlowEvents.LevelSelectorShowing (show),
     ///                GameFlowEvents.GameScenesLoading (hide - game starting),
     ///                GameFlowEvents.MainMenuShowing (hide - back to menu)
@@ -15,11 +16,11 @@ namespace CrawfisSoftware.GameFlow.UI
     /// </summary>
     class LevelSelectorPanelController : MonoBehaviour
     {
-        [SerializeField] private UIDocument _levelSelectorUI;
+        [SerializeField] private PanelRenderer _levelSelectorUI;
 
         private void Awake()
         {
-            _levelSelectorUI.rootVisualElement.style.display = DisplayStyle.None;
+            _levelSelectorUI.enabled = false;
 
             EventsPublisherGameFlow.Instance.SubscribeToEvent(
                 GameFlowEvents.LevelSelectorShowing, StartShowPanel);
@@ -51,15 +52,15 @@ namespace CrawfisSoftware.GameFlow.UI
 
         private void ShowPanel()
         {
-            _levelSelectorUI.rootVisualElement.style.display = DisplayStyle.Flex;
+            _levelSelectorUI.enabled = true;
             EventsPublisherGameFlow.Instance.PublishEvent(
                 GameFlowEvents.LevelSelectorShown, this, null);
         }
 
         private void HidePanel()
         {
-            if (_levelSelectorUI.rootVisualElement.style.display == DisplayStyle.None) return;
-            _levelSelectorUI.rootVisualElement.style.display = DisplayStyle.None;
+            if (!_levelSelectorUI.enabled) return;
+            _levelSelectorUI.enabled = false;
             EventsPublisherGameFlow.Instance.PublishEvent(
                 GameFlowEvents.LevelSelectorHidden, this, null);
         }

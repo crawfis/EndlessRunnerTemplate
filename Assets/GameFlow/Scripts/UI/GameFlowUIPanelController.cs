@@ -12,21 +12,21 @@ namespace CrawfisSoftware.GameFlow.UI
     /// <summary>
     /// GameFlow-domain UI panel controller. Manages loading screen and game over overlay.
     /// Countdown and HUD are now managed by TempleRun-domain CountdownUIController.
-    ///    Dependencies: GameConstants
+    ///    Dependencies: PanelRenderer (gameOver + loading panels), GameConstants
     ///    Subscribes: GameFlowEvents.GameStarting, GameFlowEvents.GameStarted, GameFlowEvents.GameEnding
     ///    Publishes: GameFlowEvents.LoadingScreenShown, GameFlowEvents.LoadingScreenHidden, GameFlowEvents.GameEnded
     /// </summary>
     public class GameFlowUIPanelController : MonoBehaviour
     {
-        [Header("UIDocuments (drag from scene)")]
-        public UIDocument gameOverUI;
-        public UIDocument loadingUI;
+        [Header("Panels (drag from scene)")]
+        public PanelRenderer gameOverUI;
+        public PanelRenderer loadingUI;
 
         private bool _isSignedIn = true;
 
         void Awake()
         {
-            if (gameOverUI) gameOverUI.rootVisualElement.style.display = DisplayStyle.None;
+            if (gameOverUI) gameOverUI.enabled = false;
 
             Go(UIState.Loading);
 
@@ -71,12 +71,12 @@ namespace CrawfisSoftware.GameFlow.UI
             EventsPublisherGameFlow.Instance.PublishEvent(GameFlowEvents.LoadingScreenHidden, this, null);
         }
 
-        void SetActive(UIDocument doc, bool on)
+        void SetActive(PanelRenderer panel, bool on)
         {
-            if (!doc) return;
-            doc.gameObject.SetActive(on);
-            if (doc.rootVisualElement != null)
-                doc.rootVisualElement.style.display = on ? DisplayStyle.Flex : DisplayStyle.None;
+            if (!panel) return;
+            // PanelRenderer preserves its content when disabled, so enabled is the show/hide
+            // toggle. No gameObject.SetActive / style.display needed.
+            panel.enabled = on;
         }
 
         public void Go(UIState s)

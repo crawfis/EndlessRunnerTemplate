@@ -5,12 +5,20 @@ using UnityEngine.UIElements;
 
 namespace CrawfisSoftware.GameFlow.UI
 {
+    /// <summary>
+    /// Shows/hides the Main Menu PanelRenderer based on GameFlow events.
+    ///    Dependencies: PanelRenderer (main menu panel)
+    ///    Subscribes: GameplayNotReady, GameScenesLoading, LevelSelectorShowing (hide),
+    ///                MainMenuShowing (show)
+    ///    Publishes: MainMenuShown, MainMenuHidden
+    /// </summary>
     class MainMenuPanelController : MonoBehaviour
     {
-        public UIDocument menuUI;
+        public PanelRenderer menuUI;
         private void Awake()
         {
-            menuUI.rootVisualElement.style.display = GameState.IsMainMenuActive ? DisplayStyle.Flex : DisplayStyle.None;
+            // enabled is a plain component property (no visual tree needed), safe in Awake.
+            menuUI.enabled = GameState.IsMainMenuActive;
             EventsPublisherGameFlow.Instance.SubscribeToEvent(GameFlowEvents.GameplayNotReady, StartHidePanel);
             EventsPublisherGameFlow.Instance.SubscribeToEvent(GameFlowEvents.GameScenesLoading, StartHidePanel);
             EventsPublisherGameFlow.Instance.SubscribeToEvent(GameFlowEvents.LevelSelectorShowing, StartHidePanel);
@@ -37,13 +45,13 @@ namespace CrawfisSoftware.GameFlow.UI
 
         private void ShowPanel()
         {
-            menuUI.rootVisualElement.style.display = DisplayStyle.Flex;
+            menuUI.enabled = true;
             EventsPublisherGameFlow.Instance.PublishEvent(GameFlowEvents.MainMenuShown, this, null);
         }
 
         private void HidePanel()
         {
-            menuUI.rootVisualElement.style.display = DisplayStyle.None;
+            menuUI.enabled = false;
             EventsPublisherGameFlow.Instance.PublishEvent(GameFlowEvents.MainMenuHidden, this, null);
         }
     }

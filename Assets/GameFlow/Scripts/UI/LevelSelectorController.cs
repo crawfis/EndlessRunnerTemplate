@@ -45,8 +45,8 @@ namespace CrawfisSoftware.GameFlow.UI
                 GameFlowEvents.LevelSelectorShowing, OnShowing);
         }
 
-        // The PanelRenderer surfaces its visual tree only through this callback (there is no
-        // rootVisualElement). It can fire again on LiveReload, so wiring is idempotent.
+        // The PanelRenderer surfaces its visual tree only through this callback (it has no
+        // root-tree property). It can fire again on LiveReload, so wiring is idempotent.
         // We (re)populate here as well so cards exist even if the tree arrives after a
         // LevelSelectorShowing event (callback-timing safety).
         private void OnUIReload(PanelRenderer renderer, VisualElement root)
