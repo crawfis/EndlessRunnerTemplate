@@ -1,4 +1,5 @@
 using CrawfisSoftware.TempleRun.GameConfig;
+using CrawfisSoftware.TempleRun.PowerUps;
 
 using System.Collections;
 using System.Collections.Generic;
@@ -9,9 +10,12 @@ namespace CrawfisSoftware.TempleRun
 {
     /// <summary>
     /// Central buff manager and obstacle-hit gate.
-    /// Applies/removes power-up buffs on the Blackboard and manages buff duration timers.
-    /// Also gates ObstacleHit: if Shield is active, publishes ObstacleRecovered instead of PlayerFailingAtObstacle.
-    ///    Dependencies: Blackboard, PowerUpDefinition
+    /// Delegates the per-type buff logic to <see cref="IPowerUpEffect"/> strategies (one per
+    /// <see cref="PowerUpType"/>) and owns the cross-cutting concerns: the active-buff duration
+    /// timers, the re-collect-resets-timer rule, and the event plumbing.
+    /// Also gates ObstacleHit: it asks each active effect to TryAbsorbObstacle (Shield publishes
+    /// ObstacleRecovered and absorbs the hit); if none absorb, it publishes PlayerFailingAtObstacle.
+    ///    Dependencies: Blackboard, PowerUpDefinition, IPowerUpEffect
     ///    Subscribes: TempleRunEvents.PowerUpCollecting (destroy GO, publish PowerUpCollected)
     ///    Subscribes: TempleRunEvents.PowerUpActivating (apply buff)
     ///    Subscribes: TempleRunEvents.PowerUpDeactivating (remove buff)
@@ -21,15 +25,38 @@ namespace CrawfisSoftware.TempleRun
     ///    Publishes: TempleRunEvents.PowerUpActivated
     ///    Publishes: TempleRunEvents.PowerUpDeactivated
     ///    Publishes: TempleRunEvents.PowerUpDeactivateRequested
-    ///    Publishes: TempleRunEvents.PlayerFailingAtObstacle (when no shield)
-    ///    Publishes: TempleRunEvents.ObstacleRecovered (when shield absorbs hit)
+    ///    Publishes: TempleRunEvents.PlayerFailingAtObstacle (when no effect absorbs)
+    ///    Publishes: TempleRunEvents.ObstacleRecovered (via ShieldEffect when a shield absorbs a hit)
     /// </summary>
     internal class PowerUpBuffController : MonoBehaviour
     {
         private readonly Dictionary<PowerUpType, Coroutine> _activeBuffs = new();
 
+        /// <summary>
+        /// The known power-up strategies. Instantiated in code (rather than a
+        /// <c>[SerializeReference]</c> list) so the registry is deterministic and needs no
+        /// per-scene inspector wiring — see the M1 report for the trade-off. Add a new power-up by
+        /// adding its effect class here (plus a PowerUpType value and a PowerUpDefinition asset).
+        /// </summary>
+        private static readonly IPowerUpEffect[] _effects =
+        {
+            new SpeedBoostEffect(),
+            new CoinMagnetEffect(),
+            new ShieldEffect(),
+            new ScoreMultiplierEffect(),
+            new CoinDoublerEffect(),
+        };
+
+        /// <summary>Registry keyed by <see cref="PowerUpType"/>, built from <see cref="_effects"/>.</summary>
+        private readonly Dictionary<PowerUpType, IPowerUpEffect> _effectRegistry = new();
+
         private void Awake()
         {
+            foreach (IPowerUpEffect effect in _effects)
+            {
+                _effectRegistry[effect.Type] = effect;
+            }
+
             EventsPublisherTempleRun.Instance.SubscribeToEvent(
                 TempleRunEvents.PowerUpCollecting, OnPowerUpCollecting);
             EventsPublisherTempleRun.Instance.SubscribeToEvent(
@@ -83,15 +110,17 @@ namespace CrawfisSoftware.TempleRun
             PowerUpDefinition definition = data as PowerUpDefinition;
             if (definition == null) return;
 
+            PowerUpContext ctx = new PowerUpContext(Blackboard.Instance, definition);
+
             // Cancel existing buff of the same type (reset timer)
             if (_activeBuffs.TryGetValue(definition.Type, out Coroutine existingCoroutine))
             {
                 if (existingCoroutine != null)
                     StopCoroutine(existingCoroutine);
-                RemoveBuff(definition.Type);
+                RemoveEffect(definition.Type, ctx);
             }
 
-            ApplyBuff(definition);
+            ApplyEffect(definition.Type, ctx);
 
             // Start duration timer
             Coroutine timerCoroutine = StartCoroutine(BuffDurationTimer(definition));
@@ -109,7 +138,8 @@ namespace CrawfisSoftware.TempleRun
             PowerUpDefinition definition = data as PowerUpDefinition;
             if (definition == null) return;
 
-            RemoveBuff(definition.Type);
+            PowerUpContext ctx = new PowerUpContext(Blackboard.Instance, definition);
+            RemoveEffect(definition.Type, ctx);
             _activeBuffs.Remove(definition.Type);
 
             EventsPublisherTempleRun.Instance.PublishEvent(
@@ -117,23 +147,27 @@ namespace CrawfisSoftware.TempleRun
         }
 
         /// <summary>
-        /// Gates ObstacleHit: if Shield is active, absorbs the hit and publishes ObstacleRecovered.
-        /// Otherwise, forwards to PlayerFailingAtObstacle (replacing the commented-out auto-chain).
+        /// Gates ObstacleHit: asks each currently-active effect to absorb the hit. If any absorbs
+        /// it (Shield publishes ObstacleRecovered and returns true), the hit is handled. Otherwise
+        /// forwards to PlayerFailingAtObstacle with the original sender/data.
         /// </summary>
         private void OnObstacleHit(string eventName, object sender, object data)
         {
-            if (Blackboard.Instance.ShieldActive)
+            // Definition is not meaningful for a hit; absorb hooks (Shield) do not read it.
+            PowerUpContext ctx = new PowerUpContext(Blackboard.Instance, null);
+
+            // Enumerate the immutable registry (never mutated after Awake) and skip inactive
+            // effects, so a subscriber reacting to a published event can safely touch _activeBuffs.
+            foreach (KeyValuePair<PowerUpType, IPowerUpEffect> entry in _effectRegistry)
             {
-                // Shield absorbs the hit
-                EventsPublisherTempleRun.Instance.PublishEvent(
-                    TempleRunEvents.ObstacleRecovered, this, null);
+                if (!_activeBuffs.ContainsKey(entry.Key)) continue;
+                if (entry.Value.TryAbsorbObstacle(ctx))
+                    return; // Absorbed; the effect published its own recovery event.
             }
-            else
-            {
-                // No shield — forward to failure as the auto-chain previously did
-                EventsPublisherTempleRun.Instance.PublishEvent(
-                    TempleRunEvents.PlayerFailingAtObstacle, sender, data);
-            }
+
+            // No effect absorbed the hit — forward to failure as before.
+            EventsPublisherTempleRun.Instance.PublishEvent(
+                TempleRunEvents.PlayerFailingAtObstacle, sender, data);
         }
 
         /// <summary>
@@ -141,53 +175,28 @@ namespace CrawfisSoftware.TempleRun
         /// </summary>
         private void OnTempleRunEnded(string eventName, object sender, object data)
         {
+            PowerUpContext ctx = new PowerUpContext(Blackboard.Instance, null);
             foreach (var kvp in _activeBuffs)
             {
                 if (kvp.Value != null)
                     StopCoroutine(kvp.Value);
-                RemoveBuff(kvp.Key);
+                RemoveEffect(kvp.Key, ctx);
             }
             _activeBuffs.Clear();
         }
 
-        private void ApplyBuff(PowerUpDefinition definition)
+        /// <summary>Applies the registered effect for <paramref name="type"/>, if any.</summary>
+        private void ApplyEffect(PowerUpType type, PowerUpContext ctx)
         {
-            switch (definition.Type)
-            {
-                case PowerUpType.SpeedBoost:
-                    Blackboard.Instance.ActiveSpeedMultiplier = definition.Magnitude;
-                    break;
-                case PowerUpType.CoinMagnet:
-                    Blackboard.Instance.CoinMagnetActive = true;
-                    Blackboard.Instance.CoinMagnetRadius = definition.Magnitude;
-                    break;
-                case PowerUpType.Shield:
-                    Blackboard.Instance.ShieldActive = true;
-                    break;
-                case PowerUpType.ScoreMultiplier:
-                    Blackboard.Instance.ActiveScoreMultiplier = definition.Magnitude;
-                    break;
-            }
+            if (_effectRegistry.TryGetValue(type, out IPowerUpEffect effect))
+                effect.Apply(ctx);
         }
 
-        private void RemoveBuff(PowerUpType type)
+        /// <summary>Removes (restores defaults for) the registered effect for <paramref name="type"/>, if any.</summary>
+        private void RemoveEffect(PowerUpType type, PowerUpContext ctx)
         {
-            switch (type)
-            {
-                case PowerUpType.SpeedBoost:
-                    Blackboard.Instance.ActiveSpeedMultiplier = 1.0f;
-                    break;
-                case PowerUpType.CoinMagnet:
-                    Blackboard.Instance.CoinMagnetActive = false;
-                    Blackboard.Instance.CoinMagnetRadius = 0f;
-                    break;
-                case PowerUpType.Shield:
-                    Blackboard.Instance.ShieldActive = false;
-                    break;
-                case PowerUpType.ScoreMultiplier:
-                    Blackboard.Instance.ActiveScoreMultiplier = 1.0f;
-                    break;
-            }
+            if (_effectRegistry.TryGetValue(type, out IPowerUpEffect effect))
+                effect.Remove(ctx);
         }
 
         private IEnumerator BuffDurationTimer(PowerUpDefinition definition)

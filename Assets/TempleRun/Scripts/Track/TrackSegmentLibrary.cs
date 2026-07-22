@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+using CrawfisSoftware.TempleRun.Track;
+
 namespace CrawfisSoftware.TempleRun
 {
     // =========================================================================
@@ -111,6 +113,14 @@ namespace CrawfisSoftware.TempleRun
         /// Defaults to ExitDistance * 0.5 in NormalizeSegments().
         /// </summary>
         public float TeleportDistance = 0f;
+
+        /// <summary>
+        /// Optional turn radius (world units) for rounded corners, read by
+        /// <see cref="Track.Geometry.ArcTurnBuilder"/>. Default 0 means a hard 90° corner —
+        /// geometry is bit-identical to the default <see cref="Track.Geometry.AxisAligned90Builder"/>.
+        /// Ignored by the default builder and by non-turn segments.
+        /// </summary>
+        public float TurnRadius = 0f;
     }
 
     [Serializable]
@@ -199,11 +209,14 @@ namespace CrawfisSoftware.TempleRun
     // =========================================================================
 
     /// <summary>
-    /// Runtime library for selecting track segments during gameplay.
-    ///   Call <see cref="LoadFromResources"/> once per level, then call
-    ///   <see cref="GetStartSegment"/> and <see cref="SelectNext"/> each turn.
+    /// Runtime data source for track segments during gameplay. Owns the segment pool,
+    /// connections and lane configuration for a level and exposes them via
+    /// <see cref="ISegmentPool"/>. The selection algorithm lives in an
+    /// <see cref="Track.ISegmentSelector"/> (default
+    /// <see cref="Track.WeightedDifficultySelector"/>); call
+    /// <see cref="LoadFromResources"/> once per level to build the pool.
     /// </summary>
-    public class TrackSegmentLibrary
+    public class TrackSegmentLibrary : ISegmentPool
     {
         private readonly TrackSegmentLibraryDefinition _definition;
         private readonly Dictionary<string, TrackSegmentDefinition> _segmentsById
@@ -217,6 +230,33 @@ namespace CrawfisSoftware.TempleRun
         public int    LaneCount        => _definition.LaneCount > 0 ? _definition.LaneCount : 3;
         public float  LaneWidth        => _definition.LaneWidth > 0f ? _definition.LaneWidth : 2f;
         public int    SegmentCount     => _definition.Segments.Count;
+
+        // ---------------------------------------------------------------------
+        // ISegmentPool — read-only data view consumed by ISegmentSelector.
+        // Thin wrappers over the existing definition/maps; no behaviour of their own.
+        // ---------------------------------------------------------------------
+
+        /// <inheritdoc />
+        public IReadOnlyList<TrackSegmentDefinition> Segments => _definition.Segments;
+
+        /// <inheritdoc />
+        public string StartSegmentId => _definition.StartSegmentId;
+
+        /// <inheritdoc />
+        public TrackSegmentDefinition ById(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id)) return null;
+            return _segmentsById.TryGetValue(id, out var segment) ? segment : null;
+        }
+
+        /// <inheritdoc />
+        public IReadOnlyList<string> ConnectionsFrom(string id)
+        {
+            if (!string.IsNullOrWhiteSpace(id) &&
+                _connectionsByFromId.TryGetValue(id, out var list))
+                return list;
+            return Array.Empty<string>();
+        }
 
         public TrackSegmentLibrary(TrackSegmentLibraryDefinition definition)
         {
@@ -338,64 +378,13 @@ namespace CrawfisSoftware.TempleRun
         // ---------------------------------------------------------------------
         // Selection
         // ---------------------------------------------------------------------
-
-        public TrackSegmentDefinition GetStartSegment(System.Random random)
-        {
-            if (!string.IsNullOrWhiteSpace(_definition.StartSegmentId) &&
-                _segmentsById.TryGetValue(_definition.StartSegmentId, out var segment))
-                return segment;
-
-            return SelectNext(null, 0, random);
-        }
-
-        /// <summary>
-        /// Select the next segment.  When <paramref name="targetDifficulty"/> >= 0,
-        /// only segments within ± <paramref name="difficultyRange"/> are considered.
-        /// Falls back to ungated selection when no matches.
-        /// </summary>
-        public TrackSegmentDefinition SelectNext(
-            string previousSegmentId,
-            int    previousRepeatCount,
-            System.Random random,
-            float  targetDifficulty = -1f,
-            float  difficultyRange  = 2f)
-        {
-            bool  gated   = targetDifficulty >= 0f && difficultyRange >= 0f;
-            float diffMin = targetDifficulty - difficultyRange;
-            float diffMax = targetDifficulty + difficultyRange;
-
-            var candidates = new List<TrackSegmentDefinition>();
-
-            if (!string.IsNullOrWhiteSpace(previousSegmentId) &&
-                _connectionsByFromId.TryGetValue(previousSegmentId, out var allowedIds))
-            {
-                foreach (var id in allowedIds)
-                {
-                    if (_segmentsById.TryGetValue(id, out var seg) &&
-                        IsAllowed(seg, previousSegmentId, previousRepeatCount) &&
-                        (!gated || IsInDifficultyRange(seg, diffMin, diffMax)))
-                        candidates.Add(seg);
-                }
-            }
-            else
-            {
-                foreach (var seg in _definition.Segments)
-                {
-                    if (IsAllowed(seg, previousSegmentId, previousRepeatCount) &&
-                        (!gated || IsInDifficultyRange(seg, diffMin, diffMax)))
-                        candidates.Add(seg);
-                }
-            }
-
-            // Fall back to ungated if difficulty filter left us empty
-            if (candidates.Count == 0 && gated)
-                return SelectNext(previousSegmentId, previousRepeatCount, random);
-
-            if (candidates.Count == 0)
-                candidates.AddRange(_definition.Segments);
-
-            return SelectWeighted(candidates, random);
-        }
+        //
+        // The selection algorithm (GetStartSegment / SelectNext / SelectWeighted /
+        // IsAllowed / IsInDifficultyRange) moved verbatim into
+        // CrawfisSoftware.TempleRun.Track.WeightedDifficultySelector as part of the
+        // ISegmentSelector extraction (M2). This class now supplies only the data,
+        // via ISegmentPool. TrackManager holds an ISegmentSelector and calls it,
+        // passing this library as the pool.
 
         // ---------------------------------------------------------------------
         // Private helpers
@@ -427,40 +416,6 @@ namespace CrawfisSoftware.TempleRun
 
                 if (include) levelDef.Segments.Add(seg);
             }
-        }
-
-        private static bool IsAllowed(
-            TrackSegmentDefinition segment, string previousSegmentId, int previousRepeatCount)
-        {
-            if (segment == null) return false;
-            if (!string.IsNullOrWhiteSpace(previousSegmentId) &&
-                segment.Id == previousSegmentId &&
-                segment.MaxRepeat > 0)
-                return previousRepeatCount < segment.MaxRepeat;
-            return true;
-        }
-
-        private static bool IsInDifficultyRange(TrackSegmentDefinition segment, float min, float max)
-            => segment.DifficultyRating >= min && segment.DifficultyRating <= max;
-
-        private static TrackSegmentDefinition SelectWeighted(
-            List<TrackSegmentDefinition> candidates, System.Random random)
-        {
-            if (candidates.Count == 0) return null;
-
-            float totalWeight = 0f;
-            foreach (var c in candidates) totalWeight += Mathf.Max(0f, c.Weight);
-
-            if (totalWeight <= 0f) return candidates[random.Next(candidates.Count)];
-
-            float pick = (float)random.NextDouble() * totalWeight;
-            float cum  = 0f;
-            foreach (var c in candidates)
-            {
-                cum += Mathf.Max(0f, c.Weight);
-                if (pick <= cum) return c;
-            }
-            return candidates[^1];
         }
     }
 }
