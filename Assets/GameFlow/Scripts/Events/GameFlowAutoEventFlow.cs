@@ -14,14 +14,12 @@ namespace CrawfisSoftware.GameFlow.Events
     /// COMPLETE GAME FLOW TIMELINE (from actual event trace)
     /// ========================================================================================
     ///
-    /// --- BOOT / INITIALIZATION (driven by UGS, see UGSAutoEventFlow + UGSGameFlowBridge) ---
-    /// [UGS] UnityServicesInitialized
-    /// [UGS] CheckForExistingSession -> CheckForExistingSessionSucceeded
-    /// [UGS] PlayerAuthenticating -> PlayerAuthenticated
-    /// [BRIDGE: UGS->GameFlow] PlayerAuthenticated -> GameplayReady
+    /// --- BOOT / INITIALIZATION (non-UGS) ---
+    /// (The UGS template authenticated then bridged PlayerAuthenticated -> GameplayReady. This
+    ///  template has no UGS: the loading screen finishing is the boot-done signal.)
+    /// [Published] LoadingScreenShown -> (delay) -> LoadingScreenHidden
+    /// [AUTO] LoadingScreenHidden -> GameplayReady
     /// [AUTO] GameplayReady -> MainMenuShowRequested
-    /// [UGS] RemoteConfigFetching -> RemoteConfigFetched -> RemoteConfigUpdated
-    /// [BRIDGE: UGS->GameFlow] RemoteConfigUpdated -> LoadingScreenHideRequested
     /// [AUTO] MainMenuShowRequested -> MainMenuShowing
     /// [AUTO] LoadingScreenHideRequested -> LoadingScreenHiding
     /// [Published] DifficultySettingsApplied
@@ -175,7 +173,11 @@ namespace CrawfisSoftware.GameFlow.Events
             // ================================================================================
 
             // --- Boot -> Main Menu ---
-            // After authentication completes, UGSGameFlowBridge fires GameplayReady
+            // In the UGS template, UGSGameFlowBridge fired GameplayReady after authentication.
+            // This template has no UGS: the loading screen finishing IS the "boot done" signal,
+            // so LoadingScreenHidden re-signals GameplayReady. (Previously this only happened via
+            // the Test_AutoFireEventOnStart helper object in the scene.)
+            { GameFlowEvents.LoadingScreenHidden, GameFlowEvents.GameplayReady },
             { GameFlowEvents.GameplayReady, GameFlowEvents.MainMenuShowRequested },
 
             // --- Level Selected -> Scene Loading ---
