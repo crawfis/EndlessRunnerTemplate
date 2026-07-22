@@ -73,21 +73,27 @@ replace destroy-on-disable + `style.display`), so static checks don't cover it:
 - `/audit-events` clean (subscription hygiene is unaffected by this migration).
 - Grep confirms zero `UIDocument` / `rootVisualElement` in `Assets/**/*.cs` (already true after Phase 2).
 
-### ⚠ The one assumption to verify first
+### The blank-until-toggle bug (confirmed + already fixed in code)
 
-The MainMenu and LevelSelection panels each have a **show/hide controller that sets
-`panel.enabled = false` in `Awake`** (MainMenu only when `GameState.IsMainMenuActive` is false;
-LevelSelection always) **and a query controller that wires its buttons in the `UIReloaded` callback.**
-This assumes a Panel Renderer still **loads its visual tree and fires `UIReloaded` even after a sibling
-disabled it in `Awake`** (Panel Renderer preserves content when disabled, which implies the tree is
-built at load regardless of `enabled`).
+First play-test found panels enabled from script rendering **blank until a manual Inspector toggle**.
+Root cause is a **confirmed Unity 6.5 engine bug, UUM-146174**: disabling a `PanelRenderer` in
+`Awake` stops `UIReloaded` from ever firing again, so a later `enabled = true` never rebuilds the
+tree. (The Manual also corrects an earlier premise of this migration: disabling a Panel Renderer
+**tears the tree down and frees resources** — it does *not* preserve content — and enabling rebuilds
+it and re-fires `UIReloaded`.)
 
-If in play-testing a panel that starts disabled comes up **blank or its buttons don't respond** (i.e.
-`UIReloaded` never fired because it loaded while disabled), the localized fix is to apply the same
-trick `CountdownUIController` already uses: let the panel start **enabled**, register the callback,
-and set `enabled = false` **inside** the first `OnUIReload` (content is cached, then hidden). That
-would move the initial-hide out of the panel controller's `Awake` and into the query controller's
-callback for those two panels.
+**Fixed** on this branch (commit *"defer initial panel hide out of Awake"*): the panel controllers no
+longer disable in `Awake`. Each panel completes its first init **enabled** (so `UIReloaded` fires
+once), then the initial hide happens inside that first callback — the same pattern
+`CountdownUIController` already used, which is why countdown was never affected. A post-init
+disable→enable then behaves like the working editor toggle.
+
+**What to confirm in play-testing:** that after this fix, showing a previously-hidden panel from
+script (Play → LevelSelection; Loading ends → MainMenu; Game Over) renders **immediately, with no
+manual toggle**. If any panel *still* comes up blank on a *repeat* show, the fallback is the
+Unity-staff / community-recommended one: move each panel's show/hide onto toggling the **panel's
+whole GameObject** (`gameObject.SetActive`) from a controller on a *separate* GameObject, instead of
+the component's `enabled`. Ping me and I'll wire that variant.
 
 ## On completion
 
