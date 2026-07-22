@@ -17,17 +17,31 @@ namespace CrawfisSoftware.GameFlow.UI
     class LevelSelectorPanelController : MonoBehaviour
     {
         [SerializeField] private PanelRenderer _levelSelectorUI;
+        private bool _initialized;
 
         private void Awake()
         {
-            _levelSelectorUI.enabled = false;
-
             EventsPublisherGameFlow.Instance.SubscribeToEvent(
                 GameFlowEvents.LevelSelectorShowing, StartShowPanel);
             EventsPublisherGameFlow.Instance.SubscribeToEvent(
                 GameFlowEvents.GameScenesLoading, StartHidePanel);
             EventsPublisherGameFlow.Instance.SubscribeToEvent(
                 GameFlowEvents.MainMenuShowing, StartHidePanel);
+        }
+
+        private void OnEnable() => _levelSelectorUI.RegisterUIReloadCallback(OnUIReload);
+
+        private void OnDisable() => _levelSelectorUI.UnregisterUIReloadCallback(OnUIReload);
+
+        // Hide only after the panel's FIRST load, never in Awake. Disabling a PanelRenderer in
+        // Awake is Unity bug UUM-146174: a later enable no longer fires UIReloaded and the panel
+        // stays blank until a manual toggle. Letting it init enabled then hiding here makes the
+        // subsequent show (enabled = true) repaint correctly.
+        private void OnUIReload(PanelRenderer renderer, VisualElement root)
+        {
+            if (_initialized) return;
+            _initialized = true;
+            _levelSelectorUI.enabled = false;
         }
 
         private void OnDestroy()

@@ -23,18 +23,39 @@ namespace CrawfisSoftware.GameFlow.UI
         public PanelRenderer loadingUI;
 
         private bool _isSignedIn = true;
+        private bool _gameOverInitialized;
 
         void Awake()
         {
-            if (gameOverUI) gameOverUI.enabled = false;
-
-            Go(UIState.Loading);
+            // Show loading immediately. Do NOT disable gameOverUI here: disabling a PanelRenderer
+            // in Awake is Unity bug UUM-146174 (a later enable stops firing UIReloaded, leaving the
+            // panel blank until a manual toggle). gameOverUI is hidden in its first UIReload instead
+            // (its brief on-load frame is masked by loadingUI, which has a higher sort order).
+            if (loadingUI) loadingUI.enabled = true;
 
             EventsPublisherGameFlow.Instance.SubscribeToEvent(GameFlowEvents.GameStarting, OnGameStarting);
             EventsPublisherGameFlow.Instance.SubscribeToEvent(GameFlowEvents.GameStarted, OnGameStarted);
             EventsPublisherGameFlow.Instance.SubscribeToEvent(GameFlowEvents.GameEnding, OnGameEnding);
 
             StartCoroutine(ShowLoadingRoutine(GameConstants.DefaultLoadingDisplayTime));
+        }
+
+        private void OnEnable()
+        {
+            if (gameOverUI) gameOverUI.RegisterUIReloadCallback(OnGameOverUIReload);
+        }
+
+        private void OnDisable()
+        {
+            if (gameOverUI) gameOverUI.UnregisterUIReloadCallback(OnGameOverUIReload);
+        }
+
+        // Hide gameOverUI only after its first load, never in Awake (see UUM-146174 above).
+        private void OnGameOverUIReload(PanelRenderer renderer, VisualElement root)
+        {
+            if (_gameOverInitialized) return;
+            _gameOverInitialized = true;
+            gameOverUI.enabled = false;
         }
 
         private void OnDestroy()
@@ -74,8 +95,9 @@ namespace CrawfisSoftware.GameFlow.UI
         void SetActive(PanelRenderer panel, bool on)
         {
             if (!panel) return;
-            // PanelRenderer preserves its content when disabled, so enabled is the show/hide
-            // toggle. No gameObject.SetActive / style.display needed.
+            // enabled is the show/hide toggle: disabling tears the visual tree down, enabling
+            // rebuilds it (and re-fires UIReloaded). Safe here because each panel completed its
+            // first init enabled before we ever disable it (see UUM-146174 note in Awake).
             panel.enabled = on;
         }
 

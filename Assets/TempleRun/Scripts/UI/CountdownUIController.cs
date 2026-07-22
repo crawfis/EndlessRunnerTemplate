@@ -43,8 +43,11 @@ namespace CrawfisSoftware.TempleRun.UI
         }
 
         // The PanelRenderer surfaces its visual tree only through this callback (it has no
-        // root-tree property). The callback fires while the panel loads enabled, so we cache the
-        // label here and hide the panel once — content persists, so re-enabling shows it again.
+        // root-tree property), and it fires again every time the panel is re-enabled (enabling
+        // rebuilds the torn-down tree), so we re-cache the label on each reload. We hide the panel
+        // only after this FIRST load completes, never in Awake: disabling a PanelRenderer in Awake
+        // is Unity bug UUM-146174 (a later enable stops firing this callback and the panel stays
+        // blank until a manual toggle).
         private void OnUIReload(PanelRenderer renderer, VisualElement root)
         {
             _root = root;
