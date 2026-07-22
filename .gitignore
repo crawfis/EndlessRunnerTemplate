@@ -73,3 +73,6 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 /ProjectSettings/ProjectVersion.txt
 /ProjectSettings/Packages/com.unity.dedicated-server/MultiplayerRolesSettings.asset
+
+# Runtime event trace from DebugEventFileLogger
+debug_event_log.txt
