@@ -3,47 +3,33 @@
 Environment-level quirks that are not bugs in this codebase but will bite you if you don't
 know about them.
 
-## Unity 6000.5: UIDocument → Panel Renderer migration
+## Unity 6000.5: UIDocument → Panel Renderer migration — RESOLVED (migrated)
 
-**Symptom.** Opening the project can migrate the scene's `UIDocument` components (YAML class
-`u!114`) into the newer **"Panel Renderer"** component (`u!1931382934`). When it does, the
-`UIDocument`-typed serialized references in the UI controllers (e.g.
-`MainMenuController._uiDocument`, `MainMenuPanelController.menuUI`,
-`LevelSelectorController._uiDocument`) are **nulled**, and the affected panels render blank or
-throw `NullReferenceException` in `OnEnable`.
+**Status: resolved.** All UI is migrated from `UIDocument` to `PanelRenderer` (merged to `main`,
+Unity 6000.5.2f1). The notes below are kept as the record of what bit us, so the pattern is not
+re-broken when adding panels. Reusable guide:
+[playbooks/uidocument-to-panel-renderer.md](playbooks/uidocument-to-panel-renderer.md);
+per-scene record: [Phase 3 checklist](specs/PANEL_RENDERER_PHASE3_CHECKLIST.md).
 
-**Also seen:** a panel (in practice the Main Menu) rendering blank on first show until its
-GameObject is deactivated and reactivated. This is the same UI Toolkit rendering path.
+**Original symptom.** Opening the project in 6000.5 auto-migrated the scene's `UIDocument`
+components (YAML `u!114`) into `PanelRenderer` (`u!1931382934`) and **nulled** the `UIDocument`-typed
+controller references → blank panels / `NullReferenceException`. A panel (in practice the Main Menu)
+also rendered blank on first show until its GameObject was toggled.
 
-**Why.** This is Unity's own serialization/rendering migration in 6000.5, not something in this
-project. Unity itself surfaces the recommendation: *"Consider migrating to Panel Renderer, the
-updated UI rendering component… The UI Document component will continue to be available but no
-longer receive new features."* The rendering quirk reproduces in the source project too.
+**The rules that make PanelRenderer behave (do not regress these):**
+- **Show/hide via `root.style.display`, keep every `PanelRenderer` enabled.** Do **not** toggle
+  `PanelRenderer.enabled` for show/hide, and do **not** author a panel's `Enabled` checkbox off.
+  Disabling tears the visual tree down; a panel disabled before its first init (in `Awake` **or**
+  authored disabled) hits **Unity bug UUM-146174** — `UIReloaded` never fires on a later enable, so
+  it's blank until a manual toggle. Controllers force `enabled = true` in `OnEnable` as a backstop.
+- **No `rootVisualElement`** — cache `root` from the `UIReloaded` callback; re-cache queried elements
+  on every callback.
+- **Do the component swap in the Inspector, never in YAML** (Unity renumbers ids and nulls refs).
 
-**What this template already does about it.**
-- Panel show/hide uses `style.display = DisplayStyle.Flex/None` (not `rootVisualElement.visible`),
-  which reliably repaints and fixed the loading, game-over, level-selector, and countdown panels.
-- The scenes are committed with clean `u!114` UIDocuments and correct references.
-
-**The forward fix (in progress on `feature/panel-renderer`).** Migrate the panels to `PanelRenderer`.
-See the plan in [specs/PANEL_RENDERER_MIGRATION.md](specs/PANEL_RENDERER_MIGRATION.md), the
-[Phase 3 swap checklist](specs/PANEL_RENDERER_PHASE3_CHECKLIST.md), and the reusable
-[playbooks/uidocument-to-panel-renderer.md](playbooks/uidocument-to-panel-renderer.md).
-
-> ⚠ **The migration alone is not a silver bullet.** `PanelRenderer` does **not** preserve content
-> when disabled (disable tears the tree down; enable rebuilds it), and it has its own first-render
-> trap — **Unity bug UUM-146174**: disabling a `PanelRenderer` in `Awake` stops `UIReloaded` from
-> firing on a later enable, reproducing the same blank-until-toggle symptom. The controllers on
-> `feature/panel-renderer` work around it by never disabling in `Awake` — they init enabled and hide
-> in the first `UIReloaded`. Keep that pattern when adding panels.
-
-**If a panel still renders blank / loses its UIDocument reference (before migrating):**
-1. Don't hand-edit the `.unity` YAML to "fix" a UIDocument reference — the migration renumbers
-   the component ids, so a hand-wired id points at the wrong component after the next open.
-   Re-assign the reference in the **Inspector** instead (drag the panel's UI Document onto the
-   controller field), or restore the scene from a clean commit.
-2. The durable fix, when you're ready, is to **migrate the panels to Panel Renderer** per
-   Unity's recommendation and re-wire the controller references to the new components.
+**Boot/return event flow (non-UGS):** showing the menu depends on `GameplayReady`, which this
+template drives via the durable auto-chains `LoadingScreenHidden → GameplayReady` (boot) and
+`GameEnded → GameplayReady` (post-game) in `GameFlowAutoEventFlow.cs` — not via the
+`Test_AutoFireEvent*` scene helpers.
 
 ## Build-order dependency for scene unloading
 
