@@ -1,4 +1,4 @@
-﻿using CrawfisSoftware.Events;
+using CrawfisSoftware.Events;
 using CrawfisSoftware.GameFlow.Events;
 using CrawfisSoftware.GameFlow.GameConfig;
 
@@ -23,15 +23,20 @@ namespace CrawfisSoftware.GameFlow.UI
         public PanelRenderer loadingUI;
 
         private bool _isSignedIn = true;
-        private bool _gameOverInitialized;
+
+        private VisualElement _gameOverRoot;
+        private VisualElement _loadingRoot;
+        private bool _gameOverVisible;
+        private bool _loadingVisible;
 
         void Awake()
         {
-            // Show loading immediately. Do NOT disable gameOverUI here: disabling a PanelRenderer
-            // in Awake is Unity bug UUM-146174 (a later enable stops firing UIReloaded, leaving the
-            // panel blank until a manual toggle). gameOverUI is hidden in its first UIReload instead
-            // (its brief on-load frame is masked by loadingUI, which has a higher sort order).
-            if (loadingUI) loadingUI.enabled = true;
+            // Loading is shown immediately; gameOver starts hidden. Visibility is applied to each
+            // panel's root style.display once its UIReload callback delivers the tree. The
+            // PanelRenderers stay enabled at all times (we never toggle enabled - see the
+            // UUM-146174 note in MainMenuPanelController).
+            _loadingVisible = true;
+            _gameOverVisible = false;
 
             EventsPublisherGameFlow.Instance.SubscribeToEvent(GameFlowEvents.GameStarting, OnGameStarting);
             EventsPublisherGameFlow.Instance.SubscribeToEvent(GameFlowEvents.GameStarted, OnGameStarted);
@@ -42,20 +47,26 @@ namespace CrawfisSoftware.GameFlow.UI
 
         private void OnEnable()
         {
+            if (loadingUI) loadingUI.RegisterUIReloadCallback(OnLoadingUIReload);
             if (gameOverUI) gameOverUI.RegisterUIReloadCallback(OnGameOverUIReload);
         }
 
         private void OnDisable()
         {
+            if (loadingUI) loadingUI.UnregisterUIReloadCallback(OnLoadingUIReload);
             if (gameOverUI) gameOverUI.UnregisterUIReloadCallback(OnGameOverUIReload);
         }
 
-        // Hide gameOverUI only after its first load, never in Awake (see UUM-146174 above).
+        private void OnLoadingUIReload(PanelRenderer renderer, VisualElement root)
+        {
+            _loadingRoot = root;
+            ApplyLoading();
+        }
+
         private void OnGameOverUIReload(PanelRenderer renderer, VisualElement root)
         {
-            if (_gameOverInitialized) return;
-            _gameOverInitialized = true;
-            gameOverUI.enabled = false;
+            _gameOverRoot = root;
+            ApplyGameOver();
         }
 
         private void OnDestroy()
@@ -92,25 +103,16 @@ namespace CrawfisSoftware.GameFlow.UI
             EventsPublisherGameFlow.Instance.PublishEvent(GameFlowEvents.LoadingScreenHidden, this, null);
         }
 
-        void SetActive(PanelRenderer panel, bool on)
-        {
-            if (!panel) return;
-            // enabled is the show/hide toggle: disabling tears the visual tree down, enabling
-            // rebuilds it (and re-fires UIReloaded). Safe here because each panel completed its
-            // first init enabled before we ever disable it (see UUM-146174 note in Awake).
-            panel.enabled = on;
-        }
-
         public void Go(UIState s)
         {
-            SetActive(gameOverUI, s == UIState.GameOverOverlay);
-            SetActive(loadingUI, s == UIState.Loading);
+            SetGameOverVisible(s == UIState.GameOverOverlay);
+            SetLoadingVisible(s == UIState.Loading);
         }
 
         public void ShowGameOver()
         {
             if (!gameOverUI) { Debug.LogWarning("GameOver UXML not set"); return; }
-            SetActive(gameOverUI, true);
+            SetGameOverVisible(true);
             StartCoroutine(ShowGameOverRoutine());
         }
 
@@ -119,6 +121,30 @@ namespace CrawfisSoftware.GameFlow.UI
             yield return new WaitForSecondsRealtime(GameConstants.GameOverDisplayTime);
             EventsPublisherGameFlow.Instance.PublishEvent(GameFlowEvents.GameEnded, this, null);
             Go(UIState.None);
+        }
+
+        private void SetGameOverVisible(bool on)
+        {
+            _gameOverVisible = on;
+            ApplyGameOver();
+        }
+
+        private void SetLoadingVisible(bool on)
+        {
+            _loadingVisible = on;
+            ApplyLoading();
+        }
+
+        private void ApplyGameOver()
+        {
+            if (_gameOverRoot != null)
+                _gameOverRoot.style.display = _gameOverVisible ? DisplayStyle.Flex : DisplayStyle.None;
+        }
+
+        private void ApplyLoading()
+        {
+            if (_loadingRoot != null)
+                _loadingRoot.style.display = _loadingVisible ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
         public enum UIState { None, Menu, Loading, GameOverOverlay }

@@ -15,10 +15,13 @@ namespace CrawfisSoftware.GameFlow.UI
     class MainMenuPanelController : MonoBehaviour
     {
         public PanelRenderer menuUI;
-        private bool _initialized;
+
+        private VisualElement _root;
+        private bool _visible;
 
         private void Awake()
         {
+            _visible = GameState.IsMainMenuActive;
             EventsPublisherGameFlow.Instance.SubscribeToEvent(GameFlowEvents.GameplayNotReady, StartHidePanel);
             EventsPublisherGameFlow.Instance.SubscribeToEvent(GameFlowEvents.GameScenesLoading, StartHidePanel);
             EventsPublisherGameFlow.Instance.SubscribeToEvent(GameFlowEvents.LevelSelectorShowing, StartHidePanel);
@@ -37,38 +40,39 @@ namespace CrawfisSoftware.GameFlow.UI
             EventsPublisherGameFlow.Instance.UnsubscribeToEvent(GameFlowEvents.MainMenuShowing, StartShowPanel);
         }
 
-        // Apply the initial visibility only after the panel's FIRST load, never in Awake.
-        // Disabling a PanelRenderer in Awake is Unity bug UUM-146174: a later enable no longer
-        // fires UIReloaded, so the tree never rebuilds and the panel stays blank until a manual
-        // toggle. Letting it init enabled (so UIReloaded fires) then hiding here behaves like the
-        // editor toggle, so subsequent show/hide via enabled repaints correctly.
+        // Show/hide is driven by the root's style.display while the PanelRenderer stays ENABLED at
+        // all times. We deliberately do NOT toggle PanelRenderer.enabled: disabling tears the visual
+        // tree down, and Unity bug UUM-146174 means a later enable may not re-fire UIReloaded (blank
+        // panel). Re-applying our own _visible state on every reload also avoids any race with when
+        // the tree first arrives relative to a show/hide event.
         private void OnUIReload(PanelRenderer renderer, VisualElement root)
         {
-            if (_initialized) return;
-            _initialized = true;
-            menuUI.enabled = GameState.IsMainMenuActive;
+            _root = root;
+            ApplyVisibility();
         }
 
-        private void StartShowPanel(string eventName, object sender, object data)
-        {
-            ShowPanel();
-        }
+        private void StartShowPanel(string eventName, object sender, object data) => ShowPanel();
 
-        private void StartHidePanel(string eventName, object sender, object data)
-        {
-            HidePanel();
-        }
+        private void StartHidePanel(string eventName, object sender, object data) => HidePanel();
 
         private void ShowPanel()
         {
-            menuUI.enabled = true;
+            _visible = true;
+            ApplyVisibility();
             EventsPublisherGameFlow.Instance.PublishEvent(GameFlowEvents.MainMenuShown, this, null);
         }
 
         private void HidePanel()
         {
-            menuUI.enabled = false;
+            _visible = false;
+            ApplyVisibility();
             EventsPublisherGameFlow.Instance.PublishEvent(GameFlowEvents.MainMenuHidden, this, null);
+        }
+
+        private void ApplyVisibility()
+        {
+            if (_root != null)
+                _root.style.display = _visible ? DisplayStyle.Flex : DisplayStyle.None;
         }
     }
 }

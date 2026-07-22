@@ -17,10 +17,14 @@ namespace CrawfisSoftware.GameFlow.UI
     class LevelSelectorPanelController : MonoBehaviour
     {
         [SerializeField] private PanelRenderer _levelSelectorUI;
-        private bool _initialized;
+
+        private VisualElement _root;
+        private bool _visible;
 
         private void Awake()
         {
+            _visible = false;
+
             EventsPublisherGameFlow.Instance.SubscribeToEvent(
                 GameFlowEvents.LevelSelectorShowing, StartShowPanel);
             EventsPublisherGameFlow.Instance.SubscribeToEvent(
@@ -33,17 +37,6 @@ namespace CrawfisSoftware.GameFlow.UI
 
         private void OnDisable() => _levelSelectorUI.UnregisterUIReloadCallback(OnUIReload);
 
-        // Hide only after the panel's FIRST load, never in Awake. Disabling a PanelRenderer in
-        // Awake is Unity bug UUM-146174: a later enable no longer fires UIReloaded and the panel
-        // stays blank until a manual toggle. Letting it init enabled then hiding here makes the
-        // subsequent show (enabled = true) repaint correctly.
-        private void OnUIReload(PanelRenderer renderer, VisualElement root)
-        {
-            if (_initialized) return;
-            _initialized = true;
-            _levelSelectorUI.enabled = false;
-        }
-
         private void OnDestroy()
         {
             EventsPublisherGameFlow.Instance.UnsubscribeToEvent(
@@ -54,29 +47,39 @@ namespace CrawfisSoftware.GameFlow.UI
                 GameFlowEvents.MainMenuShowing, StartHidePanel);
         }
 
-        private void StartShowPanel(string eventName, object sender, object data)
+        // Show/hide via the root's style.display; the PanelRenderer stays enabled at all times.
+        // See the UUM-146174 note in MainMenuPanelController for why we avoid toggling enabled.
+        private void OnUIReload(PanelRenderer renderer, VisualElement root)
         {
-            ShowPanel();
+            _root = root;
+            ApplyVisibility();
         }
 
-        private void StartHidePanel(string eventName, object sender, object data)
-        {
-            HidePanel();
-        }
+        private void StartShowPanel(string eventName, object sender, object data) => ShowPanel();
+
+        private void StartHidePanel(string eventName, object sender, object data) => HidePanel();
 
         private void ShowPanel()
         {
-            _levelSelectorUI.enabled = true;
+            _visible = true;
+            ApplyVisibility();
             EventsPublisherGameFlow.Instance.PublishEvent(
                 GameFlowEvents.LevelSelectorShown, this, null);
         }
 
         private void HidePanel()
         {
-            if (!_levelSelectorUI.enabled) return;
-            _levelSelectorUI.enabled = false;
+            if (!_visible) return;
+            _visible = false;
+            ApplyVisibility();
             EventsPublisherGameFlow.Instance.PublishEvent(
                 GameFlowEvents.LevelSelectorHidden, this, null);
+        }
+
+        private void ApplyVisibility()
+        {
+            if (_root != null)
+                _root.style.display = _visible ? DisplayStyle.Flex : DisplayStyle.None;
         }
     }
 }

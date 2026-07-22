@@ -14,8 +14,8 @@ namespace CrawfisSoftware.GameFlow.UI
     class MainMenuController : MonoBehaviour
     {
         [SerializeField] private PanelRenderer _panel;
-        [SerializeField] private Button _startGameButton;
-        [SerializeField] private Button _quitGameButton;
+        private Button _startGameButton;
+        private Button _quitGameButton;
 
         private VisualElement _root;
 

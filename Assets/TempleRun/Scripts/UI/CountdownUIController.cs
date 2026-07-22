@@ -16,7 +16,7 @@ namespace CrawfisSoftware.TempleRun.UI
 
         private VisualElement _root;
         private Label _countdownLabel;
-        private bool _initialized;
+        private bool _visible;
 
         private void Awake()
         {
@@ -42,33 +42,20 @@ namespace CrawfisSoftware.TempleRun.UI
                 TempleRunEvents.CountdownEnded, OnCountdownEnded);
         }
 
-        // The PanelRenderer surfaces its visual tree only through this callback (it has no
-        // root-tree property), and it fires again every time the panel is re-enabled (enabling
-        // rebuilds the torn-down tree), so we re-cache the label on each reload. We hide the panel
-        // only after this FIRST load completes, never in Awake: disabling a PanelRenderer in Awake
-        // is Unity bug UUM-146174 (a later enable stops firing this callback and the panel stays
-        // blank until a manual toggle).
+        // Show/hide via the root's style.display; the PanelRenderer stays enabled at all times so
+        // its tree is never torn down (avoids Unity bug UUM-146174). The callback re-caches the
+        // label on every reload and re-applies the current visibility.
         private void OnUIReload(PanelRenderer renderer, VisualElement root)
         {
             _root = root;
             _countdownLabel = root.Q<Label>("Countdown");
-
-            if (!_initialized)
-            {
-                _initialized = true;
-                _countdownPanel.enabled = false; // hidden until a countdown starts
-            }
+            ApplyVisibility();
         }
 
         private void OnCountdownStarting(string eventName, object sender, object data)
         {
-            if (_countdownPanel == null) return;
-
-            _countdownPanel.enabled = true;
-
-            // Defensive: if the reload callback has not run yet, resolve the label lazily.
-            if (_countdownLabel == null && _root != null)
-                _countdownLabel = _root.Q<Label>("Countdown");
+            _visible = true;
+            ApplyVisibility();
         }
 
         private void OnCountdownTick(string eventName, object sender, object data)
@@ -82,8 +69,14 @@ namespace CrawfisSoftware.TempleRun.UI
 
         private void OnCountdownEnded(string eventName, object sender, object data)
         {
-            if (_countdownPanel != null)
-                _countdownPanel.enabled = false;
+            _visible = false;
+            ApplyVisibility();
+        }
+
+        private void ApplyVisibility()
+        {
+            if (_root != null)
+                _root.style.display = _visible ? DisplayStyle.Flex : DisplayStyle.None;
         }
     }
 }
