@@ -421,6 +421,12 @@ namespace CrawfisSoftware.TempleRun.Editor
 
             _registry = JsonUtility.FromJson<TrackSegmentRegistryDefinition>(File.ReadAllText(path));
 
+            // JsonUtility only fills DirectionString; Direction is parsed from it at runtime by
+            // TrackSegmentLibrary.NormalizeSegments(). This window reads the registry directly, so
+            // it has to resolve the same way or every segment would report as Direction.Left (0).
+            foreach (var seg in _registry.Segments)
+                seg.Direction = TrackSegmentLibrary.ParseDirection(seg.DirectionString, seg.Id);
+
             _allTags = _registry.Segments
                 .Where(s => s.Tags != null)
                 .SelectMany(s => s.Tags)

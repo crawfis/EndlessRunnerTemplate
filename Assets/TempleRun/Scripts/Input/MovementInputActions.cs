@@ -16,8 +16,6 @@ namespace CrawfisSoftware.TempleRun
     /// </summary>
     public class MovementInputActions : MonoBehaviour
     {
-        [SerializeField] private LeftRightJumpSlide _inputAsset;
-
         const int PlayerNumber = 0;
         private LeftRightJumpSlide _inputActions;
         private InputAction _leftAction;

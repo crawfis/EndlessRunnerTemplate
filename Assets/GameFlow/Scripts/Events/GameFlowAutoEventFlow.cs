@@ -96,7 +96,7 @@ namespace CrawfisSoftware.GameFlow.Events
     /// </summary>
     internal class GameFlowAutoEventFlow : MonoBehaviour
     {
-        [SerializeField] private Dictionary<GameFlowEvents, GameFlowEvents> _autoGameFlow2GameFlowEvents = new Dictionary<GameFlowEvents, GameFlowEvents>()
+        private readonly Dictionary<GameFlowEvents, GameFlowEvents> _autoGameFlow2GameFlowEvents = new Dictionary<GameFlowEvents, GameFlowEvents>()
         {
             // ================================================================================
             // LOADING SCREEN BRIDGES

@@ -215,16 +215,6 @@ namespace CrawfisSoftware.TempleRun
             return new TrackSegmentInfo(fallbackDef, fallbackDirection);
         }
 
-        private static Direction ParseDirection(string directionValue, Direction fallback)
-        {
-            if (!string.IsNullOrWhiteSpace(directionValue) && Enum.TryParse(directionValue, true, out Direction parsed))
-            {
-                return parsed;
-            }
-
-            return fallback;
-        }
-
         private void UpdateRepeatTracking(string segmentId)
         {
             if (string.Equals(_lastSegmentId, segmentId, System.StringComparison.Ordinal))

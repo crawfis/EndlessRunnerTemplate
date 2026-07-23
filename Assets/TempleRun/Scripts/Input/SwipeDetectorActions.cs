@@ -10,7 +10,9 @@ namespace CrawfisSoftware.TempleRun
 {
     public class SwipeDetectorActions : MonoBehaviour
     {
-        [SerializeField] private LeftRightJumpSlide _playerControls;
+        // Constructed in Awake, not authored in the Inspector: the generated input class is a
+        // plain C# type, so [SerializeField] on it is ignored by Unity's serializer.
+        private LeftRightJumpSlide _playerControls;
         const int PlayerNumber = 0;
         private InputAction _swipePressed, _swipePosition;
         private Vector2 _startPosition;

@@ -65,6 +65,7 @@ Entrance ──ToPivotDistance──▶ Pivot ──ExitDistance──▶ Exit
 
 | Field | Meaning |
 |-------|---------|
+| `DirectionString` | authored turn direction: `Straight` \| `Left` \| `Right` \| `Either`. Parsed into the `Direction` enum by `NormalizeSegments`. **Must be a string field** — `JsonUtility` writes enums as integers and silently ignores a string aimed at an enum field, which would leave every segment at `Direction.Left` (value 0). |
 | `ToPivotDistance` | distance from Entrance to Pivot (the turn point). For `Straight`, Pivot == Exit so this equals `Length`. |
 | `ExitDistance` | distance from Pivot to Exit in the post-turn direction. `0` for Straight; `> 0` for Left/Right/Either. |
 | `Length` | total segment length. Recomputed as `ToPivotDistance + ExitDistance` when `ExitDistance > 0`. |
@@ -74,6 +75,7 @@ Entrance ──ToPivotDistance──▶ Pivot ──ExitDistance──▶ Exit
 ### Normalization rules (`NormalizeSegments`, run once at load)
 
 ```
+Direction = parse(DirectionString)   // must run first — every rule below branches on it
 if ToPivotDistance <= 0:  ToPivotDistance = Length
 if ExitDistance    >  0:  Length = ToPivotDistance + ExitDistance
 if Direction == Straight:
@@ -118,7 +120,7 @@ if TeleportDistance <= 0 and ExitDistance > 0: TeleportDistance = ExitDistance *
   "Segments": [
     {
       "Id": "left_28",           // unique id
-      "Direction": "Left",       // Straight | Left | Right | Either
+      "DirectionString": "Left", // Straight | Left | Right | Either — see note below
       "ToPivotDistance": 27.0,  // → Pivot
       "ExitDistance": 1.0,       // Pivot → Exit (0 for Straight)
       "Weight": 1.0,             // selection weight

@@ -48,4 +48,11 @@ doesn't recognize — no error, no warning. A mismatch between a JSON key and it
 therefore fails quietly (this is exactly how the `ToPivotDistance` track bug hid for a while: the
 C# field and the registry's JSON key had drifted apart, so every turn segment silently fell back
 to `ToPivotDistance = Length`). When you add or rename a serialized field, keep the JSON key and
-the field name identical — and rename both in the same commit. See [TRACKS.md](TRACKS.md#normalization-rules-normalizesegments-run-once-at-load).
+the field name identical — and rename both in the same commit.
+
+The same rule has a second edge: `JsonUtility` writes **enums as integers** and ignores a string
+aimed at an enum field. An authored `"Direction": "Left"` bound to a `Direction` enum field bound
+nothing at all, leaving every segment at value 0 — `Direction.Left` — so the track only ever
+turned left and straights were built as turns. Enum-valued JSON must land on a `string` field and
+be parsed explicitly; see `TrackSegmentDefinition.DirectionString` and
+`TrackSegmentLibrary.ParseDirection`. See [TRACKS.md](TRACKS.md#normalization-rules-normalizesegments-run-once-at-load).

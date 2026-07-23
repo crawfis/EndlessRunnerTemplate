@@ -11,7 +11,7 @@ namespace CrawfisSoftware.TempleRun.Events
     /// </summary>
     internal class TempleRunAutoEventFlow : MonoBehaviour
     {
-        [SerializeField] private Dictionary<TempleRunEvents, TempleRunEvents> _autoTempleRun2TempleRunEvents = new Dictionary<TempleRunEvents, TempleRunEvents>()
+        private readonly Dictionary<TempleRunEvents, TempleRunEvents> _autoTempleRun2TempleRunEvents = new Dictionary<TempleRunEvents, TempleRunEvents>()
         {
             // ================================================================================
             // PAUSE / RESUME BRIDGES (mirror GameFlowAutoEventFlow)

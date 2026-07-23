@@ -13,7 +13,9 @@ namespace CrawfisSoftware.TempleRun
     /// </summary>
     public class DashInputActions : MonoBehaviour
     {
-        [SerializeField] private LeftRightJumpSlide _playerControls;
+        // Constructed in Awake, not authored in the Inspector: the generated input class is a
+        // plain C# type, so [SerializeField] on it is ignored by Unity's serializer.
+        private LeftRightJumpSlide _playerControls;
         [SerializeField] private float _doubleTapWindow = 0.3f;  // Time window for double-tap detection
         [SerializeField] private float _dashCooldown = 1.0f;  // Cooldown between dash activations
 

@@ -60,7 +60,22 @@ namespace CrawfisSoftware.TempleRun
     {
         // ----- Core -----
         public string       Id;
-        public Direction    Direction; // Calculated in Normalize from the DirectionString
+
+        /// <summary>
+        /// The JSON-bound turn direction: "Left" | "Right" | "Straight" | "Either".
+        /// JsonUtility serializes enums as integers and silently ignores a string written to an
+        /// enum field, so the authored value must land on a string and be parsed afterwards.
+        /// Resolved into <see cref="Direction"/> by NormalizeSegments().
+        /// </summary>
+        public string       DirectionString;
+
+        /// <summary>
+        /// The parsed form of <see cref="DirectionString"/>, and what all runtime code reads.
+        /// NonSerialized so JsonUtility never touches it — NormalizeSegments() is the only writer.
+        /// </summary>
+        [NonSerialized]
+        public Direction    Direction;
+
         public float        Length           = 5f;
         public float        Weight           = 1f;
         public int          MaxRepeat        = 0;
@@ -293,10 +308,29 @@ namespace CrawfisSoftware.TempleRun
         /// For Left/Right/Either: both ToPivotDistance and ExitDistance should be > 0.
         /// TeleportDistance defaults to ExitDistance * 0.5 when not specified.
         /// </summary>
+        /// <summary>
+        /// Parses a segment's authored DirectionString. An unrecognised or missing value is an
+        /// authoring error, so it is reported loudly rather than silently becoming Direction.Left
+        /// (enum value 0) — which is precisely the failure this method exists to prevent.
+        /// </summary>
+        public static Direction ParseDirection(string directionValue, string segmentId)
+        {
+            if (Enum.TryParse(directionValue, ignoreCase: true, out Direction parsed))
+                return parsed;
+
+            Debug.LogError($"[TrackSegmentLibrary] Segment '{segmentId}' has an unrecognised " +
+                           $"DirectionString '{directionValue}'. Expected Left, Right, Straight " +
+                           $"or Either. Falling back to Straight.");
+            return Direction.Straight;
+        }
+
         private static void NormalizeSegments(List<TrackSegmentDefinition> segments)
         {
             foreach (var seg in segments)
             {
+                // Must run first: every rule below branches on the resolved Direction.
+                seg.Direction = ParseDirection(seg.DirectionString, seg.Id);
+
                 // ToPivotDistance: default to Length (covers full segment for Straight)
                 if (seg.ToPivotDistance <= 0f)
                     seg.ToPivotDistance = seg.Length;
@@ -304,7 +338,7 @@ namespace CrawfisSoftware.TempleRun
                 // Recompute Length from parts when ExitDistance is specified
                 if (seg.ExitDistance > 0f)
                     seg.Length = seg.ToPivotDistance + seg.ExitDistance;
-                //seg.Direction = Enum.Parse<Direction>(seg.DirectionString);
+
                 if (seg.Direction == Direction.Straight)
                 {
                     seg.TurnFailureDistance = float.MaxValue;
