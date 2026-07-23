@@ -421,11 +421,14 @@ namespace CrawfisSoftware.TempleRun.Editor
 
             _registry = JsonUtility.FromJson<TrackSegmentRegistryDefinition>(File.ReadAllText(path));
 
-            // JsonUtility only fills DirectionString; Direction is parsed from it at runtime by
-            // TrackSegmentLibrary.NormalizeSegments(). This window reads the registry directly, so
-            // it has to resolve the same way or every segment would report as Direction.Left (0).
+            // JsonUtility leaves a raw definition: DirectionString unparsed, Length possibly
+            // inconsistent with its parts, derived distances at 0. This window reads the registry
+            // directly rather than through TrackSegmentLibrary, so it must apply the same
+            // normalization or it would display authored values while the game uses effective
+            // ones — and report every segment as Direction.Left (enum value 0).
+            // In-memory only: the window writes level files, never the registry.
             foreach (var seg in _registry.Segments)
-                seg.Direction = TrackSegmentLibrary.ParseDirection(seg.DirectionString, seg.Id);
+                TrackSegmentLibrary.Normalize(seg);
 
             _allTags = _registry.Segments
                 .Where(s => s.Tags != null)
