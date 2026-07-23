@@ -38,7 +38,7 @@ namespace CrawfisSoftware.TempleRun.Track.Geometry
 
             Vector3 forward     = entry.Forward;
             Vector3 entrance    = entry.Position;
-            Vector3 approachEnd = entrance + segment.EntranceDistance * forward;
+            Vector3 approachEnd = entrance + segment.ToPivotDistance * forward;
             var     approachSpan = new PathSpan(new[] { entrance, approachEnd }, Direction.Straight, segment);
 
             BuildArc(approachEnd, forward, entry.Up, resolved, segment,
@@ -72,7 +72,7 @@ namespace CrawfisSoftware.TempleRun.Track.Geometry
                      out List<PathSpan> arcSpans, out Vector3 arcEnd, out Vector3 _);
 
             var exitPose = new PathPose(arcEnd, newForward, atPivot.Up);
-            Vector3 approachStart = nudgedPivot - segment.EntranceDistance * newForward;
+            Vector3 approachStart = nudgedPivot - segment.ToPivotDistance * newForward;
             return new PathSegmentResult(
                 arcSpans, exitPose, pivot: nudgedPivot,
                 approachStart: approachStart, exitEnd: arcEnd,

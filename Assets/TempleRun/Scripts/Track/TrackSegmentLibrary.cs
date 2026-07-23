@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+using CrawfisSoftware.TempleRun.GameConfig;
 using CrawfisSoftware.TempleRun.Track;
 
 namespace CrawfisSoftware.TempleRun
@@ -90,12 +91,12 @@ namespace CrawfisSoftware.TempleRun
         /// For Straight segments Pivot coincides with Exit so this equals Length.
         /// Set by NormalizeSegments() when 0.
         /// </summary>
-        public float EntranceDistance = 0f;
+        public float ToPivotDistance = 0f;
 
         /// <summary>
         /// Distance past the Entrance beyond which a required turn is considered failed.
         /// Set by NormalizeSegments(): float.MaxValue for Straight (never fails), otherwise
-        /// EntranceDistance + 1 when left at 0.
+        /// ToPivotDistance + 1 when left at 0.
         /// </summary>
         public float TurnFailureDistance = 0f;
 
@@ -287,27 +288,41 @@ namespace CrawfisSoftware.TempleRun
         /// Pre-computes derived fields on each segment so runtime code reads clean data.
         /// Called once at library construction — never inline in runtime callbacks.
         ///
-        /// 3-point model: EntranceDistance (→ Pivot) + ExitDistance (→ Exit) = Length.
-        /// For Straight: Pivot == Exit, so EntranceDistance = Length, ExitDistance = 0.
-        /// For Left/Right/Either: both EntranceDistance and ExitDistance should be > 0.
+        /// 3-point model: ToPivotDistance (→ Pivot) + ExitDistance (→ Exit) = Length.
+        /// For Straight: Pivot == Exit, so ToPivotDistance = Length, ExitDistance = 0.
+        /// For Left/Right/Either: both ToPivotDistance and ExitDistance should be > 0.
         /// TeleportDistance defaults to ExitDistance * 0.5 when not specified.
         /// </summary>
         private static void NormalizeSegments(List<TrackSegmentDefinition> segments)
         {
             foreach (var seg in segments)
             {
-                // EntranceDistance: default to Length (covers full segment for Straight)
-                if (seg.EntranceDistance <= 0f)
-                    seg.EntranceDistance = seg.Length;
+                // ToPivotDistance: default to Length (covers full segment for Straight)
+                if (seg.ToPivotDistance <= 0f)
+                    seg.ToPivotDistance = seg.Length;
 
                 // Recompute Length from parts when ExitDistance is specified
                 if (seg.ExitDistance > 0f)
-                    seg.Length = seg.EntranceDistance + seg.ExitDistance;
+                    seg.Length = seg.ToPivotDistance + seg.ExitDistance;
                 //seg.Direction = Enum.Parse<Direction>(seg.DirectionString);
                 if (seg.Direction == Direction.Straight)
+                {
                     seg.TurnFailureDistance = float.MaxValue;
-                else if (seg.TurnFailureDistance <= 0)
-                    seg.TurnFailureDistance = seg.EntranceDistance + 1; // + Width/2 ;
+                }
+                else
+                {
+                    if (seg.TurnFailureDistance <= 0)
+                        seg.TurnFailureDistance = seg.ToPivotDistance + 1; // + Width/2 ;
+
+                    // The failure point must sit strictly inside the segment. SegmentExited fires
+                    // at Length and immediately re-arms TurnCollisionDetector for the next segment,
+                    // so a failure distance at or past Length is never reached and a missed turn
+                    // goes undetected. Segments with a short ExitDistance (e.g. Entrance 15 /
+                    // Exit 1 => Length 16, default failure 16) hit this every time.
+                    float latestFailure = seg.Length - TempleRunConstants.TurnFailureMarginBeforeExit;
+                    if (seg.TurnFailureDistance > latestFailure)
+                        seg.TurnFailureDistance = latestFailure;
+                }
                 // Default TeleportDistance for segments that have an exit section
                 if (seg.TeleportDistance <= 0f && seg.ExitDistance > 0f)
                     seg.TeleportDistance = seg.ExitDistance * 0.5f;

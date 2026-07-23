@@ -210,7 +210,7 @@ namespace CrawfisSoftware.TempleRun
                 Id             = "random",
                 Direction      = fallbackDirection,
                 Length         = segmentLength,
-                EntranceDistance = segmentLength  // ensure normalization is correct for inline defs
+                ToPivotDistance = segmentLength  // ensure normalization is correct for inline defs
             };
             return new TrackSegmentInfo(fallbackDef, fallbackDirection);
         }

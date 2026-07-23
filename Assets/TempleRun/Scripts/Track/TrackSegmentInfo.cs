@@ -17,7 +17,7 @@ namespace CrawfisSoftware.TempleRun
         public string SegmentId        => Definition?.Id ?? "unknown";
         public float  Length           => Definition?.Length ?? 0f;
         public float  TurnPointDistance => Definition?.TurnFailureDistance ?? 0f;
-        public float  EntranceDistance => Definition?.EntranceDistance ?? 0f;
+        public float  ToPivotDistance => Definition?.ToPivotDistance ?? 0f;
         public float  ExitDistance     => Definition?.ExitDistance ?? 0f;
         public float  TeleportDistance => Definition?.TeleportDistance ?? 0f;
 
@@ -29,7 +29,7 @@ namespace CrawfisSoftware.TempleRun
 
         public override string ToString()
         {
-            return $"TrackSegmentInfo: Id={SegmentId}, Length={Length}, EntranceDistance={EntranceDistance}, ExitDistance={ExitDistance}, TeleportDistance={TeleportDistance}, Direction={Direction}";
+            return $"TrackSegmentInfo: Id={SegmentId}, Length={Length}, ToPivotDistance={ToPivotDistance}, ExitDistance={ExitDistance}, TeleportDistance={TeleportDistance}, Direction={Direction}";
         }
     }
 }

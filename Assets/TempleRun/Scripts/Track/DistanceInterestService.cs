@@ -44,7 +44,7 @@ namespace CrawfisSoftware.TempleRun
             int index = _interests.FindIndex(i => i >= distance);
             if (index < 0)
                 _interests.Add(distance);
-            else if (Mathf.Abs(_interests[index] - distance) <= 0.0001f) // Avoid duplicates
+            else if (Mathf.Abs(_interests[index] - distance) > 0.0001f) // Avoid duplicates
                 _interests.Insert(index, distance);
         }
 

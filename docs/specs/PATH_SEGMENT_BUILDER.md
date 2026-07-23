@@ -26,7 +26,7 @@ into strategies.
 
 For each `TrackSegmentCreated`, `PathProvider.OnTrackCreated` switches on `Direction` and:
 
-- **Straight:** publishes one spline `entrance → entrance + EntranceDistance·axis`.
+- **Straight:** publishes one spline `entrance → entrance + ToPivotDistance·axis`.
 - **Left/Right:** publishes an approach spline, calls `ApplyTurn` (rotates the index and nudges
   the anchor by the track-width centering offset), then publishes an exit spline in the new axis.
 - **Either:** publishes only the approach, stashes the definition, and resolves the exit later on

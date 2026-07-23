@@ -104,7 +104,7 @@ namespace CrawfisSoftware.TempleRun
             Vector3 teleportLanding = _activeGeometry.Pivot + exitDir * _activeGeometry.Definition.TeleportDistance;
 
             float landingDistance = _segmentStartDistance
-                + _activeGeometry.Definition.EntranceDistance
+                + _activeGeometry.Definition.ToPivotDistance
                 + _activeGeometry.Definition.TeleportDistance;
 
             var exitSpline = (_activeGeometry.Pivot, teleportLanding, _activeGeometry.Direction, landingDistance);

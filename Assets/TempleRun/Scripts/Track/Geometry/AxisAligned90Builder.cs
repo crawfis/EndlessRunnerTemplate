@@ -12,7 +12,7 @@ namespace CrawfisSoftware.TempleRun.Track.Geometry
     /// </summary>
     /// <remarks>
     /// Mapping from the old <c>OnTrackCreated</c> switch:
-    ///  - Straight  → one span entrance → entrance + EntranceDistance·F.
+    ///  - Straight  → one span entrance → entrance + ToPivotDistance·F.
     ///  - Left/Right → approach span entrance → approachEnd, then exit span approachEnd →
     ///    approachEnd + ExitDistance·F' (F' = rotated axis). The old code set
     ///    <c>adjustedPivot = approachEnd</c>, so the ApplyTurn centering nudge did NOT move
@@ -44,7 +44,7 @@ namespace CrawfisSoftware.TempleRun.Track.Geometry
         {
             Vector3 forward  = entry.Forward;
             Vector3 entrance = entry.Position;
-            Vector3 exit     = entrance + segment.EntranceDistance * forward;
+            Vector3 exit     = entrance + segment.ToPivotDistance * forward;
 
             var span     = new PathSpan(new[] { entrance, exit }, Direction.Straight, segment);
             var exitPose = new PathPose(exit, forward, entry.Up);
@@ -59,7 +59,7 @@ namespace CrawfisSoftware.TempleRun.Track.Geometry
         {
             Vector3 forward     = entry.Forward;
             Vector3 entrance    = entry.Position;
-            Vector3 approachEnd = entrance + segment.EntranceDistance * forward;
+            Vector3 approachEnd = entrance + segment.ToPivotDistance * forward;
 
             int     newIndex   = CardinalDirections.Rotate(CardinalDirections.IndexOf(forward), resolved);
             Vector3 newForward = CardinalDirections.Axes[newIndex];
@@ -82,7 +82,7 @@ namespace CrawfisSoftware.TempleRun.Track.Geometry
         {
             Vector3 forward  = entry.Forward;
             Vector3 entrance = entry.Position;
-            Vector3 pivot    = entrance + segment.EntranceDistance * forward;
+            Vector3 pivot    = entrance + segment.ToPivotDistance * forward;
 
             var span = new PathSpan(new[] { entrance, pivot }, Direction.Either, segment);
             // Heading unchanged; the exit is resolved later from this pivot pose.
@@ -113,8 +113,8 @@ namespace CrawfisSoftware.TempleRun.Track.Geometry
 
             var exitPose = new PathPose(exit, newForward, atPivot.Up);
 
-            // Legacy: ApproachStart is approximated as nudgedPivot - EntranceDistance·newAxis.
-            Vector3 approachStart = nudgedPivot - segment.EntranceDistance * newForward;
+            // Legacy: ApproachStart is approximated as nudgedPivot - ToPivotDistance·newAxis.
+            Vector3 approachStart = nudgedPivot - segment.ToPivotDistance * newForward;
 
             return new PathSegmentResult(
                 spans, exitPose, pivot: nudgedPivot,

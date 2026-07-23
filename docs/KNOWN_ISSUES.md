@@ -45,6 +45,7 @@ unload gameplay). See [ARCHITECTURE.md](ARCHITECTURE.md#load--unload-mechanics).
 
 Unity's `JsonUtility` maps JSON keys to C# fields **by exact name** and silently drops keys it
 doesn't recognize — no error, no warning. A mismatch between a JSON key and its field name
-therefore fails quietly (this is exactly how the old `ToPivotDistance` vs `EntranceDistance`
-track bug hid for a while). When you add or rename a serialized field, keep the JSON key and the
-field name identical. See [TRACKS.md](TRACKS.md#normalization-rules-normalizesegments-run-once-at-load).
+therefore fails quietly (this is exactly how the `ToPivotDistance` track bug hid for a while: the
+C# field and the registry's JSON key had drifted apart, so every turn segment silently fell back
+to `ToPivotDistance = Length`). When you add or rename a serialized field, keep the JSON key and
+the field name identical — and rename both in the same commit. See [TRACKS.md](TRACKS.md#normalization-rules-normalizesegments-run-once-at-load).

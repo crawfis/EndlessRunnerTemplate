@@ -59,33 +59,44 @@ flowchart TD
 Every segment is **Entrance → Pivot → Exit**:
 
 ```
-Entrance ──EntranceDistance──▶ Pivot ──ExitDistance──▶ Exit
+Entrance ──ToPivotDistance──▶ Pivot ──ExitDistance──▶ Exit
                                (turn)   (post-turn run-out)
 ```
 
 | Field | Meaning |
 |-------|---------|
-| `EntranceDistance` | distance from Entrance to Pivot (the turn point). For `Straight`, Pivot == Exit so this equals `Length`. |
+| `ToPivotDistance` | distance from Entrance to Pivot (the turn point). For `Straight`, Pivot == Exit so this equals `Length`. |
 | `ExitDistance` | distance from Pivot to Exit in the post-turn direction. `0` for Straight; `> 0` for Left/Right/Either. |
-| `Length` | total segment length. Recomputed as `EntranceDistance + ExitDistance` when `ExitDistance > 0`. |
-| `TurnFailureDistance` | how far past the pivot the player may go before failing a required turn. `float.MaxValue` for Straight; else `EntranceDistance + 1`. |
+| `Length` | total segment length. Recomputed as `ToPivotDistance + ExitDistance` when `ExitDistance > 0`. |
+| `TurnFailureDistance` | how far past the pivot the player may go before failing a required turn. `float.MaxValue` for Straight; else `ToPivotDistance + 1`, clamped to `Length - TurnFailureMarginBeforeExit` so it stays strictly inside the segment. |
 | `TeleportDistance` | where the player "lands" after the turn animation, measured from the pivot. Must be `< ExitDistance`. Defaults to `ExitDistance * 0.5`. |
 
 ### Normalization rules (`NormalizeSegments`, run once at load)
 
 ```
-if EntranceDistance <= 0:  EntranceDistance = Length
-if ExitDistance    >  0:  Length = EntranceDistance + ExitDistance
-if Direction == Straight: TurnFailureDistance = float.MaxValue
-elif TurnFailureDistance <= 0: TurnFailureDistance = EntranceDistance + 1
+if ToPivotDistance <= 0:  ToPivotDistance = Length
+if ExitDistance    >  0:  Length = ToPivotDistance + ExitDistance
+if Direction == Straight:
+    TurnFailureDistance = float.MaxValue
+else:
+    if TurnFailureDistance <= 0: TurnFailureDistance = ToPivotDistance + 1
+    TurnFailureDistance = min(TurnFailureDistance, Length - TurnFailureMarginBeforeExit)
 if TeleportDistance <= 0 and ExitDistance > 0: TeleportDistance = ExitDistance * 0.5
 ```
 
-> **Historical gotcha.** The JSON key is `EntranceDistance`. An earlier version named the C#
-> field `ToPivotDistance`, so `JsonUtility` silently dropped the value and every segment fell
-> back to `EntranceDistance = Length` — corrupting turn geometry. The field is now
-> `EntranceDistance` to match the JSON. If you rename a JSON key, remember `JsonUtility` binds
-> **by exact field name** and drops anything it doesn't recognize, with no error.
+> **Why the clamp matters.** `SegmentExited` fires at `Length` and immediately re-arms
+> `TurnCollisionDetector` for the next segment, so a `TurnFailureDistance` at or past `Length`
+> is never observed and a missed turn goes undetected — the player just sails through. Segments
+> with a short `ExitDistance` hit this by default: `left_16` (`ToPivotDistance` 15 / `ExitDistance`
+> 1) gives `Length` 16 and a default failure distance of 16. The clamp keeps the failure point
+> strictly inside the segment.
+
+> **Gotcha: `JsonUtility` binds by exact field name.** The JSON key and the C# field must match
+> character for character — `JsonUtility` silently drops anything it doesn't recognize, with no
+> error. This bit us once already: the field and key drifted apart, so every segment fell back to
+> `ToPivotDistance = Length`, quietly corrupting turn geometry. If you rename one, rename the other
+> in the same commit, and remember `Assets/TempleRun/Resources/TrackSegments_Registry.json` is the
+> file that has to change.
 
 ## Selection at runtime
 
@@ -108,7 +119,7 @@ if TeleportDistance <= 0 and ExitDistance > 0: TeleportDistance = ExitDistance *
     {
       "Id": "left_28",           // unique id
       "Direction": "Left",       // Straight | Left | Right | Either
-      "EntranceDistance": 27.0,  // → Pivot
+      "ToPivotDistance": 27.0,  // → Pivot
       "ExitDistance": 1.0,       // Pivot → Exit (0 for Straight)
       "Weight": 1.0,             // selection weight
       "MaxRepeat": 2,            // max consecutive repeats (0 = unlimited)

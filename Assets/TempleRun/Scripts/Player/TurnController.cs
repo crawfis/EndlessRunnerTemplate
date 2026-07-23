@@ -22,6 +22,11 @@ namespace CrawfisSoftware.TempleRun
         private float _safeTurnDistance = 1f;
         private float _trackDistance = 0;
         private float _turnAvailableDistance;
+        // Cumulative distance at the START of the current segment, accumulated from segment
+        // lengths so it matches the boundaries used by SegmentAdvanceTrigger and
+        // TurnCollisionDetector.
+        private float _segmentStartDistance = 0f;
+        private float _previousSegmentLength = 0f;
         // Possible Bug: If Direction is changed to a Flag, then _nextTrackDirection needs to be masked.
         private Direction _nextTrackDirection;
 
@@ -91,7 +96,13 @@ namespace CrawfisSoftware.TempleRun
         {
             var trackSegment = (TrackSegmentInfo)data;
             _nextTrackDirection  = trackSegment.Direction;
-            _trackDistance      += trackSegment.TurnPointDistance;
+            // Anchor to this segment's start, not to the running sum of turn points. Summing
+            // TurnPointDistance loses (Length - TurnPointDistance) per segment, which walked the
+            // turn window earlier and earlier; for a Straight (TurnPointDistance == float.MaxValue)
+            // it saturated _trackDistance to Infinity and disabled every later turn.
+            _segmentStartDistance += _previousSegmentLength;
+            _previousSegmentLength = trackSegment.Length;
+            _trackDistance = _segmentStartDistance + trackSegment.TurnPointDistance;
             _turnAvailableDistance = _trackDistance - _safeTurnDistance;
         }
 

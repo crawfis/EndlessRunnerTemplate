@@ -15,9 +15,12 @@ namespace CrawfisSoftware.TempleRun
     ///    Publishes: SegmentEntering, SegmentEntered, SegmentExiting, SegmentExited
     /// </summary>
     /// <remarks>
-    /// Execution order 10 ensures this runs AFTER TurnCollisionDetector (default 0).
-    /// If the player fails a turn, the death chain fires synchronously, setting
-    /// _gameStarted = false before this controller checks.
+    /// This class no longer polls in Update(); it reacts to DistanceUpdated, which is published by
+    /// DistanceInterestService (execution order 0). The ordering that matters for the missed-turn
+    /// death chain is therefore TurnCollisionDetector (order -20) vs DistanceInterestService, not
+    /// this class's own order. TurnCollisionDetector runs first, so if the player fails a turn the
+    /// death chain fires synchronously and clears _gameStarted before SegmentExited can advance
+    /// the track.
     /// </remarks>
     [DefaultExecutionOrder(10)]
     internal class SegmentAdvanceTrigger : MonoBehaviour
