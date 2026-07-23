@@ -1,4 +1,3 @@
-using CrawfisSoftware.TempleRun;
 using CrawfisSoftware.Events;
 using UnityEngine;
 using UnityEngine.InputSystem;

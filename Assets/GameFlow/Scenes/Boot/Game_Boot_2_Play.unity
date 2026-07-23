@@ -294,7 +294,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4fe4b66f5da0ea45b4f8bdb5b736f47, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CrawfisSoftware.Events.TempleRunGameFlowBridge
-  _delayBetweenEvents: 0
 --- !u!1 &807874755
 GameObject:
   m_ObjectHideFlags: 0
@@ -329,7 +328,7 @@ MonoBehaviour:
   _jumpConfig: {fileID: 11400000, guid: 054adedd7f2d441468d0ad02b25ef425, type: 2}
   _slideConfig: {fileID: 11400000, guid: 29e1241597eb6ae4da0555169169cfb9, type: 2}
   _dashConfig: {fileID: 11400000, guid: 57d96b9cf7eba3a409af7cc82cbdfe85, type: 2}
-  _coinConfig: {fileID: 0}
+  _coinConfig: {fileID: 11400000, guid: a4a2dd8897f474648a256d8d5b652b03, type: 2}
 --- !u!4 &807874757
 Transform:
   m_ObjectHideFlags: 0

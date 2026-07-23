@@ -1178,7 +1178,7 @@ GameObject:
   - component: {fileID: 1831967221}
   - component: {fileID: 1831967222}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: Accelerometer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
