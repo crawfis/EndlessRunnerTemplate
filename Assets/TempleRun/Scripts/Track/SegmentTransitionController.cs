@@ -99,15 +99,18 @@ namespace CrawfisSoftware.TempleRun
             // _activeGeometry is always current: Either junction updates are handled directly
             // in OnGeometryReady when geometry.SequenceIndex == _activeGeometry.SequenceIndex.
 
-            // Truncate exit spline to TeleportDistance.
-            Vector3 exitDir = (_activeGeometry.ExitEnd - _activeGeometry.Pivot).normalized;
-            Vector3 teleportLanding = _activeGeometry.Pivot + exitDir * _activeGeometry.Definition.TeleportDistance;
+            // The exit runs from ExitStart (the laterally-shifted pivot the exit tiles begin at),
+            // not Pivot (the centre-line approach end). Anchoring the exit sub-spline here puts the
+            // player on the tiles and lines its end up with the next segment — no sideways jump.
+            // Truncate to TeleportDistance.
+            Vector3 exitDir = (_activeGeometry.ExitEnd - _activeGeometry.ExitStart).normalized;
+            Vector3 teleportLanding = _activeGeometry.ExitStart + exitDir * _activeGeometry.Definition.TeleportDistance;
 
             float landingDistance = _segmentStartDistance
                 + _activeGeometry.Definition.ToPivotDistance
                 + _activeGeometry.Definition.TeleportDistance;
 
-            var exitSpline = (_activeGeometry.Pivot, teleportLanding, _activeGeometry.Direction, landingDistance);
+            var exitSpline = (_activeGeometry.ExitStart, teleportLanding, _activeGeometry.Direction, landingDistance);
             EventsPublisherTempleRun.Instance.PublishEvent(
                 TempleRunEvents.CurrentSplineChanging, this, exitSpline);
         }
@@ -117,7 +120,7 @@ namespace CrawfisSoftware.TempleRun
             // Publish the current sub-spline as "changed" (transition complete).
             float landingDistance = _segmentStartDistance + _previousSegmentLength;
             var currentSpline = _isOnExitSection
-                ? (_activeGeometry.Pivot, _activeGeometry.ExitEnd, _activeGeometry.Direction, landingDistance)
+                ? (_activeGeometry.ExitStart, _activeGeometry.ExitEnd, _activeGeometry.Direction, landingDistance)
                 : (_activeGeometry.ApproachStart, _activeGeometry.Pivot, Direction.Straight, landingDistance);
 
             EventsPublisherTempleRun.Instance.PublishEvent(

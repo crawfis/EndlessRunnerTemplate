@@ -25,9 +25,21 @@ namespace CrawfisSoftware.TempleRun
             var (teleportTime, splineData) = ((float, object))data;
             var (point1, point2, _, _) = ((Vector3, Vector3, Direction, float))splineData;
             Vector3 targetDirection = (point2 - point1).normalized;
-            var targetPosition = new Vector3(point1.x, _yPosition, point1.z);
+            // Land in the player's current lane, not on the centre line: offset the target
+            // perpendicular to the new heading. Without this the turn dumps the player onto the
+            // centre of the new segment regardless of the lane they were running in.
+            var targetPosition = new Vector3(point1.x, _yPosition, point1.z) + LaneOffset(targetDirection);
             Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
             StartCoroutine(SmoothlyTeleport(teleportTime, targetPosition, targetRotation));
+        }
+
+        // Matches MoveCharacterByDistance.GetLateralOffset so the position the teleport lands on is
+        // exactly where distance-based movement resumes — no snap when the teleport ends. A centre
+        // lane (offset 0) yields the zero vector, so no special-casing is needed.
+        private static Vector3 LaneOffset(Vector3 direction)
+        {
+            float laneOffset = Blackboard.Instance.LaneChangeController.LateralLaneOffset;
+            return laneOffset * Vector3.Cross(direction, Vector3.up).normalized;
         }
 
         private IEnumerator SmoothlyTeleport(float teleportTime, Vector3 targetPosition, Quaternion targetDirection)
