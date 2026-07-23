@@ -20,5 +20,13 @@ namespace CrawfisSoftware.TempleRun.GameConfig
         /// player would silently survive a missed turn.
         /// </summary>
         public const float TurnFailureMarginBeforeExit = 0.5f;
+
+        /// <summary>
+        /// Exit-section length applied to a turn segment authored without one.
+        /// A turn must have somewhere to run after the pivot: with ExitDistance 0 the exit
+        /// sub-spline collapses to a point, which has no direction to face and nothing to build.
+        /// Matches the smallest exit used by the authored registry segments.
+        /// </summary>
+        public const float MinimumTurnExitDistance = 1f;
     }
 }

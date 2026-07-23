@@ -327,40 +327,80 @@ namespace CrawfisSoftware.TempleRun
         private static void NormalizeSegments(List<TrackSegmentDefinition> segments)
         {
             foreach (var seg in segments)
+                Normalize(seg);
+        }
+
+        /// <summary>
+        /// Turns one authored definition into a well-formed one. This is the single boundary where
+        /// segment data becomes trustworthy, so every construction path must pass through it —
+        /// including definitions built inline at runtime rather than loaded from the registry.
+        /// Downstream code (builders, controllers) may then assume the invariants below hold
+        /// instead of re-checking them.
+        ///
+        /// Invariants established here:
+        ///   Direction            is parsed from DirectionString
+        ///   Length               == ToPivotDistance + ExitDistance
+        ///   Straight             => ExitDistance == 0 and TurnFailureDistance == MaxValue
+        ///   Left/Right/Either    => ExitDistance  > 0 and TurnFailureDistance strictly &lt; Length
+        ///   TeleportDistance      > 0 exactly when ExitDistance > 0
+        /// </summary>
+        public static void Normalize(TrackSegmentDefinition seg)
+        {
+            // Must run first: every rule below branches on the resolved Direction.
+            seg.Direction = ParseDirection(seg.DirectionString, seg.Id);
+
+            // ToPivotDistance: default to Length (covers full segment for Straight)
+            if (seg.ToPivotDistance <= 0f)
+                seg.ToPivotDistance = seg.Length;
+
+            if (seg.Direction == Direction.Straight)
             {
-                // Must run first: every rule below branches on the resolved Direction.
-                seg.Direction = ParseDirection(seg.DirectionString, seg.Id);
-
-                // ToPivotDistance: default to Length (covers full segment for Straight)
-                if (seg.ToPivotDistance <= 0f)
-                    seg.ToPivotDistance = seg.Length;
-
-                // Recompute Length from parts when ExitDistance is specified
-                if (seg.ExitDistance > 0f)
-                    seg.Length = seg.ToPivotDistance + seg.ExitDistance;
-
-                if (seg.Direction == Direction.Straight)
+                // Pivot coincides with Exit, so a Straight has no exit section by definition.
+                if (seg.ExitDistance != 0f)
                 {
-                    seg.TurnFailureDistance = float.MaxValue;
+                    Debug.LogError($"[TrackSegmentLibrary] Straight segment '{seg.Id}' declares " +
+                                   $"ExitDistance {seg.ExitDistance}. A Straight ends at its pivot " +
+                                   $"and its exit section is ignored when building geometry. " +
+                                   $"Remove ExitDistance, or give the segment a turn Direction.");
+                    seg.ExitDistance = 0f;
                 }
-                else
-                {
-                    if (seg.TurnFailureDistance <= 0)
-                        seg.TurnFailureDistance = seg.ToPivotDistance + 1; // + Width/2 ;
-
-                    // The failure point must sit strictly inside the segment. SegmentExited fires
-                    // at Length and immediately re-arms TurnCollisionDetector for the next segment,
-                    // so a failure distance at or past Length is never reached and a missed turn
-                    // goes undetected. Segments with a short ExitDistance (e.g. Entrance 15 /
-                    // Exit 1 => Length 16, default failure 16) hit this every time.
-                    float latestFailure = seg.Length - TempleRunConstants.TurnFailureMarginBeforeExit;
-                    if (seg.TurnFailureDistance > latestFailure)
-                        seg.TurnFailureDistance = latestFailure;
-                }
-                // Default TeleportDistance for segments that have an exit section
-                if (seg.TeleportDistance <= 0f && seg.ExitDistance > 0f)
-                    seg.TeleportDistance = seg.ExitDistance * 0.5f;
+                seg.TurnFailureDistance = float.MaxValue;
             }
+            else
+            {
+                // A turn needs somewhere to run after the pivot. Without it the exit sub-spline
+                // collapses to a point: no direction to face, no length to build along.
+                if (seg.ExitDistance <= 0f)
+                {
+                    Debug.LogError($"[TrackSegmentLibrary] Turn segment '{seg.Id}' declares " +
+                                   $"ExitDistance {seg.ExitDistance}. A turn must have a post-pivot " +
+                                   $"exit section; using {TempleRunConstants.MinimumTurnExitDistance}. " +
+                                   $"Set ExitDistance > 0 in the registry.");
+                    seg.ExitDistance = TempleRunConstants.MinimumTurnExitDistance;
+                }
+            }
+
+            // Length is always the sum of the two sections.
+            seg.Length = seg.ToPivotDistance + seg.ExitDistance;
+
+            if (seg.Direction != Direction.Straight)
+            {
+                if (seg.TurnFailureDistance <= 0)
+                    seg.TurnFailureDistance = seg.ToPivotDistance + 1; // + Width/2 ;
+
+                // The failure point must sit strictly inside the segment. SegmentExited fires
+                // at Length and immediately re-arms TurnCollisionDetector for the next segment,
+                // so a failure distance at or past Length is never reached and a missed turn
+                // goes undetected. Segments with a short ExitDistance (e.g. ToPivot 15 /
+                // Exit 1 => Length 16, default failure 16) hit this every time.
+                float latestFailure = seg.Length - TempleRunConstants.TurnFailureMarginBeforeExit;
+                if (seg.TurnFailureDistance > latestFailure)
+                    seg.TurnFailureDistance = latestFailure;
+            }
+
+            // Default TeleportDistance for segments that have an exit section
+            if (seg.TeleportDistance <= 0f && seg.ExitDistance > 0f)
+                seg.TeleportDistance = seg.ExitDistance * 0.5f;
         }
 
         // ---------------------------------------------------------------------

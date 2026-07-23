@@ -106,10 +106,9 @@ namespace CrawfisSoftware.TempleRun.Track.Geometry
             Vector3 nudgedPivot = atPivot.Position - offset * forward + offset * newForward;
             Vector3 exit        = nudgedPivot + segment.ExitDistance * newForward;
 
-            // Legacy guard: the exit spline is published only when ExitDistance > 0.
-            var spans = segment.ExitDistance > 0f
-                ? new[] { new PathSpan(new[] { nudgedPivot, exit }, chosen, segment) }
-                : System.Array.Empty<PathSpan>();
+            // ExitDistance > 0 is guaranteed for turn segments by TrackSegmentLibrary.Normalize,
+            // so the exit span is always well-formed — same as BuildTurn.
+            var spans = new[] { new PathSpan(new[] { nudgedPivot, exit }, chosen, segment) };
 
             var exitPose = new PathPose(exit, newForward, atPivot.Up);
 

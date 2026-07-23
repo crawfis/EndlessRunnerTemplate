@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 using UnityEngine;
 
+using CrawfisSoftware.TempleRun.GameConfig;
 using CrawfisSoftware.TempleRun.Track;
 
 namespace CrawfisSoftware.TempleRun
@@ -205,14 +206,25 @@ namespace CrawfisSoftware.TempleRun
 
             float segmentLength = isStartSegment ? _startDistance : GetNewSegmentLength();
             var fallbackDirection = GetNewDirection();
+
+            // A turn spends its last stretch running out of the corner; a Straight has no exit
+            // section at all. Splitting the length here keeps the total at segmentLength.
+            float exitDistance = fallbackDirection == Direction.Straight
+                ? 0f
+                : TempleRunConstants.MinimumTurnExitDistance;
+
             var fallbackDef = new TrackSegmentDefinition
             {
-                Id             = "random",
-                Direction      = fallbackDirection,
-                Length         = segmentLength,
-                ToPivotDistance = segmentLength  // ensure normalization is correct for inline defs
+                Id              = "random",
+                DirectionString = fallbackDirection.ToString(),
+                ToPivotDistance = segmentLength - exitDistance,
+                ExitDistance    = exitDistance
             };
-            return new TrackSegmentInfo(fallbackDef, fallbackDirection);
+
+            // Inline definitions skip the registry, so they must be normalized explicitly —
+            // otherwise TurnFailureDistance stays 0 and the player fails the turn immediately.
+            TrackSegmentLibrary.Normalize(fallbackDef);
+            return new TrackSegmentInfo(fallbackDef, fallbackDef.Direction);
         }
 
         private void UpdateRepeatTracking(string segmentId)

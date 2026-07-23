@@ -77,14 +77,35 @@ Entrance ──ToPivotDistance──▶ Pivot ──ExitDistance──▶ Exit
 ```
 Direction = parse(DirectionString)   // must run first — every rule below branches on it
 if ToPivotDistance <= 0:  ToPivotDistance = Length
-if ExitDistance    >  0:  Length = ToPivotDistance + ExitDistance
 if Direction == Straight:
+    ExitDistance = 0                 // error if authored non-zero; a Straight ends at its pivot
     TurnFailureDistance = float.MaxValue
 else:
+    if ExitDistance <= 0: ExitDistance = MinimumTurnExitDistance   // error; a turn needs a run-out
+Length = ToPivotDistance + ExitDistance
+if Direction != Straight:
     if TurnFailureDistance <= 0: TurnFailureDistance = ToPivotDistance + 1
     TurnFailureDistance = min(TurnFailureDistance, Length - TurnFailureMarginBeforeExit)
 if TeleportDistance <= 0 and ExitDistance > 0: TeleportDistance = ExitDistance * 0.5
 ```
+
+`TrackSegmentLibrary.Normalize(definition)` is the **single boundary** where segment data becomes
+trustworthy. Every construction path must pass through it — including definitions built inline at
+runtime, such as `TrackManager`'s procedural fallback, which otherwise ends up with
+`TurnFailureDistance == 0` and fails its turn on the first frame. Downstream code (geometry
+builders, controllers) may assume these invariants hold rather than re-checking them:
+
+| Invariant | |
+|---|---|
+| `Length` | `== ToPivotDistance + ExitDistance` |
+| `Straight` | `ExitDistance == 0`, `TurnFailureDistance == MaxValue` |
+| `Left`/`Right`/`Either` | `ExitDistance > 0`, `TurnFailureDistance < Length` |
+| `TeleportDistance` | `> 0` exactly when `ExitDistance > 0` |
+
+A turn with `ExitDistance == 0` used to collapse its exit sub-spline to a single point — no
+direction to face, nothing to build — which `AxisAligned90Builder.BuildEitherExit` special-cased
+while `BuildTurn` did not. The invariant removes the case rather than checking for it in each
+builder.
 
 > **Why the clamp matters.** `SegmentExited` fires at `Length` and immediately re-arms
 > `TurnCollisionDetector` for the next segment, so a `TurnFailureDistance` at or past `Length`
