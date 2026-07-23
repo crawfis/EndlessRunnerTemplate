@@ -1,9 +1,9 @@
 # Track Generation
 
-The track is generated procedurally from JSON-authored **segments**, selected at runtime by a
-per-level ruleset. This doc covers the pipeline, the data model, the JSON schema, and the
-geometry math. Source: `Assets/TempleRun/Scripts/Track/`, data in
-`Assets/TempleRun/Resources/`.
+The track is generated procedurally from **segments** authored as ScriptableObjects, selected at
+runtime by a per-level ruleset. This doc covers the pipeline, the data model, the asset shape, and
+the geometry math. Source: `Assets/TempleRun/Scripts/Track/`, authored assets in
+`Assets/TempleRun/Scriptables/Track/`.
 
 ## Pipeline
 
@@ -30,29 +30,46 @@ flowchart LR
    `SpawnerBase` subclasses (obstacles, coins, power-ups) place objects per the segment's
    spawn mode. `SpawnPrefabRegistry` maps `PrefabTag` strings → prefabs.
 
-## The two-file data model
+## The data model
 
-Segments are authored once in a shared **registry**, and each **level** is a thin ruleset that
-selects a subset of the registry by tag or id.
+Four authoring ScriptableObjects, mirroring the `LevelConfig` / `LevelRegistry` pattern. Segments
+are authored once in a shared **registry**; each **level** is a thin ruleset that selects a subset
+of the registry by tag or id; a **level registry** maps a level number to its ruleset.
 
-- **Registry** — `TrackSegments_Registry.json` (`TrackSegmentRegistryDefinition`): the full
-  pool of `TrackSegmentDefinition`s.
-- **Level ruleset** — `TrackLevel_*.json` (`TrackSegmentLibraryDefinition`): names a
-  `SegmentRegistryFile`, a `StartSegmentId`, lane config, and either `ActiveSegmentTags` or
-  `ActiveSegmentIds` to filter the pool. Its own `Segments` list is usually empty and filled
-  by merging from the registry at load (`MergeRegistrySegments`).
+- **Segment** — `TrackSegmentSO` (one asset per segment, in `Scriptables/Track/Segments/`): the
+  authored fields for a single segment, including a real `Direction` enum (Inspector dropdown).
+- **Segment registry** — `TrackSegmentRegistrySO`: an array of `TrackSegmentSO`, the full shared pool.
+- **Level ruleset** — `TrackLevelSO`: a `LevelNumber`, a `Registry` reference, a `StartSegmentId`,
+  lane config, and either `ActiveSegmentTags` or `ActiveSegmentIds` to filter the pool.
+- **Level registry** — `TrackLevelRegistrySO`: an array of `TrackLevelSO`, resolved by `LevelNumber`.
 
-Loading (`TrackSegmentLibrary.LoadFromResources`):
+The SOs are **pure data — no logic**. They are the *input*. A separate *reading* layer,
+`TrackLibraryLoader`, turns them into runtime objects (`TrackSegmentDefinition` /
+`TrackSegmentLibrary`), which are what everything downstream *uses*. Because the loader emits
+**fresh, mutable** copies, normalization — which writes into the definition — never touches the
+authored asset. Keeping input, reading, and using separate is deliberate.
+
+**The GameFlow seam is a plain `int`.** GameFlow never references a track type: selecting a level
+publishes `LevelApplied(int)` (the `LevelConfig.LevelNumber`), which is bridged to
+`TempleRunLevelApplied` and stored on `Blackboard.SelectedLevel`. It rests there because it arrives
+before the gameplay scene — and `TrackManager` — exists.
+
+Loading (`TrackLibraryLoader.Load` at `TrackManager` init):
 
 ```mermaid
 flowchart TD
-    L["TrackLevel_0X.json"] --> M{"level.Segments empty<br/>and SegmentRegistryFile set?"}
-    M -- yes --> R["Load registry, merge segments<br/>matching ActiveSegmentIds<br/>(else ActiveSegmentTags,<br/>else all) + StartSegmentId"]
-    M -- no --> S["Use level.Segments as-is"]
-    R --> N["NormalizeSegments()"]
-    S --> N
+    SEL["GameFlow: LevelApplied(int)"] --> BB["Blackboard.SelectedLevel (int)"]
+    BB --> LD["TrackLibraryLoader.Load(registry, levelNumber)"]
+    REG["TrackLevelRegistrySO"] --> LD
+    LD --> F["find TrackLevelSO by LevelNumber → read SOs"]
+    F --> R["MergeRegistry: pool filtered by<br/>ActiveSegmentIds (else ActiveSegmentTags,<br/>else all) + StartSegmentId"]
+    R --> N["new TrackSegmentLibrary → NormalizeSegments()"]
     N --> LIB["TrackSegmentLibrary (runtime)"]
 ```
+
+`TrackManager` reads `Blackboard.SelectedLevel` at init and asks the loader for the library; a null
+result (no level selected) leaves the procedural fallback in charge. The resolved library lives on
+`TrackManager` — never on the Blackboard.
 
 ## Segment geometry: the 3-point model
 
@@ -65,7 +82,7 @@ Entrance ──ToPivotDistance──▶ Pivot ──ExitDistance──▶ Exit
 
 | Field | Meaning |
 |-------|---------|
-| `DirectionString` | authored turn direction: `Straight` \| `Left` \| `Right` \| `Either`. Parsed into the `Direction` enum by `NormalizeSegments`. **Must be a string field** — `JsonUtility` writes enums as integers and silently ignores a string aimed at an enum field, which would leave every segment at `Direction.Left` (value 0). |
+| `Direction` | authored turn direction: `Straight` \| `Left` \| `Right` \| `Either`. A real enum set directly on the SO (Inspector dropdown) — no string parsing, no field/key drift. Every rule in `Normalize` branches on it. |
 | `ToPivotDistance` | distance from Entrance to Pivot (the turn point). For `Straight`, Pivot == Exit so this equals `Length`. |
 | `ExitDistance` | distance from Pivot to Exit in the post-turn direction. `0` for Straight; `> 0` for Left/Right/Either. |
 | `Length` | total segment length. Recomputed as `ToPivotDistance + ExitDistance` when `ExitDistance > 0`. |
@@ -75,7 +92,7 @@ Entrance ──ToPivotDistance──▶ Pivot ──ExitDistance──▶ Exit
 ### Normalization rules (`Normalize`, run once per definition)
 
 ```
-Direction = parse(DirectionString)   // must run first — every rule below branches on it
+// Direction is already set by the authoring SO; every rule below branches on it
 if ToPivotDistance <= 0:  ToPivotDistance = Length
 if Direction == Straight:
     ExitDistance = 0                 // error if authored non-zero; a Straight ends at its pivot
@@ -114,12 +131,12 @@ builder.
 > 1) gives `Length` 16 and a default failure distance of 16. The clamp keeps the failure point
 > strictly inside the segment.
 
-> **Gotcha: `JsonUtility` binds by exact field name.** The JSON key and the C# field must match
-> character for character — `JsonUtility` silently drops anything it doesn't recognize, with no
-> error. This bit us once already: the field and key drifted apart, so every segment fell back to
-> `ToPivotDistance = Length`, quietly corrupting turn geometry. If you rename one, rename the other
-> in the same commit, and remember `Assets/TempleRun/Resources/TrackSegments_Registry.json` is the
-> file that has to change.
+> **Why ScriptableObjects.** Segments used to be authored as JSON parsed by `JsonUtility`, which
+> binds by exact field name and silently drops mismatches — a hazard that produced several real
+> bugs (an enum authored as a string that defaulted every segment to `Direction.Left`; a renamed
+> field that fell back to `ToPivotDistance = Length`). Native SO serialization removes the whole
+> class: enums get an Inspector dropdown, renames are compile-time-safe, and key/field drift is
+> impossible. See [KNOWN_ISSUES.md](KNOWN_ISSUES.md).
 
 ## Selection at runtime
 
@@ -132,60 +149,42 @@ builder.
    (falls back to ungated if that leaves nothing).
 4. A **weighted** random pick uses each segment's `Weight`.
 
-## JSON schema
+## Asset fields
 
-### Registry (`TrackSegments_Registry.json`)
-```jsonc
-{
-  "Version": "2.0",
-  "Segments": [
-    {
-      "Id": "left_28",           // unique id
-      "DirectionString": "Left", // Straight | Left | Right | Either — see note below
-      "ToPivotDistance": 27.0,  // → Pivot
-      "ExitDistance": 1.0,       // Pivot → Exit (0 for Straight)
-      "Weight": 1.0,             // selection weight
-      "MaxRepeat": 2,            // max consecutive repeats (0 = unlimited)
-      "DifficultyRating": 1.0,   // used by difficulty gating
-      "Tags": ["beginner"]       // used by level tag-filtering
-      // optional: Length, Role, SpeedMultiplier, BlockedLanes, LaneHeights,
-      //           ActiveLanes, SpawnMode, SpawnSlots, VisualTheme, SpawnSeed,
-      //           TurnFailureDistance, TeleportDistance
-    }
-  ]
-}
-```
+### Segment (`TrackSegmentSO`)
 
-### Level ruleset (`TrackLevel_0X.json`)
-```jsonc
-{
-  "Version": "2.0",
-  "LevelName": "Beginner Temple",
-  "LevelNumber": 1,
-  "DifficultyRating": 1.5,
-  "LaneCount": 3,
-  "LaneWidth": 2.0,
-  "SegmentRegistryFile": "TrackSegments_Registry",  // Resources name, no extension
-  "StartSegmentId": "start",
-  "ActiveSegmentTags": ["opening", "beginner"],     // OR use ActiveSegmentIds
-  "ActiveSegmentIds": [],
-  "Segments": [],       // usually empty → merged from registry by tag/id
-  "Connections": []     // optional explicit adjacency: [{ "FromId": "...", "ToId": "..." }]
-}
-```
+| Field | Notes |
+|-------|-------|
+| `Id` | unique id (used for connections, repeat tracking, start selection) |
+| `Direction` | `Straight` \| `Left` \| `Right` \| `Either` — enum dropdown |
+| `ToPivotDistance` | Entrance → Pivot. Leave 0 to mean "use the whole segment" (a Straight) |
+| `ExitDistance` | Pivot → Exit. `0` for Straight; `> 0` for turns. `Length` is derived from these two, so the SO has no `Length` field |
+| `Weight` | selection weight |
+| `MaxRepeat` | max consecutive repeats (0 = unlimited) |
+| `DifficultyRating` | used by difficulty gating |
+| `Tags` | used by level tag-filtering |
+| optional | `TeleportDistance`, `TurnFailureDistance`, `TurnRadius`, `Role`, `SpeedMultiplier`, `BlockedLanes`, `LaneHeights`, `ActiveLanes`, `SpawnMode`, `SpawnSlots`, `VisualTheme`, `SpawnSeed` — left at defaults, resolved by `Normalize` |
 
-### Spawn slots (Preset / Hybrid spawn modes)
-```jsonc
-{
-  "NormalizedPosition": 0.5,   // 0–1 along the segment
-  "Lane": 0,                   // 0 = centre, negative = left, positive = right
-  "Height": 0.0,
-  "Type": "Obstacle",          // Obstacle | Coin | PowerUp | Hazard
-  "PrefabTag": "crate",        // resolved via SpawnPrefabRegistry
-  "Weight": 1.0,               // Hybrid selection weight
-  "Required": true             // true = always; false = probabilistic
-}
-```
+### Registry (`TrackSegmentRegistrySO`)
+
+A single `Segments` array of `TrackSegmentSO` references — the shared pool every level draws from.
+
+### Level ruleset (`TrackLevelSO`)
+
+`LevelName`, `LevelNumber`, `DifficultyRating`, `LaneCount`, `LaneWidth`, a `Registry` reference, a
+`StartSegmentId`, and one of `ActiveSegmentTags` / `ActiveSegmentIds` to filter the pool. `LevelNumber`
+is how the level is resolved — GameFlow's `LevelConfig.LevelNumber` must match it.
+
+### Level registry (`TrackLevelRegistrySO`)
+
+A single `Levels` array of `TrackLevelSO` references, resolved by `LevelNumber`. Assign it to
+`TrackManager._trackLevels`. This is the SO that maps the selected `int` to a track ruleset.
+
+### Spawn slots (`SpawnSlotDefinition`, for Preset / Hybrid spawn modes)
+
+`NormalizedPosition` (0–1 along the segment), `Lane` (0 = centre, ±n), `Height`, `Type`
+(`Obstacle` \| `Coin` \| `PowerUp` \| `Hazard`), `PrefabTag` (resolved via `SpawnPrefabRegistry`),
+`Weight` (Hybrid selection weight), `Required` (true = always; false = probabilistic).
 
 ## Either / T-junctions
 
@@ -196,8 +195,11 @@ with the same sequence index.
 
 ## Authoring
 
-- **Editor:** `CrawfisSoftware > Track Level Editor` — a three-panel window for editing the
-  registry and level rulesets.
-- **AI skill:** `/generate-segments` — prompt-driven segment creation into the registry by
-  direction / length range / difficulty range / tags (reads the registry first to avoid
-  duplicate ids and match naming like `left_28`).
+- **Inspector:** select a `TrackSegmentSO`, `TrackSegmentRegistrySO`, or `TrackLevelSO` asset in
+  `Assets/TempleRun/Scriptables/Track/` and edit it directly. Create new ones via
+  `Assets > Create > CrawfisSoftware > TempleRun > Track Segment` / `Track Segment Registry` /
+  `Track Level`. Add a new segment to a level by adding it to the registry and tagging it (or
+  listing its id in the level's `ActiveSegmentIds`).
+- **Migration:** the segments and levels were converted from the legacy JSON by the one-shot
+  `CrawfisSoftware > Track > Import JSON -> ScriptableObjects` importer
+  (`Assets/TempleRun/Editor/TrackDataImporter.cs`).

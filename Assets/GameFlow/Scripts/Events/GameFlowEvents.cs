@@ -68,7 +68,7 @@
         GameConfigApplying = 81,
         GameConfigApplied = 82,
         GameConfigApplyFailed = 83,
-        TrackConfigApplied = 85,              // data: string (Resources path of track level JSON)
+        LevelApplied = 85,                    // data: int (selected level number; gameplay maps it to a track)
 
         DifficultyChangeRequested = 90,
         DifficultyChanging = 91,

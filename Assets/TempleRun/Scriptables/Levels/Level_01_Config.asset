@@ -34,6 +34,6 @@ MonoBehaviour:
     PowerUpSpawnRate: 0.15
     ScoreMultiplier: 1
     EnableAdvancedObstacles: 0
-  TrackLevelResourcePath: TrackLevel_02_Easy
+  LevelNumber: 2
   UnlockScoreThreshold: 0
   UnlockRequirementDescription: 

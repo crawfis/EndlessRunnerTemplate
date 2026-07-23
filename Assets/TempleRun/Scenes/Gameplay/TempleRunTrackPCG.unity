@@ -164,7 +164,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _numberOfLookAheadTracks: 2
-  _trackSegmentLibraryJson: {fileID: 0}
+  _trackLevels: {fileID: 0}
   _validTrackLengths: {fileID: 11400000, guid: ce92da35dc02cf1408d67a368d202999, type: 2}
 --- !u!1 &494007423
 GameObject:
@@ -292,8 +292,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _numberOfLookAheadTracks: 2
-  _trackSegmentLibraryJson: {fileID: 4900000, guid: f702e72e0d2c3fb4f834db0c35b24844,
-    type: 3}
+  _trackLevels: {fileID: 11400000, guid: 8ffafbd3a502d524d8c1b4cbbb8ea0a0, type: 2}
 --- !u!1 &1283783014
 GameObject:
   m_ObjectHideFlags: 0
@@ -369,8 +368,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _numberOfLookAheadTracks: 2
-  _trackSegmentLibraryJson: {fileID: 4900000, guid: f702e72e0d2c3fb4f834db0c35b24844,
-    type: 3}
+  _trackLevels: {fileID: 11400000, guid: 8ffafbd3a502d524d8c1b4cbbb8ea0a0, type: 2}
 --- !u!4 &1839240074
 Transform:
   m_ObjectHideFlags: 0

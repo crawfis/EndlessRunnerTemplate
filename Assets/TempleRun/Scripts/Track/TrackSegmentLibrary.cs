@@ -61,19 +61,8 @@ namespace CrawfisSoftware.TempleRun
         // ----- Core -----
         public string       Id;
 
-        /// <summary>
-        /// The JSON-bound turn direction: "Left" | "Right" | "Straight" | "Either".
-        /// JsonUtility serializes enums as integers and silently ignores a string written to an
-        /// enum field, so the authored value must land on a string and be parsed afterwards.
-        /// Resolved into <see cref="Direction"/> by NormalizeSegments().
-        /// </summary>
-        public string       DirectionString;
-
-        /// <summary>
-        /// The parsed form of <see cref="DirectionString"/>, and what all runtime code reads.
-        /// NonSerialized so JsonUtility never touches it — NormalizeSegments() is the only writer.
-        /// </summary>
-        [NonSerialized]
+        /// <summary>Turn direction. Set directly from the authoring SO (or inline construction);
+        /// no string parsing is involved. Length below is derived from it by Normalize().</summary>
         public Direction    Direction;
 
         public float        Length           = 5f;
@@ -147,23 +136,12 @@ namespace CrawfisSoftware.TempleRun
     }
 
     /// <summary>
-    /// Standalone registry of all available track segments.
-    /// Loaded once and shared across multiple level rulesets.
-    /// </summary>
-    [Serializable]
-    public class TrackSegmentRegistryDefinition
-    {
-        public string Version;
-        public List<TrackSegmentDefinition> Segments = new List<TrackSegmentDefinition>();
-    }
-
-    /// <summary>
     /// Level-specific ruleset: which segments are active and how they connect.
+    /// Built at runtime from a <see cref="TrackLevelSO"/>; the segment pool is already
+    /// tag/id-filtered from the registry by the time this reaches the track system.
     /// </summary>
-    [Serializable]
     public class TrackSegmentLibraryDefinition
     {
-        public string Version;
         public string LevelName;
         public int    LevelNumber;
         public float  DifficultyRating;
@@ -171,12 +149,10 @@ namespace CrawfisSoftware.TempleRun
         public float  LaneWidth = 2f;
         public string StartSegmentId;
 
-        // --- Two-file split ---
-        public string       SegmentRegistryFile;
         public List<string> ActiveSegmentTags = new List<string>();
         public List<string> ActiveSegmentIds  = new List<string>();
 
-        // --- Segment data (populated directly or merged from registry at load time) ---
+        // --- Segment data (merged + filtered from the registry at build time) ---
         public List<TrackSegmentDefinition> Segments    = new List<TrackSegmentDefinition>();
         public List<TrackSegmentConnection> Connections  = new List<TrackSegmentConnection>();
     }
@@ -229,8 +205,8 @@ namespace CrawfisSoftware.TempleRun
     /// connections and lane configuration for a level and exposes them via
     /// <see cref="ISegmentPool"/>. The selection algorithm lives in an
     /// <see cref="Track.ISegmentSelector"/> (default
-    /// <see cref="Track.WeightedDifficultySelector"/>); call
-    /// <see cref="LoadFromResources"/> once per level to build the pool.
+    /// <see cref="Track.WeightedDifficultySelector"/>); construct one from a
+    /// <see cref="TrackSegmentLibraryDefinition"/> (built by <see cref="TrackLibraryLoader"/>) per level.
     /// </summary>
     public class TrackSegmentLibrary : ISegmentPool
     {
@@ -308,22 +284,6 @@ namespace CrawfisSoftware.TempleRun
         /// For Left/Right/Either: both ToPivotDistance and ExitDistance should be > 0.
         /// TeleportDistance defaults to ExitDistance * 0.5 when not specified.
         /// </summary>
-        /// <summary>
-        /// Parses a segment's authored DirectionString. An unrecognised or missing value is an
-        /// authoring error, so it is reported loudly rather than silently becoming Direction.Left
-        /// (enum value 0) — which is precisely the failure this method exists to prevent.
-        /// </summary>
-        public static Direction ParseDirection(string directionValue, string segmentId)
-        {
-            if (Enum.TryParse(directionValue, ignoreCase: true, out Direction parsed))
-                return parsed;
-
-            Debug.LogError($"[TrackSegmentLibrary] Segment '{segmentId}' has an unrecognised " +
-                           $"DirectionString '{directionValue}'. Expected Left, Right, Straight " +
-                           $"or Either. Falling back to Straight.");
-            return Direction.Straight;
-        }
-
         private static void NormalizeSegments(List<TrackSegmentDefinition> segments)
         {
             foreach (var seg in segments)
@@ -337,8 +297,8 @@ namespace CrawfisSoftware.TempleRun
         /// Downstream code (builders, controllers) may then assume the invariants below hold
         /// instead of re-checking them.
         ///
-        /// Invariants established here:
-        ///   Direction            is parsed from DirectionString
+        /// Invariants established here (Direction is already set by the caller and every rule
+        /// below branches on it):
         ///   Length               == ToPivotDistance + ExitDistance
         ///   Straight             => ExitDistance == 0 and TurnFailureDistance == MaxValue
         ///   Left/Right/Either    => ExitDistance  > 0 and TurnFailureDistance strictly &lt; Length
@@ -346,9 +306,6 @@ namespace CrawfisSoftware.TempleRun
         /// </summary>
         public static void Normalize(TrackSegmentDefinition seg)
         {
-            // Must run first: every rule below branches on the resolved Direction.
-            seg.Direction = ParseDirection(seg.DirectionString, seg.Id);
-
             // ToPivotDistance: default to Length (covers full segment for Straight)
             if (seg.ToPivotDistance <= 0f)
                 seg.ToPivotDistance = seg.Length;
@@ -403,66 +360,9 @@ namespace CrawfisSoftware.TempleRun
                 seg.TeleportDistance = seg.ExitDistance * 0.5f;
         }
 
-        // ---------------------------------------------------------------------
-        // Factory methods
-        // ---------------------------------------------------------------------
-
-        public static TrackSegmentLibrary LoadFromJson(string json)
-        {
-            if (string.IsNullOrWhiteSpace(json)) return null;
-            var def = JsonUtility.FromJson<TrackSegmentLibraryDefinition>(json);
-            return def == null ? null : new TrackSegmentLibrary(def);
-        }
-
-        public static TrackSegmentLibrary LoadFromJson(string levelJson, string registryJson)
-        {
-            if (string.IsNullOrWhiteSpace(levelJson)) return null;
-            var levelDef = JsonUtility.FromJson<TrackSegmentLibraryDefinition>(levelJson);
-            if (levelDef == null) return null;
-
-            if (!string.IsNullOrWhiteSpace(registryJson) && levelDef.Segments.Count == 0)
-                MergeRegistrySegments(levelDef, registryJson);
-
-            return new TrackSegmentLibrary(levelDef);
-        }
-
-        public static TrackSegmentLibrary LoadFromDefinition(
-            TrackSegmentLibraryDefinition levelDef, string registryJson = null)
-        {
-            if (levelDef == null) return null;
-            if (!string.IsNullOrWhiteSpace(registryJson) && levelDef.Segments.Count == 0)
-                MergeRegistrySegments(levelDef, registryJson);
-            return new TrackSegmentLibrary(levelDef);
-        }
-
-        public static TrackSegmentLibrary LoadFromResources(string levelResourcePath)
-        {
-            var levelAsset = Resources.Load<TextAsset>(levelResourcePath);
-            if (levelAsset == null)
-            {
-                Debug.LogError($"[TrackSegmentLibrary] Level resource not found: '{levelResourcePath}'");
-                return null;
-            }
-
-            var levelDef = JsonUtility.FromJson<TrackSegmentLibraryDefinition>(levelAsset.text);
-            if (levelDef == null)
-            {
-                Debug.LogError($"[TrackSegmentLibrary] Failed to parse JSON: '{levelResourcePath}'");
-                return null;
-            }
-
-            if (!string.IsNullOrWhiteSpace(levelDef.SegmentRegistryFile))
-            {
-                var registryAsset = Resources.Load<TextAsset>(levelDef.SegmentRegistryFile);
-                if (registryAsset != null)
-                    return LoadFromJson(levelAsset.text, registryAsset.text);
-
-                Debug.LogWarning($"[TrackSegmentLibrary] Registry '{levelDef.SegmentRegistryFile}' " +
-                                 $"not found; loading level standalone.");
-            }
-
-            return LoadFromJson(levelAsset.text);
-        }
+        // The library is constructed directly from a resolved definition — see
+        // TrackLibraryLoader, which reads the authoring SOs, merges + tag/id-filters the pool,
+        // and calls the constructor (which normalizes).
 
         // ---------------------------------------------------------------------
         // Selection
@@ -476,19 +376,22 @@ namespace CrawfisSoftware.TempleRun
         // passing this library as the pool.
 
         // ---------------------------------------------------------------------
-        // Private helpers
+        // Registry merge
         // ---------------------------------------------------------------------
 
-        private static void MergeRegistrySegments(
-            TrackSegmentLibraryDefinition levelDef, string registryJson)
+        /// <summary>
+        /// Appends the level's active segments to <paramref name="levelDef"/>, selecting from the
+        /// registry pool by the level's id/tag filter. The start segment is always included.
+        /// The <paramref name="registrySegments"/> are fresh runtime definitions (one per authored
+        /// asset), so they may be added directly and later normalized in place.
+        /// </summary>
+        public static void MergeRegistry(
+            TrackSegmentLibraryDefinition levelDef, IReadOnlyList<TrackSegmentDefinition> registrySegments)
         {
-            var registry = JsonUtility.FromJson<TrackSegmentRegistryDefinition>(registryJson);
-            if (registry?.Segments == null || registry.Segments.Count == 0) return;
-
             bool filterByIds  = levelDef.ActiveSegmentIds?.Count  > 0;
             bool filterByTags = levelDef.ActiveSegmentTags?.Count > 0;
 
-            foreach (var seg in registry.Segments)
+            foreach (var seg in registrySegments)
             {
                 if (string.IsNullOrWhiteSpace(seg.Id)) continue;
 

@@ -15,7 +15,8 @@ system), [docs/ADDING_A_MECHANIC.md](docs/ADDING_A_MECHANIC.md) (worked example)
 ```
 Play in Editor:     Enter Play Mode from Assets/GameFlow/Scenes/Boot/0_BootStrap_Game_Only
 Event Logging:      CrawfisSoftware > Events > Event Logging Enabled
-Track Authoring:    CrawfisSoftware > Track Level Editor
+Track Authoring:    Edit the TrackSegmentSO / TrackSegmentRegistrySO / TrackLevelSO assets
+                    in Assets/TempleRun/Scriptables/Track/ (Inspector)
 ```
 
 ### Critical Paths
@@ -78,7 +79,7 @@ When adding any new feature or behavior, you MUST follow this workflow:
 | Events should auto-progress | `/add-auto-chain` after `/add-event` |
 | After any implementation work | `/audit-events` to verify compliance |
 | Before starting work on events | `/list-events` to understand current state |
-| Authoring track segments | `/generate-segments` |
+| Authoring track segments | Edit `TrackSegmentSO` / `TrackLevelSO` assets in the Inspector (see [docs/TRACKS.md](docs/TRACKS.md#authoring)). *The `/generate-segments` skill is legacy — it targets the removed JSON registry.* |
 
 ## Architecture Overview
 
@@ -235,7 +236,7 @@ private readonly Dictionary<...> _mapping = ...; // readonly: underscore prefix
 | Config | `Assets/TempleRun/Scripts/Config/Blackboard.cs`, `TempleRunGameConfig.cs`, `GameDifficultyManager.cs` |
 | Player Controllers | `Assets/TempleRun/Scripts/Player/TurnController.cs`, `JumpController.cs`, `SlideController.cs`, `DashController.cs`, `LaneChangeController.cs`, `PlayerLifeController.cs`, `PowerUpBuffController.cs` |
 | Track Generation | `Assets/TempleRun/Scripts/Track/TrackManager.cs`, `PathProvider.cs`, `SegmentTransitionController.cs`, `TrackSegmentLibrary.cs` |
-| Track Data | `Assets/TempleRun/Resources/TrackSegments_Registry.json`, `TrackLevel_*.json` |
+| Track Data | `Assets/TempleRun/Scriptables/Track/` — `TrackSegmentSO` (per segment), `TrackSegmentRegistrySO` (pool), `TrackLevelSO` (per level) |
 | Input | `Assets/TempleRun/Scripts/Input/MovementInputActions.cs`, `SwipeDetectorActions.cs`, `DashInputActions.cs`, `AccelerometerInputActions.cs` |
 | **Shared/Common** | |
 | Auto-Event Base | `Assets/_Common/Events/AutoEventFlowBase.cs` (placeholder — see note above) |
@@ -294,9 +295,12 @@ the UI and gameplay scenes additively.
 5. **`/audit-events`** — Verify compliance
 
 ### Authoring Track Segments / Levels
-- Use **`CrawfisSoftware > Track Level Editor`** or the **`/generate-segments`** skill.
-- Segment pool: `Assets/TempleRun/Resources/TrackSegments_Registry.json`
-- Per-level rulesets: `Assets/TempleRun/Resources/TrackLevel_*.json` (tag-filtered selection from the registry)
+- Edit the ScriptableObject assets in `Assets/TempleRun/Scriptables/Track/` via the Inspector; create
+  new ones from `Assets > Create > CrawfisSoftware > TempleRun > Track Segment / Track Segment Registry / Track Level`.
+- Segment pool: `TrackSegmentRegistrySO` (array of per-segment `TrackSegmentSO`).
+- Per-level rulesets: `TrackLevelSO` (tag/id-filtered selection from the registry), resolved by `LevelNumber` through `TrackLevelRegistrySO` (assigned to `TrackManager._trackLevels`).
+- Seam: GameFlow publishes `LevelApplied(int)` (its `LevelConfig.LevelNumber`); it never references a track type. The int is bridged to `TempleRunLevelApplied`, parked on `Blackboard.SelectedLevel`, and read at `TrackManager` init — the SOs are read only by `TrackLibraryLoader`.
+- See [docs/TRACKS.md](docs/TRACKS.md#the-data-model).
 
 ## Folder Structure
 
@@ -324,12 +328,12 @@ Assets/
     │   ├── Events/                   # TempleRunEvents, UserInitiatedEvents, publishers, auto-flows, input bridge
     │   ├── Config/                   # Blackboard, TempleRunGameConfig, per-mechanic configs, GameDifficultyManager
     │   ├── Player/                   # Turn/Jump/Slide/Dash/Lane controllers, PowerUpBuffController, collision detectors
-    │   ├── Track/                    # TrackManager, PathProvider, SegmentTransitionController, TrackSegmentLibrary
+    │   ├── Track/                    # TrackManager, PathProvider, SegmentTransitionController, TrackSegmentLibrary, TrackSegmentSO/RegistrySO/TrackLevelSO
     │   ├── TrackVisuals/             # PrefabSpawner (SimplePlane, Voxels)
     │   └── Input/                    # MovementInputActions, SwipeDetectorActions, DashInputActions, Accelerometer
     ├── Scenes/Gameplay/              # TempleRunGameplay, TrackPCG, TrackVisuals, PlayerVisuals, Obstacles, Collectables, Sfx, Environment, GuiOverlay
-    ├── Resources/                    # TrackSegments_Registry.json, TrackLevel_*.json
-    └── Editor/                       # TrackLevelEditorWindow
+    ├── Scriptables/                  # Per-mechanic configs + Track/ (segment/registry/level SOs), Levels/ (LevelConfig, LevelRegistry)
+    └── Editor/                       # TrackDataImporter (one-shot JSON -> SO converter)
 ```
 
 ### Event Flow Architecture

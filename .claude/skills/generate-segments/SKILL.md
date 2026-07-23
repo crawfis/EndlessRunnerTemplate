@@ -1,13 +1,22 @@
 ---
 name: generate-segments
-description: Generate track segment definitions and add them to the segment registry JSON. Prompt-driven creation of segments by direction, length range, difficulty range, and tags.
+description: Generate track segment ScriptableObject assets (TrackSegmentSO) and register them in the TrackSegmentRegistrySO. Prompt-driven creation of segments by direction, length range, difficulty range, and tags.
 allowed-tools: Read, Write, Edit, Grep, Glob
 argument-hint: <description> (e.g., "20 easy left-turns, lengths 8-20")
 ---
 
 # Generate Segments
 
-Generate new track segment definitions and write them to the segment registry JSON file.
+Generate new track segment definitions as **ScriptableObject assets** and add them to the shared
+`TrackSegmentRegistrySO`. Track data is authored as SOs, not JSON — one `TrackSegmentSO` asset per
+segment, gathered into the registry (see [docs/TRACKS.md](../../../docs/TRACKS.md#the-data-model)).
+
+Assets live in:
+- Segments: `Assets/TempleRun/Scriptables/Track/Segments/<Id>.asset` (+ `.meta`)
+- Registry: `Assets/TempleRun/Scriptables/Track/TrackSegmentRegistry.asset`
+
+> These assets are created by the one-shot `CrawfisSoftware > Track > Import JSON -> ScriptableObjects`
+> importer. If they don't exist yet, run that importer first (or say so and stop).
 
 ## Arguments
 
@@ -18,136 +27,156 @@ Generate new track segment definitions and write them to the segment registry JS
 
 ## Procedure
 
-### Step 1: Read the current registry
+### Step 1: Read the current pool
 
-Read `Assets/TempleRun/Resources/TrackSegments_Registry.json` to understand:
-- Existing segment IDs (avoid duplicates)
-- Existing tags in use
-- ID naming pattern (`left_28`, `right_12`, etc.)
-- Highest DifficultyRating and Length values
-- Total current segment count
+- `Glob` `Assets/TempleRun/Scriptables/Track/Segments/*.asset` and read a few to learn the field
+  layout, `Id` naming pattern (`left_28`, `right_12`, ...), tags in use, and existing ids (to avoid
+  collisions).
+- Read `Assets/TempleRun/Scriptables/Track/TrackSegmentRegistry.asset` — you will append the new
+  segments to its `Segments` list.
+- Read `Assets/TempleRun/Scripts/Track/TrackSegmentSO.cs.meta` and confirm the script guid is
+  `8e4fd9825d0d99bd8f035cdcc48f65f0` (used in every generated `.asset`). If it differs, use the
+  value from the `.meta`.
 
 ### Step 2: Parse the user request
-
-Extract from the arguments:
 
 | Parameter | Description | Default |
 |-----------|-------------|---------|
 | **Count** | How many segments to generate | Required |
-| **Direction** | Left, Right, Both, or All (= Left + Right) | All |
-| **Length range** | Min/max length in Unity units | 8–28 |
+| **Direction** | Left, Right, Both (= Left + Right), Straight, or Either | Both |
+| **Length range** | Min/max total length in Unity units | 8–28 |
 | **Difficulty range** | Min/max on 0–10 scale | 0–10 |
-| **Tags** | Tags to apply (beginner, easy, medium, hard, or custom) | Infer from difficulty |
+| **Tags** | Tags to apply (beginner, easy, medium, hard, expert, or custom) | Infer from difficulty |
 | **Weight** | Selection weight | 1.0 |
 | **MaxRepeat** | Max consecutive repeats | 2 |
-| **SpawnMode** | Procedural, Preset, or Hybrid | Procedural |
+| **Exit distance** | Post-pivot run-out for turns (see geometry below) | 1.0 |
 
 If anything is ambiguous, ask the user to clarify.
 
-### Step 3: Generate segment definitions
+### Step 3: Compute geometry (the 3-point model)
 
-Create segments following these rules:
+Every segment is Entrance → Pivot → Exit, and `Length = ToPivotDistance + ExitDistance`. The SO has
+**no `Length` field** — author `ToPivotDistance` and `ExitDistance` so they sum to the intended
+length. `Normalize` fills the rest (`TurnFailureDistance`, `TeleportDistance`) at load.
 
-**ID format**: `{direction}_{length}` or `{direction}_{length}_{tag}` for uniqueness, or `{direction}_{length}_v{N}` for variants.
-- Examples: `left_18`, `right_12_v2`, `both_20_easy`
+- **Straight** (`Direction: Straight`): `ExitDistance = 0`, `ToPivotDistance = length`.
+- **Turn** (`Left` / `Right` / `Either`): `ExitDistance = <exit>` (default 1), `ToPivotDistance =
+  length - <exit>`. Keep `ToPivotDistance > 0`.
 
-**Length distribution**: Spread lengths across the requested range.
-- Small counts (≤10): evenly space across range
-- Large counts: cluster around common lengths with variation
+Do **not** set `TurnFailureDistance` or `TeleportDistance` — leave them 0 so `Normalize` derives them.
 
-**Difficulty correlation**: By default shorter = harder, but respect the user's requested range.
-- Lengths 24–28 → difficulty 0–2 (easy)
-- Lengths 18–24 → difficulty 2–4
-- Lengths 12–18 → difficulty 4–6
-- Lengths 8–12 → difficulty 6–8 (hard)
-- Lengths 4–8  → difficulty 8–10 (expert)
+**Direction enum value** (written as an int in YAML): `Left = 0`, `Right = 1`, `Straight = 2`,
+`Either = 3`.
 
-**Tag assignment**: Apply requested tags. If spanning difficulty ranges, use:
-- difficulty 0–2 → "beginner"
-- difficulty 2–4 → "easy"
-- difficulty 4–6 → "medium"
-- difficulty 6–8 → "hard"
-- difficulty 8–10 → "expert"
+### Step 4: Distribute & tag
 
-**MaxRepeat**: Scale with difficulty:
-- beginner/easy: MaxRepeat = 2
-- medium: MaxRepeat = 3
-- hard/expert: MaxRepeat = 4
+- **ID format**: `{direction}_{length}` (e.g. `left_18`), `{direction}_{length}_v{N}` for variants.
+- **Length distribution**: small counts (≤10) evenly spaced; large counts clustered with variation.
+- **Difficulty correlation** (default; respect an explicit request): shorter = harder.
+  - 24–28 → 0–2 (beginner) · 18–24 → 2–4 (easy) · 12–18 → 4–6 (medium) · 8–12 → 6–8 (hard) · 4–8 → 8–10 (expert)
+- **Tags**: 0–2 beginner · 2–4 easy · 4–6 medium · 6–8 hard · 8–10 expert (or the user's tags).
+- **MaxRepeat**: beginner/easy 2 · medium 3 · hard/expert 4.
 
-**Schema fields per segment**:
+### Step 5: Write one asset per segment
 
-```json
-{
-  "Id": "left_18_easy",
-  "Direction": "Left",
-  "Length": 18.0,
-  "Weight": 1.0,
-  "MaxRepeat": 2,
-  "DifficultyRating": 3.0,
-  "Tags": ["easy"],
-  "Role": "Normal",
-  "SpeedMultiplier": 1.0,
-  "SpawnMode": "Procedural",
-  "SpawnSlots": [],
-  "BlockedLanes": [],
-  "LaneHeights": [],
-  "ActiveLanes": [],
-  "VisualTheme": "",
-  "SpawnSeed": 0
-}
+For each segment, `Write` `Assets/TempleRun/Scriptables/Track/Segments/<Id>.asset`:
+
+```yaml
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e4fd9825d0d99bd8f035cdcc48f65f0, type: 3}
+  m_Name: left_18
+  m_EditorClassIdentifier:
+  Id: left_18
+  Direction: 0
+  Weight: 1
+  MaxRepeat: 2
+  DifficultyRating: 3
+  Tags:
+  - easy
+  ToPivotDistance: 17
+  ExitDistance: 1
+  TeleportDistance: 0
+  TurnFailureDistance: 0
+  TurnRadius: 0
+  Role: Normal
+  SpeedMultiplier: 1
+  BlockedLanes: []
+  LaneHeights: []
+  ActiveLanes: []
+  SpawnMode: Procedural
+  SpawnSlots: []
+  VisualTheme:
+  SpawnSeed: 0
 ```
 
-Only include the new schema fields (Role, SpeedMultiplier, SpawnMode, SpawnSlots, BlockedLanes, LaneHeights, ActiveLanes, VisualTheme, SpawnSeed) when the user explicitly requests them or they are non-default. Otherwise keep the JSON compact with just the core fields (Id, Direction, Length, Weight, MaxRepeat, DifficultyRating, Tags).
+And `Write` its `.meta` at `<Id>.asset.meta` with a **unique** 32-hex guid (generate a distinct
+random-looking hex string per asset; `Grep` the guid across `Assets/` to confirm it's unused):
 
-### Step 4: Validate no ID collisions
+```yaml
+fileFormatVersion: 2
+guid: <32-hex-unique>
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData:
+  assetBundleName:
+  assetBundleVariant:
+```
 
-Check every generated ID against existing registry IDs. On collision, append `_v2`, `_v3`, etc.
+### Step 6: Register the segments
 
-### Step 5: Add to registry
+`Edit` `TrackSegmentRegistry.asset` to append one reference per new segment to the `Segments`
+sequence, using each asset's `.meta` guid:
 
-Edit `Assets/TempleRun/Resources/TrackSegments_Registry.json`:
-- Add new segment objects to the `Segments` array
-- Maintain existing JSON formatting style (one object per line for compact segments)
-- Keep logical grouping (left turns, right turns, both, etc.)
-- Place new segments AFTER existing segments of the same direction
+```yaml
+  Segments:
+  - {fileID: 11400000, guid: <existing-segment-guid>, type: 2}
+  - {fileID: 11400000, guid: <new-segment-guid>, type: 2}
+```
 
-### Step 6: Summarize
+A segment is only in a level's pool if a `TrackLevelSO` selects it — by a matching tag in
+`ActiveSegmentTags`, or by its id in `ActiveSegmentIds`. Make sure the tags you assigned line up
+with the levels that should use these segments.
 
-Output a summary table and next steps:
+### Step 7: Summarize
 
 ```
 Generated N segments:
-  [id]  Dir=[L/R/B]  Length=[len]  d=[difficulty]  Tags=[tags]
+  [id]  Dir=[L/R/S/E]  Length=[len]  d=[difficulty]  Tags=[tags]
   ...
 
-Added to: Assets/TempleRun/Resources/TrackSegments_Registry.json
-Registry now has M total segments.
-
-Tip: Open CrawfisSoftware > Track Level Editor to assign these
-segments to levels by enabling their tags.
+Wrote assets to: Assets/TempleRun/Scriptables/Track/Segments/
+Registered in:    Assets/TempleRun/Scriptables/Track/TrackSegmentRegistry.asset  (M total)
 ```
+
+Then remind the user:
+- **Unity** will import the new assets on next focus; check the Console for errors.
+- **RUGS parity:** copy the new `.asset` + `.meta` files and the edited `TrackSegmentRegistry.asset`
+  into `../RunnerUGSTemplate` — do **not** re-generate there (that would mint different guids). See
+  the port-to-RUGS project note.
+- To include the segments in a level, add their tag/id to the relevant `TrackLevelSO` asset.
 
 ## Examples
 
 ### "generate 6 easy left turns, lengths 10-24"
 
-Generates 6 left-turn segments with lengths evenly distributed from 10 to 24, DifficultyRating in the 2-4 range, tagged "easy".
+6 left-turn segments (`Direction: 0`), lengths evenly 10→24 (`ToPivotDistance = length - 1`,
+`ExitDistance = 1`), `DifficultyRating` 2–4, tagged `easy`.
 
 ### "add 10 hard segments for both directions, lengths 6-14"
 
-Generates 5 left + 5 right segments with short lengths (6-14), DifficultyRating 6-8, tagged "hard", MaxRepeat 4.
+5 left + 5 right, short lengths, `DifficultyRating` 6–8, tagged `hard`, `MaxRepeat` 4.
 
-### "200 segments across all difficulties"
+### "10 straight segments, lengths 8-16"
 
-Generates a balanced set across all tags and both directions:
-- ~40 beginner (lengths 24-28, difficulty 0-2)
-- ~40 easy (lengths 18-24, difficulty 2-4)
-- ~40 medium (lengths 12-18, difficulty 4-6)
-- ~40 hard (lengths 8-12, difficulty 6-8)
-- ~40 expert (lengths 4-8, difficulty 8-10)
-
-Each group split evenly between Left and Right directions.
-
-### "20 preset segments with spawn slots for a challenge section"
-
-Generates 20 segments with SpawnMode="Preset" and populated SpawnSlots arrays for hand-crafted obstacle/coin placement.
+10 straights (`Direction: 2`, `ExitDistance: 0`, `ToPivotDistance = length`), tagged `straight`.
