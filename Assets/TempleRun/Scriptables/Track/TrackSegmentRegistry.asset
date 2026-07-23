@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9ff96fa00a270c55f497cd0b6f08e37, type: 3}
+  m_Name: TrackSegmentRegistry
+  m_EditorClassIdentifier: Assembly-CSharp::CrawfisSoftware.TempleRun.TrackSegmentRegistrySO
+  Segments:
+  - {fileID: 11400000, guid: 85c47b2a6dc12d2478d6238ce8a28753, type: 2}
+  - {fileID: 11400000, guid: db991d882c4025f4aa3426da474cab00, type: 2}
+  - {fileID: 11400000, guid: db32d396ce364764b8c07a173dbeee8d, type: 2}
+  - {fileID: 11400000, guid: 9315fb10a9b29c449821ed21f7353bfc, type: 2}
+  - {fileID: 11400000, guid: 323fc221273a258479869cf56ddf81f8, type: 2}
+  - {fileID: 11400000, guid: 2bcc44c8bd2821f4485aba3c4f560617, type: 2}
+  - {fileID: 11400000, guid: 4bc432eb6cf303443b86990a77fc5dfe, type: 2}
+  - {fileID: 11400000, guid: 9128c31e62788f043872ad46ce0d1e53, type: 2}
+  - {fileID: 11400000, guid: 47c215f447752864e93169e58b7c784e, type: 2}
+  - {fileID: 11400000, guid: af49b9a19b474bc48a82d713d92857d4, type: 2}
+  - {fileID: 11400000, guid: 870f2e61218e47d499cc8e418239f983, type: 2}
+  - {fileID: 11400000, guid: 5c3a09e8fef68694f9b004890c9c4fc3, type: 2}
+  - {fileID: 11400000, guid: ef6e2a9ba2aaa7d4b98dac63b4f52a2e, type: 2}
+  - {fileID: 11400000, guid: a94cc6d1d7bc5fe45ae5972ddf7b3b60, type: 2}
+  - {fileID: 11400000, guid: 8b3a0732cc840114daa5a6b0fd0904ce, type: 2}
+  - {fileID: 11400000, guid: f7f8d75b227b4b64d8ddd4ef9fd5c33f, type: 2}
+  - {fileID: 11400000, guid: 0c06a6f1dd6b0164a952568923f3e51e, type: 2}

@@ -31,7 +31,7 @@ namespace CrawfisSoftware.GameFlow.Events
 
             // Config/scenes bridged to TempleRun domain
             { GameFlowEvents.GameConfigApplied, TempleRunEvents.TempleRunConfigApplied },
-            { GameFlowEvents.TrackConfigApplied, TempleRunEvents.TempleRunTrackConfigApplied },
+            { GameFlowEvents.LevelApplied, TempleRunEvents.TempleRunLevelApplied },
             { GameFlowEvents.GameScenesLoaded, TempleRunEvents.TempleRunScenesReady },
         };
 

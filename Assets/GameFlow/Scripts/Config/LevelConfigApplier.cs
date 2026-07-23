@@ -9,7 +9,7 @@ namespace CrawfisSoftware.GameFlow.Config
     /// Bridges level selection to both the difficulty system and track generation.
     ///    Subscribes: GameFlowEvents.LevelSelected
     ///    Publishes: GameFlowEvents.GameConfigApplied (data: DifficultyConfig)
-    ///    Publishes: GameFlowEvents.TrackConfigApplied (data: string trackLevelResourcePath)
+    ///    Publishes: GameFlowEvents.LevelApplied (data: int level number)
     /// </summary>
     internal class LevelConfigApplier : MonoBehaviour
     {
@@ -37,7 +37,7 @@ namespace CrawfisSoftware.GameFlow.Config
             }
 
             EventsPublisherGameFlow.Instance.PublishEvent(
-                GameFlowEvents.TrackConfigApplied, this, levelConfig.TrackLevelResourcePath);
+                GameFlowEvents.LevelApplied, this, levelConfig.LevelNumber);
         }
     }
 }

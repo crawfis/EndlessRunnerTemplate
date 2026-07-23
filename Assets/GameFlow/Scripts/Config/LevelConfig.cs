@@ -34,8 +34,9 @@ namespace CrawfisSoftware.GameFlow.Config
         public DifficultyConfig Difficulty;
 
         [Header("Track Generation")]
-        [Tooltip("Resources path of the track level JSON (e.g. TrackLevel_01_Beginner). Leave empty for default.")]
-        public string TrackLevelResourcePath;
+        [Tooltip("The level number published when this level is selected. Gameplay maps it to a track " +
+                 "ruleset; GameFlow itself knows nothing of tracks.")]
+        public int LevelNumber;
 
         [Header("Unlock Requirements")]
         [Tooltip("Cumulative best score threshold required to unlock. 0 = always unlocked.")]

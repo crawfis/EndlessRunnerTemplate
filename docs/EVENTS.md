@@ -25,7 +25,7 @@ Publisher: `EventsPublisherGameFlow.Instance`. Values are grouped by category wi
 | Scenes | `GameScenesUnloadRequested`(30), `GameScenesUnloading`(31), `GameScenesUnloaded`(32), `GameScenesUnloadFailed`(33), `GameScenesLoadRequested`(34), `GameScenesLoading`(35), `GameScenesLoaded`(36), `GameScenesLoadFailed`(37), `GameScenesActivating`(38), `GameScenesActivated`(39) |
 | Gameplay Lifecycle | `GameplayPreparing`(50), `GameplayReady`(51), `GameplayNotReady`(52), `GameplayStarting`(53), `GameplayStarted`(54), `GameplayEnding`(55), `GameplayEnded`(56) |
 | Pause | `PauseRequested`(60), `Pausing`(61), `Paused`(62), `ResumeRequested`(63), `Resuming`(64), `Resumed`(65) |
-| Config / Difficulty | `GameConfigChangeRequested`(80), `GameConfigApplying`(81), `GameConfigApplied`(82), `GameConfigApplyFailed`(83), `TrackConfigApplied`(85) *(data: string Resources path)*, `DifficultyChangeRequested`(90), `DifficultyChanging`(91), `DifficultyChanged`(92), `DifficultyChangeFailed`(93), `DifficultySettingsApplied`(94) |
+| Config / Difficulty | `GameConfigChangeRequested`(80), `GameConfigApplying`(81), `GameConfigApplied`(82), `GameConfigApplyFailed`(83), `LevelApplied`(85) *(data: int selected level number)*, `DifficultyChangeRequested`(90), `DifficultyChanging`(91), `DifficultyChanged`(92), `DifficultyChangeFailed`(93), `DifficultySettingsApplied`(94) |
 | Save / Load *(hooks; auto-chains commented out by default)* | `SaveLoadRequested`(100), `SaveLoading`(101), `SaveLoaded`(102), `SaveLoadFailed`(103), `SaveRequested`(110), `Saving`(111), `Saved`(112), `SaveFailed`(113) |
 | Quit | `QuitRequested`(120), `Quitting`(121), `QuitCancelled`(122), `QuitCompleted`(123) |
 | Level Selector | `LevelSelectorShowRequested`(130), `LevelSelectorShowing`(131), `LevelSelectorShown`(132), `LevelSelectorHideRequested`(133), `LevelSelectorHiding`(134), `LevelSelectorHidden`(135), `LevelSelected`(136) *(data: LevelConfig)*, `LevelUnlocked`(137) *(data: LevelConfig)*, `LevelProgressSaved`(138) |
@@ -52,7 +52,7 @@ Publisher: `EventsPublisherTempleRun.Instance`.
 | Splines | `SplineSegmentCreateRequested`(200), `SplineSegmentCreating`(201), `SplineSegmentCreated`(202) *(data: SplineSegmentData)*, `SplineSegmentReleaseRequested`(203), `SplineSegmentReleasing`(204), `SplineSegmentReleased`(205), `CurrentSplineChangeRequested`(220), `CurrentSplineChanging`(221), `CurrentSplineChanged`(222) |
 | Track segments | `TrackSegmentCreateRequested`(240), `TrackSegmentCreating`(241), `TrackSegmentCreated`(242), `TrackSegmentRecycleRequested`(243), `TrackSegmentRecycling`(244), `TrackSegmentRecycled`(245), `ActiveTrackChangeRequested`(260), `ActiveTrackChanging`(261), `ActiveTrackChanged`(262) |
 | Teleport | `TeleportRequested`(280), `TeleportStarting`(281), `TeleportStarted`(282), `TeleportEndRequested`(283), `TeleportEnding`(284), `TeleportEnded`(285) |
-| Bridged from GameFlow | `TempleRunConfigApplied`(300), `TempleRunScenesReady`(302), `TempleRunTrackConfigApplied`(304) *(data: string Resources path)* |
+| Bridged from GameFlow | `TempleRunConfigApplied`(300), `TempleRunScenesReady`(302), `TempleRunLevelApplied`(304) *(data: int selected level number)* |
 | Difficulty (bridged) | `TempleRunDifficultySettingsApplied`(310), `TempleRunDifficultyChanging`(312), `TempleRunDifficultyChanged`(314), `TempleRunDifficultyChangeFailed`(316), `TempleRunDifficultyChangeRequested`(318) |
 | Difficulty (direct) | `DifficultySettingsApplied`(320), `DifficultyChanging`(321), `DifficultyChanged`(322), `DifficultyChangeFailed`(323) |
 | Distance | `DistanceUpdated`(330) |
@@ -130,7 +130,7 @@ TempleRunEnded  → GameEnding
 GameStarted        → TempleRunStartRequested
 GameStarting       → CountdownStartRequested
 GameConfigApplied  → TempleRunConfigApplied
-TrackConfigApplied → TempleRunTrackConfigApplied
+LevelApplied       → TempleRunLevelApplied
 GameScenesLoaded   → TempleRunScenesReady
 ```
 

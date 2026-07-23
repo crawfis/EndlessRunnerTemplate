@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e4fd9825d0d99bd8f035cdcc48f65f0, type: 3}
+  m_Name: left_16
+  m_EditorClassIdentifier: Assembly-CSharp::CrawfisSoftware.TempleRun.TrackSegmentSO
+  Id: left_16
+  Direction: 0
+  Weight: 1
+  MaxRepeat: 2
+  DifficultyRating: 4
+  Tags:
+  - easy
+  ToPivotDistance: 15
+  ExitDistance: 1
+  TeleportDistance: 0
+  TurnFailureDistance: 0
+  TurnRadius: 0
+  Role: Normal
+  SpeedMultiplier: 1
+  BlockedLanes: 
+  LaneHeights: []
+  ActiveLanes: 
+  SpawnMode: Procedural
+  SpawnSlots: []
+  VisualTheme: 
+  SpawnSeed: 0

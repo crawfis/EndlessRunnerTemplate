@@ -1,6 +1,17 @@
 # Spec: migrate TempleRun track data from JSON to ScriptableObjects
 
-> **Status:** proposed, not started.
+> **Status:** implemented. Segments/registry/levels are ScriptableObjects (`TrackSegmentSO`,
+> `TrackSegmentRegistrySO`, `TrackLevelSO`, `TrackLevelRegistrySO`) — pure data, read by
+> `TrackLibraryLoader`. Chosen granularity: one SO per segment, a registry container SO, one level
+> SO per level, and a level registry keyed by `LevelNumber`. The GameFlow→TempleRun seam is a plain
+> `int`: `LevelConfig.LevelNumber` → `LevelApplied(int)` → `Blackboard.SelectedLevel`, resolved to a
+> track at `TrackManager` init (GameFlow references no track type; the Blackboard holds only the int,
+> not the resolved definition). The one-shot converter is
+> `Assets/TempleRun/Editor/TrackDataImporter.cs` (menu: **CrawfisSoftware > Track > Import JSON ->
+> ScriptableObjects**) — run it once in the Editor to generate the assets from the legacy JSON,
+> assign `TrackLevelRegistry` to `TrackManager._trackLevels`, confirm the verification log, set the
+> `LevelConfig.LevelNumber`s, then delete `Assets/TempleRun/Resources/`. See
+> [TRACKS.md](../TRACKS.md#the-data-model).
 > **How to use:** this doc is written to double as a session prompt — paste it whole into a fresh
 > Claude Code session, or point one at the file. Read [CLAUDE.md](../../CLAUDE.md) first; the
 > event-system rules are mandatory.

@@ -12,7 +12,7 @@ namespace CrawfisSoftware.TempleRun
     /// Provides new track distance for each turn. It publishes a new track segment
     ///       when needed (either to create visuals or to determine the currently active track).
     ///    Dependencies: EventsPublisherTempleRun, Blackboard.GameConfig, Blackboard.MasterRandom,
-    ///                  Blackboard.TrackLevelDefinition (set by level selection)
+    ///                  Blackboard.SelectedLevel (set by level selection), _trackLevels registry
     ///    Subscribes to SegmentExited for all segment types (single advancement path)
     ///    Subscribes to SegmentRequested to resume lookahead after an Either (T-junction) segment
     ///    Publishes: TrackSegmentCreated. Useful for creating prefabs. Several of these will be created at the start. Data is a TrackSegmentInfo
@@ -27,7 +27,7 @@ namespace CrawfisSoftware.TempleRun
     public class TrackManager : TrackManagerAbstract
     {
         [SerializeField] int _numberOfLookAheadTracks = 12;
-        [SerializeField] private TextAsset _trackSegmentLibraryJson;
+        [SerializeField] private TrackLevelRegistrySO _trackLevels;
 
         protected Queue<TrackSegmentInfo> _trackSegments;
         protected float _startDistance = 10f;
@@ -107,18 +107,12 @@ namespace CrawfisSoftware.TempleRun
             _random = random;
             _awaitingEitherDirection = false;
 
-            // Build runtime library from Blackboard's level definition + registry
-            var levelDef = Blackboard.Instance.TrackLevelDefinition;
-            if (levelDef != null)
-            {
-                string registryJson = null;
-                if (!string.IsNullOrWhiteSpace(levelDef.SegmentRegistryFile))
-                {
-                    var registryAsset = Resources.Load<TextAsset>(levelDef.SegmentRegistryFile);
-                    registryJson = registryAsset?.text;
-                }
-                _segmentLibrary = TrackSegmentLibrary.LoadFromDefinition(levelDef, registryJson);
-            }
+            // Resolve the selected level's track. The level number arrives via Blackboard (it is
+            // set, bridged from GameFlow, before this scene and TrackManager exist);
+            // TrackLibraryLoader reads the authoring SOs and builds the runtime library. A null
+            // result (no level selected) leaves the procedural fallback in CreateTrackSegment
+            // in charge.
+            _segmentLibrary = TrackLibraryLoader.Load(_trackLevels, Blackboard.Instance.SelectedLevel);
             EventsPublisherTempleRun.Instance.SubscribeToEvent(TempleRunEvents.SegmentExited, OnSegmentCompleted);
         }
 
@@ -216,7 +210,7 @@ namespace CrawfisSoftware.TempleRun
             var fallbackDef = new TrackSegmentDefinition
             {
                 Id              = "random",
-                DirectionString = fallbackDirection.ToString(),
+                Direction       = fallbackDirection,
                 ToPivotDistance = segmentLength - exitDistance,
                 ExitDistance    = exitDistance
             };
