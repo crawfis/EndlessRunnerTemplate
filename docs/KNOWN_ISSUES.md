@@ -55,4 +55,4 @@ aimed at an enum field. An authored `"Direction": "Left"` bound to a `Direction`
 nothing at all, leaving every segment at value 0 — `Direction.Left` — so the track only ever
 turned left and straights were built as turns. Enum-valued JSON must land on a `string` field and
 be parsed explicitly; see `TrackSegmentDefinition.DirectionString` and
-`TrackSegmentLibrary.ParseDirection`. See [TRACKS.md](TRACKS.md#normalization-rules-normalizesegments-run-once-at-load).
+`TrackSegmentLibrary.ParseDirection`. See [TRACKS.md](TRACKS.md#normalization-rules-normalize-run-once-per-definition).

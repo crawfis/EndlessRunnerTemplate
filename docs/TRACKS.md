@@ -72,7 +72,7 @@ Entrance ──ToPivotDistance──▶ Pivot ──ExitDistance──▶ Exit
 | `TurnFailureDistance` | how far past the pivot the player may go before failing a required turn. `float.MaxValue` for Straight; else `ToPivotDistance + 1`, clamped to `Length - TurnFailureMarginBeforeExit` so it stays strictly inside the segment. |
 | `TeleportDistance` | where the player "lands" after the turn animation, measured from the pivot. Must be `< ExitDistance`. Defaults to `ExitDistance * 0.5`. |
 
-### Normalization rules (`NormalizeSegments`, run once at load)
+### Normalization rules (`Normalize`, run once per definition)
 
 ```
 Direction = parse(DirectionString)   // must run first — every rule below branches on it
