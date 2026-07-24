@@ -1,15 +1,20 @@
 # Student Task Catalog: From Plain Runner to Polished Product
 
 The template is deliberately a *plain* runner — capsule player, primitive obstacles, flat
-track. That's the point: everything below is a well-scoped way to make it yours. **100
+track. That's the point: everything below is a well-scoped way to make it yours. **109
 tasks**, grouped by sub-specialty so a team can divide work along interests (gameplay code,
 tech art, audio, UI, systems design…). Effort tags are rough: **S** = a few days, **M** = a
 week or two, **L** = a multi-week centerpiece. Tasks are referenced as section-letter +
 number (e.g., A6, G3).
 
 Play Subway Surfers and Temple Run before choosing — most of these tasks are "the thing that
-makes those games feel finished." (And see section O: the best task might come from
+makes those games feel finished." (And see section P: the best task might come from
 dissecting a game *you* love.)
+
+Tasks that need online services (networked multiplayer, cloud leaderboards, live tuning)
+build on the sibling **[RunnerUGSTemplate](https://github.com/crawfis/RunnerUGSTemplate)**
+(RUGS) — the same runner with Unity Gaming Services integrated as a fourth event domain.
+See sections N and O.
 
 **The one rule still applies.** Whatever you build, systems communicate through events
 (see [ARCHITECTURE.md](ARCHITECTURE.md)). Start every feature with the
@@ -297,8 +302,8 @@ survives the pivot; what changes is how the player inhabits it.
 
 ## N. Multiplayer
 
-Two tracks: couch multiplayer here, networked multiplayer in the RUGS sibling. Fair
-warning about the architecture: `UserInitiatedEvents` already carry a `PlayerNumber`
+Two tracks: couch multiplayer here, networked multiplayer in the RUGS sibling (whose other
+cloud services are covered in section O). Fair warning about the architecture: `UserInitiatedEvents` already carry a `PlayerNumber`
 payload, but `Blackboard` and most gameplay state are singletons that assume one player —
 **making player state per-player instead of global is the real work**, and it's exactly the
 kind of refactor the event architecture makes tractable.
@@ -323,7 +328,49 @@ kind of refactor the event architecture makes tractable.
    (L4) to UGS Cloud Save keyed by the leaderboard entry, download a friend's ghost, and
    race it live. Often *more* fun than real-time for a runner — and it ships.
 
-## O. Dissect a Game You Love
+## O. Live Services with UGS (in the RUGS sibling)
+
+These tasks live in the **[RunnerUGSTemplate](https://github.com/crawfis/RunnerUGSTemplate)**
+— the same runner with **Unity Gaming Services** integrated as a fourth event domain
+(`UGS_EventsEnum`, bridged to GameFlow by `UGSGameFlowBridge`, so cloud services never
+touch gameplay code directly). RUGS already ships working Authentication, Leaderboards,
+Achievements, and Remote Config; these tasks extend them into real live-ops features. Fair
+warning: UGS work has a setup tax (project linking, environments, deployments) — budget
+O1 before anything else.
+
+1. **Stand it up (S/M).** Clone RUGS, link your own UGS project, create environments,
+   deploy the config, and get the full loop running: sign in → run → score on the
+   leaderboard → achievement toast. Sounds trivial; teaches the entire cloud workflow and
+   is the prerequisite for everything below.
+2. **Leaderboard variants (M).** Beyond the daily-distance board: weekly and all-time
+   boards, per-level boards keyed to the level number, and a friends/bucket view. Design
+   which boards *mean* something — a board nobody can climb is worse than none.
+3. **Achievements that teach the game (M).** Replace the placeholder achievements with a
+   real set tied to catalog mechanics — near-misses (A8), combos (A9), missions (E1) — as
+   instant and progressive tiers. Good achievements are a curriculum for playing well.
+4. **Live tuning with Remote Config (M).** Move difficulty and economy knobs
+   (`DifficultyConfig` values, coin values, power-up durations) behind Remote Config so
+   you can retune the live game without a rebuild. Then run a real **A/B test**: two
+   scoring models (E7) served to different cohorts, compared on the leaderboard.
+5. **Seasonal event (M/L).** A limited-time challenge switched on by a Remote Config
+   feature flag: themed level, event currency, its own leaderboard, countdown UI. The
+   full live-ops loop in miniature — ship it, run it for two weeks, retire it.
+6. **Cloud Save profiles (M).** Sync the save system (L3) — coins, unlocks, stars,
+   settings — to UGS Cloud Save so a player's progress follows their sign-in across
+   devices. Handle the classic conflict: local progress vs. cloud progress, who wins?
+7. **Server-authoritative scores with Cloud Code (L).** Don't trust the client: submit
+   the run's stat block (distance, duration, coins, event counts) to a Cloud Code
+   endpoint that sanity-checks it — impossible speed, coins > spawned, duration mismatch
+   — before writing the leaderboard. A genuine introduction to anti-cheat thinking.
+8. **Economy service integration (M/L).** Back the shop (E5) with UGS Economy: server-side
+   currency balances, virtual purchases, an inventory of owned skins/upgrades. Pairs with
+   O7 — a server-trusted wallet is what makes the shop cheat-resistant.
+9. **Analytics-driven tuning (M).** Instrument the funnel with Unity Analytics custom
+   events — where players die (which segment ids), which power-ups get used, session
+   length — then present a tuning change justified by the data. The dashboard and the
+   argument are the deliverable.
+
+## P. Dissect a Game You Love
 
 The catalog above is not a menu you're limited to — it's a pattern to imitate. The most
 valuable thing you can learn from this template is how to look at *any* game mechanic and
@@ -339,7 +386,7 @@ see the events, states, and data underneath it.
    (`ISegmentSelector`, `IPowerUpEffect`, `IPathSegmentBuilder`) it plugs into — and build
    the smallest version that actually plays. The teardown document is graded work, not
    throwaway.
-2. **The pitch ritual (ongoing).** Make O1 a team habit: each milestone, every member
+2. **The pitch ritual (ongoing).** Make P1 a team habit: each milestone, every member
    pitches one dissected element (teardown + event map + effort estimate); the team votes
    one into the sprint. The winning pitch doc *is* the spec — and by semester's end you'll
    have a backlog that looks like a real studio's.
