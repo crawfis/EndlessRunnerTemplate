@@ -48,9 +48,11 @@ namespace CrawfisSoftware.TempleRun.Track.Geometry
             spans.AddRange(arcSpans);
 
             var exitPose = new PathPose(arcEnd, newForward, entry.Up);
+            // Arc corners curve smoothly from the pivot, so the exit starts at the pivot (no lateral
+            // shift): ExitStart == Pivot.
             return new PathSegmentResult(
                 spans, exitPose, pivot: approachEnd,
-                approachStart: entrance, exitEnd: arcEnd,
+                approachStart: entrance, exitStart: approachEnd, exitEnd: arcEnd,
                 geometryDirection: resolved, exitResolved: true);
         }
 
@@ -75,7 +77,7 @@ namespace CrawfisSoftware.TempleRun.Track.Geometry
             Vector3 approachStart = nudgedPivot - segment.ToPivotDistance * newForward;
             return new PathSegmentResult(
                 arcSpans, exitPose, pivot: nudgedPivot,
-                approachStart: approachStart, exitEnd: arcEnd,
+                approachStart: approachStart, exitStart: nudgedPivot, exitEnd: arcEnd,
                 geometryDirection: chosen, exitResolved: true);
         }
 

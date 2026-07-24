@@ -9,10 +9,17 @@ namespace CrawfisSoftware.TempleRun
     /// <summary>
     /// Abstract base for segment-reactive spawners (obstacles, coins, power-ups).
     /// Handles event subscription, SpawnMode routing, object tracking,
-    /// and per-segment cleanup on teleport.
+    /// and per-segment cleanup as the player leaves each segment behind.
+    ///
+    /// Mirrors <see cref="PrefabSpawnerAbstract"/> (track visuals): spawned objects are
+    /// grouped by the owning segment's sequence index — claimed on SegmentGeometryReady —
+    /// and the whole group is destroyed on ActiveTrackChanged, which fires once per segment
+    /// exit. (Deleting on TeleportEnded instead leaked everything on straight segments, since
+    /// TeleportController never teleports on a straight, so uncollected items never despawned.)
     ///
     ///    Subscribes: TempleRunEvents.SplineSegmentCreated
-    ///    Subscribes: TempleRunEvents.TeleportEnded
+    ///    Subscribes: TempleRunEvents.SegmentGeometryReady
+    ///    Subscribes: TempleRunEvents.ActiveTrackChanged
     /// </summary>
     internal abstract class SpawnerBase : MonoBehaviour
     {
@@ -20,7 +27,19 @@ namespace CrawfisSoftware.TempleRun
         [SerializeField] protected SpawnPrefabRegistry _prefabRegistry;
 
         protected Transform _parentTransform;
+
+        // Spawned objects grouped by the owning segment's sequence index. A segment publishes
+        // one SplineSegmentCreated per sub-spline point-pair — several for a turn, one for a
+        // straight — so the group, not the individual object, is the unit of deletion.
         protected readonly Dictionary<int, List<GameObject>> _spawnedBySegment = new();
+
+        // Objects spawned since the last SegmentGeometryReady, i.e. the sub-splines of the
+        // segment currently being built. Claimed by that event, which carries the sequence index.
+        private readonly List<GameObject> _pendingSpawns = new();
+
+        // Sequence index of the next segment to destroy. Starts at -1 so the first
+        // ActiveTrackChanged destroys nothing, keeping the just-exited segment alive for one
+        // more segment rather than popping items out from under the player.
         protected int _currentSegmentID = -1;
         protected int _segmentNumber = 0;
         protected System.Random _random;
@@ -46,7 +65,9 @@ namespace CrawfisSoftware.TempleRun
             EventsPublisherTempleRun.Instance.SubscribeToEvent(
                 TempleRunEvents.SplineSegmentCreated, OnSplineSegmentCreated);
             EventsPublisherTempleRun.Instance.SubscribeToEvent(
-                TempleRunEvents.TeleportEnded, OnTeleportEnded);
+                TempleRunEvents.SegmentGeometryReady, OnSegmentGeometryReady);
+            EventsPublisherTempleRun.Instance.SubscribeToEvent(
+                TempleRunEvents.ActiveTrackChanged, OnActiveTrackChanged);
 
             _parentTransform = new GameObject(ContainerName).transform;
             _random = new System.Random(Blackboard.Instance.MasterRandom.Next());
@@ -57,7 +78,9 @@ namespace CrawfisSoftware.TempleRun
             EventsPublisherTempleRun.Instance.UnsubscribeToEvent(
                 TempleRunEvents.SplineSegmentCreated, OnSplineSegmentCreated);
             EventsPublisherTempleRun.Instance.UnsubscribeToEvent(
-                TempleRunEvents.TeleportEnded, OnTeleportEnded);
+                TempleRunEvents.SegmentGeometryReady, OnSegmentGeometryReady);
+            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(
+                TempleRunEvents.ActiveTrackChanged, OnActiveTrackChanged);
         }
 
         // -----------------------------------------------------------------
@@ -87,7 +110,32 @@ namespace CrawfisSoftware.TempleRun
             _segmentNumber++;
         }
 
-        private void OnTeleportEnded(string eventName, object sender, object data)
+        /// <summary>
+        /// Closes the current batch: every object spawned since the previous segment now belongs
+        /// to this segment's sequence index. An Either junction publishes geometry twice for the
+        /// SAME index — approach, then exit once the player commits — so the batches accumulate
+        /// into one group rather than replacing it.
+        /// </summary>
+        private void OnSegmentGeometryReady(string eventName, object sender, object data)
+        {
+            if (_pendingSpawns.Count == 0) return;
+
+            var geometry = (SegmentGeometryData)data;
+            if (!_spawnedBySegment.TryGetValue(geometry.SequenceIndex, out var objects))
+            {
+                objects = new List<GameObject>();
+                _spawnedBySegment[geometry.SequenceIndex] = objects;
+            }
+            objects.AddRange(_pendingSpawns);
+            _pendingSpawns.Clear();
+        }
+
+        /// <summary>
+        /// Fires once per segment, when the player has fully exited it. Destroys every object
+        /// belonging to that segment — collected coins/power-ups are already destroyed by their
+        /// controllers, hence the null check.
+        /// </summary>
+        private void OnActiveTrackChanged(string eventName, object sender, object data)
         {
             if (_currentSegmentID >= 0 &&
                 _spawnedBySegment.TryGetValue(_currentSegmentID, out var objects))
@@ -127,13 +175,14 @@ namespace CrawfisSoftware.TempleRun
         // Helpers available to subclasses
         // -----------------------------------------------------------------
 
-        /// <summary>Register a spawned object for per-segment cleanup.</summary>
+        /// <summary>
+        /// Register a spawned object for per-segment cleanup. Held in the pending batch until the
+        /// next SegmentGeometryReady assigns it to a segment's sequence index.
+        /// </summary>
         protected void Track(GameObject obj)
         {
             if (obj == null) return;
-            if (!_spawnedBySegment.ContainsKey(_segmentNumber))
-                _spawnedBySegment[_segmentNumber] = new List<GameObject>();
-            _spawnedBySegment[_segmentNumber].Add(obj);
+            _pendingSpawns.Add(obj);
         }
 
         /// <summary>Compute world position from a SpawnSlot definition.</summary>

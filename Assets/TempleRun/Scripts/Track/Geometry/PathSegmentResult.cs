@@ -29,6 +29,11 @@ namespace CrawfisSoftware.TempleRun.Track.Geometry
         /// <summary>Segment start (goes to <c>SegmentGeometryData.ApproachStart</c>).</summary>
         public readonly Vector3 ApproachStart;
 
+        /// <summary>Where the exit sub-spline begins (goes to <c>SegmentGeometryData.ExitStart</c>).
+        /// Equals <see cref="Pivot"/> except at a hard turn, where it is the laterally-shifted pivot
+        /// the exit tiles start from.</summary>
+        public readonly Vector3 ExitStart;
+
         /// <summary>Segment end (goes to <c>SegmentGeometryData.ExitEnd</c>).</summary>
         public readonly Vector3 ExitEnd;
 
@@ -39,13 +44,14 @@ namespace CrawfisSoftware.TempleRun.Track.Geometry
         public readonly bool ExitResolved;
 
         public PathSegmentResult(IReadOnlyList<PathSpan> spans, PathPose exitPose, Vector3 pivot,
-                                 Vector3 approachStart, Vector3 exitEnd,
+                                 Vector3 approachStart, Vector3 exitStart, Vector3 exitEnd,
                                  Direction geometryDirection, bool exitResolved)
         {
             Spans             = spans;
             ExitPose          = exitPose;
             Pivot             = pivot;
             ApproachStart     = approachStart;
+            ExitStart         = exitStart;
             ExitEnd           = exitEnd;
             GeometryDirection = geometryDirection;
             ExitResolved      = exitResolved;

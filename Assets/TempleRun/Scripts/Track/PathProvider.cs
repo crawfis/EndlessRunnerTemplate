@@ -128,6 +128,7 @@ namespace CrawfisSoftware.TempleRun
             {
                 ApproachStart = result.ApproachStart,
                 Pivot         = result.Pivot,
+                ExitStart     = result.ExitStart,
                 ExitEnd       = result.ExitEnd,
                 Direction     = result.GeometryDirection,
                 Definition    = definition,
