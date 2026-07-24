@@ -60,6 +60,7 @@ subscribing to named events.
 | [docs/EVENTS.md](docs/EVENTS.md) | Full event catalog: every event, value, auto-chain, and bridge mapping |
 | [docs/TRACKS.md](docs/TRACKS.md) | Track generation pipeline, ScriptableObject data model, and segment geometry |
 | [docs/ADDING_A_MECHANIC.md](docs/ADDING_A_MECHANIC.md) | End-to-end walkthrough: adding a gameplay mechanic |
+| [docs/STUDENT_TASKS.md](docs/STUDENT_TASKS.md) | Task catalog: 75+ scoped projects, by sub-specialty, to take the runner to a polished product |
 | [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md) | Unity 6000.5 caveats (UIDocument/Panel Renderer, build order, JsonUtility) |
 | [CLAUDE.md](CLAUDE.md) | AI-assistant guide: conventions and the event-system rules |
 | [docs/specs/](docs/specs/) | Design specs and migration plans for proposed changes |
