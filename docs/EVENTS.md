@@ -86,10 +86,12 @@ GameConfigChangeRequested    → GameConfigApplying
 DifficultyChangeRequested    → DifficultyChanging
 PauseRequested               → Pausing → Paused
 ResumeRequested              → Resuming → Resumed
+LoadingScreenHidden          → GameplayReady             (boot complete)
 GameplayReady                → MainMenuShowRequested     (boot → menu)
 LevelSelected                → GameScenesLoadRequested   (level chosen → load)
 GameScenesLoaded             → GameStartRequested        (loaded → start)
 GameEnding                   → GameScenesUnloadRequested (death → unload)
+GameEnded                    → GameplayReady             (post-game → back to menu)
 ```
 *Commented out by default: the Save/Load chain and `QuitRequested → Quitting`.*
 

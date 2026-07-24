@@ -79,7 +79,7 @@ When adding any new feature or behavior, you MUST follow this workflow:
 | Events should auto-progress | `/add-auto-chain` after `/add-event` |
 | After any implementation work | `/audit-events` to verify compliance |
 | Before starting work on events | `/list-events` to understand current state |
-| Authoring track segments | Edit `TrackSegmentSO` / `TrackLevelSO` assets in the Inspector (see [docs/TRACKS.md](docs/TRACKS.md#authoring)). *The `/generate-segments` skill is legacy — it targets the removed JSON registry.* |
+| Authoring track segments | Edit `TrackSegmentSO` / `TrackLevelSO` assets in the Inspector, or use `/generate-segments` for bulk creation (see [docs/TRACKS.md](docs/TRACKS.md#authoring)) |
 
 ## Architecture Overview
 
