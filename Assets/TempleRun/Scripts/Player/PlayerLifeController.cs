@@ -1,11 +1,12 @@
 ﻿using UnityEngine;
+using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
 
 namespace CrawfisSoftware.TempleRun
 {
     /// <summary>
     /// Manages the number of lives a player has, converting the PlayerFailing events to a PlayerDied event when
     /// all of the lives run out.
-    ///    Dependencies: Blackboard, EventsPublisherTempleRun
+    ///    Dependencies: Blackboard, EventsFor<TempleRunEvents>
     ///    Subscribes: TempleRunEvents.PlayerFailingAtTurn
     ///    Subscribes: TempleRunEvents.PlayerFailingAtObstacle
     ///    Subscribes: TempleRunEvents.TempleRunStarted (resets lives at game start)
@@ -21,9 +22,9 @@ namespace CrawfisSoftware.TempleRun
 
         private void Awake()
         {
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(TempleRunEvents.PlayerFailingAtTurn, OnPlayerFailed);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(TempleRunEvents.PlayerFailingAtObstacle, OnPlayerFailed);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(TempleRunEvents.TempleRunStarted, OnGameStarted);
+            TempleRunBus.Subscribe(TempleRunEvents.PlayerFailingAtTurn, OnPlayerFailed);
+            TempleRunBus.Subscribe(TempleRunEvents.PlayerFailingAtObstacle, OnPlayerFailed);
+            TempleRunBus.Subscribe(TempleRunEvents.TempleRunStarted, OnGameStarted);
         }
 
         private void OnGameStarted(string eventName, object sender, object data)
@@ -40,16 +41,16 @@ namespace CrawfisSoftware.TempleRun
             if (_numberOfLives <= 0)
             {
                 float score = Blackboard.Instance.DistanceTracker.DistanceTravelled;
-                EventsPublisherTempleRun.Instance.PublishEvent(TempleRunEvents.PlayerDied, this, score);
-                EventsPublisherTempleRun.Instance.PublishEvent(TempleRunEvents.PlayerResumed, this, Time.time);
+                TempleRunBus.Publish(TempleRunEvents.PlayerDied, this, score);
+                TempleRunBus.Publish(TempleRunEvents.PlayerResumed, this, Time.time);
             }
         }
 
         private void OnDestroy()
         {
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(TempleRunEvents.PlayerFailingAtTurn, OnPlayerFailed);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(TempleRunEvents.PlayerFailingAtObstacle, OnPlayerFailed);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(TempleRunEvents.TempleRunStarted, OnGameStarted);
+            TempleRunBus.Unsubscribe(TempleRunEvents.PlayerFailingAtTurn, OnPlayerFailed);
+            TempleRunBus.Unsubscribe(TempleRunEvents.PlayerFailingAtObstacle, OnPlayerFailed);
+            TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunStarted, OnGameStarted);
         }
     }
 }

@@ -1,4 +1,5 @@
 using UnityEngine;
+using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
 
 namespace CrawfisSoftware.TempleRun
 {
@@ -9,17 +10,17 @@ namespace CrawfisSoftware.TempleRun
         private void Start()
         {
             animator = GetComponent<Animator>();
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(
+            TempleRunBus.Subscribe(
                 TempleRunEvents.LaneChangingLeft, TriggerLeanLeftAnimation);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(
+            TempleRunBus.Subscribe(
                 TempleRunEvents.LaneChangingRight, TriggerLeanRightAnimation);
         }
 
         private void OnDestroy()
         {
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(
+            TempleRunBus.Unsubscribe(
                 TempleRunEvents.LaneChangingLeft, TriggerLeanLeftAnimation);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(TempleRunEvents.LaneChangingRight, TriggerLeanRightAnimation);
+            TempleRunBus.Unsubscribe(TempleRunEvents.LaneChangingRight, TriggerLeanRightAnimation);
         }
 
         private void TriggerLeanLeftAnimation(string eventName, object sender, object data)

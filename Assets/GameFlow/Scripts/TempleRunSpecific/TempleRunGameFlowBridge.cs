@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 
 using UnityEngine;
+using GameFlowBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.GameFlow.Events.GameFlowEvents>;
+using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
 
 namespace CrawfisSoftware.GameFlow.Events
 {
@@ -37,14 +39,14 @@ namespace CrawfisSoftware.GameFlow.Events
 
         protected virtual void Awake()
         {
-            EventsPublisherTempleRun.Instance.SubscribeToAllEnumEvents(AutoFireGameFlowEventFromTempleRunEvent);
-            EventsPublisherGameFlow.Instance.SubscribeToAllEnumEvents(AutoFireTempleRunEventFromGameFlowEvent);
+            TempleRunBus.SubscribeToAll(AutoFireGameFlowEventFromTempleRunEvent);
+            GameFlowBus.SubscribeToAll(AutoFireTempleRunEventFromGameFlowEvent);
         }
 
         protected virtual void OnDestroy()
         {
-            EventsPublisherTempleRun.Instance.UnsubscribeToAllEnumEvents(AutoFireGameFlowEventFromTempleRunEvent);
-            EventsPublisherGameFlow.Instance.UnsubscribeToAllEnumEvents(AutoFireTempleRunEventFromGameFlowEvent);
+            TempleRunBus.UnsubscribeFromAll(AutoFireGameFlowEventFromTempleRunEvent);
+            GameFlowBus.UnsubscribeFromAll(AutoFireTempleRunEventFromGameFlowEvent);
         }
 
         private void AutoFireGameFlowEventFromTempleRunEvent(string eventName, object sender, object data)
@@ -56,7 +58,7 @@ namespace CrawfisSoftware.GameFlow.Events
             TempleRunEvents templeRunEvent = (TempleRunEvents)Enum.Parse(typeof(TempleRunEvents), result);
             if (_autoTempleRun2GameFlowEvents.TryGetValue(templeRunEvent, out GameFlowEvents autoEvent))
             {
-                EventsPublisherGameFlow.Instance.PublishEvent(autoEvent, sender, data);
+                GameFlowBus.Publish(autoEvent, sender, data);
             }
         }
 
@@ -69,7 +71,7 @@ namespace CrawfisSoftware.GameFlow.Events
             GameFlowEvents gameflowEvent = (GameFlowEvents)Enum.Parse(typeof(GameFlowEvents), result);
             if (_autoGameFlow2TempleRunEvents.TryGetValue(gameflowEvent, out TempleRunEvents autoEvent))
             {
-                EventsPublisherTempleRun.Instance.PublishEvent(autoEvent, this, data);
+                TempleRunBus.Publish(autoEvent, this, data);
             }
         }
     }

@@ -1,5 +1,6 @@
 using CrawfisSoftware.Events;
 using UnityEngine;
+using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
 
 namespace CrawfisSoftware.TempleRun
 {
@@ -22,17 +23,17 @@ namespace CrawfisSoftware.TempleRun
             // Subscribe to TempleRun domain events, not UserInitiated
             // This allows dash to be triggered from any source: player input, AI, replay, network, etc.
             // The bridge translates UserInitiated.DashRequested -> TempleRunEvents.DashRequested
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(
+            TempleRunBus.Subscribe(
                 TempleRunEvents.DashRequested, OnDashRequested);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(
+            TempleRunBus.Subscribe(
                 TempleRunEvents.DashEnded, OnDashEnded);
         }
 
         private void OnDestroy()
         {
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(
+            TempleRunBus.Unsubscribe(
                 TempleRunEvents.DashRequested, OnDashRequested);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(
+            TempleRunBus.Unsubscribe(
                 TempleRunEvents.DashEnded, OnDashEnded);
         }
 

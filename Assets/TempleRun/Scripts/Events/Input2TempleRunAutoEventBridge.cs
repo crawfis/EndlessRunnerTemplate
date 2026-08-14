@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 
 using UnityEngine;
+using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
+using UserInputBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.Events.UserInitiatedEvents>;
 
 namespace CrawfisSoftware.TempleRun.Events
 {
@@ -21,12 +23,12 @@ namespace CrawfisSoftware.TempleRun.Events
 
         protected virtual void Awake()
         {
-            EventsPublisherUserInitiated.Instance.SubscribeToAllEnumEvents(AutoFireTempleRunEventFromUserInitiatedEvent);
+            UserInputBus.SubscribeToAll(AutoFireTempleRunEventFromUserInitiatedEvent);
         }
 
         protected virtual void OnDestroy()
         {
-            EventsPublisherUserInitiated.Instance.UnsubscribeToAllEnumEvents(AutoFireTempleRunEventFromUserInitiatedEvent);
+            UserInputBus.UnsubscribeFromAll(AutoFireTempleRunEventFromUserInitiatedEvent);
         }
 
         private void AutoFireTempleRunEventFromUserInitiatedEvent(string eventName, object sender, object data)
@@ -38,7 +40,7 @@ namespace CrawfisSoftware.TempleRun.Events
             UserInitiatedEvents userInitiatedEvent = Enum.Parse<UserInitiatedEvents>(result);
             if (_autoUserInitiated2TempleRunEvents.TryGetValue(userInitiatedEvent, out TempleRunEvents autoEvent))
             {
-                EventsPublisherTempleRun.Instance.PublishEvent(autoEvent, sender, data);
+                TempleRunBus.Publish(autoEvent, sender, data);
             }
         }
     }

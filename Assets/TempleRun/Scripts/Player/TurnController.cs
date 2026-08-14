@@ -1,13 +1,15 @@
 using CrawfisSoftware.Events;
 
 using UnityEngine;
+using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
+using UserInputBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.Events.UserInitiatedEvents>;
 
 namespace CrawfisSoftware.TempleRun
 {
     /// <summary>
     /// Maps input events to game events. Will check if a turn request is the proper direction and within
     ///    the turn distance. If so, it will fire a turn successful event.
-    ///    Dependencies: Blackboard, DistanceTracker, EventsPublisherTempleRun
+    ///    Dependencies: Blackboard, DistanceTracker, EventsFor<TempleRunEvents>
     ///    Subscribes: LeftTurnRequested and RightTurnRequested. If it is a valid turn publishes corresponding turn events.
     ///    Subscribes: ActiveTrackChanged - adjusts the next valid turn distance.
     ///    Publishes: TurnLeftStarting, TurnLeftCompleted, TurnRightStarting, TurnRightCompleted
@@ -56,9 +58,9 @@ namespace CrawfisSoftware.TempleRun
 
         private void Awake()
         {
-            EventsPublisherUserInitiated.Instance.SubscribeToEvent(UserInitiatedEvents.UserLeftTurnRequested, OnLeftTurnRequested);
-            EventsPublisherUserInitiated.Instance.SubscribeToEvent(UserInitiatedEvents.UserRightTurnRequested, OnRightTurnRequested);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(TempleRunEvents.ActiveTrackChanging, OnTrackChanging);
+            UserInputBus.Subscribe(UserInitiatedEvents.UserLeftTurnRequested, OnLeftTurnRequested);
+            UserInputBus.Subscribe(UserInitiatedEvents.UserRightTurnRequested, OnRightTurnRequested);
+            TempleRunBus.Subscribe(TempleRunEvents.ActiveTrackChanging, OnTrackChanging);
             _safeTurnDistance = Blackboard.Instance.GameConfig.SafePreTurnDistance;
         }
 
@@ -68,9 +70,9 @@ namespace CrawfisSoftware.TempleRun
             float distance = Blackboard.Instance.DistanceTracker.DistanceTravelled;
             if (distance > _turnAvailableDistance)
             {
-                EventsPublisherTempleRun.Instance.PublishEvent(startingEvent,  this, distance);
-                //EventsPublisherTempleRun.Instance.PublishEvent(TempleRunEvents.SegmentRequested, this, chosenDirection);
-                EventsPublisherTempleRun.Instance.PublishEvent(completedEvent, this, distance);
+                TempleRunBus.Publish(startingEvent,  this, distance);
+                //TempleRunBus.Publish(TempleRunEvents.SegmentRequested, this, chosenDirection);
+                TempleRunBus.Publish(completedEvent, this, distance);
             }
         }
 
@@ -108,9 +110,9 @@ namespace CrawfisSoftware.TempleRun
 
         private void OnDestroy()
         {
-            EventsPublisherUserInitiated.Instance.UnsubscribeToEvent(UserInitiatedEvents.UserLeftTurnRequested, OnLeftTurnRequested);
-            EventsPublisherUserInitiated.Instance.UnsubscribeToEvent(UserInitiatedEvents.UserRightTurnRequested, OnRightTurnRequested);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(TempleRunEvents.ActiveTrackChanging, OnTrackChanging);
+            UserInputBus.Unsubscribe(UserInitiatedEvents.UserLeftTurnRequested, OnLeftTurnRequested);
+            UserInputBus.Unsubscribe(UserInitiatedEvents.UserRightTurnRequested, OnRightTurnRequested);
+            TempleRunBus.Unsubscribe(TempleRunEvents.ActiveTrackChanging, OnTrackChanging);
         }
     }
 }

@@ -2,6 +2,7 @@ using CrawfisSoftware.GameFlow.Events;
 
 using UnityEngine;
 using UnityEngine.UIElements;
+using GameFlowBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.GameFlow.Events.GameFlowEvents>;
 
 namespace CrawfisSoftware.GameFlow.UI
 {
@@ -56,12 +57,12 @@ namespace CrawfisSoftware.GameFlow.UI
 
         private void OnQuitButtonClicked()
         {
-            EventsPublisherGameFlow.Instance.PublishEvent(GameFlowEvents.QuitRequested, "Main Menu", null);
+            GameFlowBus.Publish(GameFlowEvents.QuitRequested, "Main Menu", null);
         }
 
         private void OnStartGameButtonClicked()
         {
-            EventsPublisherGameFlow.Instance.PublishEvent(GameFlowEvents.LevelSelectorShowRequested, this, null);
+            GameFlowBus.Publish(GameFlowEvents.LevelSelectorShowRequested, this, null);
         }
     }
 }

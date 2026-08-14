@@ -1,8 +1,10 @@
 using CrawfisSoftware.Events;
 
 using UnityEngine;
+using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
+using UserInputBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.Events.UserInitiatedEvents>;
 
-// Note: CrawfisSoftware.Events import needed for EventsPublisherUserInitiated
+// Note: CrawfisSoftware.Events import needed for EventsFor<UserInitiatedEvents>
 
 namespace CrawfisSoftware.TempleRun
 {
@@ -31,19 +33,19 @@ namespace CrawfisSoftware.TempleRun
         private void Start()
         {
             // Subscribe to raw input events
-            EventsPublisherUserInitiated.Instance.SubscribeToEvent(
+            UserInputBus.Subscribe(
                 UserInitiatedEvents.UserLeftLaneChangeRequested, OnLeftLaneChangeRequested);
-            EventsPublisherUserInitiated.Instance.SubscribeToEvent(
+            UserInputBus.Subscribe(
                 UserInitiatedEvents.UserRightLaneChangeRequested, OnRightLaneChangeRequested);
 
             // Subscribe to completion events to clear the _isChanging flag
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(
+            TempleRunBus.Subscribe(
                 TempleRunEvents.LaneChangedLeft, OnLaneChangeCompleted);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(
+            TempleRunBus.Subscribe(
                 TempleRunEvents.LaneChangedRight, OnLaneChangeCompleted);
 
             // Subscribe to game start to reset lane state
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(
+            TempleRunBus.Subscribe(
                 TempleRunEvents.TempleRunStarting, OnGameStarting);
 
             // Compute lane boundaries from config
@@ -65,15 +67,15 @@ namespace CrawfisSoftware.TempleRun
 
         private void OnDestroy()
         {
-            EventsPublisherUserInitiated.Instance.UnsubscribeToEvent(
+            UserInputBus.Unsubscribe(
                 UserInitiatedEvents.UserLeftLaneChangeRequested, OnLeftLaneChangeRequested);
-            EventsPublisherUserInitiated.Instance.UnsubscribeToEvent(
+            UserInputBus.Unsubscribe(
                 UserInitiatedEvents.UserRightLaneChangeRequested, OnRightLaneChangeRequested);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(
+            TempleRunBus.Unsubscribe(
                 TempleRunEvents.LaneChangedLeft, OnLaneChangeCompleted);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(
+            TempleRunBus.Unsubscribe(
                 TempleRunEvents.LaneChangedRight, OnLaneChangeCompleted);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(
+            TempleRunBus.Unsubscribe(
                 TempleRunEvents.TempleRunStarting, OnGameStarting);
 
         }
@@ -82,7 +84,7 @@ namespace CrawfisSoftware.TempleRun
         {
             if (_isChanging)
             {
-                //EventsPublisherTempleRun.Instance.PublishEvent(
+                //TempleRunBus.Publish(
                 //    TempleRunEvents.LaneChangeLeftFailed, this, Blackboard.Instance.CurrentLane);
                 return;
             }
@@ -91,14 +93,14 @@ namespace CrawfisSoftware.TempleRun
             if (currentLane <= _minLane)
             {
                 // Already at leftmost lane
-                EventsPublisherTempleRun.Instance.PublishEvent(
+                TempleRunBus.Publish(
                     TempleRunEvents.LaneChangeLeftFailed, this, currentLane);
                 return;
             }
 
             _isChanging = true;
             CurrentLane = currentLane - 1;
-            EventsPublisherTempleRun.Instance.PublishEvent(
+            TempleRunBus.Publish(
                 TempleRunEvents.LaneChangingLeft, this, CurrentLane);
         }
 
@@ -106,7 +108,7 @@ namespace CrawfisSoftware.TempleRun
         {
             if (_isChanging)
             {
-                //EventsPublisherTempleRun.Instance.PublishEvent(
+                //TempleRunBus.Publish(
                 //    TempleRunEvents.LaneChangeRightFailed, this, Blackboard.Instance.CurrentLane);
                 return;
             }
@@ -115,14 +117,14 @@ namespace CrawfisSoftware.TempleRun
             if (currentLane >= _maxLane)
             {
                 // Already at rightmost lane
-                EventsPublisherTempleRun.Instance.PublishEvent(
+                TempleRunBus.Publish(
                     TempleRunEvents.LaneChangeRightFailed, this, currentLane);
                 return;
             }
 
             _isChanging = true;
             CurrentLane = currentLane + 1;
-            EventsPublisherTempleRun.Instance.PublishEvent(
+            TempleRunBus.Publish(
                 TempleRunEvents.LaneChangingRight, this, CurrentLane);
         }
 

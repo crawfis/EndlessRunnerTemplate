@@ -3,6 +3,7 @@
 using System.Collections;
 
 using UnityEngine;
+using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
 
 namespace CrawfisSoftware.TempleRun.Audio
 {
@@ -22,14 +23,14 @@ namespace CrawfisSoftware.TempleRun.Audio
             //AudioFactoryRegistry.Instance.RegisterAudioFactory("TurnLeftPooledAudio", leftFactory);
             ISfxAudioPlayer sfxAudioPlayer = SfxAudioPlayerFactory.Instance.CreateSfxAudioPlayer("Metronome", leftFactory, leftClipProvider);
 
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(TempleRunEvents.TempleRunStarted, StartMetronome);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(TempleRunEvents.PlayerDied, StopMetronome);
+            TempleRunBus.Subscribe(TempleRunEvents.TempleRunStarted, StartMetronome);
+            TempleRunBus.Subscribe(TempleRunEvents.PlayerDied, StopMetronome);
         }
 
         private void OnDestroy()
         {
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(TempleRunEvents.TempleRunStarted, StartMetronome);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(TempleRunEvents.PlayerDied, StopMetronome);
+            TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunStarted, StartMetronome);
+            TempleRunBus.Unsubscribe(TempleRunEvents.PlayerDied, StopMetronome);
         }
 
         private void StartMetronome(string eventName, object sender, object eventData)

@@ -5,13 +5,14 @@ using UnityEngine;
 
 using CrawfisSoftware.TempleRun.GameConfig;
 using CrawfisSoftware.TempleRun.Track;
+using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
 
 namespace CrawfisSoftware.TempleRun
 {
     /// <summary>
     /// Provides new track distance for each turn. It publishes a new track segment
     ///       when needed (either to create visuals or to determine the currently active track).
-    ///    Dependencies: EventsPublisherTempleRun, Blackboard.GameConfig, Blackboard.MasterRandom,
+    ///    Dependencies: EventsFor<TempleRunEvents>, Blackboard.GameConfig, Blackboard.MasterRandom,
     ///                  Blackboard.SelectedLevel (set by level selection), _trackLevels registry
     ///    Subscribes to SegmentExited for all segment types (single advancement path)
     ///    Subscribes to SegmentRequested to resume lookahead after an Either (T-junction) segment
@@ -51,17 +52,17 @@ namespace CrawfisSoftware.TempleRun
 
         protected virtual void Awake()
         {
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(TempleRunEvents.TempleRunScenesReady, OnGameStarting);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(TempleRunEvents.TempleRunConfigApplied, OnGameConfigured);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(TempleRunEvents.SegmentRequested, OnSegmentRequested);
+            TempleRunBus.Subscribe(TempleRunEvents.TempleRunScenesReady, OnGameStarting);
+            TempleRunBus.Subscribe(TempleRunEvents.TempleRunConfigApplied, OnGameConfigured);
+            TempleRunBus.Subscribe(TempleRunEvents.SegmentRequested, OnSegmentRequested);
         }
 
         protected virtual void OnDestroy()
         {
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(TempleRunEvents.TempleRunScenesReady, OnGameStarting);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(TempleRunEvents.TempleRunConfigApplied, OnGameConfigured);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(TempleRunEvents.SegmentExited, OnSegmentCompleted);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(TempleRunEvents.SegmentRequested, OnSegmentRequested);
+            TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunScenesReady, OnGameStarting);
+            TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunConfigApplied, OnGameConfigured);
+            TempleRunBus.Unsubscribe(TempleRunEvents.SegmentExited, OnSegmentCompleted);
+            TempleRunBus.Unsubscribe(TempleRunEvents.SegmentRequested, OnSegmentRequested);
         }
 
         private void Start()
@@ -96,7 +97,7 @@ namespace CrawfisSoftware.TempleRun
             _ = _trackSegments.Dequeue();
             if (!_awaitingEitherDirection)
                 AddTrackSegment();
-            EventsPublisherTempleRun.Instance.PublishEvent(TempleRunEvents.ActiveTrackChanging, this, _trackSegments.Peek());
+            TempleRunBus.Publish(TempleRunEvents.ActiveTrackChanging, this, _trackSegments.Peek());
         }
 
         protected virtual void Initialize(float startDistance, float minDistance, float maxDistance, System.Random random)
@@ -113,7 +114,7 @@ namespace CrawfisSoftware.TempleRun
             // result (no level selected) leaves the procedural fallback in CreateTrackSegment
             // in charge.
             _segmentLibrary = TrackLibraryLoader.Load(_trackLevels, Blackboard.Instance.SelectedLevel);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(TempleRunEvents.SegmentExited, OnSegmentCompleted);
+            TempleRunBus.Subscribe(TempleRunEvents.SegmentExited, OnSegmentCompleted);
         }
 
         protected virtual void CreateInitialTrack()
@@ -122,13 +123,13 @@ namespace CrawfisSoftware.TempleRun
             _awaitingEitherDirection = false;
             var newTrackSegment = CreateTrackSegment(isStartSegment: true);
             _trackSegments.Enqueue(newTrackSegment);
-            EventsPublisherTempleRun.Instance.PublishEvent(TempleRunEvents.TrackSegmentCreated, this, newTrackSegment);
+            TempleRunBus.Publish(TempleRunEvents.TrackSegmentCreated, this, newTrackSegment);
             for (int i = 1; i < _numberOfLookAheadTracks; i++)
             {
                 AddTrackSegment();
                 if (_awaitingEitherDirection) break;
             }
-            EventsPublisherTempleRun.Instance.PublishEvent(TempleRunEvents.ActiveTrackChanging, this, _trackSegments.Peek());
+            TempleRunBus.Publish(TempleRunEvents.ActiveTrackChanging, this, _trackSegments.Peek());
         }
 
         /// <summary>
@@ -137,7 +138,7 @@ namespace CrawfisSoftware.TempleRun
         /// </summary>
         protected virtual void OnSegmentCompleted(string eventName, object sender, object data)
         {
-            EventsPublisherTempleRun.Instance.PublishEvent(TempleRunEvents.ActiveTrackChanged, this, _trackSegments.Peek());
+            TempleRunBus.Publish(TempleRunEvents.ActiveTrackChanged, this, _trackSegments.Peek());
             AdvanceToNextSegment();
         }
 
@@ -145,7 +146,7 @@ namespace CrawfisSoftware.TempleRun
         {
             var newTrackSegment = CreateTrackSegment(isStartSegment: false);
             _trackSegments.Enqueue(newTrackSegment);
-            EventsPublisherTempleRun.Instance.PublishEvent(TempleRunEvents.TrackSegmentCreated, this, newTrackSegment);
+            TempleRunBus.Publish(TempleRunEvents.TrackSegmentCreated, this, newTrackSegment);
             if (newTrackSegment.Direction == Direction.Either)
                 _awaitingEitherDirection = true;
         }

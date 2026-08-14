@@ -2,6 +2,7 @@
 
 //using UnityEngine;
 //using CrawfisSoftware.GameFlow.Events;
+//using GameFlowBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.GameFlow.Events.GameFlowEvents>;
 
 
 //#if UNITY_EDITOR
@@ -49,10 +50,10 @@
 //            DifficultyConfig difficulty = data as DifficultyConfig;
 //            if (difficulty != null)
 //            {
-//                EventsPublisherGameFlow.Instance.PublishEvent(GameFlowEvents.GameConfigApplying, this, difficulty);
+//                GameFlowBus.Publish(GameFlowEvents.GameConfigApplying, this, difficulty);
 //                GameConfig = difficulty;
 //                Debug.Log($"Successfully set game difficulty to '{difficulty.DifficultyName}'");
-//                EventsPublisherGameFlow.Instance.PublishEvent(GameFlowEvents.GameConfigApplied, this, GameConfig);
+//                GameFlowBus.Publish(GameFlowEvents.GameConfigApplied, this, GameConfig);
 //            }
 //        }
 
@@ -68,14 +69,14 @@
 
 //        private void SubscribeToEvents()
 //        {
-//            EventsPublisherGameFlow.Instance.SubscribeToEvent(GameFlowEvents.DifficultyChanged, OnGameDifficultyChanged);
-//            EventsPublisherGameFlow.Instance.SubscribeToEvent(GameFlowEvents.DifficultySettingsApplied, OnDifficultySettingsApplied);
+//            GameFlowBus.Subscribe(GameFlowEvents.DifficultyChanged, OnGameDifficultyChanged);
+//            GameFlowBus.Subscribe(GameFlowEvents.DifficultySettingsApplied, OnDifficultySettingsApplied);
 //        }
 
 //        private void UnsubscribeToEvents()
 //        {
-//            EventsPublisherGameFlow.Instance.UnsubscribeToEvent(GameFlowEvents.DifficultyChanged, OnGameDifficultyChanged);
-//            EventsPublisherGameFlow.Instance.UnsubscribeToEvent(GameFlowEvents.DifficultySettingsApplied, OnDifficultySettingsApplied);
+//            GameFlowBus.Unsubscribe(GameFlowEvents.DifficultyChanged, OnGameDifficultyChanged);
+//            GameFlowBus.Unsubscribe(GameFlowEvents.DifficultySettingsApplied, OnDifficultySettingsApplied);
 //        }
 
 //#if UNITY_EDITOR

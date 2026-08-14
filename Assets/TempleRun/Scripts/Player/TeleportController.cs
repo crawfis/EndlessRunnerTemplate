@@ -1,13 +1,14 @@
 ﻿using System.Collections;
 
 using UnityEngine;
+using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
 
 namespace CrawfisSoftware.TempleRun
 {
     /// <summary>
     /// Start and end the teleportation when the current spline is changing. Allows for a cinematic
     /// teleportation or a smoother teleportation and rotation.
-    ///    Dependency: EventsPublisherTempleRun
+    ///    Dependency: EventsFor<TempleRunEvents>
     ///    Subscribes: CurrentSplineChanging - Publishes a GameOver event
     ///    Publishes: TeleportStarted
     ///    Publishes: TeleportEnded
@@ -17,12 +18,12 @@ namespace CrawfisSoftware.TempleRun
         [SerializeField] private float _teleportDuration = 1.0f;
         private void Awake()
         {
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(TempleRunEvents.CurrentSplineChanging, OnActiveSplineChanging);
+            TempleRunBus.Subscribe(TempleRunEvents.CurrentSplineChanging, OnActiveSplineChanging);
         }
 
         private void OnDestroy()
         {
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(TempleRunEvents.CurrentSplineChanging, OnActiveSplineChanging);
+            TempleRunBus.Unsubscribe(TempleRunEvents.CurrentSplineChanging, OnActiveSplineChanging);
         }
 
         private void OnActiveSplineChanging(string EventName, object sender, object data)
@@ -36,10 +37,10 @@ namespace CrawfisSoftware.TempleRun
 
         private IEnumerator TeleportWithDelay(object data)
         {
-            EventsPublisherTempleRun.Instance.PublishEvent(TempleRunEvents.TeleportStarted, this, (_teleportDuration, data));
+            TempleRunBus.Publish(TempleRunEvents.TeleportStarted, this, (_teleportDuration, data));
             yield return new WaitForSecondsRealtime(_teleportDuration);
-            EventsPublisherTempleRun.Instance.PublishEvent(TempleRunEvents.TeleportEnded, this, data);
-            EventsPublisherTempleRun.Instance.PublishEvent(TempleRunEvents.PlayerResumed, this, data);
+            TempleRunBus.Publish(TempleRunEvents.TeleportEnded, this, data);
+            TempleRunBus.Publish(TempleRunEvents.PlayerResumed, this, data);
         }
     }
 }

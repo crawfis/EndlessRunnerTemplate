@@ -2,6 +2,7 @@ using CrawfisSoftware.GameFlow.Events;
 
 using UnityEngine;
 using UnityEngine.UIElements;
+using GameFlowBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.GameFlow.Events.GameFlowEvents>;
 
 namespace CrawfisSoftware.GameFlow.UI
 {
@@ -22,10 +23,10 @@ namespace CrawfisSoftware.GameFlow.UI
         private void Awake()
         {
             _visible = GameState.IsMainMenuActive;
-            EventsPublisherGameFlow.Instance.SubscribeToEvent(GameFlowEvents.GameplayNotReady, StartHidePanel);
-            EventsPublisherGameFlow.Instance.SubscribeToEvent(GameFlowEvents.GameScenesLoading, StartHidePanel);
-            EventsPublisherGameFlow.Instance.SubscribeToEvent(GameFlowEvents.LevelSelectorShowing, StartHidePanel);
-            EventsPublisherGameFlow.Instance.SubscribeToEvent(GameFlowEvents.MainMenuShowing, StartShowPanel);
+            GameFlowBus.Subscribe(GameFlowEvents.GameplayNotReady, StartHidePanel);
+            GameFlowBus.Subscribe(GameFlowEvents.GameScenesLoading, StartHidePanel);
+            GameFlowBus.Subscribe(GameFlowEvents.LevelSelectorShowing, StartHidePanel);
+            GameFlowBus.Subscribe(GameFlowEvents.MainMenuShowing, StartShowPanel);
         }
 
         private void OnEnable()
@@ -41,10 +42,10 @@ namespace CrawfisSoftware.GameFlow.UI
 
         private void OnDestroy()
         {
-            EventsPublisherGameFlow.Instance.UnsubscribeToEvent(GameFlowEvents.GameplayNotReady, StartHidePanel);
-            EventsPublisherGameFlow.Instance.UnsubscribeToEvent(GameFlowEvents.GameScenesLoading, StartHidePanel);
-            EventsPublisherGameFlow.Instance.UnsubscribeToEvent(GameFlowEvents.LevelSelectorShowing, StartHidePanel);
-            EventsPublisherGameFlow.Instance.UnsubscribeToEvent(GameFlowEvents.MainMenuShowing, StartShowPanel);
+            GameFlowBus.Unsubscribe(GameFlowEvents.GameplayNotReady, StartHidePanel);
+            GameFlowBus.Unsubscribe(GameFlowEvents.GameScenesLoading, StartHidePanel);
+            GameFlowBus.Unsubscribe(GameFlowEvents.LevelSelectorShowing, StartHidePanel);
+            GameFlowBus.Unsubscribe(GameFlowEvents.MainMenuShowing, StartShowPanel);
         }
 
         // Show/hide is driven by the root's style.display while the PanelRenderer stays ENABLED at
@@ -66,14 +67,14 @@ namespace CrawfisSoftware.GameFlow.UI
         {
             _visible = true;
             ApplyVisibility();
-            EventsPublisherGameFlow.Instance.PublishEvent(GameFlowEvents.MainMenuShown, this, null);
+            GameFlowBus.Publish(GameFlowEvents.MainMenuShown, this, null);
         }
 
         private void HidePanel()
         {
             _visible = false;
             ApplyVisibility();
-            EventsPublisherGameFlow.Instance.PublishEvent(GameFlowEvents.MainMenuHidden, this, null);
+            GameFlowBus.Publish(GameFlowEvents.MainMenuHidden, this, null);
         }
 
         private void ApplyVisibility()

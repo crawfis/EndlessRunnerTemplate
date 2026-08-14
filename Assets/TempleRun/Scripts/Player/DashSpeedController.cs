@@ -1,6 +1,7 @@
 using CrawfisSoftware.TempleRun.GameConfig;
 using System.Collections;
 using UnityEngine;
+using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
 
 namespace CrawfisSoftware.TempleRun
 {
@@ -19,13 +20,13 @@ namespace CrawfisSoftware.TempleRun
 
         private void Awake()
         {
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(
+            TempleRunBus.Subscribe(
                 TempleRunEvents.DashStarting, OnDashStarting);
         }
 
         private void OnDestroy()
         {
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(
+            TempleRunBus.Unsubscribe(
                 TempleRunEvents.DashStarting, OnDashStarting);
 
             if (_dashCoroutine != null)
@@ -77,7 +78,7 @@ namespace CrawfisSoftware.TempleRun
                     startPublished = true;
                     // Defer event publishing to next frame
                     yield return null;
-                    EventsPublisherTempleRun.Instance.PublishEvent(
+                    TempleRunBus.Publish(
                         TempleRunEvents.DashStarted, this, null);
                     continue;
                 }
@@ -89,7 +90,7 @@ namespace CrawfisSoftware.TempleRun
             Blackboard.Instance.CurrentDashMultiplier = 1.0f;
             _dashCoroutine = null;
 
-            EventsPublisherTempleRun.Instance.PublishEvent(
+            TempleRunBus.Publish(
                 TempleRunEvents.DashEnded, this, null);
         }
     }

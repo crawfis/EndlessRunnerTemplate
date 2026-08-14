@@ -1,6 +1,8 @@
 using CrawfisSoftware.Events;
 
 using UnityEngine;
+using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
+using UserInputBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.Events.UserInitiatedEvents>;
 
 namespace CrawfisSoftware.TempleRun
 {
@@ -19,17 +21,17 @@ namespace CrawfisSoftware.TempleRun
 
         private void Awake()
         {
-            EventsPublisherUserInitiated.Instance.SubscribeToEvent(
+            UserInputBus.Subscribe(
                 UserInitiatedEvents.UserJumpRequested, OnJumpInputReceived);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(
+            TempleRunBus.Subscribe(
                 TempleRunEvents.JumpLanded, OnJumpLanded);
         }
 
         private void OnDestroy()
         {
-            EventsPublisherUserInitiated.Instance.UnsubscribeToEvent(
+            UserInputBus.Unsubscribe(
                 UserInitiatedEvents.UserJumpRequested, OnJumpInputReceived);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(
+            TempleRunBus.Unsubscribe(
                 TempleRunEvents.JumpLanded, OnJumpLanded);
         }
 
@@ -38,7 +40,7 @@ namespace CrawfisSoftware.TempleRun
             if (_isJumping) return;
 
             _isJumping = true;
-            EventsPublisherTempleRun.Instance.PublishEvent(
+            TempleRunBus.Publish(
                 TempleRunEvents.JumpRequested, this, null);
         }
 

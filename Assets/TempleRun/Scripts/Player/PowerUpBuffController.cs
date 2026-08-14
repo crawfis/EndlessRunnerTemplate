@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 using UnityEngine;
+using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
 
 namespace CrawfisSoftware.TempleRun
 {
@@ -57,29 +58,29 @@ namespace CrawfisSoftware.TempleRun
                 _effectRegistry[effect.Type] = effect;
             }
 
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(
+            TempleRunBus.Subscribe(
                 TempleRunEvents.PowerUpCollecting, OnPowerUpCollecting);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(
+            TempleRunBus.Subscribe(
                 TempleRunEvents.PowerUpActivating, OnPowerUpActivating);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(
+            TempleRunBus.Subscribe(
                 TempleRunEvents.PowerUpDeactivating, OnPowerUpDeactivating);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(
+            TempleRunBus.Subscribe(
                 TempleRunEvents.ObstacleHit, OnObstacleHit);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(
+            TempleRunBus.Subscribe(
                 TempleRunEvents.TempleRunEnded, OnTempleRunEnded);
         }
 
         private void OnDestroy()
         {
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(
+            TempleRunBus.Unsubscribe(
                 TempleRunEvents.PowerUpCollecting, OnPowerUpCollecting);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(
+            TempleRunBus.Unsubscribe(
                 TempleRunEvents.PowerUpActivating, OnPowerUpActivating);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(
+            TempleRunBus.Unsubscribe(
                 TempleRunEvents.PowerUpDeactivating, OnPowerUpDeactivating);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(
+            TempleRunBus.Unsubscribe(
                 TempleRunEvents.ObstacleHit, OnObstacleHit);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(
+            TempleRunBus.Unsubscribe(
                 TempleRunEvents.TempleRunEnded, OnTempleRunEnded);
         }
 
@@ -97,7 +98,7 @@ namespace CrawfisSoftware.TempleRun
                 Destroy(powerUpGO);
             }
 
-            EventsPublisherTempleRun.Instance.PublishEvent(
+            TempleRunBus.Publish(
                 TempleRunEvents.PowerUpCollected, this, definition);
         }
 
@@ -126,7 +127,7 @@ namespace CrawfisSoftware.TempleRun
             Coroutine timerCoroutine = StartCoroutine(BuffDurationTimer(definition));
             _activeBuffs[definition.Type] = timerCoroutine;
 
-            EventsPublisherTempleRun.Instance.PublishEvent(
+            TempleRunBus.Publish(
                 TempleRunEvents.PowerUpActivated, this, definition);
         }
 
@@ -142,7 +143,7 @@ namespace CrawfisSoftware.TempleRun
             RemoveEffect(definition.Type, ctx);
             _activeBuffs.Remove(definition.Type);
 
-            EventsPublisherTempleRun.Instance.PublishEvent(
+            TempleRunBus.Publish(
                 TempleRunEvents.PowerUpDeactivated, this, definition);
         }
 
@@ -166,7 +167,7 @@ namespace CrawfisSoftware.TempleRun
             }
 
             // No effect absorbed the hit — forward to failure as before.
-            EventsPublisherTempleRun.Instance.PublishEvent(
+            TempleRunBus.Publish(
                 TempleRunEvents.PlayerFailingAtObstacle, sender, data);
         }
 
@@ -203,7 +204,7 @@ namespace CrawfisSoftware.TempleRun
         {
             yield return new WaitForSeconds(definition.Duration);
 
-            EventsPublisherTempleRun.Instance.PublishEvent(
+            TempleRunBus.Publish(
                 TempleRunEvents.PowerUpDeactivateRequested, this, definition);
         }
     }

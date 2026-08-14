@@ -1,6 +1,7 @@
 using CrawfisSoftware.TempleRun.GameConfig;
 using System.Collections;
 using UnityEngine;
+using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
 
 namespace CrawfisSoftware.TempleRun
 {
@@ -21,13 +22,13 @@ namespace CrawfisSoftware.TempleRun
 
         private void Awake()
         {
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(
+            TempleRunBus.Subscribe(
                 TempleRunEvents.SlideStarted, OnSlideStarted);
         }
 
         private void OnDestroy()
         {
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(
+            TempleRunBus.Unsubscribe(
                 TempleRunEvents.SlideStarted, OnSlideStarted);
 
             if (_slideCoroutine != null)
@@ -57,7 +58,7 @@ namespace CrawfisSoftware.TempleRun
             {
                 Debug.LogError("SlideArcController: SlideConfig is null! Animation cannot proceed.");
                 _slideCoroutine = null;
-                EventsPublisherTempleRun.Instance.PublishEvent(TempleRunEvents.SlideEnded, this, null);
+                TempleRunBus.Publish(TempleRunEvents.SlideEnded, this, null);
                 yield break;
             }
 
@@ -92,7 +93,7 @@ namespace CrawfisSoftware.TempleRun
             Blackboard.Instance.CurrentSlideMultiplier = 1.0f;
             _slideCoroutine = null;
 
-            EventsPublisherTempleRun.Instance.PublishEvent(
+            TempleRunBus.Publish(
                 TempleRunEvents.SlideEnded, this, null);
         }
     }

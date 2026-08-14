@@ -2,6 +2,7 @@ using CrawfisSoftware.TempleRun.Input;
 using CrawfisSoftware.Events;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UserInputBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.Events.UserInitiatedEvents>;
 
 namespace CrawfisSoftware.TempleRun
 {
@@ -69,7 +70,7 @@ namespace CrawfisSoftware.TempleRun
 
         private void DashAction_performed()
         {
-            EventsPublisherUserInitiated.Instance.PublishEvent(
+            UserInputBus.Publish(
                 UserInitiatedEvents.UserDashRequested, this, PlayerNumber);
         }
     }

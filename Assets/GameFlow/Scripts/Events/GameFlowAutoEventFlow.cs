@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 
 using UnityEngine;
+using GameFlowBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.GameFlow.Events.GameFlowEvents>;
 
 namespace CrawfisSoftware.GameFlow.Events
 {
@@ -203,12 +204,12 @@ namespace CrawfisSoftware.GameFlow.Events
 
         protected virtual void Awake()
         {
-            EventsPublisherGameFlow.Instance.SubscribeToAllEnumEvents(AutoFireGameFlowEventFromGameFlowEvent);
+            GameFlowBus.SubscribeToAll(AutoFireGameFlowEventFromGameFlowEvent);
         }
 
         protected virtual void OnDestroy()
         {
-            EventsPublisherGameFlow.Instance.UnsubscribeToAllEnumEvents(AutoFireGameFlowEventFromGameFlowEvent);
+            GameFlowBus.UnsubscribeFromAll(AutoFireGameFlowEventFromGameFlowEvent);
         }
 
         private void AutoFireGameFlowEventFromGameFlowEvent(string eventName, object sender, object data)
@@ -220,7 +221,7 @@ namespace CrawfisSoftware.GameFlow.Events
             GameFlowEvents gameFlowEvent = Enum.Parse<GameFlowEvents>(result);
             if (_autoGameFlow2GameFlowEvents.TryGetValue(gameFlowEvent, out GameFlowEvents autoEvent))
             {
-                EventsPublisherGameFlow.Instance.PublishEvent(autoEvent, sender, data);
+                GameFlowBus.Publish(autoEvent, sender, data);
             }
         }
     }

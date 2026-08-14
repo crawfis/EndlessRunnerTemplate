@@ -5,6 +5,7 @@ using System.Collections;
 
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UserInputBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.Events.UserInitiatedEvents>;
 
 namespace CrawfisSoftware.TempleRun
 {
@@ -98,49 +99,49 @@ namespace CrawfisSoftware.TempleRun
         private void LeftAction_performed(InputAction.CallbackContext obj)
         {
             _leftAction.Disable();
-            EventsPublisherUserInitiated.Instance.PublishEvent(UserInitiatedEvents.UserLeftTurnRequested, this, PlayerNumber);
+            UserInputBus.Publish(UserInitiatedEvents.UserLeftTurnRequested, this, PlayerNumber);
             StartCoroutine(EnableAfterDelay(_leftAction));
         }
 
         private void RightAction_performed(InputAction.CallbackContext obj)
         {
             _rightAction.Disable();
-            EventsPublisherUserInitiated.Instance.PublishEvent(UserInitiatedEvents.UserRightTurnRequested, this, PlayerNumber);
+            UserInputBus.Publish(UserInitiatedEvents.UserRightTurnRequested, this, PlayerNumber);
             StartCoroutine(EnableAfterDelay(_rightAction));
         }
 
         private void LaneLeftAction_performed(InputAction.CallbackContext obj)
         {
             _laneLeftAction.Disable();
-            EventsPublisherUserInitiated.Instance.PublishEvent(UserInitiatedEvents.UserLeftLaneChangeRequested, this, PlayerNumber);
+            UserInputBus.Publish(UserInitiatedEvents.UserLeftLaneChangeRequested, this, PlayerNumber);
             StartCoroutine(EnableLaneAfterDelay(_laneLeftAction));
         }
 
         private void LaneRightAction_performed(InputAction.CallbackContext obj)
         {
             _laneRightAction.Disable();
-            EventsPublisherUserInitiated.Instance.PublishEvent(UserInitiatedEvents.UserRightLaneChangeRequested, this, PlayerNumber);
+            UserInputBus.Publish(UserInitiatedEvents.UserRightLaneChangeRequested, this, PlayerNumber);
             StartCoroutine(EnableLaneAfterDelay(_laneRightAction));
         }
 
         private void JumpAction_performed(InputAction.CallbackContext obj)
         {
             _jumpAction.Disable();
-            EventsPublisherUserInitiated.Instance.PublishEvent(UserInitiatedEvents.UserJumpRequested, this, PlayerNumber);
+            UserInputBus.Publish(UserInitiatedEvents.UserJumpRequested, this, PlayerNumber);
             StartCoroutine(EnableJumpAfterDelay(_jumpAction));
         }
 
         private void SlideAction_performed(InputAction.CallbackContext obj)
         {
             _slideAction.Disable();
-            EventsPublisherUserInitiated.Instance.PublishEvent(UserInitiatedEvents.UserSlideRequested, this, PlayerNumber);
+            UserInputBus.Publish(UserInitiatedEvents.UserSlideRequested, this, PlayerNumber);
             StartCoroutine(EnableAfterDelay(_slideAction));
         }
 
         private void DashAction_performed(InputAction.CallbackContext obj)
         {
             _dashAction.Disable();
-            EventsPublisherUserInitiated.Instance.PublishEvent(UserInitiatedEvents.UserDashRequested, this, PlayerNumber);
+            UserInputBus.Publish(UserInitiatedEvents.UserDashRequested, this, PlayerNumber);
             StartCoroutine(EnableAfterDelay(_dashAction));
         }
 

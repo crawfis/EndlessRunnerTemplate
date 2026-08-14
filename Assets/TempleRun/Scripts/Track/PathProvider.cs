@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using CrawfisSoftware.TempleRun.Track.Geometry;
+using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
 
 namespace CrawfisSoftware.TempleRun
 {
@@ -12,7 +13,7 @@ namespace CrawfisSoftware.TempleRun
     /// reproduces the legacy axis-aligned 90° geometry exactly). It publishes
     /// SplineSegmentCreated (for spawners) and SegmentGeometryReady (for
     /// SegmentTransitionController).
-    ///    Dependencies: IPathSegmentBuilder, EventsPublisherTempleRun
+    ///    Dependencies: IPathSegmentBuilder, EventsFor<TempleRunEvents>
     ///    Subscribes: TrackSegmentCreated — builds segment geometry
     ///    Subscribes: SegmentRequested — completes Either junction exit geometry
     ///    Publishes: SplineSegmentCreated (data: SplineSegmentData) — per sub-spline, for spawners
@@ -46,14 +47,14 @@ namespace CrawfisSoftware.TempleRun
         {
             _pose = new PathPose(_anchorPoint, new Vector3(0, 0, 1), new Vector3(0, 1, 0));
 
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(TempleRunEvents.TrackSegmentCreated, OnTrackCreated);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(TempleRunEvents.SegmentRequested, OnSegmentRequested);
+            TempleRunBus.Subscribe(TempleRunEvents.TrackSegmentCreated, OnTrackCreated);
+            TempleRunBus.Subscribe(TempleRunEvents.SegmentRequested, OnSegmentRequested);
         }
 
         private void OnDestroy()
         {
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(TempleRunEvents.TrackSegmentCreated, OnTrackCreated);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(TempleRunEvents.SegmentRequested, OnSegmentRequested);
+            TempleRunBus.Unsubscribe(TempleRunEvents.TrackSegmentCreated, OnTrackCreated);
+            TempleRunBus.Unsubscribe(TempleRunEvents.SegmentRequested, OnSegmentRequested);
         }
 
         private void OnTrackCreated(string eventName, object sender, object data)
@@ -116,7 +117,7 @@ namespace CrawfisSoftware.TempleRun
                 {
                     var splineData = new SplineSegmentData(
                         points[p], points[p + 1], span.EndDirection, span.Definition);
-                    EventsPublisherTempleRun.Instance.PublishEvent(
+                    TempleRunBus.Publish(
                         TempleRunEvents.SplineSegmentCreated, this, splineData);
                 }
             }
@@ -136,7 +137,7 @@ namespace CrawfisSoftware.TempleRun
                 ExitResolved  = result.ExitResolved
             };
 
-            EventsPublisherTempleRun.Instance.PublishEvent(
+            TempleRunBus.Publish(
                 TempleRunEvents.SegmentGeometryReady, this, geometry);
         }
     }

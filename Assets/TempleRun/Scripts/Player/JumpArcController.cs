@@ -3,6 +3,7 @@ using CrawfisSoftware.TempleRun.GameConfig;
 using System.Collections;
 
 using UnityEngine;
+using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
 
 namespace CrawfisSoftware.TempleRun
 {
@@ -20,13 +21,13 @@ namespace CrawfisSoftware.TempleRun
 
         private void Awake()
         {
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(
+            TempleRunBus.Subscribe(
                 TempleRunEvents.JumpStarting, OnJumpStarting);
         }
 
         private void OnDestroy()
         {
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(
+            TempleRunBus.Unsubscribe(
                 TempleRunEvents.JumpStarting, OnJumpStarting);
 
             if (_jumpCoroutine != null)
@@ -68,7 +69,7 @@ namespace CrawfisSoftware.TempleRun
                 if (!apexPublished && elapsed >= halfDuration)
                 {
                     apexPublished = true;
-                    EventsPublisherTempleRun.Instance.PublishEvent(
+                    TempleRunBus.Publish(
                         TempleRunEvents.JumpStarted, this, null);
                 }
 
@@ -79,7 +80,7 @@ namespace CrawfisSoftware.TempleRun
             Blackboard.Instance.JumpHeightOffset = 0f;
             _jumpCoroutine = null;
 
-            EventsPublisherTempleRun.Instance.PublishEvent(
+            TempleRunBus.Publish(
                 TempleRunEvents.JumpLanded, this, null);
         }
     }

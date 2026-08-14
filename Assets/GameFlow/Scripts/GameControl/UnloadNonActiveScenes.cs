@@ -6,6 +6,7 @@ using System.Collections.Generic;
 
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using GameFlowBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.GameFlow.Events.GameFlowEvents>;
 
 namespace CrawfisSoftware.GameFlow.GameControl
 {
@@ -18,18 +19,18 @@ namespace CrawfisSoftware.GameFlow.GameControl
 
         private void Start()
         {
-            EventsPublisherGameFlow.Instance.SubscribeToEvent(_unloadScenesTriggerEvent, OnGameOver);
+            GameFlowBus.Subscribe(_unloadScenesTriggerEvent, OnGameOver);
         }
         private void OnDestroy()
         {
-            EventsPublisherGameFlow.Instance.UnsubscribeToEvent(_unloadScenesTriggerEvent, OnGameOver);
+            GameFlowBus.Unsubscribe(_unloadScenesTriggerEvent, OnGameOver);
         }
 
         private void OnGameOver(string eventName, object sender, object data)
         {
             if (_unsubscribeOnEvent) 
             {
-                EventsPublisherGameFlow.Instance.UnsubscribeToEvent(_unloadScenesTriggerEvent, OnGameOver);
+                GameFlowBus.Unsubscribe(_unloadScenesTriggerEvent, OnGameOver);
             }
             StartCoroutine(UnloadScenesAsync());
         }
@@ -60,7 +61,7 @@ namespace CrawfisSoftware.GameFlow.GameControl
                     yield return null;
                 }
             }
-            EventsPublisherGameFlow.Instance.PublishEvent(_scenesUnloadedEvent, this, null);
+            GameFlowBus.Publish(_scenesUnloadedEvent, this, null);
         }
     }
 }

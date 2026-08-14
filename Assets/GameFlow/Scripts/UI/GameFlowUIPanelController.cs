@@ -6,6 +6,7 @@ using System.Collections;
 
 using UnityEngine;
 using UnityEngine.UIElements;
+using GameFlowBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.GameFlow.Events.GameFlowEvents>;
 
 namespace CrawfisSoftware.GameFlow.UI
 {
@@ -38,9 +39,9 @@ namespace CrawfisSoftware.GameFlow.UI
             _loadingVisible = true;
             _gameOverVisible = false;
 
-            EventsPublisherGameFlow.Instance.SubscribeToEvent(GameFlowEvents.GameStarting, OnGameStarting);
-            EventsPublisherGameFlow.Instance.SubscribeToEvent(GameFlowEvents.GameStarted, OnGameStarted);
-            EventsPublisherGameFlow.Instance.SubscribeToEvent(GameFlowEvents.GameEnding, OnGameEnding);
+            GameFlowBus.Subscribe(GameFlowEvents.GameStarting, OnGameStarting);
+            GameFlowBus.Subscribe(GameFlowEvents.GameStarted, OnGameStarted);
+            GameFlowBus.Subscribe(GameFlowEvents.GameEnding, OnGameEnding);
 
             StartCoroutine(ShowLoadingRoutine(GameConstants.DefaultLoadingDisplayTime));
         }
@@ -82,9 +83,9 @@ namespace CrawfisSoftware.GameFlow.UI
 
         private void OnDestroy()
         {
-            EventsPublisherGameFlow.Instance.UnsubscribeToEvent(GameFlowEvents.GameStarting, OnGameStarting);
-            EventsPublisherGameFlow.Instance.UnsubscribeToEvent(GameFlowEvents.GameStarted, OnGameStarted);
-            EventsPublisherGameFlow.Instance.UnsubscribeToEvent(GameFlowEvents.GameEnding, OnGameEnding);
+            GameFlowBus.Unsubscribe(GameFlowEvents.GameStarting, OnGameStarting);
+            GameFlowBus.Unsubscribe(GameFlowEvents.GameStarted, OnGameStarted);
+            GameFlowBus.Unsubscribe(GameFlowEvents.GameEnding, OnGameEnding);
         }
 
         private void OnGameStarting(string eventName, object sender, object data)
@@ -105,13 +106,13 @@ namespace CrawfisSoftware.GameFlow.UI
 
         private IEnumerator ShowLoadingRoutine(float seconds)
         {
-            EventsPublisherGameFlow.Instance.PublishEvent(GameFlowEvents.LoadingScreenShown, this, null);
+            GameFlowBus.Publish(GameFlowEvents.LoadingScreenShown, this, null);
             yield return new WaitForSecondsRealtime(seconds);
             if (_isSignedIn)
                 Go(UIState.Menu);
             else
                 Go(UIState.None);
-            EventsPublisherGameFlow.Instance.PublishEvent(GameFlowEvents.LoadingScreenHidden, this, null);
+            GameFlowBus.Publish(GameFlowEvents.LoadingScreenHidden, this, null);
         }
 
         public void Go(UIState s)
@@ -130,7 +131,7 @@ namespace CrawfisSoftware.GameFlow.UI
         private IEnumerator ShowGameOverRoutine()
         {
             yield return new WaitForSecondsRealtime(GameConstants.GameOverDisplayTime);
-            EventsPublisherGameFlow.Instance.PublishEvent(GameFlowEvents.GameEnded, this, null);
+            GameFlowBus.Publish(GameFlowEvents.GameEnded, this, null);
             Go(UIState.None);
         }
 

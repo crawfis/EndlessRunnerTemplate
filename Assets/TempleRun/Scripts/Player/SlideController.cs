@@ -1,5 +1,6 @@
 using CrawfisSoftware.Events;
 using UnityEngine;
+using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
 
 namespace CrawfisSoftware.TempleRun
 {
@@ -22,17 +23,17 @@ namespace CrawfisSoftware.TempleRun
             // Subscribe to TempleRun domain events, not UserInitiated
             // This allows slide to be triggered from any source: player input, AI, replay, network, etc.
             // The bridge translates UserInitiated.SlideRequested -> TempleRunEvents.SlideRequested
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(
+            TempleRunBus.Subscribe(
                 TempleRunEvents.SlideRequested, OnSlideRequested);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(
+            TempleRunBus.Subscribe(
                 TempleRunEvents.SlideEnded, OnSlideEnded);
         }
 
         private void OnDestroy()
         {
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(
+            TempleRunBus.Unsubscribe(
                 TempleRunEvents.SlideRequested, OnSlideRequested);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(
+            TempleRunBus.Unsubscribe(
                 TempleRunEvents.SlideEnded, OnSlideEnded);
         }
 
@@ -59,7 +60,7 @@ namespace CrawfisSoftware.TempleRun
             _isSliding = true;
             _lastSlideTime = Time.time;
 
-            EventsPublisherTempleRun.Instance.PublishEvent(TempleRunEvents.SlideStarted, this, null);
+            TempleRunBus.Publish(TempleRunEvents.SlideStarted, this, null);
         }
 
         private void OnSlideEnded(string eventName, object sender, object data)

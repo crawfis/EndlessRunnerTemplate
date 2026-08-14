@@ -1,6 +1,8 @@
 ﻿using CrawfisSoftware.Events;
 
 using UnityEngine;
+using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
+using UserInputBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.Events.UserInitiatedEvents>;
 
 namespace CrawfisSoftware.TempleRun
 {
@@ -18,18 +20,18 @@ namespace CrawfisSoftware.TempleRun
 
         private void Awake()
         {
-            EventsPublisherUserInitiated.Instance.SubscribeToEvent(UserInitiatedEvents.UserPauseToggle, OnPauseToggle);
+            UserInputBus.Subscribe(UserInitiatedEvents.UserPauseToggle, OnPauseToggle);
 
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(TempleRunEvents.PlayerPaused, OnPause);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(TempleRunEvents.PlayerResumed, OnResume);
+            TempleRunBus.Subscribe(TempleRunEvents.PlayerPaused, OnPause);
+            TempleRunBus.Subscribe(TempleRunEvents.PlayerResumed, OnResume);
         }
 
         private void OnDestroy()
         {
-            EventsPublisherUserInitiated.Instance.UnsubscribeToEvent(UserInitiatedEvents.UserPauseToggle, OnPauseToggle);
+            UserInputBus.Unsubscribe(UserInitiatedEvents.UserPauseToggle, OnPauseToggle);
 
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(TempleRunEvents.PlayerPaused, OnPause);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(TempleRunEvents.PlayerResumed, OnResume);
+            TempleRunBus.Unsubscribe(TempleRunEvents.PlayerPaused, OnPause);
+            TempleRunBus.Unsubscribe(TempleRunEvents.PlayerResumed, OnResume);
         }
         public void Pause()
         {
@@ -47,9 +49,9 @@ namespace CrawfisSoftware.TempleRun
         public void TogglePauseResume()
         {
             if (_isPaused)
-                EventsPublisherTempleRun.Instance.PublishEvent(TempleRunEvents.PlayerResumeRequested, this, UnityEngine.Time.time);
+                TempleRunBus.Publish(TempleRunEvents.PlayerResumeRequested, this, UnityEngine.Time.time);
             else
-                EventsPublisherTempleRun.Instance.PublishEvent(TempleRunEvents.PlayerPauseRequested, this, UnityEngine.Time.time);
+                TempleRunBus.Publish(TempleRunEvents.PlayerPauseRequested, this, UnityEngine.Time.time);
         }
 
         private void OnPauseToggle(string eventName, object sender, object data)

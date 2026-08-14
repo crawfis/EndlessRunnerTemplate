@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UIElements;
+using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
 
 namespace CrawfisSoftware.TempleRun.UI
 {
@@ -20,11 +21,11 @@ namespace CrawfisSoftware.TempleRun.UI
 
         private void Awake()
         {
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(
+            TempleRunBus.Subscribe(
                 TempleRunEvents.CountdownStarting, OnCountdownStarting);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(
+            TempleRunBus.Subscribe(
                 TempleRunEvents.CountdownTick, OnCountdownTick);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(
+            TempleRunBus.Subscribe(
                 TempleRunEvents.CountdownEnded, OnCountdownEnded);
         }
 
@@ -40,11 +41,11 @@ namespace CrawfisSoftware.TempleRun.UI
 
         private void OnDestroy()
         {
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(
+            TempleRunBus.Unsubscribe(
                 TempleRunEvents.CountdownStarting, OnCountdownStarting);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(
+            TempleRunBus.Unsubscribe(
                 TempleRunEvents.CountdownTick, OnCountdownTick);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(
+            TempleRunBus.Unsubscribe(
                 TempleRunEvents.CountdownEnded, OnCountdownEnded);
         }
 

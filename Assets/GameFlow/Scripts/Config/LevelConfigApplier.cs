@@ -1,6 +1,7 @@
 using CrawfisSoftware.GameFlow.Events;
 
 using UnityEngine;
+using GameFlowBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.GameFlow.Events.GameFlowEvents>;
 
 namespace CrawfisSoftware.GameFlow.Config
 {
@@ -15,13 +16,13 @@ namespace CrawfisSoftware.GameFlow.Config
     {
         private void Awake()
         {
-            EventsPublisherGameFlow.Instance.SubscribeToEvent(
+            GameFlowBus.Subscribe(
                 GameFlowEvents.LevelSelected, OnLevelSelected);
         }
 
         private void OnDestroy()
         {
-            EventsPublisherGameFlow.Instance.UnsubscribeToEvent(
+            GameFlowBus.Unsubscribe(
                 GameFlowEvents.LevelSelected, OnLevelSelected);
         }
 
@@ -32,11 +33,11 @@ namespace CrawfisSoftware.GameFlow.Config
 
             if (levelConfig.Difficulty != null)
             {
-                EventsPublisherGameFlow.Instance.PublishEvent(
+                GameFlowBus.Publish(
                     GameFlowEvents.GameConfigApplied, this, levelConfig.Difficulty);
             }
 
-            EventsPublisherGameFlow.Instance.PublishEvent(
+            GameFlowBus.Publish(
                 GameFlowEvents.LevelApplied, this, levelConfig.LevelNumber);
         }
     }

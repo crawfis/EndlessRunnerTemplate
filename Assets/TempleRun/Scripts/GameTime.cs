@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
 
 namespace CrawfisSoftware.TempleRun
 {
@@ -23,14 +24,14 @@ namespace CrawfisSoftware.TempleRun
             }
             Instance = this;
 
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(TempleRunEvents.PlayerPaused, OnPlayerPause);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(TempleRunEvents.PlayerResumed, OnPlayerResume);
+            TempleRunBus.Subscribe(TempleRunEvents.PlayerPaused, OnPlayerPause);
+            TempleRunBus.Subscribe(TempleRunEvents.PlayerResumed, OnPlayerResume);
         }
 
         private void OnDestroy()
         {
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(TempleRunEvents.PlayerPaused, OnPlayerPause);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(TempleRunEvents.PlayerResumed, OnPlayerResume);
+            TempleRunBus.Unsubscribe(TempleRunEvents.PlayerPaused, OnPlayerPause);
+            TempleRunBus.Unsubscribe(TempleRunEvents.PlayerResumed, OnPlayerResume);
         }
 
         private void OnPlayerPause(string eventName, object sender, object data)
