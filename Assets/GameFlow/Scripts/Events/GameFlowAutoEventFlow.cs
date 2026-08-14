@@ -1,6 +1,5 @@
 using CrawfisSoftware.Events;
 
-using System;
 using System.Collections.Generic;
 
 using UnityEngine;
@@ -214,11 +213,7 @@ namespace CrawfisSoftware.GameFlow.Events
 
         private void AutoFireGameFlowEventFromGameFlowEvent(string eventName, object sender, object data)
         {
-            ReadOnlySpan<char> input = eventName.AsSpan();
-            int index = input.LastIndexOf('/');
-            if (index < 0) return;
-            string result = input.Slice(index + 1).ToString();
-            GameFlowEvents gameFlowEvent = Enum.Parse<GameFlowEvents>(result);
+            if (!GameFlowBus.TryGetEnum(eventName, out GameFlowEvents gameFlowEvent)) return;
             if (_autoGameFlow2GameFlowEvents.TryGetValue(gameFlowEvent, out GameFlowEvents autoEvent))
             {
                 GameFlowBus.Publish(autoEvent, sender, data);

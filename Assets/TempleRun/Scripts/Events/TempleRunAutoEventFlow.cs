@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 using UnityEngine;
@@ -110,11 +109,7 @@ namespace CrawfisSoftware.TempleRun.Events
 
         private void AutoFireTempleRunEventFromTempleRunEvent(string eventName, object sender, object data)
         {
-            ReadOnlySpan<char> input = eventName.AsSpan();
-            int index = input.LastIndexOf('/');
-            if (index < 0) return;
-            string result = input.Slice(index + 1).ToString();
-            TempleRunEvents templeRunEvent = (TempleRunEvents)Enum.Parse(typeof(TempleRunEvents), result);
+            if (!TempleRunBus.TryGetEnum(eventName, out TempleRunEvents templeRunEvent)) return;
             if (_autoTempleRun2TempleRunEvents.TryGetValue(templeRunEvent, out TempleRunEvents autoEvent))
             {
                 TempleRunBus.Publish(autoEvent, sender, data);
