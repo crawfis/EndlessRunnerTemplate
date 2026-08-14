@@ -10,8 +10,8 @@ namespace CrawfisSoftware.GameFlow.SceneManagement
     public class FireEventAfterSceneLoads : MonoBehaviour
     {
         [SerializeField] private List<string> _scenesNeeded;
-        [SerializeField] private string _eventToFire;
-        [SerializeField] private string _resetOnEvent = null;
+        [EventName][SerializeField] private string _eventToFire;
+        [EventName][SerializeField] private string _resetOnEvent = null;
 
         private List<string> _scenesLoaded;
 

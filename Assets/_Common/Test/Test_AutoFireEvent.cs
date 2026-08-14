@@ -6,8 +6,8 @@ namespace CrawfisSoftware.Test
 {
     public class Test_AutoFireEvent : MonoBehaviour
     {
-        [SerializeField] private string _eventNameToListenFor = "GameFlowEvents/GameEnded";
-        [SerializeField] private string _eventNameToFire = "GameFlowEvents/GameplayReady";
+        [EventName][SerializeField] private string _eventNameToListenFor = "GameFlowEvents/GameEnded";
+        [EventName][SerializeField] private string _eventNameToFire = "GameFlowEvents/GameplayReady";
         void Start()
         {
             EventsPublisher.Instance.SubscribeToEvent(_eventNameToListenFor, OnEventReceived);

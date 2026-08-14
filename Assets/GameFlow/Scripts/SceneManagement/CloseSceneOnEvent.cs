@@ -6,7 +6,7 @@ namespace CrawfisSoftware.GameFlow.SceneManagement
 {
     class CloseSceneOnEvent : MonoBehaviour
     {
-        [SerializeField] private string _eventToSubscribeTo;
+        [EventName][SerializeField] private string _eventToSubscribeTo;
         [SerializeField] private bool _unsubscribeOnEvent = true;
 
         private void Awake()
