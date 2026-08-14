@@ -1,5 +1,8 @@
-﻿namespace CrawfisSoftware.TempleRun
+﻿using CrawfisSoftware.Events;
+
+namespace CrawfisSoftware.TempleRun
 {
+    [EventEnum]
     public enum TempleRunEvents
     {
         // ---------- Player lifecycle ----------

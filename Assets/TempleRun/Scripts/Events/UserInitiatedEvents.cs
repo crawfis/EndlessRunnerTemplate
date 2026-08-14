@@ -1,5 +1,6 @@
 ﻿namespace CrawfisSoftware.Events
 {
+    [EventEnum]
     public enum UserInitiatedEvents
     {
         UserLeftTurnRequested,

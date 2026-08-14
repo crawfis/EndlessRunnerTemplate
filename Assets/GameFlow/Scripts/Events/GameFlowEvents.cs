@@ -1,5 +1,8 @@
-﻿namespace CrawfisSoftware.GameFlow.Events
+﻿using CrawfisSoftware.Events;
+
+namespace CrawfisSoftware.GameFlow.Events
 {
+    [EventEnum]
     public enum GameFlowEvents
     {
         // ---------- Loading Screen ----------
