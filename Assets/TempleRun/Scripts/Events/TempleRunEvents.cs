@@ -154,6 +154,12 @@ namespace CrawfisSoftware.TempleRun
         TempleRunLevelApplied = 304,          // data: int (selected level number, bridged from GameFlow)
 
         // ---------- Difficulty (bridged to/from GameFlow) ----------
+        // A level: this IS the difficulty table, not a transition into one. GameDifficultyManager
+        // is its only subscriber and has no other way to populate itself, so missing this left
+        // SetDifficulty warning and no-opping against an empty table. Retained so the manager is
+        // populated whenever it subscribes. PopulateDifficulties clears first, so a replay
+        // followed by a live publish is idempotent.
+        [EventDelivery(EventDelivery.Sticky)]
         TempleRunDifficultySettingsApplied = 310,
         TempleRunDifficultyChanging = 312,
         TempleRunDifficultyChanged = 314,
