@@ -58,6 +58,8 @@ namespace CrawfisSoftware.TempleRun
 
         private static readonly EventId<TrackSegmentInfo> TrackChanging =
             TempleRunBus.Id<TrackSegmentInfo>(TempleRunEvents.ActiveTrackChanging);
+        private static readonly EventId<Direction> SegmentRequested =
+            TempleRunBus.Id<Direction>(TempleRunEvents.SegmentRequested);
 
         private void Awake()
         {
@@ -74,7 +76,13 @@ namespace CrawfisSoftware.TempleRun
             if (distance > _turnAvailableDistance)
             {
                 TempleRunBus.Publish(startingEvent,  this, distance);
-                //TempleRunBus.Publish(TempleRunEvents.SegmentRequested, this, chosenDirection);
+                // Between starting and completed on purpose: this is what commits the direction at
+                // an Either junction. PathProvider builds the exit geometry from it and TrackManager
+                // clears _awaitingEitherDirection and refills the lookahead, both of which must have
+                // happened before SegmentTransitionController consumes the geometry on completed.
+                // Publishing from inside a handler runs its subscribers to completion before
+                // returning, so the ordering holds.
+                SegmentRequested.Publish(this, chosenDirection);
                 TempleRunBus.Publish(completedEvent, this, distance);
             }
         }

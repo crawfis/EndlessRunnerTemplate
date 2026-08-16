@@ -22,4 +22,5 @@ MonoBehaviour:
   ActiveSegmentTags:
   - opening
   - easy
+  - either
   ActiveSegmentIds: []
