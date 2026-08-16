@@ -145,6 +145,12 @@ namespace CrawfisSoftware.TempleRun
         TeleportEnded = 285,
 
         // ---------- Bridged from GameFlow ----------
+        // A level: it carries the applied DifficultyConfig, which is state. Published during level
+        // selection, before the gameplay scene exists, so Blackboard - which lives in that scene and
+        // subscribes in Start - never saw it and fell back to whatever a later
+        // TempleRunDifficultyChanging happened to carry. Retained so Blackboard is delivered the
+        // level's config on subscribe.
+        [EventDelivery(EventDelivery.Sticky)]
         TempleRunConfigApplied = 300,
         TempleRunScenesReady = 302,
         // A level: the selected level number is state, self-describing, and published once - before
