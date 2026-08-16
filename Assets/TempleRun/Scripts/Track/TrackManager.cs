@@ -1,8 +1,9 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 using UnityEngine;
 
+using CrawfisSoftware.Events;
 using CrawfisSoftware.TempleRun.GameConfig;
 using CrawfisSoftware.TempleRun.Track;
 using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
@@ -43,6 +44,15 @@ namespace CrawfisSoftware.TempleRun
         private TrackSegmentDefinition _lastSegmentDefinition;
         private int _lastSegmentRepeatCount;
         private int _segmentIndex;
+
+        private static readonly EventId<int> LevelApplied =
+            TempleRunBus.Id<int>(TempleRunEvents.TempleRunLevelApplied);
+        private static readonly EventId<TrackSegmentInfo> TrackSegmentCreated =
+            TempleRunBus.Id<TrackSegmentInfo>(TempleRunEvents.TrackSegmentCreated);
+        private static readonly EventId<TrackSegmentInfo> ActiveTrackChanging =
+            TempleRunBus.Id<TrackSegmentInfo>(TempleRunEvents.ActiveTrackChanging);
+        private static readonly EventId<TrackSegmentInfo> ActiveTrackChanged =
+            TempleRunBus.Id<TrackSegmentInfo>(TempleRunEvents.ActiveTrackChanged);
 
         // Set when an Either (T-junction) segment is at the tail of the lookahead queue.
         // No further segments are generated until SegmentRequested fires with the chosen direction.
@@ -85,7 +95,7 @@ namespace CrawfisSoftware.TempleRun
             _ = _trackSegments.Dequeue();
             if (!_awaitingEitherDirection)
                 AddTrackSegment();
-            TempleRunBus.Publish(TempleRunEvents.ActiveTrackChanging, this, _trackSegments.Peek());
+            ActiveTrackChanging.Publish(this, _trackSegments.Peek());
         }
 
         protected virtual void Initialize(float startDistance, float minDistance, float maxDistance, System.Random random)
@@ -101,9 +111,7 @@ namespace CrawfisSoftware.TempleRun
             // rather than mirrored into a field. Never published means no level was selected, which
             // is level 0. TrackLibraryLoader reads the authoring SOs and builds the runtime library;
             // a null result leaves the procedural fallback in CreateTrackSegment in charge.
-            int selectedLevel = TempleRunBus.TryGetLast(TempleRunEvents.TempleRunLevelApplied, out _, out object levelData)
-                ? (int)levelData
-                : 0;
+            int selectedLevel = LevelApplied.TryGetLast(out _, out int level) ? level : 0;
             _segmentLibrary = TrackLibraryLoader.Load(_trackLevels, selectedLevel);
             TempleRunBus.Subscribe(TempleRunEvents.SegmentExited, OnSegmentCompleted);
         }
@@ -114,13 +122,13 @@ namespace CrawfisSoftware.TempleRun
             _awaitingEitherDirection = false;
             var newTrackSegment = CreateTrackSegment(isStartSegment: true);
             _trackSegments.Enqueue(newTrackSegment);
-            TempleRunBus.Publish(TempleRunEvents.TrackSegmentCreated, this, newTrackSegment);
+            TrackSegmentCreated.Publish(this, newTrackSegment);
             for (int i = 1; i < _numberOfLookAheadTracks; i++)
             {
                 AddTrackSegment();
                 if (_awaitingEitherDirection) break;
             }
-            TempleRunBus.Publish(TempleRunEvents.ActiveTrackChanging, this, _trackSegments.Peek());
+            ActiveTrackChanging.Publish(this, _trackSegments.Peek());
         }
 
         /// <summary>
@@ -129,7 +137,7 @@ namespace CrawfisSoftware.TempleRun
         /// </summary>
         protected virtual void OnSegmentCompleted(string eventName, object sender, object data)
         {
-            TempleRunBus.Publish(TempleRunEvents.ActiveTrackChanged, this, _trackSegments.Peek());
+            ActiveTrackChanged.Publish(this, _trackSegments.Peek());
             AdvanceToNextSegment();
         }
 
@@ -137,7 +145,7 @@ namespace CrawfisSoftware.TempleRun
         {
             var newTrackSegment = CreateTrackSegment(isStartSegment: false);
             _trackSegments.Enqueue(newTrackSegment);
-            TempleRunBus.Publish(TempleRunEvents.TrackSegmentCreated, this, newTrackSegment);
+            TrackSegmentCreated.Publish(this, newTrackSegment);
             if (newTrackSegment.Direction == Direction.Either)
                 _awaitingEitherDirection = true;
         }

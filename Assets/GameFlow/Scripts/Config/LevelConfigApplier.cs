@@ -1,3 +1,7 @@
+using System.Collections.Generic;
+
+using CrawfisSoftware.Config;
+using CrawfisSoftware.Events;
 using CrawfisSoftware.GameFlow.Events;
 
 using UnityEngine;
@@ -20,31 +24,31 @@ namespace CrawfisSoftware.GameFlow.Config
     /// </remarks>
     internal class LevelConfigApplier : MonoBehaviour
     {
+        private static readonly EventId<LevelConfig> LevelSelected =
+            GameFlowBus.Id<LevelConfig>(GameFlowEvents.LevelSelected);
+        private static readonly EventId<IList<DifficultyConfig>> DifficultySettingsApplied =
+            GameFlowBus.Id<IList<DifficultyConfig>>(GameFlowEvents.DifficultySettingsApplied);
+        private static readonly EventId<int> LevelApplied =
+            GameFlowBus.Id<int>(GameFlowEvents.LevelApplied);
+
         private void Awake()
         {
-            GameFlowBus.Subscribe(
-                GameFlowEvents.LevelSelected, OnLevelSelected);
+            LevelSelected.Subscribe(OnLevelSelected);
         }
 
         private void OnDestroy()
         {
-            GameFlowBus.Unsubscribe(
-                GameFlowEvents.LevelSelected, OnLevelSelected);
+            LevelSelected.Unsubscribe(OnLevelSelected);
         }
 
-        private void OnLevelSelected(string eventName, object sender, object data)
+        private void OnLevelSelected(string eventName, object sender, LevelConfig levelConfig)
         {
-            var levelConfig = data as LevelConfig;
-            if (levelConfig == null) return;
-
             if (levelConfig.Difficulties.Length > 0)
             {
-                GameFlowBus.Publish(
-                    GameFlowEvents.DifficultySettingsApplied, this, levelConfig.Difficulties);
+                DifficultySettingsApplied.Publish(this, levelConfig.Difficulties);
             }
 
-            GameFlowBus.Publish(
-                GameFlowEvents.LevelApplied, this, levelConfig.LevelNumber);
+            LevelApplied.Publish(this, levelConfig.LevelNumber);
         }
     }
 }

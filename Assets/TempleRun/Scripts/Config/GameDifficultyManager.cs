@@ -1,7 +1,7 @@
 using CrawfisSoftware.Config;
+using CrawfisSoftware.Events;
 using CrawfisSoftware.TempleRun.Events;
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -40,16 +40,25 @@ namespace CrawfisSoftware.TempleRun.GameConfig
 
         private readonly Dictionary<string, DifficultyConfig> _difficultyConfigs = new Dictionary<string, DifficultyConfig>();
 
+        private static readonly EventId<string> DifficultyChangeRequested =
+            TempleRunBus.Id<string>(TempleRunEvents.TempleRunDifficultyChangeRequested);
+        private static readonly EventId<IList<DifficultyConfig>> DifficultySettingsApplied =
+            TempleRunBus.Id<IList<DifficultyConfig>>(TempleRunEvents.TempleRunDifficultySettingsApplied);
+        private static readonly EventId<DifficultyConfig> DifficultyChanging =
+            TempleRunBus.Id<DifficultyConfig>(TempleRunEvents.TempleRunDifficultyChanging);
+        private static readonly EventId<DifficultyConfig> DifficultyChangeFailed =
+            TempleRunBus.Id<DifficultyConfig>(TempleRunEvents.DifficultyChangeFailed);
+
         public void Awake()
         {
-            TempleRunBus.Subscribe(TempleRunEvents.TempleRunDifficultyChangeRequested, OnDifficultyChanging);
-            TempleRunBus.Subscribe(TempleRunEvents.TempleRunDifficultySettingsApplied, OnDifficultySettingsChanged);
+            DifficultyChangeRequested.Subscribe(OnDifficultyChangeRequested);
+            DifficultySettingsApplied.Subscribe(OnDifficultySettingsChanged);
         }
 
         private void OnDestroy()
         {
-            TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunDifficultyChangeRequested, OnDifficultyChanging);
-            TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunDifficultySettingsApplied, OnDifficultySettingsChanged);
+            DifficultyChangeRequested.Unsubscribe(OnDifficultyChangeRequested);
+            DifficultySettingsApplied.Unsubscribe(OnDifficultySettingsChanged);
         }
 
         // The table is the selected level's difficulty variants, so a level decides which
@@ -71,7 +80,7 @@ namespace CrawfisSoftware.TempleRun.GameConfig
                 difficultyName = fallback;
             }
             CurrentDifficulty = difficultyName;
-            TempleRunBus.Publish(TempleRunEvents.TempleRunDifficultyChanging, this, _difficultyConfigs[CurrentDifficulty]);
+            DifficultyChanging.Publish(this, _difficultyConfigs[CurrentDifficulty]);
         }
 
         public void PopulateDifficulties(IList<DifficultyConfig> difficulties)
@@ -93,24 +102,20 @@ namespace CrawfisSoftware.TempleRun.GameConfig
             _difficultyConfigs[difficultyConfig.DifficultyName] = difficultyConfig;
         }
 
-        public void OnDifficultyChanging(string eventName, object sender, object data)
+        // An empty name is still worth reporting: the payload type is now guaranteed, but a
+        // caller can legitimately publish "" and there is no difficulty by that name.
+        public void OnDifficultyChangeRequested(string eventName, object sender, string newDifficulty)
         {
-            string newDifficulty = data as string;
             if (string.IsNullOrEmpty(newDifficulty))
             {
-                TempleRunBus.Publish(TempleRunEvents.DifficultyChangeFailed, this, CurrentDifficultyConfig);
+                DifficultyChangeFailed.Publish(this, CurrentDifficultyConfig);
                 return;
             }
             SetDifficulty(newDifficulty);
         }
 
-        public void OnDifficultySettingsChanged(string eventName, object sender, object data)
+        public void OnDifficultySettingsChanged(string eventName, object sender, IList<DifficultyConfig> difficultyConfigs)
         {
-            var difficultyConfigs = data as IList<DifficultyConfig>;
-            if (difficultyConfigs == null)
-            {
-                throw new ArgumentException("OnDifficultySettingsChanged event data must be of type IList<DifficultyConfig>");
-            }
             PopulateDifficulties(difficultyConfigs);
         }
     }
