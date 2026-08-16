@@ -1,4 +1,5 @@
 ﻿using CrawfisSoftware.Config;
+using CrawfisSoftware.Events;
 using CrawfisSoftware.TempleRun.GameConfig;
 using CrawfisSoftware.Utility;
 
