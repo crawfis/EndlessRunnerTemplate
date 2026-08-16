@@ -15,7 +15,6 @@ namespace CrawfisSoftware.TempleRun
     ///    Dependencies: None
     ///    Subscribes: TempleRunEvents.TempleRunConfigApplied (bridged from GameFlow)
     ///    Subscribes: TempleRunEvents.TempleRunDifficultyChanging (bridged from GameFlow)
-    ///    Subscribes: TempleRunEvents.TempleRunLevelApplied (bridged from GameFlow; data: int level number)
     /// </summary>
     public class Blackboard : MonoBehaviour
     {
@@ -57,13 +56,6 @@ namespace CrawfisSoftware.TempleRun
         // ---------- Coin State ----------
         public CoinConfig CoinConfig { get => _coinConfig; set => _coinConfig = value; }
         public int SessionCoinCount { get; set; } = 0;
-
-        // ---------- Track Level ----------
-        // The selected level number (input). Persisted here because it arrives (bridged from
-        // GameFlow) before the gameplay scene — and TrackManager — exists. TrackManager reads it
-        // at init and resolves the track via TrackLibraryLoader; the resolved library is never
-        // stored here.
-        public int SelectedLevel { get; set; }
 
         // ---------- Power-Up / Buff State ----------
         public float ActiveSpeedMultiplier { get; set; } = 1.0f;    // Applied by SpeedBoost power-up
@@ -112,7 +104,6 @@ namespace CrawfisSoftware.TempleRun
             CoinMagnetActive = false;
             CoinMagnetRadius = 0f;
             ShieldActive = false;
-            SelectedLevel = 0;
         }
 
         private void OnConfigApplied(string eventName, object sender, object data)
@@ -126,12 +117,6 @@ namespace CrawfisSoftware.TempleRun
             }
         }
 
-        private void OnLevelApplied(string eventName, object sender, object data)
-        {
-            SelectedLevel = (int)data;
-            Debug.Log($"Blackboard: SelectedLevel = {SelectedLevel}");
-        }
-
         private void OnGameEnded(string eventName, object sender, object data)
         {
             ResetState();
@@ -142,7 +127,6 @@ namespace CrawfisSoftware.TempleRun
             TempleRunBus.Subscribe(TempleRunEvents.TempleRunEnded, OnGameEnded);
             TempleRunBus.Subscribe(TempleRunEvents.TempleRunConfigApplied, OnConfigApplied);
             TempleRunBus.Subscribe(TempleRunEvents.TempleRunDifficultyChanging, OnConfigApplied);
-            TempleRunBus.Subscribe(TempleRunEvents.TempleRunLevelApplied, OnLevelApplied);
         }
 
         private void UnsubscribeToEvents()
@@ -150,7 +134,6 @@ namespace CrawfisSoftware.TempleRun
             TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunEnded, OnGameEnded);
             TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunConfigApplied, OnConfigApplied);
             TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunDifficultyChanging, OnConfigApplied);
-            TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunLevelApplied, OnLevelApplied);
         }
 
 #if UNITY_EDITOR

@@ -147,6 +147,10 @@ namespace CrawfisSoftware.TempleRun
         // ---------- Bridged from GameFlow ----------
         TempleRunConfigApplied = 300,
         TempleRunScenesReady = 302,
+        // A level: the selected level number is state, self-describing, and published once - before
+        // the gameplay scene (and TrackManager) exists. Retained so TrackManager can read it at init
+        // with TryGetLast instead of it being parked in a Blackboard field.
+        [EventDelivery(EventDelivery.Sticky)]
         TempleRunLevelApplied = 304,          // data: int (selected level number, bridged from GameFlow)
 
         // ---------- Difficulty (bridged to/from GameFlow) ----------

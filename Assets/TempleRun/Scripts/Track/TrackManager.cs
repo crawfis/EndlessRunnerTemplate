@@ -13,7 +13,7 @@ namespace CrawfisSoftware.TempleRun
     /// Provides new track distance for each turn. It publishes a new track segment
     ///       when needed (either to create visuals or to determine the currently active track).
     ///    Dependencies: EventsFor<TempleRunEvents>, Blackboard.GameConfig, Blackboard.MasterRandom,
-    ///                  Blackboard.SelectedLevel (set by level selection), _trackLevels registry
+    ///                  TempleRunLevelApplied (Sticky; read at init via TryGetLast), _trackLevels registry
     ///    Subscribes to SegmentExited for all segment types (single advancement path)
     ///    Subscribes to SegmentRequested to resume lookahead after an Either (T-junction) segment
     ///    Publishes: TrackSegmentCreated. Useful for creating prefabs. Several of these will be created at the start. Data is a TrackSegmentInfo
@@ -108,12 +108,15 @@ namespace CrawfisSoftware.TempleRun
             _random = random;
             _awaitingEitherDirection = false;
 
-            // Resolve the selected level's track. The level number arrives via Blackboard (it is
-            // set, bridged from GameFlow, before this scene and TrackManager exist);
-            // TrackLibraryLoader reads the authoring SOs and builds the runtime library. A null
-            // result (no level selected) leaves the procedural fallback in CreateTrackSegment
-            // in charge.
-            _segmentLibrary = TrackLibraryLoader.Load(_trackLevels, Blackboard.Instance.SelectedLevel);
+            // Resolve the selected level's track. TempleRunLevelApplied is published (bridged from
+            // GameFlow) before this scene and TrackManager exist, so it is Sticky and read here
+            // rather than mirrored into a field. Never published means no level was selected, which
+            // is level 0. TrackLibraryLoader reads the authoring SOs and builds the runtime library;
+            // a null result leaves the procedural fallback in CreateTrackSegment in charge.
+            int selectedLevel = TempleRunBus.TryGetLast(TempleRunEvents.TempleRunLevelApplied, out _, out object levelData)
+                ? (int)levelData
+                : 0;
+            _segmentLibrary = TrackLibraryLoader.Load(_trackLevels, selectedLevel);
             TempleRunBus.Subscribe(TempleRunEvents.SegmentExited, OnSegmentCompleted);
         }
 
