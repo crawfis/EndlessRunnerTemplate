@@ -51,14 +51,15 @@ authored asset. Keeping input, reading, and using separate is deliberate.
 
 **The GameFlow seam is a plain `int`.** GameFlow never references a track type: selecting a level
 publishes `LevelApplied(int)` (the `LevelConfig.LevelNumber`), which is bridged to
-`TempleRunLevelApplied` and stored on `Blackboard.SelectedLevel`. It rests there because it arrives
-before the gameplay scene — and `TrackManager` — exists.
+`TempleRunLevelApplied`. That event is `Sticky`, so the bus retains it: it is published before the
+gameplay scene — and `TrackManager` — exists, and `TrackManager` reads the retained value at init
+with `TryGetLast`. Nothing mirrors it into a field.
 
 Loading (`TrackLibraryLoader.Load` at `TrackManager` init):
 
 ```mermaid
 flowchart TD
-    SEL["GameFlow: LevelApplied(int)"] --> BB["Blackboard.SelectedLevel (int)"]
+    SEL["GameFlow: LevelApplied(int)"] --> BB["TempleRunLevelApplied (Sticky)<br/>retained on the bus"]
     BB --> LD["TrackLibraryLoader.Load(registry, levelNumber)"]
     REG["TrackLevelRegistrySO"] --> LD
     LD --> F["find TrackLevelSO by LevelNumber → read SOs"]
@@ -67,9 +68,9 @@ flowchart TD
     N --> LIB["TrackSegmentLibrary (runtime)"]
 ```
 
-`TrackManager` reads `Blackboard.SelectedLevel` at init and asks the loader for the library; a null
-result (no level selected) leaves the procedural fallback in charge. The resolved library lives on
-`TrackManager` — never on the Blackboard.
+`TrackManager` reads the retained `TempleRunLevelApplied` at init and asks the loader for the
+library; never published (no level selected) means level 0, and a null result leaves the procedural
+fallback in charge. The resolved library lives on `TrackManager` — never on the Blackboard.
 
 ## Segment geometry: the 3-point model
 

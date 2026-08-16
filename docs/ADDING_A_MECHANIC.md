@@ -60,7 +60,7 @@ _playerControls.Player.Roll.performed -= OnRoll;      // in OnDisable/OnDestroy 
 
 private void OnRoll(InputAction.CallbackContext ctx)
 {
-    EventsPublisherUserInitiated.Instance.PublishEvent(
+    UserInputBus.Publish(
         UserInitiatedEvents.UserRollRequested, this, PlayerNumber);
 }
 ```
@@ -87,13 +87,13 @@ internal class RollController : MonoBehaviour
 
     private void Awake()
     {
-        EventsPublisherTempleRun.Instance.SubscribeToEvent(
+        TempleRunBus.Subscribe(
             TempleRunEvents.RollStarting, OnRollStarting);
     }
 
     private void OnDestroy()   // MANDATORY — matching unsubscribe
     {
-        EventsPublisherTempleRun.Instance.UnsubscribeToEvent(
+        TempleRunBus.Unsubscribe(
             TempleRunEvents.RollStarting, OnRollStarting);
     }
 
@@ -106,11 +106,11 @@ internal class RollController : MonoBehaviour
 
     private System.Collections.IEnumerator RollRoutine()
     {
-        EventsPublisherTempleRun.Instance.PublishEvent(TempleRunEvents.RollStarted, this, null);
+        TempleRunBus.Publish(TempleRunEvents.RollStarted, this, null);
         // ...animate / adjust Blackboard offsets over time...
         yield return new WaitForSeconds(rollDuration);
         _isRolling = false;
-        EventsPublisherTempleRun.Instance.PublishEvent(TempleRunEvents.RollEnded, this, null);
+        TempleRunBus.Publish(TempleRunEvents.RollEnded, this, null);
     }
 }
 ```

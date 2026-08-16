@@ -31,7 +31,7 @@ the same pattern rather than referencing that domain's events from gameplay code
 
 ## CRITICAL: Always use dictionaries
 
-**NEVER add individual `SubscribeToEvent` / `UnsubscribeToEvent` calls in bridge or auto-flow classes.** All event mappings MUST go into the appropriate dictionary. The `SubscribeToAllEnumEvents` handler will pick them up automatically. Individual subscriptions break the declarative pattern and create maintenance burden.
+**NEVER add individual `Subscribe` / `Unsubscribe` calls in bridge or auto-flow classes.** All event mappings MUST go into the appropriate dictionary. The `SubscribeToAll` handler will pick them up automatically. Individual subscriptions break the declarative pattern and create maintenance burden.
 
 ## Procedure
 

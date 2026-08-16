@@ -25,7 +25,7 @@ Track Authoring:    Edit the TrackSegmentSO / TrackSegmentRegistrySO / TrackLeve
 | Entry Scene | `Assets/GameFlow/Scenes/Boot/0_BootStrap_Game_Only` |
 | GameFlow Events | `Assets/GameFlow/Scripts/Events/GameFlowEvents.cs` |
 | TempleRun Events | `Assets/TempleRun/Scripts/Events/TempleRunEvents.cs`, `UserInitiatedEvents.cs` |
-| Event Publishers | `Assets/GameFlow/Scripts/Events/EventsPublisherGameFlow.cs`, `Assets/TempleRun/Scripts/Events/EventsPublisherTempleRun.cs`, `EventsPublisherUserInitiated.cs` |
+| Event Bus | `EventsFor<T>` from the `com.crawfissoftware.eventspublisher` package (no per-domain publisher files) |
 | Auto-Event Flow | `Assets/GameFlow/Scripts/Events/GameFlowAutoEventFlow.cs`, `Assets/TempleRun/Scripts/Events/TempleRunAutoEventFlow.cs`, `Assets/_Common/Events/AutoEventFlowBase.cs` |
 | Cross-Domain Bridge | `Assets/GameFlow/Scripts/TempleRunSpecific/TempleRunGameFlowBridge.cs` |
 | Game State | `Assets/GameFlow/Scripts/Config/GameState.cs`, `Assets/TempleRun/Scripts/Config/Blackboard.cs` |
@@ -53,8 +53,8 @@ Track Authoring:    Edit the TrackSegmentSO / TrackSegmentRegistrySO / TrackLeve
 | `TempleRunGameFlowBridge.cs` | `TempleRunEvents` + `GameFlowEvents` (bridge duty) |
 
 **Violations — what NOT to do:**
-- TempleRun scripts subscribing to or publishing `GameFlowEvents` (e.g., `EventsPublisherGameFlow.Instance.SubscribeToEvent(GameFlowEvents.GameStarted, ...)` in a TempleRun file)
-- GameFlow scripts subscribing to or publishing `TempleRunEvents` (e.g., `EventsPublisherTempleRun.Instance.PublishEvent(TempleRunEvents.CountdownTick, ...)` in a GameFlow file)
+- TempleRun scripts subscribing to or publishing `GameFlowEvents` (e.g., `GameFlowBus.Subscribe(GameFlowEvents.GameStarted, ...)` in a TempleRun file)
+- GameFlow scripts subscribing to or publishing `TempleRunEvents` (e.g., `TempleRunBus.Publish(TempleRunEvents.CountdownTick, ...)` in a GameFlow file)
 
 **How to fix a violation:** If TempleRun code needs to react to a GameFlow event, add a bridge mapping in `TempleRunGameFlowBridge.cs` that translates the GameFlow event into a TempleRun event, then subscribe to the TempleRun event in your TempleRun code.
 
@@ -90,10 +90,19 @@ Unity 6 endless runner demonstrating **event-driven architecture**.
 - `TempleRunEvents` - Gameplay-specific (player lifecycle, countdown, turns, slides, jumps, dashes, lane changes, collisions, coins, power-ups, track/spline generation, teleportation)
 - `UserInitiatedEvents` - Raw input events (turn requests, lane changes, jump, slide, dash, pause toggle, quit)
 
-**Three Singleton Publishers:**
-- `EventsPublisherGameFlow.Instance`
-- `EventsPublisherTempleRun.Instance`
-- `EventsPublisherUserInitiated.Instance`
+**One static facade per domain.** `EventsFor<T>` is static and lazily initialized, so there
+is no singleton, no scene GameObject and no execution-order attribute to get right. Alias it
+per file:
+
+```csharp
+using GameFlowBus   = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.GameFlow.Events.GameFlowEvents>;
+using TempleRunBus  = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
+using UserInputBus  = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.Events.UserInitiatedEvents>;
+```
+
+> The `EventsPublisher*.Instance` singletons were removed. `[DefaultExecutionOrder(-10000)]`
+> only ordered `Awake` within one scene load batch, so it never protected the additively
+> loaded scenes that actually hosted them.
 
 ## Event System Patterns
 
@@ -102,18 +111,12 @@ Unity 6 endless runner demonstrating **event-driven architecture**.
 ```csharp
 private void Awake()
 {
-    EventsPublisherGameFlow.Instance.SubscribeToEvent(
-        GameFlowEvents.GameStarting,
-        OnGameStarting
-    );
+    GameFlowBus.Subscribe(GameFlowEvents.GameStarting, OnGameStarting);
 }
 
 private void OnDestroy()
 {
-    EventsPublisherGameFlow.Instance.UnsubscribeToEvent(
-        GameFlowEvents.GameStarting,
-        OnGameStarting
-    );
+    GameFlowBus.Unsubscribe(GameFlowEvents.GameStarting, OnGameStarting);
 }
 
 private void OnGameStarting(string eventName, object sender, object data)
@@ -128,20 +131,57 @@ private void OnGameStarting(string eventName, object sender, object data)
 
 ```csharp
 // Without data
-EventsPublisherGameFlow.Instance.PublishEvent(
-    GameFlowEvents.MainMenuShown,
-    this,
-    null
-);
+GameFlowBus.Publish(GameFlowEvents.MainMenuShown, this, null);
 
 // With data payload
 float score = Blackboard.Instance.DistanceTracker.DistanceTravelled;
-EventsPublisherTempleRun.Instance.PublishEvent(
-    TempleRunEvents.PlayerDied,
-    this,
-    score
-);
+TempleRunBus.Publish(TempleRunEvents.PlayerDied, this, score);
 ```
+
+### Typed Payloads
+
+An event that carries data declares its type on the enum member, and call sites resolve an
+`EventId<T>` **once** into a `static readonly` field. Everything downstream of that line is
+compiler-checked, so there is no cast to get wrong:
+
+```csharp
+[EventPayload(typeof(TrackSegmentInfo))]
+ActiveTrackChanging = 261,
+
+private static readonly EventId<TrackSegmentInfo> TrackChanging =
+    TempleRunBus.Id<TrackSegmentInfo>(TempleRunEvents.ActiveTrackChanging);
+
+private void Awake()   => TrackChanging.Subscribe(OnTrackChanging);
+private void OnDestroy() => TrackChanging.Unsubscribe(OnTrackChanging);
+
+private void OnTrackChanging(string eventName, object sender, TrackSegmentInfo segment) { }
+```
+
+Two call sites writing different type arguments for the same event is the one mistake no
+compiler catches; it is reported at startup when the second one is minted. Events with no
+payload, or a genuinely variable one, stay undeclared - no declaration means no checking,
+which is the intended default.
+
+### Delivery Policy - edge or level
+
+Default is `Transient`: a subscriber that arrives after the publish hears nothing. Mark an
+event `[EventDelivery(EventDelivery.Sticky)]` **only** if it is a *level*.
+
+- **Edge** - a transition (`MainMenuHiding`, `DifficultyChangeRequested`). Only meaningful in
+  sequence. Replaying it to a late subscriber is actively wrong. Leave it `Transient`.
+- **Level** - a state (`TempleRunLevelApplied`, `TempleRunDifficultySettingsApplied`).
+  Self-describing on its own, so replay is safe. An event that already carries a payload is
+  usually a level.
+
+Where a level is currently expressed as **two opposing edges** (`Paused`/`Resumed`), Sticky
+alone is unsafe - a late subscriber gets whichever half fired last. Model the level directly
+as one event carrying the value instead, and keep the edges `Transient` for animation and SFX.
+
+Use **Window > Events > Upgrade Audit** after a play session to see which events actually had
+a late subscriber. That measurement, not the name, is the evidence for making one Sticky.
+
+Read a retained value without subscribing with `EventsFor<T>.TryGetLast` (or the
+`EventId<T>` overload), which is how `TrackManager` gets the selected level at init.
 
 ### Auto-Event Flow Pattern
 
@@ -222,7 +262,7 @@ private readonly Dictionary<...> _mapping = ...; // readonly: underscore prefix
 |----------|-------|
 | **GameFlow Domain** | |
 | Event Enums | `Assets/GameFlow/Scripts/Events/GameFlowEvents.cs` |
-| Event Publishers | `Assets/GameFlow/Scripts/Events/EventsPublisherGameFlow.cs` |
+| Event Bus | `EventsFor<GameFlowEvents>`, aliased as `GameFlowBus` |
 | Auto-Event Flow | `Assets/GameFlow/Scripts/Events/GameFlowAutoEventFlow.cs` |
 | Bridge | `Assets/GameFlow/Scripts/TempleRunSpecific/TempleRunGameFlowBridge.cs` |
 | Game State / Config | `Assets/GameFlow/Scripts/Config/GameState.cs`, `GameConstants.cs`, `LevelConfig.cs`, `LevelRegistry.cs`, `LevelProgressManager.cs` |
@@ -231,7 +271,7 @@ private readonly Dictionary<...> _mapping = ...; // readonly: underscore prefix
 | Scene Management | `Assets/GameFlow/Scripts/SceneManagement/DynamicLevelSceneLoader.cs`, `FireEventAfterSceneLoads.cs`, `LoadSceneAfterGameControlEvent.cs` |
 | **TempleRun Domain** | |
 | Event Enums | `Assets/TempleRun/Scripts/Events/TempleRunEvents.cs`, `UserInitiatedEvents.cs` |
-| Event Publishers | `Assets/TempleRun/Scripts/Events/EventsPublisherTempleRun.cs`, `EventsPublisherUserInitiated.cs` |
+| Event Bus | `EventsFor<TempleRunEvents>` / `EventsFor<UserInitiatedEvents>`, aliased as `TempleRunBus` / `UserInputBus` |
 | Auto-Event Flow | `Assets/TempleRun/Scripts/Events/TempleRunAutoEventFlow.cs`, `Input2TempleRunAutoEventBridge.cs` |
 | Config | `Assets/TempleRun/Scripts/Config/Blackboard.cs`, `TempleRunGameConfig.cs`, `GameDifficultyManager.cs` |
 | Player Controllers | `Assets/TempleRun/Scripts/Player/TurnController.cs`, `JumpController.cs`, `SlideController.cs`, `DashController.cs`, `LaneChangeController.cs`, `PlayerLifeController.cs`, `PowerUpBuffController.cs` |
@@ -263,7 +303,8 @@ private readonly Dictionary<...> _mapping = ...; // readonly: underscore prefix
 ### Singletons
 - `Blackboard.Instance` - TempleRun runtime state
 - `GameState` - static GameFlow flags + selected level
-- `EventsPublisher*.Instance` - Event buses (`[DefaultExecutionOrder(-10000)]`)
+- `EventsFor<T>` - Static, lazily initialized event buses. Not singletons: no scene object,
+  no execution-order attribute, no initialization race.
 
 ## Testing
 
@@ -283,7 +324,7 @@ the UI and gameplay scenes additively.
 4. **`/add-bridge-mapping`** — Bridge to GameFlow if the feature affects game session state
 5. Create/extend a scene under `Assets/TempleRun/Scenes/Gameplay/`
 6. Subscribe to relevant events in `Awake()`, unsubscribe in `OnDestroy()`
-7. Publish state changes as events via `EventsPublisherTempleRun.Instance`
+7. Publish state changes as events via `TempleRunBus`
 8. Keep visuals/audio separate from logic
 9. **`/audit-events`** — Verify compliance
 
@@ -291,7 +332,7 @@ the UI and gameplay scenes additively.
 1. **`/list-events GameFlow`** — Review existing GameFlow events
 2. **`/add-event`** — Add events to `GameFlowEvents`
 3. **`/add-auto-chain`** — Wire auto-progressions
-4. Implement, subscribing/publishing via `EventsPublisherGameFlow.Instance`
+4. Implement, subscribing/publishing via `GameFlowBus`
 5. **`/audit-events`** — Verify compliance
 
 ### Authoring Track Segments / Levels
@@ -299,7 +340,7 @@ the UI and gameplay scenes additively.
   new ones from `Assets > Create > CrawfisSoftware > TempleRun > Track Segment / Track Segment Registry / Track Level`.
 - Segment pool: `TrackSegmentRegistrySO` (array of per-segment `TrackSegmentSO`).
 - Per-level rulesets: `TrackLevelSO` (tag/id-filtered selection from the registry), resolved by `LevelNumber` through `TrackLevelRegistrySO` (assigned to `TrackManager._trackLevels`).
-- Seam: GameFlow publishes `LevelApplied(int)` (its `LevelConfig.LevelNumber`); it never references a track type. The int is bridged to `TempleRunLevelApplied`, parked on `Blackboard.SelectedLevel`, and read at `TrackManager` init — the SOs are read only by `TrackLibraryLoader`.
+- Seam: GameFlow publishes `LevelApplied(int)` (its `LevelConfig.LevelNumber`); it never references a track type. The int is bridged to `TempleRunLevelApplied`, which is `Sticky`, so `TrackManager` reads it at init with `TryGetLast` rather than it being mirrored into a field — the SOs are read only by `TrackLibraryLoader`.
 - See [docs/TRACKS.md](docs/TRACKS.md#the-data-model).
 
 ## Folder Structure
@@ -315,7 +356,7 @@ Assets/
 │
 ├── GameFlow/                         # Application lifecycle domain
 │   ├── Scripts/
-│   │   ├── Events/                   # GameFlowEvents, EventsPublisherGameFlow, GameFlowAutoEventFlow
+│   │   ├── Events/                   # GameFlowEvents, GameFlowAutoEventFlow
 │   │   ├── TempleRunSpecific/        # TempleRunGameFlowBridge (bridges TempleRun <-> GameFlow)
 │   │   ├── Config/                   # GameState, GameConstants, LevelConfig, LevelRegistry, LevelProgressManager
 │   │   ├── GameControl/              # QuitController, UnloadNonActiveScenes
