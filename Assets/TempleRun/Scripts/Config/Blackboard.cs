@@ -13,8 +13,7 @@ namespace CrawfisSoftware.TempleRun
     /// <summary>
     /// TempleRun-domain singleton holding gameplay state.
     ///    Dependencies: None
-    ///    Subscribes: TempleRunEvents.TempleRunConfigApplied (bridged from GameFlow)
-    ///    Subscribes: TempleRunEvents.TempleRunDifficultyChanging (bridged from GameFlow)
+    ///    Subscribes: TempleRunEvents.TempleRunDifficultyChanging (sole writer of GameConfig)
     /// </summary>
     public class Blackboard : MonoBehaviour
     {
@@ -106,7 +105,10 @@ namespace CrawfisSoftware.TempleRun
             ShieldActive = false;
         }
 
-        private void OnConfigApplied(string eventName, object sender, object data)
+        // The single writer of GameConfig. The difficulty system resolves the player's chosen
+        // difficulty against the selected level's variants and publishes the winner here, so the
+        // level's tuning and the preference compose rather than overwrite each other.
+        private void OnDifficultyChanging(string eventName, object sender, object data)
         {
             DifficultyConfig difficulty = data as DifficultyConfig;
             if (difficulty != null)
@@ -125,15 +127,13 @@ namespace CrawfisSoftware.TempleRun
         private void SubscribeToEvents()
         {
             TempleRunBus.Subscribe(TempleRunEvents.TempleRunEnded, OnGameEnded);
-            TempleRunBus.Subscribe(TempleRunEvents.TempleRunConfigApplied, OnConfigApplied);
-            TempleRunBus.Subscribe(TempleRunEvents.TempleRunDifficultyChanging, OnConfigApplied);
+            TempleRunBus.Subscribe(TempleRunEvents.TempleRunDifficultyChanging, OnDifficultyChanging);
         }
 
         private void UnsubscribeToEvents()
         {
             TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunEnded, OnGameEnded);
-            TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunConfigApplied, OnConfigApplied);
-            TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunDifficultyChanging, OnConfigApplied);
+            TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunDifficultyChanging, OnDifficultyChanging);
         }
 
 #if UNITY_EDITOR

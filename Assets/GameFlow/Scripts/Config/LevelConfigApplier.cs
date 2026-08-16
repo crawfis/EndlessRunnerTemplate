@@ -9,9 +9,15 @@ namespace CrawfisSoftware.GameFlow.Config
     /// Applies the selected level's configuration to the game config pipeline.
     /// Bridges level selection to both the difficulty system and track generation.
     ///    Subscribes: GameFlowEvents.LevelSelected
-    ///    Publishes: GameFlowEvents.GameConfigApplied (data: DifficultyConfig)
+    ///    Publishes: GameFlowEvents.DifficultySettingsApplied (data: IList&lt;DifficultyConfig&gt;)
     ///    Publishes: GameFlowEvents.LevelApplied (data: int level number)
     /// </summary>
+    /// <remarks>
+    /// The level publishes its whole difficulty table rather than one resolved config. The
+    /// difficulty system owns the choice between variants, and it is the single writer of
+    /// Blackboard.GameConfig - so the level's tuning and the player's preference compose
+    /// instead of racing to overwrite each other.
+    /// </remarks>
     internal class LevelConfigApplier : MonoBehaviour
     {
         private void Awake()
@@ -31,10 +37,10 @@ namespace CrawfisSoftware.GameFlow.Config
             var levelConfig = data as LevelConfig;
             if (levelConfig == null) return;
 
-            if (levelConfig.Difficulty != null)
+            if (levelConfig.Difficulties.Length > 0)
             {
                 GameFlowBus.Publish(
-                    GameFlowEvents.GameConfigApplied, this, levelConfig.Difficulty);
+                    GameFlowEvents.DifficultySettingsApplied, this, levelConfig.Difficulties);
             }
 
             GameFlowBus.Publish(

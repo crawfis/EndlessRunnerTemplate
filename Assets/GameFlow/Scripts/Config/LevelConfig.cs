@@ -6,7 +6,7 @@ namespace CrawfisSoftware.GameFlow.Config
 {
     /// <summary>
     /// Defines a single level in the game. Each level combines a unique
-    /// environment/scene with its own difficulty settings.
+    /// environment/scene with its own set of difficulty variants.
     ///    Dependencies: DifficultyConfig (from _Common)
     /// </summary>
     [CreateAssetMenu(fileName = "LevelConfig", menuName = "CrawfisSoftware/GameFlow/LevelConfig")]
@@ -30,8 +30,10 @@ namespace CrawfisSoftware.GameFlow.Config
         [Tooltip("The gameplay scene to load for this level")]
         public string GameplaySceneName = "TempleRunGameplay";
 
-        [Tooltip("Difficulty settings applied when this level is selected")]
-        public DifficultyConfig Difficulty;
+        [Tooltip("This level's difficulty variants, one per difficulty name. Selecting the level " +
+                 "publishes the whole set; the player's chosen difficulty picks one from it by " +
+                 "DifficultyName. A level that offers only one variant is a set of one.")]
+        public DifficultyConfig[] Difficulties;
 
         [Header("Track Generation")]
         [Tooltip("The level number published when this level is selected. Gameplay maps it to a track " +

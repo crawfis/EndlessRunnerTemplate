@@ -17,8 +17,8 @@ MonoBehaviour:
   Thumbnail: {fileID: 0}
   SortOrder: 0
   GameplaySceneName: TempleRunGameplay
-  Difficulty:
-    DifficultyName: Medium
+  Difficulties:
+  - DifficultyName: Medium
     InitialSpeed: 5
     MaxSpeed: 80
     Acceleration: 0.2

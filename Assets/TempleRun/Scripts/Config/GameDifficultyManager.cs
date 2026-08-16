@@ -3,6 +3,7 @@ using CrawfisSoftware.TempleRun.Events;
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using UnityEngine;
 using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
@@ -51,18 +52,26 @@ namespace CrawfisSoftware.TempleRun.GameConfig
             TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunDifficultySettingsApplied, OnDifficultySettingsChanged);
         }
 
+        // The table is the selected level's difficulty variants, so a level decides which
+        // difficulties it offers. A preference the level does not offer resolves to the level's
+        // first variant rather than leaving GameConfig unset - the player asked for a level, and
+        // playing it at its own difficulty beats not playing it.
         public void SetDifficulty(string difficultyName)
         {
             Debug.Log($"Attempting to set game difficulty from {CurrentDifficulty} to {difficultyName}");
-            if (_difficultyConfigs.ContainsKey(difficultyName))
+            if (!_difficultyConfigs.ContainsKey(difficultyName))
             {
-                CurrentDifficulty = difficultyName;
-                TempleRunBus.Publish(TempleRunEvents.TempleRunDifficultyChanging, this, _difficultyConfigs[CurrentDifficulty]);
+                if (_difficultyConfigs.Count == 0)
+                {
+                    Debug.LogWarning($"SetDifficulty failed: no difficulty configurations have been applied.");
+                    return;
+                }
+                string fallback = _difficultyConfigs.Keys.First();
+                Debug.LogWarning($"This level does not offer difficulty '{difficultyName}'; using '{fallback}'.");
+                difficultyName = fallback;
             }
-            else
-            {
-                Debug.LogWarning($"SetDifficulty failed: difficulty '{difficultyName}' not found in available configurations.");
-            }
+            CurrentDifficulty = difficultyName;
+            TempleRunBus.Publish(TempleRunEvents.TempleRunDifficultyChanging, this, _difficultyConfigs[CurrentDifficulty]);
         }
 
         public void PopulateDifficulties(IList<DifficultyConfig> difficulties)
