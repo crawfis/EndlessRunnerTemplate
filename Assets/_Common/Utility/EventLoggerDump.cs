@@ -8,6 +8,7 @@ using System.Text;
 using UnityEngine;
 
 using static UnityEngine.Rendering.GPUSort;
+using GameFlowBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.GameFlow.Events.GameFlowEvents>;
 
 namespace CrawfisSoftware.Utility.Testing
 {
@@ -17,7 +18,7 @@ namespace CrawfisSoftware.Utility.Testing
         private StringBuilder _sb = new StringBuilder();
         private void Awake()
         {
-            EventsPublisherGameFlow.Instance.SubscribeToEvent(_dumpTriggerEvent, DumpLogs);
+            GameFlowBus.Subscribe(_dumpTriggerEvent, DumpLogs);
             EventsPublisher.Instance.SubscribeToAllEvents(LogEvent);
             _sb.AppendLine("Sequence of events:");
         }
@@ -25,7 +26,7 @@ namespace CrawfisSoftware.Utility.Testing
         private void OnDestroy()
         {
             EventsPublisher.Instance.UnsubscribeToAllEvents(LogEvent);
-            EventsPublisherGameFlow.Instance.UnsubscribeToEvent(_dumpTriggerEvent, DumpLogs);
+            GameFlowBus.Unsubscribe(_dumpTriggerEvent, DumpLogs);
         }
 
         private void LogEvent(string eventName, object arg2, object arg3)

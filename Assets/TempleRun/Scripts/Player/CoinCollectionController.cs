@@ -1,6 +1,7 @@
 using CrawfisSoftware.TempleRun.GameConfig;
 
 using UnityEngine;
+using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
 
 namespace CrawfisSoftware.TempleRun
 {
@@ -15,13 +16,13 @@ namespace CrawfisSoftware.TempleRun
     {
         private void Awake()
         {
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(
+            TempleRunBus.Subscribe(
                 TempleRunEvents.CoinCollecting, OnCoinCollecting);
         }
 
         private void OnDestroy()
         {
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(
+            TempleRunBus.Unsubscribe(
                 TempleRunEvents.CoinCollecting, OnCoinCollecting);
         }
 
@@ -44,7 +45,7 @@ namespace CrawfisSoftware.TempleRun
             }
 
             // Publish CoinCollected with current session total
-            EventsPublisherTempleRun.Instance.PublishEvent(
+            TempleRunBus.Publish(
                 TempleRunEvents.CoinCollected, this, Blackboard.Instance.SessionCoinCount);
         }
     }

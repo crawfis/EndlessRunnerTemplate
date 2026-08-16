@@ -1,6 +1,7 @@
 ﻿using GTMY.Audio;
 
 using UnityEngine;
+using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
 
 namespace CrawfisSoftware.TempleRun.Audio
 {
@@ -17,19 +18,19 @@ namespace CrawfisSoftware.TempleRun.Audio
             var leftFactory = new AudioFactoryPooled(this, this.gameObject);
             //AudioFactoryRegistry.Instance.RegisterAudioFactory("TurnLeftPooledAudio", leftFactory);
             ISfxAudioPlayer sfxAudioPlayer = SfxAudioPlayerFactory.Instance.CreateSfxAudioPlayer("leftTurnFeedback", leftFactory, leftClipProvider);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(TempleRunEvents.TurnLeftCompleted, PlayLeftTurnSound);
+            TempleRunBus.Subscribe(TempleRunEvents.TurnLeftCompleted, PlayLeftTurnSound);
 
             var rightClipProvider = new AudioClipProvider(new System.Random());
             rightClipProvider.AddClip(_turnRightAudioClips);
             var rightFactory = new AudioFactoryPooled(this, this.gameObject);
             //AudioFactoryRegistry.Instance.RegisterAudioFactory("TurnRightPooledAudio", rightFactory);
             ISfxAudioPlayer sfxRightAudioPlayer = SfxAudioPlayerFactory.Instance.CreateSfxAudioPlayer("rightTurnFeedback", rightFactory, rightClipProvider);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(TempleRunEvents.TurnRightCompleted, PlayRightTurnSound);
+            TempleRunBus.Subscribe(TempleRunEvents.TurnRightCompleted, PlayRightTurnSound);
         }
         private void OnDestroy()
         {
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(TempleRunEvents.TurnLeftCompleted, PlayLeftTurnSound);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(TempleRunEvents.TurnRightCompleted, PlayRightTurnSound);
+            TempleRunBus.Unsubscribe(TempleRunEvents.TurnLeftCompleted, PlayLeftTurnSound);
+            TempleRunBus.Unsubscribe(TempleRunEvents.TurnRightCompleted, PlayRightTurnSound);
         }
 
         private static void PlayLeftTurnSound(string eventName, object sender, object data)

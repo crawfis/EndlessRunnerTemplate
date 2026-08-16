@@ -6,6 +6,7 @@ using CrawfisSoftware.Utility;
 using UnityEditor;
 #endif
 using UnityEngine;
+using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
 
 namespace CrawfisSoftware.TempleRun
 {
@@ -121,7 +122,7 @@ namespace CrawfisSoftware.TempleRun
             {
                 GameConfig = difficulty;
                 Debug.Log($"Blackboard: GameConfig set to '{difficulty.DifficultyName}'");
-                EventsPublisherTempleRun.Instance.PublishEvent(TempleRunEvents.TempleRunDifficultyChanged, this, difficulty);
+                TempleRunBus.Publish(TempleRunEvents.TempleRunDifficultyChanged, this, difficulty);
             }
         }
 
@@ -138,18 +139,18 @@ namespace CrawfisSoftware.TempleRun
 
         private void SubscribeToEvents()
         {
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(TempleRunEvents.TempleRunEnded, OnGameEnded);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(TempleRunEvents.TempleRunConfigApplied, OnConfigApplied);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(TempleRunEvents.TempleRunDifficultyChanging, OnConfigApplied);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(TempleRunEvents.TempleRunLevelApplied, OnLevelApplied);
+            TempleRunBus.Subscribe(TempleRunEvents.TempleRunEnded, OnGameEnded);
+            TempleRunBus.Subscribe(TempleRunEvents.TempleRunConfigApplied, OnConfigApplied);
+            TempleRunBus.Subscribe(TempleRunEvents.TempleRunDifficultyChanging, OnConfigApplied);
+            TempleRunBus.Subscribe(TempleRunEvents.TempleRunLevelApplied, OnLevelApplied);
         }
 
         private void UnsubscribeToEvents()
         {
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(TempleRunEvents.TempleRunEnded, OnGameEnded);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(TempleRunEvents.TempleRunConfigApplied, OnConfigApplied);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(TempleRunEvents.TempleRunDifficultyChanging, OnConfigApplied);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(TempleRunEvents.TempleRunLevelApplied, OnLevelApplied);
+            TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunEnded, OnGameEnded);
+            TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunConfigApplied, OnConfigApplied);
+            TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunDifficultyChanging, OnConfigApplied);
+            TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunLevelApplied, OnLevelApplied);
         }
 
 #if UNITY_EDITOR

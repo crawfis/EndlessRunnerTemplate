@@ -7,7 +7,7 @@ namespace CrawfisSoftware.GameFlow.SceneManagement
     class FireEventWhenSceneCloses : MonoBehaviour
     {
         [SerializeField] private string _sceneName;
-        [SerializeField] private string _eventName;
+        [EventName][SerializeField] private string _eventName;
         private void OnEnable()
         {
             UnityEngine.SceneManagement.SceneManager.sceneUnloaded += OnSceneUnloaded;

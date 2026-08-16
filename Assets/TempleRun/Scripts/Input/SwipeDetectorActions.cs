@@ -5,6 +5,7 @@ using System.Collections;
 
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UserInputBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.Events.UserInitiatedEvents>;
 
 namespace CrawfisSoftware.TempleRun
 {
@@ -104,28 +105,28 @@ namespace CrawfisSoftware.TempleRun
         private void LeftAction_performed()
         {
             _swipePressed.Disable();
-            EventsPublisherUserInitiated.Instance.PublishEvent(UserInitiatedEvents.UserLeftTurnRequested, this, PlayerNumber);
+            UserInputBus.Publish(UserInitiatedEvents.UserLeftTurnRequested, this, PlayerNumber);
             StartCoroutine(EnableAfterDelay(_swipePressed));
         }
 
         private void RightAction_performed()
         {
             _swipePressed.Disable();
-            EventsPublisherUserInitiated.Instance.PublishEvent(UserInitiatedEvents.UserRightTurnRequested, this, PlayerNumber);
+            UserInputBus.Publish(UserInitiatedEvents.UserRightTurnRequested, this, PlayerNumber);
             StartCoroutine(EnableAfterDelay(_swipePressed));
         }
 
         private void JumpAction_performed()
         {
             _swipePressed.Disable();
-            EventsPublisherUserInitiated.Instance.PublishEvent(UserInitiatedEvents.UserJumpRequested, this, PlayerNumber);
+            UserInputBus.Publish(UserInitiatedEvents.UserJumpRequested, this, PlayerNumber);
             StartCoroutine(EnableAfterDelay(_swipePressed));
         }
 
         private void SlideAction_performed()
         {
             _swipePressed.Disable();
-            EventsPublisherUserInitiated.Instance.PublishEvent(UserInitiatedEvents.UserSlideRequested, this, PlayerNumber);
+            UserInputBus.Publish(UserInitiatedEvents.UserSlideRequested, this, PlayerNumber);
             StartCoroutine(EnableAfterDelay(_swipePressed));
         }
 

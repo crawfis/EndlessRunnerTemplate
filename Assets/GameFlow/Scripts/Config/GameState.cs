@@ -3,6 +3,7 @@ using CrawfisSoftware.GameFlow.Config;
 using CrawfisSoftware.GameFlow.Events;
 
 using UnityEngine;
+using GameFlowBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.GameFlow.Events.GameFlowEvents>;
 
 namespace CrawfisSoftware.GameFlow
 {
@@ -37,28 +38,28 @@ namespace CrawfisSoftware.GameFlow
             Instance = this;
             Reset();
 
-            EventsPublisherGameFlow.Instance.SubscribeToEvent(GameFlowEvents.MainMenuShowing, OnMainMenuShowing);
-            EventsPublisherGameFlow.Instance.SubscribeToEvent(GameFlowEvents.MainMenuHidden, OnMainMenuHidden);
-            EventsPublisherGameFlow.Instance.SubscribeToEvent(GameFlowEvents.GameStarted, OnGameStarted);
-            EventsPublisherGameFlow.Instance.SubscribeToEvent(GameFlowEvents.GameEnding, OnGameOver);
-            EventsPublisherGameFlow.Instance.SubscribeToEvent(GameFlowEvents.GameConfigApplied, OnGameConfigured);
-            EventsPublisherGameFlow.Instance.SubscribeToEvent(GameFlowEvents.Paused, OnPause);
-            EventsPublisherGameFlow.Instance.SubscribeToEvent(GameFlowEvents.Resumed, OnResume);
-            EventsPublisherGameFlow.Instance.SubscribeToEvent(GameFlowEvents.LevelSelectorShowing, OnLevelSelectorShowing);
-            EventsPublisherGameFlow.Instance.SubscribeToEvent(GameFlowEvents.LevelSelectorHidden, OnLevelSelectorHidden);
+            GameFlowBus.Subscribe(GameFlowEvents.MainMenuShowing, OnMainMenuShowing);
+            GameFlowBus.Subscribe(GameFlowEvents.MainMenuHidden, OnMainMenuHidden);
+            GameFlowBus.Subscribe(GameFlowEvents.GameStarted, OnGameStarted);
+            GameFlowBus.Subscribe(GameFlowEvents.GameEnding, OnGameOver);
+            GameFlowBus.Subscribe(GameFlowEvents.GameConfigApplied, OnGameConfigured);
+            GameFlowBus.Subscribe(GameFlowEvents.Paused, OnPause);
+            GameFlowBus.Subscribe(GameFlowEvents.Resumed, OnResume);
+            GameFlowBus.Subscribe(GameFlowEvents.LevelSelectorShowing, OnLevelSelectorShowing);
+            GameFlowBus.Subscribe(GameFlowEvents.LevelSelectorHidden, OnLevelSelectorHidden);
         }
 
         private void OnDestroy()
         {
-            EventsPublisherGameFlow.Instance.UnsubscribeToEvent(GameFlowEvents.MainMenuShowing, OnMainMenuShowing);
-            EventsPublisherGameFlow.Instance.UnsubscribeToEvent(GameFlowEvents.MainMenuHidden, OnMainMenuHidden);
-            EventsPublisherGameFlow.Instance.UnsubscribeToEvent(GameFlowEvents.GameStarted, OnGameStarted);
-            EventsPublisherGameFlow.Instance.UnsubscribeToEvent(GameFlowEvents.GameEnding, OnGameOver);
-            EventsPublisherGameFlow.Instance.UnsubscribeToEvent(GameFlowEvents.GameConfigApplied, OnGameConfigured);
-            EventsPublisherGameFlow.Instance.UnsubscribeToEvent(GameFlowEvents.Paused, OnPause);
-            EventsPublisherGameFlow.Instance.UnsubscribeToEvent(GameFlowEvents.Resumed, OnResume);
-            EventsPublisherGameFlow.Instance.UnsubscribeToEvent(GameFlowEvents.LevelSelectorShowing, OnLevelSelectorShowing);
-            EventsPublisherGameFlow.Instance.UnsubscribeToEvent(GameFlowEvents.LevelSelectorHidden, OnLevelSelectorHidden);
+            GameFlowBus.Unsubscribe(GameFlowEvents.MainMenuShowing, OnMainMenuShowing);
+            GameFlowBus.Unsubscribe(GameFlowEvents.MainMenuHidden, OnMainMenuHidden);
+            GameFlowBus.Unsubscribe(GameFlowEvents.GameStarted, OnGameStarted);
+            GameFlowBus.Unsubscribe(GameFlowEvents.GameEnding, OnGameOver);
+            GameFlowBus.Unsubscribe(GameFlowEvents.GameConfigApplied, OnGameConfigured);
+            GameFlowBus.Unsubscribe(GameFlowEvents.Paused, OnPause);
+            GameFlowBus.Unsubscribe(GameFlowEvents.Resumed, OnResume);
+            GameFlowBus.Unsubscribe(GameFlowEvents.LevelSelectorShowing, OnLevelSelectorShowing);
+            GameFlowBus.Unsubscribe(GameFlowEvents.LevelSelectorHidden, OnLevelSelectorHidden);
         }
 
         private void OnMainMenuShowing(string eventName, object sender, object data)

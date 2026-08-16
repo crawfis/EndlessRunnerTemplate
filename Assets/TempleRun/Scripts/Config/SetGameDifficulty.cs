@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
 
 namespace CrawfisSoftware.TempleRun.GameConfig
 {
@@ -23,7 +24,9 @@ namespace CrawfisSoftware.TempleRun.GameConfig
             {
                 currentDifficulty = PlayerPrefs.GetString(PlayerPrefKeys.GameDifficultyKey, "Easy");
             }
-            EventsPublisherTempleRun.Instance?.PublishEvent(TempleRunEvents.TempleRunDifficultyChangeRequested, this, currentDifficulty);
+            // The former "Instance?." guarded against the singleton not having awoken yet;
+            // EventsFor<T> is static and lazily initialized, so there is nothing to be null.
+            TempleRunBus.Publish(TempleRunEvents.TempleRunDifficultyChangeRequested, this, currentDifficulty);
         }
     }
 }

@@ -1,5 +1,6 @@
 using CrawfisSoftware.TempleRun.GameConfig;
 using UnityEngine;
+using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
 
 namespace CrawfisSoftware.TempleRun
 {
@@ -8,7 +9,7 @@ namespace CrawfisSoftware.TempleRun
     /// full lifecycle events: Entering, Entered, Exiting, Exited.
     /// Current implementation: distance-based polling of DistanceTracker in Update().
     /// Future: could be swapped for collider-based triggers or DistanceInterestService callbacks.
-    ///    Dependencies: Blackboard.DistanceTracker, EventsPublisherTempleRun
+    ///    Dependencies: Blackboard.DistanceTracker, EventsFor<TempleRunEvents>
     ///    Subscribes: ActiveTrackChanging — tracks the current segment and exit distance
     ///    Subscribes: TempleRunStarted — enables distance checking
     ///    Subscribes: PlayerDied — disables distance checking
@@ -33,18 +34,18 @@ namespace CrawfisSoftware.TempleRun
 
         private void Awake()
         {
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(TempleRunEvents.ActiveTrackChanging, OnTrackChanging);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(TempleRunEvents.DistanceUpdated, OnDistanceUpdated);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(TempleRunEvents.TempleRunStarted, OnGameStarted);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(TempleRunEvents.PlayerDied, OnGameEnding);
+            TempleRunBus.Subscribe(TempleRunEvents.ActiveTrackChanging, OnTrackChanging);
+            TempleRunBus.Subscribe(TempleRunEvents.DistanceUpdated, OnDistanceUpdated);
+            TempleRunBus.Subscribe(TempleRunEvents.TempleRunStarted, OnGameStarted);
+            TempleRunBus.Subscribe(TempleRunEvents.PlayerDied, OnGameEnding);
         }
 
         private void OnDestroy()
         {
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(TempleRunEvents.ActiveTrackChanging, OnTrackChanging);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(TempleRunEvents.DistanceUpdated, OnDistanceUpdated);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(TempleRunEvents.TempleRunStarted, OnGameStarted);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(TempleRunEvents.PlayerDied, OnGameEnding);
+            TempleRunBus.Unsubscribe(TempleRunEvents.ActiveTrackChanging, OnTrackChanging);
+            TempleRunBus.Unsubscribe(TempleRunEvents.DistanceUpdated, OnDistanceUpdated);
+            TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunStarted, OnGameStarted);
+            TempleRunBus.Unsubscribe(TempleRunEvents.PlayerDied, OnGameEnding);
         }
 
         private void OnDistanceUpdated(string eventName, object sender, object data)
@@ -57,14 +58,14 @@ namespace CrawfisSoftware.TempleRun
             if (!_exitingFired && distance >= _currentExitDistance - TempleRunConstants.SegmentExitingTriggerDistance)
             {
                 _exitingFired = true;
-                EventsPublisherTempleRun.Instance.PublishEvent(TempleRunEvents.SegmentExiting, this, _currentSegment);
+                TempleRunBus.Publish(TempleRunEvents.SegmentExiting, this, _currentSegment);
             }
 
             // Fire SegmentExited when the player reaches or passes the exit distance.
             if (distance >= _currentExitDistance)
             {
                 _isRunning = false;
-                EventsPublisherTempleRun.Instance.PublishEvent(TempleRunEvents.SegmentExited, this, _currentSegment);
+                TempleRunBus.Publish(TempleRunEvents.SegmentExited, this, _currentSegment);
             }
         }
 
@@ -79,8 +80,8 @@ namespace CrawfisSoftware.TempleRun
             DistanceInterestService.Instance.Register(_currentExitDistance);
             // Publish lifecycle: entering/entered (synchronous, immediate on track change).
             // Move to AutoFire based on ActiveTrackChanging if we want to decouple from track changes and allow other triggers (e.g. teleport).
-            EventsPublisherTempleRun.Instance.PublishEvent(TempleRunEvents.SegmentEntering, this, _currentSegment);
-            EventsPublisherTempleRun.Instance.PublishEvent(TempleRunEvents.SegmentEntered, this, _currentSegment);
+            TempleRunBus.Publish(TempleRunEvents.SegmentEntering, this, _currentSegment);
+            TempleRunBus.Publish(TempleRunEvents.SegmentEntered, this, _currentSegment);
         }
 
         private void OnGameStarted(string eventName, object sender, object data)

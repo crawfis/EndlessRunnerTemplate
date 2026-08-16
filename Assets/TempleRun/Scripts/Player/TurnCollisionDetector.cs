@@ -1,4 +1,5 @@
 using UnityEngine;
+using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
 
 namespace CrawfisSoftware.TempleRun
 {
@@ -6,7 +7,7 @@ namespace CrawfisSoftware.TempleRun
     /// Compares the distance from DistanceTracker to the current track segment length.
     /// Fires PlayerFailingAtTurn when the player exceeds a turn segment distance without turning.
     /// Straight segments are handled by SegmentAdvanceTrigger (SegmentExiting / SegmentExited).
-    ///    Dependencies: Blackboard, DistanceTracker, EventsPublisherTempleRun
+    ///    Dependencies: Blackboard, DistanceTracker, EventsFor<TempleRunEvents>
     ///    Subscribes: TempleRunEvents.ActiveTrackChanging — increases the active track length
     ///    Subscribes: TempleRunEvents.TempleRunStarted — begins distance checking
     ///    Subscribes: TempleRunEvents.PlayerDied — stops distance checking
@@ -35,11 +36,11 @@ namespace CrawfisSoftware.TempleRun
 
         private void Awake()
         {
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(TempleRunEvents.ActiveTrackChanging, OnTrackChanging);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(TempleRunEvents.TurnLeftCompleted, OnSuccessfullTurn);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(TempleRunEvents.TurnRightCompleted, OnSuccessfullTurn);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(TempleRunEvents.TempleRunStarted, OnGameStarted);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(TempleRunEvents.PlayerDied, OnGameEnding);
+            TempleRunBus.Subscribe(TempleRunEvents.ActiveTrackChanging, OnTrackChanging);
+            TempleRunBus.Subscribe(TempleRunEvents.TurnLeftCompleted, OnSuccessfullTurn);
+            TempleRunBus.Subscribe(TempleRunEvents.TurnRightCompleted, OnSuccessfullTurn);
+            TempleRunBus.Subscribe(TempleRunEvents.TempleRunStarted, OnGameStarted);
+            TempleRunBus.Subscribe(TempleRunEvents.PlayerDied, OnGameEnding);
         }
 
         private void Update()
@@ -52,17 +53,17 @@ namespace CrawfisSoftware.TempleRun
             {
                 _isRunning = false;
                 Debug.LogWarning($"Player failed turn at distance: {distance}, should have turned before {_turnFailureDistance}");
-                EventsPublisherTempleRun.Instance.PublishEvent(TempleRunEvents.PlayerFailingAtTurn, this, distance);
+                TempleRunBus.Publish(TempleRunEvents.PlayerFailingAtTurn, this, distance);
             }
         }
 
         private void OnDestroy()
         {
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(TempleRunEvents.ActiveTrackChanging, OnTrackChanging);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(TempleRunEvents.TurnLeftCompleted, OnSuccessfullTurn);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(TempleRunEvents.TurnRightCompleted, OnSuccessfullTurn);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(TempleRunEvents.TempleRunStarted, OnGameStarted);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(TempleRunEvents.PlayerDied, OnGameEnding);
+            TempleRunBus.Unsubscribe(TempleRunEvents.ActiveTrackChanging, OnTrackChanging);
+            TempleRunBus.Unsubscribe(TempleRunEvents.TurnLeftCompleted, OnSuccessfullTurn);
+            TempleRunBus.Unsubscribe(TempleRunEvents.TurnRightCompleted, OnSuccessfullTurn);
+            TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunStarted, OnGameStarted);
+            TempleRunBus.Unsubscribe(TempleRunEvents.PlayerDied, OnGameEnding);
         }
 
         private void OnTrackChanging(string eventName, object sender, object data)

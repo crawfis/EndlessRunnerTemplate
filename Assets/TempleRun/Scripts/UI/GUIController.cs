@@ -2,12 +2,13 @@
 
 using UnityEngine;
 using UnityEngine.UIElements;
+using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
 
 namespace CrawfisSoftware.TempleRun
 {
     /// <summary>
     /// Updates the UXML document for the current distances. Could be broken into different classes.
-    ///    Dependencies: PanelRenderer (HUD overlay), Blackboard, DistanceTracker, EventsPublisherTempleRun
+    ///    Dependencies: PanelRenderer (HUD overlay), Blackboard, DistanceTracker, EventsFor<TempleRunEvents>
     ///    Subscribes: ActiveTrackChanging
     /// </summary>
     public class GUIController : MonoBehaviour
@@ -24,7 +25,7 @@ namespace CrawfisSoftware.TempleRun
 
         private void Awake()
         {
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(TempleRunEvents.ActiveTrackChanging, OnTrackChanging);
+            TempleRunBus.Subscribe(TempleRunEvents.ActiveTrackChanging, OnTrackChanging);
         }
 
         private void OnEnable()
@@ -70,7 +71,7 @@ namespace CrawfisSoftware.TempleRun
 
         private void OnDestroy()
         {
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(TempleRunEvents.ActiveTrackChanging, OnTrackChanging);
+            TempleRunBus.Unsubscribe(TempleRunEvents.ActiveTrackChanging, OnTrackChanging);
 
         }
     }

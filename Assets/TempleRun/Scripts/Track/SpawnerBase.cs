@@ -3,6 +3,7 @@ using CrawfisSoftware.TempleRun.GameConfig;
 using System.Collections.Generic;
 
 using UnityEngine;
+using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
 
 namespace CrawfisSoftware.TempleRun
 {
@@ -62,11 +63,11 @@ namespace CrawfisSoftware.TempleRun
 
         protected virtual void Awake()
         {
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(
+            TempleRunBus.Subscribe(
                 TempleRunEvents.SplineSegmentCreated, OnSplineSegmentCreated);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(
+            TempleRunBus.Subscribe(
                 TempleRunEvents.SegmentGeometryReady, OnSegmentGeometryReady);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(
+            TempleRunBus.Subscribe(
                 TempleRunEvents.ActiveTrackChanged, OnActiveTrackChanged);
 
             _parentTransform = new GameObject(ContainerName).transform;
@@ -75,11 +76,11 @@ namespace CrawfisSoftware.TempleRun
 
         protected virtual void OnDestroy()
         {
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(
+            TempleRunBus.Unsubscribe(
                 TempleRunEvents.SplineSegmentCreated, OnSplineSegmentCreated);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(
+            TempleRunBus.Unsubscribe(
                 TempleRunEvents.SegmentGeometryReady, OnSegmentGeometryReady);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(
+            TempleRunBus.Unsubscribe(
                 TempleRunEvents.ActiveTrackChanged, OnActiveTrackChanged);
         }
 

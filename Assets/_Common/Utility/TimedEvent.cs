@@ -9,7 +9,7 @@ namespace CrawfisSoftware.Utility
     class TimedEvent : MonoBehaviour
     {
         [SerializeField] private float _delayInSeconds = 1.0f;
-        [SerializeField] private string _eventName = "ERROR";
+        [EventName][SerializeField] private string _eventName = "ERROR";
         [SerializeField] private bool _useRealtime = true;
 
         private void Start()

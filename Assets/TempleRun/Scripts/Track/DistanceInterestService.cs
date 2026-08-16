@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
 
 namespace CrawfisSoftware.TempleRun
 {
     /// <summary>
     /// Registration-based distance notification service. Any component can register
     /// a distance threshold and receive a callback when the player reaches it.
-    ///    Dependencies: EventsPublisherTempleRun, Blackboard.DistanceTracker
+    ///    Dependencies: EventsFor<TempleRunEvents>, Blackboard.DistanceTracker
     ///    Subscribes: TempleRunEvents.DistanceUpdated
     /// </summary>
     public class DistanceInterestService : MonoBehaviour
@@ -67,7 +68,7 @@ namespace CrawfisSoftware.TempleRun
             {
                 var interest = _interests[0];
                 _interests.RemoveAt(0);
-                EventsPublisherTempleRun.Instance.PublishEvent(TempleRunEvents.DistanceUpdated, this, currentDistance);
+                TempleRunBus.Publish(TempleRunEvents.DistanceUpdated, this, currentDistance);
             }
         }
     }

@@ -1,6 +1,7 @@
 using System.Collections;
 
 using UnityEngine;
+using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
 
 namespace CrawfisSoftware.TempleRun
 {
@@ -26,20 +27,20 @@ namespace CrawfisSoftware.TempleRun
 
         private void Awake()
         {
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(TempleRunEvents.PlayerFailing, OnResetSpeed);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(TempleRunEvents.TempleRunStarted, OnGameStarted);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(TempleRunEvents.PlayerDied, OnGameOver);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(TempleRunEvents.TeleportStarted, OnTeleportStarted);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(TempleRunEvents.TeleportEnded, OnTeleportEnded);
+            TempleRunBus.Subscribe(TempleRunEvents.PlayerFailing, OnResetSpeed);
+            TempleRunBus.Subscribe(TempleRunEvents.TempleRunStarted, OnGameStarted);
+            TempleRunBus.Subscribe(TempleRunEvents.PlayerDied, OnGameOver);
+            TempleRunBus.Subscribe(TempleRunEvents.TeleportStarted, OnTeleportStarted);
+            TempleRunBus.Subscribe(TempleRunEvents.TeleportEnded, OnTeleportEnded);
         }
 
         private void OnDestroy()
         {
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(TempleRunEvents.PlayerFailing, OnResetSpeed);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(TempleRunEvents.TempleRunStarted, OnGameStarted);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(TempleRunEvents.PlayerDied, OnGameOver);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(TempleRunEvents.TeleportStarted, OnTeleportStarted);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(TempleRunEvents.TeleportEnded, OnTeleportEnded);
+            TempleRunBus.Unsubscribe(TempleRunEvents.PlayerFailing, OnResetSpeed);
+            TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunStarted, OnGameStarted);
+            TempleRunBus.Unsubscribe(TempleRunEvents.PlayerDied, OnGameOver);
+            TempleRunBus.Unsubscribe(TempleRunEvents.TeleportStarted, OnTeleportStarted);
+            TempleRunBus.Unsubscribe(TempleRunEvents.TeleportEnded, OnTeleportEnded);
             DeleteCoroutine();
         }
 
@@ -97,7 +98,7 @@ namespace CrawfisSoftware.TempleRun
 
                     if (_distanceTracker.DistanceTravelled >= _nextDistancePublishThreshold)
                     {
-                        EventsPublisherTempleRun.Instance.PublishEvent(
+                        TempleRunBus.Publish(
                             TempleRunEvents.DistanceUpdated, this, _distanceTracker.DistanceTravelled);
 
                         if (_distancePublishIndex < DistancePublishThresholds.Length - 1)

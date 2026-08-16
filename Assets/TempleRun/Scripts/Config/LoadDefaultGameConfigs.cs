@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
 
 namespace CrawfisSoftware.TempleRun.GameConfig
 {
@@ -15,8 +16,8 @@ namespace CrawfisSoftware.TempleRun.GameConfig
 
         private void Start()
         {
-            EventsPublisherTempleRun.Instance.PublishEvent(TempleRunEvents.TempleRunDifficultySettingsApplied, this, _gameConfig.DifficultyConfigs);
-            EventsPublisherTempleRun.Instance.PublishEvent(TempleRunEvents.TempleRunDifficultyChangeRequested, this, _difficultyLevel);
+            TempleRunBus.Publish(TempleRunEvents.TempleRunDifficultySettingsApplied, this, _gameConfig.DifficultyConfigs);
+            TempleRunBus.Publish(TempleRunEvents.TempleRunDifficultyChangeRequested, this, _difficultyLevel);
         }
     }
 }

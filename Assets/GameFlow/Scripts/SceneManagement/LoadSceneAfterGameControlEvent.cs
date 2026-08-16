@@ -14,7 +14,7 @@ namespace CrawfisSoftware.GameFlow.SceneManagement
     {
         [SerializeField] private string _sceneName;
         [SerializeField] private bool _loadadditively = true;
-        [SerializeField] private string _eventToListenTo;
+        [EventName][SerializeField] private string _eventToListenTo;
         [SerializeField] private int _delayInSeconds = 0;
 
         private void Start()

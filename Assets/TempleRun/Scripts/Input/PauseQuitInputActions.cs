@@ -2,8 +2,9 @@
 
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UserInputBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.Events.UserInitiatedEvents>;
 
-// Note: CrawfisSoftware.Events import needed for EventsPublisherUserInitiated
+// Note: CrawfisSoftware.Events import needed for EventsFor<UserInitiatedEvents>
 
 namespace CrawfisSoftware.TempleRun.Input
 {
@@ -35,12 +36,12 @@ namespace CrawfisSoftware.TempleRun.Input
 
         private void TEMP_GameQuit(InputAction.CallbackContext obj)
         {
-            EventsPublisherUserInitiated.Instance.PublishEvent(UserInitiatedEvents.UserQuitRequested, this, UnityEngine.Time.time);
+            UserInputBus.Publish(UserInitiatedEvents.UserQuitRequested, this, UnityEngine.Time.time);
         }
 
         private void PauseResumeToggle_performed(InputAction.CallbackContext obj)
         {
-            EventsPublisherUserInitiated.Instance.PublishEvent(UserInitiatedEvents.UserPauseToggle, this, UnityEngine.Time.time);
+            UserInputBus.Publish(UserInitiatedEvents.UserPauseToggle, this, UnityEngine.Time.time);
         }
     }
 }

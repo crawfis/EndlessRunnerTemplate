@@ -1,4 +1,5 @@
 using UnityEngine;
+using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
 
 namespace CrawfisSoftware.TempleRun
 {
@@ -23,7 +24,7 @@ namespace CrawfisSoftware.TempleRun
         {
             if (other.CompareTag(_coinTag))
             {
-                EventsPublisherTempleRun.Instance.PublishEvent(
+                TempleRunBus.Publish(
                     TempleRunEvents.CoinCollectRequested, this, other.gameObject);
                 return;
             }
@@ -34,7 +35,7 @@ namespace CrawfisSoftware.TempleRun
                 if (identifier != null && identifier.Definition != null)
                 {
                     // Pass both the definition and the GameObject as a tuple so the controller can destroy the GO
-                    EventsPublisherTempleRun.Instance.PublishEvent(
+                    TempleRunBus.Publish(
                         TempleRunEvents.PowerUpCollectRequested, this, (identifier.Definition, other.gameObject));
                 }
                 return;

@@ -3,12 +3,13 @@
 using System.Collections;
 
 using UnityEngine;
+using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
 
 namespace CrawfisSoftware.TempleRun
 {
     /// <summary>
     /// Simple behavior for failure. In this case, pauses the game for a fixed time and then resumes.
-    ///    Dependencies: TempleRunConstants, EventsPublisherTempleRun
+    ///    Dependencies: TempleRunConstants, EventsFor<TempleRunEvents>
     ///    Subscribes: TempleRunEvents.PlayerFailingAtTurn
     ///    Subscribes: TempleRunEvents.PlayerFailingAtObstacle
     ///    Publishes: TempleRunEvents.PlayerPaused (pause the game)
@@ -20,8 +21,8 @@ namespace CrawfisSoftware.TempleRun
 
         private void Awake()
         {
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(TempleRunEvents.PlayerFailingAtTurn, OnPlayerFailing);
-            EventsPublisherTempleRun.Instance.SubscribeToEvent(TempleRunEvents.PlayerFailingAtObstacle, OnPlayerFailing);
+            TempleRunBus.Subscribe(TempleRunEvents.PlayerFailingAtTurn, OnPlayerFailing);
+            TempleRunBus.Subscribe(TempleRunEvents.PlayerFailingAtObstacle, OnPlayerFailing);
         }
 
         private void OnPlayerFailing(string eventName, object sender, object data)
@@ -32,17 +33,17 @@ namespace CrawfisSoftware.TempleRun
         }
         private IEnumerator DeathDelay()
         {
-            EventsPublisherTempleRun.Instance.PublishEvent(TempleRunEvents.PlayerPaused, this, UnityEngine.Time.time);
+            TempleRunBus.Publish(TempleRunEvents.PlayerPaused, this, UnityEngine.Time.time);
             yield return new WaitForSecondsRealtime(TempleRunConstants.ResumeDelay);
             _pauseCoroutine = null;
-            EventsPublisherTempleRun.Instance.PublishEvent(TempleRunEvents.PlayerResumeRequested, this, UnityEngine.Time.time);
+            TempleRunBus.Publish(TempleRunEvents.PlayerResumeRequested, this, UnityEngine.Time.time);
         }
 
         private void OnDestroy()
         {
             StopAllCoroutines(); // Saved them so could call individually instead.
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(TempleRunEvents.PlayerFailingAtTurn, OnPlayerFailing);
-            EventsPublisherTempleRun.Instance.UnsubscribeToEvent(TempleRunEvents.PlayerFailingAtObstacle, OnPlayerFailing);
+            TempleRunBus.Unsubscribe(TempleRunEvents.PlayerFailingAtTurn, OnPlayerFailing);
+            TempleRunBus.Unsubscribe(TempleRunEvents.PlayerFailingAtObstacle, OnPlayerFailing);
         }
     }
 }

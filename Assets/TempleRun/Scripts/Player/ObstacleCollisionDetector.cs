@@ -1,6 +1,7 @@
 using CrawfisSoftware.TempleRun.GameConfig;
 
 using UnityEngine;
+using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
 
 namespace CrawfisSoftware.TempleRun
 {
@@ -44,7 +45,7 @@ namespace CrawfisSoftware.TempleRun
             }
 
             // Player hit the obstacle
-            EventsPublisherTempleRun.Instance.PublishEvent(
+            TempleRunBus.Publish(
                 TempleRunEvents.ObstacleHit, this, other.gameObject);
         }
     }

@@ -3,6 +3,7 @@ using CrawfisSoftware.GameFlow.Events;
 
 using UnityEngine;
 using UnityEngine.UIElements;
+using GameFlowBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.GameFlow.Events.GameFlowEvents>;
 
 namespace CrawfisSoftware.GameFlow.UI
 {
@@ -27,7 +28,7 @@ namespace CrawfisSoftware.GameFlow.UI
         {
             _panel.RegisterUIReloadCallback(OnUIReload);
 
-            EventsPublisherGameFlow.Instance.SubscribeToEvent(
+            GameFlowBus.Subscribe(
                 GameFlowEvents.LevelSelectorShowing, OnShowing);
         }
 
@@ -41,7 +42,7 @@ namespace CrawfisSoftware.GameFlow.UI
             if (_backButton != null)
                 _backButton.clicked -= OnBackClicked;
 
-            EventsPublisherGameFlow.Instance.UnsubscribeToEvent(
+            GameFlowBus.Unsubscribe(
                 GameFlowEvents.LevelSelectorShowing, OnShowing);
         }
 
@@ -139,13 +140,13 @@ namespace CrawfisSoftware.GameFlow.UI
         private void OnLevelSelected(LevelConfig level)
         {
             GameState.SelectedLevel = level;
-            EventsPublisherGameFlow.Instance.PublishEvent(
+            GameFlowBus.Publish(
                 GameFlowEvents.LevelSelected, this, level);
         }
 
         private void OnBackClicked()
         {
-            EventsPublisherGameFlow.Instance.PublishEvent(
+            GameFlowBus.Publish(
                 GameFlowEvents.MainMenuShowRequested, this, null);
         }
     }

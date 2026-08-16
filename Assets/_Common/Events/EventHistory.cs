@@ -7,7 +7,8 @@ namespace CrawfisSoftware.Events
 {
     internal class EventHistory : MonoBehaviour
     {
-        [SerializeField] private List<string> _eventsInterestedIn = new List<string>();
+        // The drawer is applied per list element, so each entry is picked from the dropdown.
+        [EventName][SerializeField] private List<string> _eventsInterestedIn = new List<string>();
         [SerializeField][TextArea(5, 100)] private string _events;
         private StringBuilder _eventsBuilder = new StringBuilder();
         private HashSet<string> _interestedEventsHashSet = new HashSet<string>();
