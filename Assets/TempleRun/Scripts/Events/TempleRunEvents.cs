@@ -1,4 +1,7 @@
-﻿using CrawfisSoftware.Events;
+﻿using System.Collections.Generic;
+
+using CrawfisSoftware.Config;
+using CrawfisSoftware.Events;
 
 namespace CrawfisSoftware.TempleRun
 {
@@ -52,6 +55,7 @@ namespace CrawfisSoftware.TempleRun
         TurnRightRequested = 53,
         TurnRightStarting = 54,
         TurnRightCompleted = 55,
+        [EventPayload(typeof(Direction))]
         SegmentRequested = 56,  // Data: Direction (Left or Right). Fires when player commits direction at an Either junction.
         // 57: removed (was StraightSegmentCompleted, replaced by SegmentExited)
         //LeftTurnSucceeded = TurnLeftCompleted, // Legacy naming
@@ -127,13 +131,16 @@ namespace CrawfisSoftware.TempleRun
         // ---------- Track generation (segments/tiles) ----------
         TrackSegmentCreateRequested = 240,
         TrackSegmentCreating = 241,
+        [EventPayload(typeof(TrackSegmentInfo))]
         TrackSegmentCreated = 242,
         TrackSegmentRecycleRequested = 243,
         TrackSegmentRecycling = 244,
         TrackSegmentRecycled = 245,
 
         ActiveTrackChangeRequested = 260,
+        [EventPayload(typeof(TrackSegmentInfo))]
         ActiveTrackChanging = 261,
+        [EventPayload(typeof(TrackSegmentInfo))]
         ActiveTrackChanged = 262,
 
         // ---------- Teleportation ----------
@@ -148,12 +155,15 @@ namespace CrawfisSoftware.TempleRun
         // Transient, and currently unpublished: the level no longer applies one resolved config, it
         // publishes its whole difficulty table via DifficultySettingsApplied and the difficulty
         // system picks from it. Kept because the name is baked into assets and the bridge mapping
-        // still stands, so a project extending this template can publish it.
+        // still stands, so a project extending this template can publish it - and the declaration
+        // below is what tells it, and StrictMode, what the payload must be.
+        [EventPayload(typeof(DifficultyConfig))]
         TempleRunConfigApplied = 300,
         TempleRunScenesReady = 302,
         // A level: the selected level number is state, self-describing, and published once - before
         // the gameplay scene (and TrackManager) exists. Retained so TrackManager can read it at init
         // with TryGetLast instead of it being parked in a Blackboard field.
+        [EventPayload(typeof(int))]
         [EventDelivery(EventDelivery.Sticky)]
         TempleRunLevelApplied = 304,          // data: int (selected level number, bridged from GameFlow)
 
@@ -163,29 +173,44 @@ namespace CrawfisSoftware.TempleRun
         // SetDifficulty warning and no-opping against an empty table. Retained so the manager is
         // populated whenever it subscribes. PopulateDifficulties clears first, so a replay
         // followed by a live publish is idempotent.
+        [EventPayload(typeof(IList<DifficultyConfig>))]
         [EventDelivery(EventDelivery.Sticky)]
         TempleRunDifficultySettingsApplied = 310,
+        [EventPayload(typeof(DifficultyConfig))]
         TempleRunDifficultyChanging = 312,
+        [EventPayload(typeof(DifficultyConfig))]
         TempleRunDifficultyChanged = 314,
         TempleRunDifficultyChangeFailed = 316,
+        // The requested difficulty's name, resolved against the selected level's variants.
+        [EventPayload(typeof(string))]
         TempleRunDifficultyChangeRequested = 318,
 
         // ---------- New difficulty events (direct, non-legacy) ----------
         DifficultySettingsApplied = 320,
         DifficultyChanging = 321,
         DifficultyChanged = 322,
+        // The config still in effect after the change was refused; null when none is current.
+        [EventPayload(typeof(DifficultyConfig))]
         DifficultyChangeFailed = 323,
 
         // ---------- Distance tracking (for achievements/UGS) ----------
+        [EventPayload(typeof(float))]
         DistanceUpdated = 330,
 
         // ---------- Segment lifecycle ----------
+        // TrackSegmentInfo is a struct, so these declarations also make a null payload an error
+        // rather than a default-valued segment silently reaching a handler.
+        [EventPayload(typeof(TrackSegmentInfo))]
         SegmentEntering = 342,            // Data: TrackSegmentInfo. Player approaching segment entrance.
+        [EventPayload(typeof(TrackSegmentInfo))]
         SegmentEntered = 343,             // Data: TrackSegmentInfo. Player entered segment.
+        [EventPayload(typeof(TrackSegmentInfo))]
         SegmentExiting = 344,             // Data: TrackSegmentInfo. Player approaching segment exit.
+        [EventPayload(typeof(TrackSegmentInfo))]
         SegmentExited = 345,              // Data: TrackSegmentInfo. Player exited segment.
 
         // ---------- Segment geometry ----------
+        [EventPayload(typeof(SegmentGeometryData))]
         SegmentGeometryReady = 350,       // Data: SegmentGeometryData. Full geometry built for a segment.
     }
 }
