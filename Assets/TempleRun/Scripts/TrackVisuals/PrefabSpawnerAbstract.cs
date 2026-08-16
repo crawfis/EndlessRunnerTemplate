@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
+using CrawfisSoftware.Events;
+
 using UnityEngine;
 using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
 
@@ -31,6 +33,14 @@ namespace CrawfisSoftware.TempleRun
         // more segment rather than popping out from under the player.
         protected int _currentTrackID = -1;
         protected int _trackNumber = 0;
+
+        private static readonly EventId<SplineSegmentData> SplineSegmentCreated =
+            TempleRunBus.Id<SplineSegmentData>(TempleRunEvents.SplineSegmentCreated);
+        private static readonly EventId<SegmentGeometryData> GeometryReady =
+            TempleRunBus.Id<SegmentGeometryData>(TempleRunEvents.SegmentGeometryReady);
+        private static readonly EventId<TrackSegmentInfo> ActiveTrackChanged =
+            TempleRunBus.Id<TrackSegmentInfo>(TempleRunEvents.ActiveTrackChanged);
+
         protected virtual void Awake()
         {
             SubscribeToEvents();
@@ -38,16 +48,15 @@ namespace CrawfisSoftware.TempleRun
 
         protected void SubscribeToEvents()
         {
-            TempleRunBus.Subscribe(TempleRunEvents.SplineSegmentCreated, OnSplineCreated);
-            TempleRunBus.Subscribe(TempleRunEvents.SegmentGeometryReady, OnSegmentGeometryReady);
-            TempleRunBus.Subscribe(TempleRunEvents.ActiveTrackChanged, OnActiveSplineChanged);
+            SplineSegmentCreated.Subscribe(OnSplineCreated);
+            GeometryReady.Subscribe(OnSegmentGeometryReady);
+            ActiveTrackChanged.Subscribe(OnActiveSplineChanged);
             var parent = new GameObject("Generated Level");
             _parentTransform = parent.transform;
         }
 
-        private void OnSplineCreated(string eventName, object sender, object data)
+        private void OnSplineCreated(string eventName, object sender, SplineSegmentData splineSegment)
         {
-            var splineSegment = (SplineSegmentData)data;
             Vector3 point1 = splineSegment.Point1;
             Vector3 point2 = splineSegment.Point2;
             Direction turnDirection = splineSegment.EndDirection;
@@ -71,11 +80,10 @@ namespace CrawfisSoftware.TempleRun
         /// junction publishes geometry twice for the SAME index — approach, then exit once the
         /// player commits — so the batches accumulate into one group rather than replacing it.
         /// </summary>
-        private void OnSegmentGeometryReady(string eventName, object sender, object data)
+        private void OnSegmentGeometryReady(string eventName, object sender, SegmentGeometryData geometry)
         {
             if (_pendingTracks.Count == 0) return;
 
-            var geometry = (SegmentGeometryData)data;
             if (!_spawnedTracks.TryGetValue(geometry.SequenceIndex, out var tracks))
             {
                 tracks = new List<GameObject>();
@@ -93,7 +101,7 @@ namespace CrawfisSoftware.TempleRun
         /// so a turn (two sub-splines) leaked one object each time and the delete cursor fell
         /// permanently behind the spawn cursor.
         /// </summary>
-        private void OnActiveSplineChanged(string eventName, object sender, object data)
+        private void OnActiveSplineChanged(string eventName, object sender, TrackSegmentInfo segment)
         {
             if (_currentTrackID >= 0 && _spawnedTracks.TryGetValue(_currentTrackID, out var tracks))
             {
@@ -111,9 +119,9 @@ namespace CrawfisSoftware.TempleRun
         }
         private void OnDestroy()
         {
-            TempleRunBus.Unsubscribe(TempleRunEvents.SplineSegmentCreated, OnSplineCreated);
-            TempleRunBus.Unsubscribe(TempleRunEvents.SegmentGeometryReady, OnSegmentGeometryReady);
-            TempleRunBus.Unsubscribe(TempleRunEvents.ActiveTrackChanged, OnActiveSplineChanged);
+            SplineSegmentCreated.Unsubscribe(OnSplineCreated);
+            GeometryReady.Unsubscribe(OnSegmentGeometryReady);
+            ActiveTrackChanged.Unsubscribe(OnActiveSplineChanged);
         }
     }
 }

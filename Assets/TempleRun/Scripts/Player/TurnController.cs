@@ -56,11 +56,14 @@ namespace CrawfisSoftware.TempleRun
             OnTurnRequested(this, null, chosenDirection, startingEvent, completedEvent);
         }
 
+        private static readonly EventId<TrackSegmentInfo> TrackChanging =
+            TempleRunBus.Id<TrackSegmentInfo>(TempleRunEvents.ActiveTrackChanging);
+
         private void Awake()
         {
             UserInputBus.Subscribe(UserInitiatedEvents.UserLeftTurnRequested, OnLeftTurnRequested);
             UserInputBus.Subscribe(UserInitiatedEvents.UserRightTurnRequested, OnRightTurnRequested);
-            TempleRunBus.Subscribe(TempleRunEvents.ActiveTrackChanging, OnTrackChanging);
+            TrackChanging.Subscribe(OnTrackChanging);
             _safeTurnDistance = Blackboard.Instance.GameConfig.SafePreTurnDistance;
         }
 
@@ -94,9 +97,8 @@ namespace CrawfisSoftware.TempleRun
             }
         }
 
-        private void OnTrackChanging(string eventName, object sender, object data)
+        private void OnTrackChanging(string eventName, object sender, TrackSegmentInfo trackSegment)
         {
-            var trackSegment = (TrackSegmentInfo)data;
             _nextTrackDirection  = trackSegment.Direction;
             // Anchor to this segment's start, not to the running sum of turn points. Summing
             // TurnPointDistance loses (Length - TurnPointDistance) per segment, which walked the
@@ -112,7 +114,7 @@ namespace CrawfisSoftware.TempleRun
         {
             UserInputBus.Unsubscribe(UserInitiatedEvents.UserLeftTurnRequested, OnLeftTurnRequested);
             UserInputBus.Unsubscribe(UserInitiatedEvents.UserRightTurnRequested, OnRightTurnRequested);
-            TempleRunBus.Unsubscribe(TempleRunEvents.ActiveTrackChanging, OnTrackChanging);
+            TrackChanging.Unsubscribe(OnTrackChanging);
         }
     }
 }

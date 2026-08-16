@@ -119,6 +119,9 @@ namespace CrawfisSoftware.TempleRun
         // ---------- Abstract track generation (splines) ----------
         SplineSegmentCreateRequested = 200,
         SplineSegmentCreating = 201,
+        // Currently unpublished; the declaration comes from PrefabSpawnerAbstract, whose handler
+        // has always cast the payload to this type.
+        [EventPayload(typeof(SplineSegmentData))]
         SplineSegmentCreated = 202,
         SplineSegmentReleaseRequested = 203,
         SplineSegmentReleasing = 204,
