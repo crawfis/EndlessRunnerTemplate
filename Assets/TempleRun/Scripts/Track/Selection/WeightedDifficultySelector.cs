@@ -56,6 +56,21 @@ namespace CrawfisSoftware.TempleRun.Track
                                   _targetDifficulty, _difficultyRange);
         }
 
+        /// <summary>
+        /// The selection pipeline with an explicitly supplied difficulty target, for policies that
+        /// compute their target per call instead of fixing it at construction — see
+        /// <see cref="DistanceRampSelector"/> and <see cref="WaveSelector"/>. Exposed so those
+        /// policies do not restate the connection filter, the MaxRepeat gate and the two fallbacks;
+        /// a second copy of those would be the thing that quietly drifts.
+        /// Pass a negative <paramref name="targetDifficulty"/> for ungated selection.
+        /// </summary>
+        public static TrackSegmentDefinition SelectByDifficulty(
+            ISegmentPool pool, SelectionContext ctx, float targetDifficulty, float difficultyRange)
+        {
+            return SelectInternal(pool, ctx.Previous?.Id, ctx.PreviousRepeatCount, ctx.Random,
+                                  targetDifficulty, difficultyRange);
+        }
+
         // ---------------------------------------------------------------------
         // Ported verbatim from TrackSegmentLibrary
         // ---------------------------------------------------------------------
