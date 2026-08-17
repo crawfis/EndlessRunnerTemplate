@@ -64,12 +64,12 @@ namespace CrawfisSoftware.TempleRun
             Vector3 unitDirection = direction.normalized;
             // Rotation to look at point 2
             Quaternion rotation = Quaternion.LookRotation(unitDirection);
-            var track = new GameObject(string.Format("Track {0:D2}", _trackNumber));
+            var track = new GameObject($"Track_{_trackNumber:D2}_{DirectionSuffix(turnDirection)}");
             _pendingTracks.Add(track);
             Transform trackTransform = track.transform;
             trackTransform.parent = _parentTransform;
             trackTransform.SetLocalPositionAndRotation(point1, rotation);
-            CreateTrack(direction.magnitude, trackTransform, turnDirection);
+            CreateTrack(splineSegment, trackTransform);
             _trackNumber++;
         }
 
@@ -92,6 +92,25 @@ namespace CrawfisSoftware.TempleRun
             tracks.AddRange(_pendingTracks);
             _pendingTracks.Clear();
         }
+
+        /// <summary>Names the container after where this span ends, so the hierarchy reads
+        /// Track_02_Left / _Right / _Both / _Straight instead of an opaque number.</summary>
+        protected static string DirectionSuffix(Direction direction) => direction switch
+        {
+            Direction.Left     => "Left",
+            Direction.Right    => "Right",
+            Direction.Either   => "Both",
+            Direction.Straight => "Straight",
+            _                  => direction.ToString(),
+        };
+
+        /// <summary>
+        /// Spawn the visuals for one sub-spline. The default forwards to the length/direction
+        /// overload, which is all the original spawners need; override this instead when the
+        /// segment definition matters (exit distances, spawn slots, blocked lanes).
+        /// </summary>
+        protected virtual void CreateTrack(SplineSegmentData spline, Transform trackTransform)
+            => CreateTrack(spline.SegmentLength, trackTransform, spline.EndDirection);
 
         protected abstract void CreateTrack(float length, Transform trackTransform, Direction endCapDirection);
 
