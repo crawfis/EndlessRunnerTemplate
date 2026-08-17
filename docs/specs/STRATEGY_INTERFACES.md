@@ -86,6 +86,8 @@ default.
 - **Shipped** — `DistanceRampSelector` — raises `targetDifficulty` as `DistanceTravelled` grows.
 - **Shipped** — `WaveSelector` — alternates "calm" and "challenge" stretches by segment index.
 - `MarkovSelector` — uses `Connections` as transition weights for authored flow.
+- `CurveDrivenSelector` — the same difficulty targeting, but the knobs are `AnimationCurve`s a
+  designer draws rather than scalars a programmer picks. See below.
 
 The two difficulty-targeting policies differ only in how they pick the target, so neither restates
 the selection pipeline: `WeightedDifficultySelector.SelectByDifficulty` exposes it (connection
@@ -98,6 +100,59 @@ first segment is a level's choice, not a difficulty decision — and none is wir
 default. `TrackManager` still constructs `WeightedDifficultySelector`, so behaviour is unchanged
 until a selector is chosen deliberately; how that choice gets authored is still the open question
 below.
+
+### `CurveDrivenSelector` — curves instead of scalars
+
+`DistanceRampSelector` takes four numbers and produces one shape: a straight line between two
+difficulties. Every other shape a designer might want — a plateau in the middle, a spike before a
+set piece, a dip right after a hard stretch so the run can breathe — needs another class.
+
+The pipeline only consumes two values, `targetDifficulty` and `difficultyRange`. Make both
+`AnimationCurve`s over normalized run progress and the shape stops being a programmer's decision:
+
+```csharp
+[SerializeField] private AnimationCurve _difficultyOverProgress = AnimationCurve.Linear(0, 1, 1, 8);
+[SerializeField] private AnimationCurve _rangeOverProgress      = AnimationCurve.Constant(0, 1, 2);
+[SerializeField] private float          _progressDistance       = 500f;   // distance at which x = 1
+
+public TrackSegmentDefinition SelectNext(ISegmentPool pool, SelectionContext ctx)
+{
+    float x = _progressDistance <= 0f ? 1f : Mathf.Clamp01(ctx.DistanceTravelled / _progressDistance);
+    return WeightedDifficultySelector.SelectByDifficulty(
+        pool, ctx, _difficultyOverProgress.Evaluate(x), _rangeOverProgress.Evaluate(x));
+}
+```
+
+A tightening `_rangeOverProgress` is the part that is hard to get any other way: start loose so the
+opening is varied, then narrow the band so the late run reliably serves hard segments instead of
+occasionally dropping an easy one in.
+
+**It subsumes the two shipped policies.** A linear `_difficultyOverProgress` reproduces
+`DistanceRampSelector` exactly; a repeating curve approximates `WaveSelector`, though not
+identically — the wave is keyed to segment *index* and a curve is keyed to distance, so its stretches
+would drift with segment length. That difference is the argument for keeping both: index-keyed
+rhythm and distance-keyed trend are genuinely different intents, and a curve only expresses the
+second. (An index-keyed variant is possible — evaluate at `ctx.SegmentIndex / period` — but then the
+curve is a repeating waveform, which is a worse authoring surface than two lengths and two numbers.)
+
+**Determinism is preserved.** `AnimationCurve.Evaluate` is pure and side-effect free, so the target
+remains a pure function of `DistanceTravelled` and every draw still comes from `ctx.Random`. Same
+seed, same track. This is worth checking rather than assuming, because it is the one property that
+would disqualify the idea outright.
+
+**It constrains the authoring question above.** An `AnimationCurve` only reaches the Inspector if
+Unity serializes the object holding it, so this rules option 3 out: a `"SelectorPolicy": "weighted"`
+string in level data cannot carry a curve. Options 1 (`[SerializeReference]`) and 2
+(`ScriptableObject` factory) both work, and option 2 is the better fit — a curve is authored data,
+so a `CurveDrivenSelectorAsset` shared across levels puts it where the rest of the level's tuning
+already lives.
+
+**Caveats.** `AnimationCurve` is a mutable reference type: a selector must treat its curves as
+read-only for the duration of a run, and two selectors sharing one asset must not mutate it.
+Evaluation cost is irrelevant here — a few calls per second, not per frame. And like every
+difficulty-targeting policy, it is only as good as the pool: with few segments and a narrow spread
+of `DifficultyRating`, the gate finds nothing in range and the shared pipeline falls back to ungated
+selection, so an elaborately drawn curve reads as flat.
 
 ## Migration path (behaviour-preserving)
 
