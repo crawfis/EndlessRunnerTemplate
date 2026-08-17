@@ -88,10 +88,12 @@ namespace CrawfisSoftware.TempleRun
             int count = Mathf.Max(1, Mathf.FloorToInt(length / _lengthScale + 0.2f));
             float span = count * _lengthScale;
 
-            // n unit voxels sit at z = 0, L, ... (n-1)L, so together they span nL centred at
-            // (n-1)L/2. One voxel placed there and scaled by n in z covers the identical extent,
-            // whatever the prefab's own pivot convention is.
-            float centreZ = (count - 1) * 0.5f * _lengthScale;
+            // The prefab's origin is its -Z face, not its centre - the same convention the per-voxel
+            // spawner relies on when it tiles copies at z = 0, L, ... (n-1)L to cover [0, nL].
+            // Scaling therefore grows the voxel FORWARD from wherever it is placed, so a single
+            // voxel covers that same extent by sitting at the span start, not at its middle.
+            // Placing it mid-span (correct only for a centre pivot) pushed every slab half a
+            // segment forward and left a gap of the same size behind it.
 
             int   laneCount = Lanes.LaneCount;
             float laneWidth = Lanes.LaneWidth;
@@ -104,7 +106,7 @@ namespace CrawfisSoftware.TempleRun
                 GameObject voxel = InstantiationSingleton.CreateNewInstance(_prefab, true);
                 voxel.name = $"Lane_{lane}";
                 voxel.transform.SetParent(parent, worldPositionStays: false);
-                voxel.transform.localPosition = new Vector3(x, 0f, centreZ);
+                voxel.transform.localPosition = new Vector3(x, 0f, 0f);
                 voxel.transform.localScale = new Vector3(widthScale, 1f, count);
             }
 
