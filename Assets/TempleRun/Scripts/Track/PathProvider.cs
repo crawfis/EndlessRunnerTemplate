@@ -1,4 +1,7 @@
 using System.Collections.Generic;
+
+using CrawfisSoftware.Events;
+
 using UnityEngine;
 
 using CrawfisSoftware.TempleRun.Track.Geometry;
@@ -43,29 +46,31 @@ namespace CrawfisSoftware.TempleRun
         private int _pendingEitherSequenceIndex;
         private PathPose _pendingEitherPivotPose;
 
+        private static readonly EventId<TrackSegmentInfo> TrackSegmentCreated =
+            TempleRunBus.Id<TrackSegmentInfo>(TempleRunEvents.TrackSegmentCreated);
+        private static readonly EventId<Direction> SegmentRequested =
+            TempleRunBus.Id<Direction>(TempleRunEvents.SegmentRequested);
+
         private void Awake()
         {
             _pose = new PathPose(_anchorPoint, new Vector3(0, 0, 1), new Vector3(0, 1, 0));
 
-            TempleRunBus.Subscribe(TempleRunEvents.TrackSegmentCreated, OnTrackCreated);
-            TempleRunBus.Subscribe(TempleRunEvents.SegmentRequested, OnSegmentRequested);
+            TrackSegmentCreated.Subscribe(OnTrackCreated);
+            SegmentRequested.Subscribe(OnSegmentRequested);
         }
 
         private void OnDestroy()
         {
-            TempleRunBus.Unsubscribe(TempleRunEvents.TrackSegmentCreated, OnTrackCreated);
-            TempleRunBus.Unsubscribe(TempleRunEvents.SegmentRequested, OnSegmentRequested);
+            TrackSegmentCreated.Unsubscribe(OnTrackCreated);
+            SegmentRequested.Unsubscribe(OnSegmentRequested);
         }
 
-        private void OnTrackCreated(string eventName, object sender, object data)
+        private void OnTrackCreated(string eventName, object sender, TrackSegmentInfo segment)
         {
-            var segment = (TrackSegmentInfo)data;
             var definition = segment.Definition;
             int seqIdx = _sequenceIndex++;
 
             PathSegmentResult result = _builder.Build(_pose, definition, segment.Direction);
-
-            PublishSpans(result);
 
             if (segment.Direction == Direction.Either)
             {
@@ -75,8 +80,11 @@ namespace CrawfisSoftware.TempleRun
                 _pendingEitherPivotPose    = result.ExitPose;
             }
 
+            // Advance state before publishing, for the same reason as OnSegmentRequested: a publish
+            // re-enters the drain, so anything it reaches must see this segment already accounted for.
             _pose = result.ExitPose;
 
+            PublishSpans(result);
             PublishGeometry(result, definition, seqIdx);
         }
 
@@ -84,21 +92,29 @@ namespace CrawfisSoftware.TempleRun
         /// Fires when the player commits a turn direction at an Either junction.
         /// Completes the exit geometry and publishes the exit SplineSegmentCreated.
         /// </summary>
-        private void OnSegmentRequested(string eventName, object sender, object data)
+        private void OnSegmentRequested(string eventName, object sender, Direction chosen)
         {
-            if (_pendingEitherDefinition == null) return;
+            if (_pendingEitherDefinition == null)
+            {
+                return;
+            }
 
-            var chosen = (Direction)data;
+            TrackSegmentDefinition definition = _pendingEitherDefinition;
+            int seqIdx = _pendingEitherSequenceIndex;
 
             PathSegmentResult result =
-                _builder.BuildEitherExit(_pendingEitherPivotPose, _pendingEitherDefinition, chosen);
+                _builder.BuildEitherExit(_pendingEitherPivotPose, definition, chosen);
+
+            // Advance our own state BEFORE publishing anything. Publishing re-enters the dispatch
+            // drain, and SegmentRequested's other subscriber - TrackManager - is still queued behind
+            // us, so it generates the next segments from _pose during PublishSpans. Setting _pose
+            // afterwards built everything past the junction from the stale pivot, i.e. straight on
+            // instead of down the branch the player just chose.
+            _pose = result.ExitPose;
+            _pendingEitherDefinition = null;
 
             PublishSpans(result);
-            _pose = result.ExitPose;
-
-            PublishGeometry(result, _pendingEitherDefinition, _pendingEitherSequenceIndex);
-
-            _pendingEitherDefinition = null;
+            PublishGeometry(result, definition, seqIdx);
         }
 
         /// <summary>

@@ -23,4 +23,5 @@ MonoBehaviour:
   - opening
   - medium
   - hard
+  - either
   ActiveSegmentIds: []

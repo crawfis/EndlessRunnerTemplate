@@ -17,19 +17,19 @@ Scan the codebase for violations of the event-driven architecture. This skill ch
 
 ### Check 1: Missing OnDestroy Unsubscriptions
 
-Search for classes that call `SubscribeToEvent` or `SubscribeToAllEnumEvents` but do NOT have a corresponding `UnsubscribeToEvent` or `UnsubscribeToAllEnumEvents` in `OnDestroy()`.
+Search for classes that call `Subscribe` or `SubscribeToAll` but do NOT have a corresponding `Unsubscribe` or `UnsubscribeFromAll` in `OnDestroy()`. This includes typed subscriptions made through an `EventId<T>` field (`SomeEvent.Subscribe(...)`), which need the matching `SomeEvent.Unsubscribe(...)`.
 
 **Pattern to find:**
 ```
-Grep for SubscribeToEvent in *.cs files
-For each file found, verify it also contains UnsubscribeToEvent in an OnDestroy method
+Grep for `.Subscribe(` and `.SubscribeToAll(` in *.cs files
+For each file found, verify it also contains the matching `.Unsubscribe(` / `.UnsubscribeFromAll(` in an OnDestroy method
 ```
 
 **Report format:**
 ```
 MISSING UNSUBSCRIPTION:
   [File:Line] subscribes to [EventName] but never unsubscribes
-  Fix: Add UnsubscribeToEvent in OnDestroy()
+  Fix: Add the matching Unsubscribe in OnDestroy()
 ```
 
 ### Check 2: Direct Coupling (bypassing events)
@@ -55,8 +55,8 @@ DIRECT COUPLING:
 ### Check 3: Unused Events
 
 For each event in all three enums, search if it is:
-- Published anywhere (`PublishEvent([EnumName].[EventName]`)
-- Subscribed to anywhere (`SubscribeToEvent([EnumName].[EventName]`)
+- Published anywhere (`Publish([EnumName].[EventName]`, or `<Field>.Publish(` for a typed `EventId<T>`)
+- Subscribed to anywhere (`Subscribe([EnumName].[EventName]`, or `<Field>.Subscribe(` for a typed `EventId<T>`)
 - Referenced in an auto-chain or bridge mapping
 
 **Report format:**

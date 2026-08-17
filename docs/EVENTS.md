@@ -15,7 +15,7 @@ Naming convention: `*Requested` (a request) → `*ing`/`*Starting` (in progress)
 
 ## GameFlowEvents (application lifecycle)
 
-Publisher: `EventsPublisherGameFlow.Instance`. Values are grouped by category with gaps of 10.
+Publisher: `GameFlowBus` (`EventsFor<GameFlowEvents>`). Values are grouped by category with gaps of 10.
 
 | Category | Members (value) |
 |----------|-----------------|
@@ -32,7 +32,7 @@ Publisher: `EventsPublisherGameFlow.Instance`. Values are grouped by category wi
 
 ## TempleRunEvents (gameplay)
 
-Publisher: `EventsPublisherTempleRun.Instance`.
+Publisher: `TempleRunBus` (`EventsFor<TempleRunEvents>`).
 
 | Category | Members (value) |
 |----------|-----------------|
@@ -61,7 +61,7 @@ Publisher: `EventsPublisherTempleRun.Instance`.
 
 ## UserInitiatedEvents (raw input)
 
-Publisher: `EventsPublisherUserInitiated.Instance`. Implicit values 0–8.
+Publisher: `UserInputBus` (`EventsFor<UserInitiatedEvents>`). Implicit values 0–8.
 
 `UserLeftTurnRequested`(0), `UserRightTurnRequested`(1), `UserPauseToggle`(2),
 `UserLeftLaneChangeRequested`(3), `UserRightLaneChangeRequested`(4), `UserJumpRequested`(5),

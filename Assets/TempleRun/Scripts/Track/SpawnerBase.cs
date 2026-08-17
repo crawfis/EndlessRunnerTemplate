@@ -1,3 +1,4 @@
+using CrawfisSoftware.Events;
 using CrawfisSoftware.TempleRun.GameConfig;
 
 using System.Collections.Generic;
@@ -61,14 +62,18 @@ namespace CrawfisSoftware.TempleRun
         // Lifecycle
         // -----------------------------------------------------------------
 
+        private static readonly EventId<SplineSegmentData> SplineSegmentCreated =
+            TempleRunBus.Id<SplineSegmentData>(TempleRunEvents.SplineSegmentCreated);
+        private static readonly EventId<SegmentGeometryData> GeometryReady =
+            TempleRunBus.Id<SegmentGeometryData>(TempleRunEvents.SegmentGeometryReady);
+        private static readonly EventId<TrackSegmentInfo> ActiveTrackChanged =
+            TempleRunBus.Id<TrackSegmentInfo>(TempleRunEvents.ActiveTrackChanged);
+
         protected virtual void Awake()
         {
-            TempleRunBus.Subscribe(
-                TempleRunEvents.SplineSegmentCreated, OnSplineSegmentCreated);
-            TempleRunBus.Subscribe(
-                TempleRunEvents.SegmentGeometryReady, OnSegmentGeometryReady);
-            TempleRunBus.Subscribe(
-                TempleRunEvents.ActiveTrackChanged, OnActiveTrackChanged);
+            SplineSegmentCreated.Subscribe(OnSplineSegmentCreated);
+            GeometryReady.Subscribe(OnSegmentGeometryReady);
+            ActiveTrackChanged.Subscribe(OnActiveTrackChanged);
 
             _parentTransform = new GameObject(ContainerName).transform;
             _random = new System.Random(Blackboard.Instance.MasterRandom.Next());
@@ -76,23 +81,19 @@ namespace CrawfisSoftware.TempleRun
 
         protected virtual void OnDestroy()
         {
-            TempleRunBus.Unsubscribe(
-                TempleRunEvents.SplineSegmentCreated, OnSplineSegmentCreated);
-            TempleRunBus.Unsubscribe(
-                TempleRunEvents.SegmentGeometryReady, OnSegmentGeometryReady);
-            TempleRunBus.Unsubscribe(
-                TempleRunEvents.ActiveTrackChanged, OnActiveTrackChanged);
+            SplineSegmentCreated.Unsubscribe(OnSplineSegmentCreated);
+            GeometryReady.Unsubscribe(OnSegmentGeometryReady);
+            ActiveTrackChanged.Unsubscribe(OnActiveTrackChanged);
         }
 
         // -----------------------------------------------------------------
         // Event handlers
         // -----------------------------------------------------------------
 
-        private void OnSplineSegmentCreated(string eventName, object sender, object data)
+        private void OnSplineSegmentCreated(string eventName, object sender, SplineSegmentData splineData)
         {
             if (_random == null) return;
 
-            var splineData = (SplineSegmentData)data;
             string mode = splineData.Definition?.SpawnMode ?? SpawnModes.Procedural;
 
             switch (mode)
@@ -117,11 +118,10 @@ namespace CrawfisSoftware.TempleRun
         /// SAME index — approach, then exit once the player commits — so the batches accumulate
         /// into one group rather than replacing it.
         /// </summary>
-        private void OnSegmentGeometryReady(string eventName, object sender, object data)
+        private void OnSegmentGeometryReady(string eventName, object sender, SegmentGeometryData geometry)
         {
             if (_pendingSpawns.Count == 0) return;
 
-            var geometry = (SegmentGeometryData)data;
             if (!_spawnedBySegment.TryGetValue(geometry.SequenceIndex, out var objects))
             {
                 objects = new List<GameObject>();
@@ -136,7 +136,7 @@ namespace CrawfisSoftware.TempleRun
         /// belonging to that segment — collected coins/power-ups are already destroyed by their
         /// controllers, hence the null check.
         /// </summary>
-        private void OnActiveTrackChanged(string eventName, object sender, object data)
+        private void OnActiveTrackChanged(string eventName, object sender, TrackSegmentInfo segment)
         {
             if (_currentSegmentID >= 0 &&
                 _spawnedBySegment.TryGetValue(_currentSegmentID, out var objects))

@@ -34,6 +34,11 @@ namespace CrawfisSoftware.GameFlow.Events
             { GameFlowEvents.GameConfigApplied, TempleRunEvents.TempleRunConfigApplied },
             { GameFlowEvents.LevelApplied, TempleRunEvents.TempleRunLevelApplied },
             { GameFlowEvents.GameScenesLoaded, TempleRunEvents.TempleRunScenesReady },
+
+            // The selected level's difficulty table -> the TempleRun difficulty system, which
+            // resolves the player's chosen difficulty against it. The level owns the set of
+            // configs; the difficulty preference selects one from that set.
+            { GameFlowEvents.DifficultySettingsApplied, TempleRunEvents.TempleRunDifficultySettingsApplied },
         };
 
         protected virtual void Awake()

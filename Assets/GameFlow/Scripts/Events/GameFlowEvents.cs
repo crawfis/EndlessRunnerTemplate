@@ -1,4 +1,8 @@
-﻿using CrawfisSoftware.Events;
+﻿using System.Collections.Generic;
+
+using CrawfisSoftware.Config;
+using CrawfisSoftware.Events;
+using CrawfisSoftware.GameFlow.Config;
 
 namespace CrawfisSoftware.GameFlow.Events
 {
@@ -69,14 +73,22 @@ namespace CrawfisSoftware.GameFlow.Events
         // ---------- Config / Difficulty ----------
         GameConfigChangeRequested = 80,
         GameConfigApplying = 81,
+        // Currently unpublished: LevelConfigApplier publishes the level's whole difficulty table via
+        // DifficultySettingsApplied instead, and the difficulty system resolves one from it. The
+        // declaration stands so anything extending the template publishes the right thing.
+        [EventPayload(typeof(DifficultyConfig))]
         GameConfigApplied = 82,
         GameConfigApplyFailed = 83,
+        [EventPayload(typeof(int))]
         LevelApplied = 85,                    // data: int (selected level number; gameplay maps it to a track)
 
         DifficultyChangeRequested = 90,
         DifficultyChanging = 91,
         DifficultyChanged = 92,
         DifficultyChangeFailed = 93,
+        // The selected level's difficulty variants. Bridged to TempleRun, where GameDifficultyManager
+        // resolves the player's chosen difficulty against them.
+        [EventPayload(typeof(IList<DifficultyConfig>))]
         DifficultySettingsApplied = 94,
 
         // ---------- Save / Load (optional but useful hooks) ----------
@@ -103,7 +115,9 @@ namespace CrawfisSoftware.GameFlow.Events
         LevelSelectorHideRequested = 133,
         LevelSelectorHiding = 134,
         LevelSelectorHidden = 135,
+        [EventPayload(typeof(LevelConfig))]
         LevelSelected = 136,              // data: LevelConfig
+        [EventPayload(typeof(LevelConfig))]
         LevelUnlocked = 137,              // data: LevelConfig (newly unlocked)
         LevelProgressSaved = 138,
     }

@@ -4,9 +4,10 @@
 > `TrackSegmentRegistrySO`, `TrackLevelSO`, `TrackLevelRegistrySO`) — pure data, read by
 > `TrackLibraryLoader`. Chosen granularity: one SO per segment, a registry container SO, one level
 > SO per level, and a level registry keyed by `LevelNumber`. The GameFlow→TempleRun seam is a plain
-> `int`: `LevelConfig.LevelNumber` → `LevelApplied(int)` → `Blackboard.SelectedLevel`, resolved to a
-> track at `TrackManager` init (GameFlow references no track type; the Blackboard holds only the int,
-> not the resolved definition). The one-shot converter is
+> `int`: `LevelConfig.LevelNumber` → `LevelApplied(int)` → `TempleRunLevelApplied`, which is `Sticky`
+> and read at `TrackManager` init via `TryGetLast` (GameFlow references no track type; nothing stores
+> the resolved definition). This originally parked the int on `Blackboard.SelectedLevel`; that mirror
+> was removed once the event became `Sticky`. The one-shot converter is
 > `Assets/TempleRun/Editor/TrackDataImporter.cs` (menu: **CrawfisSoftware > Track > Import JSON ->
 > ScriptableObjects**) — run it once in the Editor to generate the assets from the legacy JSON,
 > assign `TrackLevelRegistry` to `TrackManager._trackLevels`, confirm the verification log, set the

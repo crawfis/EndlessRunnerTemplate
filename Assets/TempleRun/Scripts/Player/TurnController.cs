@@ -56,11 +56,16 @@ namespace CrawfisSoftware.TempleRun
             OnTurnRequested(this, null, chosenDirection, startingEvent, completedEvent);
         }
 
+        private static readonly EventId<TrackSegmentInfo> TrackChanging =
+            TempleRunBus.Id<TrackSegmentInfo>(TempleRunEvents.ActiveTrackChanging);
+        private static readonly EventId<Direction> SegmentRequested =
+            TempleRunBus.Id<Direction>(TempleRunEvents.SegmentRequested);
+
         private void Awake()
         {
             UserInputBus.Subscribe(UserInitiatedEvents.UserLeftTurnRequested, OnLeftTurnRequested);
             UserInputBus.Subscribe(UserInitiatedEvents.UserRightTurnRequested, OnRightTurnRequested);
-            TempleRunBus.Subscribe(TempleRunEvents.ActiveTrackChanging, OnTrackChanging);
+            TrackChanging.Subscribe(OnTrackChanging);
             _safeTurnDistance = Blackboard.Instance.GameConfig.SafePreTurnDistance;
         }
 
@@ -71,7 +76,21 @@ namespace CrawfisSoftware.TempleRun
             if (distance > _turnAvailableDistance)
             {
                 TempleRunBus.Publish(startingEvent,  this, distance);
-                //TempleRunBus.Publish(TempleRunEvents.SegmentRequested, this, chosenDirection);
+
+                // ONLY at an Either junction. A Left or Right segment has one exit, already built
+                // when the segment was created, so there is nothing to commit - and publishing this
+                // for an ordinary turn is destructive: TrackManager would clear
+                // _awaitingEitherDirection and generate straight past a junction still waiting for
+                // its direction, while PathProvider would resolve that junction's exit using the
+                // direction of an unrelated turn somewhere else on the track.
+                //
+                // Position between starting and completed is load-bearing: PathProvider resolves the
+                // junction's exit geometry from this, and SegmentTransitionController consumes that
+                // geometry when it sees the completed event. Publishing returns only once the event
+                // has been delivered, so the geometry is in place by the time completed is published.
+                if (_nextTrackDirection == Direction.Either)
+                    SegmentRequested.Publish(this, chosenDirection);
+
                 TempleRunBus.Publish(completedEvent, this, distance);
             }
         }
@@ -94,9 +113,8 @@ namespace CrawfisSoftware.TempleRun
             }
         }
 
-        private void OnTrackChanging(string eventName, object sender, object data)
+        private void OnTrackChanging(string eventName, object sender, TrackSegmentInfo trackSegment)
         {
-            var trackSegment = (TrackSegmentInfo)data;
             _nextTrackDirection  = trackSegment.Direction;
             // Anchor to this segment's start, not to the running sum of turn points. Summing
             // TurnPointDistance loses (Length - TurnPointDistance) per segment, which walked the
@@ -112,7 +130,7 @@ namespace CrawfisSoftware.TempleRun
         {
             UserInputBus.Unsubscribe(UserInitiatedEvents.UserLeftTurnRequested, OnLeftTurnRequested);
             UserInputBus.Unsubscribe(UserInitiatedEvents.UserRightTurnRequested, OnRightTurnRequested);
-            TempleRunBus.Unsubscribe(TempleRunEvents.ActiveTrackChanging, OnTrackChanging);
+            TrackChanging.Unsubscribe(OnTrackChanging);
         }
     }
 }
