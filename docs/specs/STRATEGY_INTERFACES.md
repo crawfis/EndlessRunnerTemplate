@@ -81,11 +81,23 @@ default.
 
 ## Example strategies this unlocks
 
-- `WeightedDifficultySelector` (the port of today's behaviour).
-- `AuthoredSequenceSelector` — plays `ActiveSegmentIds` in order, looping — for tutorials/boss runs.
-- `DistanceRampSelector` — raises `targetDifficulty` as `DistanceTravelled` grows.
-- `WaveSelector` — alternates "calm" and "challenge" stretches by segment index.
+- **Shipped** — `WeightedDifficultySelector` (the port of today's behaviour).
+- **Shipped** — `AuthoredSequenceSelector` — plays `ActiveSegmentIds` in order, looping — for tutorials/boss runs.
+- **Shipped** — `DistanceRampSelector` — raises `targetDifficulty` as `DistanceTravelled` grows.
+- **Shipped** — `WaveSelector` — alternates "calm" and "challenge" stretches by segment index.
 - `MarkovSelector` — uses `Connections` as transition weights for authored flow.
+
+The two difficulty-targeting policies differ only in how they pick the target, so neither restates
+the selection pipeline: `WeightedDifficultySelector.SelectByDifficulty` exposes it (connection
+filter → `MaxRepeat` gate → difficulty gate → weighted random, plus the ungated and whole-pool
+fallbacks) and both delegate to it. A second copy of those fallbacks is the thing that would
+quietly drift.
+
+All three non-default policies honour an authored `StartSegmentId` ahead of their own logic — the
+first segment is a level's choice, not a difficulty decision — and none is wired to a level by
+default. `TrackManager` still constructs `WeightedDifficultySelector`, so behaviour is unchanged
+until a selector is chosen deliberately; how that choice gets authored is still the open question
+below.
 
 ## Migration path (behaviour-preserving)
 
