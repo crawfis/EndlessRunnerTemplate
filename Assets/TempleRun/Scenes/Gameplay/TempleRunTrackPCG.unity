@@ -291,7 +291,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82bf893c918aab54799322dadc80fd11, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _numberOfLookAheadTracks: 2
+  _numberOfLookAheadTracks: 3
   _trackLevels: {fileID: 11400000, guid: 8ffafbd3a502d524d8c1b4cbbb8ea0a0, type: 2}
 --- !u!1 &1283783014
 GameObject:
