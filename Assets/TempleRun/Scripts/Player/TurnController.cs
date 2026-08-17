@@ -76,13 +76,21 @@ namespace CrawfisSoftware.TempleRun
             if (distance > _turnAvailableDistance)
             {
                 TempleRunBus.Publish(startingEvent,  this, distance);
-                // Between starting and completed on purpose: this is what commits the direction at
-                // an Either junction. PathProvider builds the exit geometry from it and TrackManager
-                // clears _awaitingEitherDirection and refills the lookahead, both of which must have
-                // happened before SegmentTransitionController consumes the geometry on completed.
-                // Publishing from inside a handler runs its subscribers to completion before
-                // returning, so the ordering holds.
-                SegmentRequested.Publish(this, chosenDirection);
+
+                // ONLY at an Either junction. A Left or Right segment has one exit, already built
+                // when the segment was created, so there is nothing to commit - and publishing this
+                // for an ordinary turn is destructive: TrackManager would clear
+                // _awaitingEitherDirection and generate straight past a junction still waiting for
+                // its direction, while PathProvider would resolve that junction's exit using the
+                // direction of an unrelated turn somewhere else on the track.
+                //
+                // Position between starting and completed is load-bearing: PathProvider resolves the
+                // junction's exit geometry from this, and SegmentTransitionController consumes that
+                // geometry when it sees the completed event. Publishing returns only once the event
+                // has been delivered, so the geometry is in place by the time completed is published.
+                if (_nextTrackDirection == Direction.Either)
+                    SegmentRequested.Publish(this, chosenDirection);
+
                 TempleRunBus.Publish(completedEvent, this, distance);
             }
         }

@@ -58,6 +58,9 @@ namespace CrawfisSoftware.TempleRun
         // No further segments are generated until SegmentRequested fires with the chosen direction.
         private bool _awaitingEitherDirection = false;
 
+        // Set when a junction direction is committed; acted on in Update, out of the dispatch.
+        private bool _refillRequested = false;
+
 
         protected virtual void Awake()
         {
@@ -147,7 +150,9 @@ namespace CrawfisSoftware.TempleRun
             _trackSegments.Enqueue(newTrackSegment);
             TrackSegmentCreated.Publish(this, newTrackSegment);
             if (newTrackSegment.Direction == Direction.Either)
+            {
                 _awaitingEitherDirection = true;
+            }
         }
 
         /// <summary>
@@ -156,8 +161,27 @@ namespace CrawfisSoftware.TempleRun
         /// PathProvider (execution order -10) processes this event first, updating _anchorPoint
         /// before the TrackSegmentCreated events fired here reach PathProvider.
         /// </summary>
+        // The junction's direction is committed, so generation can resume - but NOT from inside this
+        // dispatch. PathProvider handles the same event before us and publishes while it works;
+        // publishing re-enters the shared FIFO drain, which resumes with this handler still queued.
+        // Generating here therefore ran mid-way through PathProvider building the junction's exit,
+        // and the next segment's SegmentGeometryReady overtook the junction's own - closing
+        // SpawnerBase's pending batch onto the wrong segment, so the junction's exit tiles were
+        // attributed to the segment after it and destroyed on that segment's schedule.
+        // Ordering cannot fix this: TrackManager is in TempleRunTrackPCG and the spawners are in
+        // other additively-loaded scenes, where DefaultExecutionOrder does not apply. Deferring one
+        // frame takes us out of the dispatch entirely, and costs nothing - the player is at the
+        // junction, many segments from the end of the lookahead.
         private void OnSegmentRequested(string eventName, object sender, object data)
         {
+            _refillRequested = true;
+        }
+
+        private void Update()
+        {
+            if (!_refillRequested) return;
+            _refillRequested = false;
+
             _awaitingEitherDirection = false;
             while (!_awaitingEitherDirection && _trackSegments.Count < _numberOfLookAheadTracks)
                 AddTrackSegment();
