@@ -36,6 +36,12 @@ namespace CrawfisSoftware.TempleRun
                  "be built once a direction is committed.")]
         [SerializeField] private float _armLengthOverride = 0f;
 
+        [Tooltip("The prefab's own width in world units before scaling - 1 for a 1x1 voxel. This is " +
+                 "NOT _widthScale: the base class uses that as the TOTAL track width (VoxelPrefabSpawner " +
+                 "derives TrackWidthOffset from half of it), so scaling a lane by it shrinks each lane " +
+                 "to one-third and leaves gaps between them.")]
+        [SerializeField] private float _prefabWidth = 1f;
+
         private LaneConfig Lanes => Blackboard.Instance.LaneConfig;
 
         protected override void Awake()
@@ -89,7 +95,7 @@ namespace CrawfisSoftware.TempleRun
 
             int   laneCount = Lanes.LaneCount;
             float laneWidth = Lanes.LaneWidth;
-            float widthScale = laneWidth / _widthScale;   // fill the lane, whatever the prefab's width
+            float widthScale = laneWidth / _prefabWidth;   // fill the lane, whatever the prefab's width
 
             for (int lane = 0; lane < laneCount; lane++)
             {
@@ -114,11 +120,15 @@ namespace CrawfisSoftware.TempleRun
             var arm = new GameObject($"Arm_{DirectionSuffix(side)}");
             arm.transform.SetParent(parent, worldPositionStays: false);
 
-            // Start the arm at the centre line of the junction end, not at the segment end, so the
-            // two arms of a T meet in the middle instead of leaving a hole at the corner.
+            // Sit exactly where the real branch will be built. AxisAligned90Builder nudges the exit
+            // to pivot - offset*forward + offset*newForward, with offset = TrackWidthOffset = half
+            // the track width - so in this container's frame that is (±halfWidth, 0, span-halfWidth).
+            // Starting there butts the arm flush against the side of the approach strip, which
+            // already covers the corner square, instead of overlapping it and stopping short.
             float halfWidth = 0.5f * Lanes.LaneCount * Lanes.LaneWidth;
-            arm.transform.localPosition = new Vector3(0f, 0f, span - halfWidth);
-            arm.transform.localRotation = Quaternion.Euler(0f, side == Direction.Left ? -90f : 90f, 0f);
+            float sign = side == Direction.Left ? -1f : 1f;
+            arm.transform.localPosition = new Vector3(sign * halfWidth, 0f, span - halfWidth);
+            arm.transform.localRotation = Quaternion.Euler(0f, sign * 90f, 0f);
 
             SpanLanes(armLength, arm.transform);
         }
