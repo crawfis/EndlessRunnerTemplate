@@ -13,5 +13,13 @@
   { "name": "ready-for-dev", "color": "1d76db", "description": "Story has been groomed and is ready for development" },
   { "name": "area:gameplay", "color": "0e8a16", "description": "Gameplay area" },
   { "name": "area:ui", "color": "fbca04", "description": "User interface" },
-  { "name": "area:audio", "color": "7057ff", "description": "Audio and sound" }
+  { "name": "area:audio", "color": "7057ff", "description": "Audio and sound" },
+  { "name": "documentation", "color": "0075ca", "description": "Improvements or additions to documentation" },
+  { "name": "enhancement", "color": "a2eeef", "description": "New feature or request" },
+  { "name": "good first issue", "color": "7057ff", "description": "Good for newcomers" },
+  { "name": "help wanted", "color": "008672", "description": "Extra attention is needed" },
+  { "name": "question", "color": "d876e3", "description": "Further information is requested" },
+  { "name": "duplicate", "color": "cfd3d7", "description": "This issue or pull request already exists" },
+  { "name": "invalid", "color": "e4e669", "description": "This doesn't seem right" },
+  { "name": "status:wontfix", "color": "ffffff", "description": "This will not be worked on" }
 ]

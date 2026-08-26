@@ -61,3 +61,81 @@
 #*.PDF   diff=astextplain
 #*.rtf   diff=astextplain
 #*.RTF   diff=astextplain
+
+###############################################################################
+# Unity
+#
+# Unity writes its YAML assets with LF on every platform, including Windows.
+# Under `* text=auto` with core.autocrlf=true that makes git expect CRLF in the
+# working tree, so these files show up as modified after every editor session
+# even though their content is byte-identical. Pinning eol=lf stops the churn.
+###############################################################################
+*.meta                text eol=lf
+*.asset               text eol=lf
+*.unity               text eol=lf
+*.prefab              text eol=lf
+*.mat                 text eol=lf
+*.anim                text eol=lf
+*.controller          text eol=lf
+*.overrideController  text eol=lf
+*.playable            text eol=lf
+*.signal              text eol=lf
+*.mask                text eol=lf
+*.physicMaterial      text eol=lf
+*.physicsMaterial2D   text eol=lf
+*.renderTexture       text eol=lf
+*.spriteatlas         text eol=lf
+*.terrainlayer        text eol=lf
+*.mixer               text eol=lf
+*.guiskin             text eol=lf
+*.fontsettings        text eol=lf
+*.flare               text eol=lf
+*.brush               text eol=lf
+*.giparams            text eol=lf
+*.preset              text eol=lf
+*.shadervariants      text eol=lf
+*.asmdef              text eol=lf
+*.asmref              text eol=lf
+*.inputactions        text eol=lf
+*.shadergraph         text eol=lf
+*.shadersubgraph      text eol=lf
+*.vfx                 text eol=lf
+*.uxml                text eol=lf
+*.uss                 text eol=lf
+
+# Package manager files are Unity-written too.
+Packages/manifest.json       text eol=lf
+Packages/packages-lock.json  text eol=lf
+
+###############################################################################
+# Unity binary assets
+#
+# Never normalize these; git must not touch their bytes.
+###############################################################################
+*.unitypackage  binary
+*.cubemap       binary
+*.fbx           binary
+*.obj           binary
+*.blend         binary
+*.png           binary
+*.jpg           binary
+*.jpeg          binary
+*.gif           binary
+*.psd           binary
+*.tga           binary
+*.tif           binary
+*.exr           binary
+*.hdr           binary
+*.wav           binary
+*.mp3           binary
+*.ogg           binary
+*.aif           binary
+*.mp4           binary
+*.mov           binary
+*.ttf           binary
+*.otf           binary
+*.dll           binary
+*.so            binary
+*.a             binary
+*.dylib         binary
+*.bundle        binary
