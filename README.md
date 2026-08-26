@@ -65,6 +65,7 @@ subscribing to named events.
 | [CLAUDE.md](CLAUDE.md) | AI-assistant guide: conventions and the event-system rules |
 | [docs/specs/](docs/specs/) | Design specs and migration plans for proposed changes |
 | [docs/playbooks/](docs/playbooks/) | Portable, project-agnostic upgrade guides (e.g. UIDocument → PanelRenderer) |
+| [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md) | Issue forms, labels, branch/PR conventions, and the Kanban workflow |
 
 ## Architecture
 
