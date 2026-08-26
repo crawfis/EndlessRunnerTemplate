@@ -9,6 +9,7 @@
   { "name": "priority:low", "color": "0c8a8a", "description": "Low priority" },
   { "name": "status:blocked", "color": "5319e7", "description": "Blocked by dependency" },
   { "name": "status:needs-info", "color": "f9c513", "description": "Needs more information" },
+  { "name": "status:needs-triage", "color": "d4c5f9", "description": "Not yet triaged by a maintainer" },
   { "name": "ready-for-dev", "color": "1d76db", "description": "Story has been groomed and is ready for development" },
   { "name": "area:gameplay", "color": "0e8a16", "description": "Gameplay area" },
   { "name": "area:ui", "color": "fbca04", "description": "User interface" },

@@ -23,13 +23,12 @@ GitHub API, `gh`, or a sync tool such as
 |--------|------|--------|
 | `type:` | Required on every issue | `type:story`, `type:task`, `type:bug`, `type:chore` |
 | `priority:` | Added during grooming | `priority:critical`, `priority:high`, `priority:medium`, `priority:low` |
-| `status:` | As needed, to flag blocked or incomplete work | `status:blocked`, `status:needs-info`, `ready-for-dev` |
+| `status:` | As needed, to flag blocked or incomplete work | `status:blocked`, `status:needs-info`, `status:needs-triage`, `ready-for-dev` |
 | `area:` | Optional, helps filtering and assignment | `area:gameplay`, `area:ui`, `area:audio` |
 
-The User Story and Task forms apply their `type:` label automatically. The Bug form does not —
-it currently applies `bug` and `needs-triage`, neither of which is in `labels.json`; add
-`type:bug` by hand until that is reconciled. Other labels are applied from the Labels sidebar,
-or in bulk:
+All three Issue forms apply their `type:` label automatically — User Story adds `type:story`,
+Task adds `type:task`, and Bug Report adds `type:bug` together with `status:needs-triage`.
+Other labels are applied from the Labels sidebar, or in bulk:
 
 ```
 gh issue edit <issue-number> --add-label "priority:high,area:gameplay"
