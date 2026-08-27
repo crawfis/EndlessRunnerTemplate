@@ -65,7 +65,8 @@ namespace CrawfisSoftware.GameFlow.Events
     /// [TempleRun] LeftTurnRequested/RightTurnRequested -> LeftTurnSucceeded/RightTurnSucceeded
     /// [TempleRun] TrackSegmentCreated, SplineSegmentCreated
     /// [TempleRun] ActiveTrackChanging -> CurrentSplineChanging -> TeleportStarted -> TeleportEnded -> CurrentSplineChanged
-    /// [TempleRun] PlayerFailing -> PlayerPause ... PlayerResume
+    /// [TempleRun] PlayerFailingAtTurn/AtObstacle -> PlayerFailing ... PlayerFailed
+    ///             (the post-failure hitch; it has its own events and does NOT reuse pause)
     /// [TempleRun] PlayerDied
     ///
     /// --- GAME END (triggered by PlayerDied in controller) ---

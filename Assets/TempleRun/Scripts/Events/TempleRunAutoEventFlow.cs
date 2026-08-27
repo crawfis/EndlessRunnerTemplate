@@ -11,8 +11,26 @@ namespace CrawfisSoftware.TempleRun.Events
     /// </summary>
     internal class TempleRunAutoEventFlow : MonoBehaviour
     {
+        // VALIDATION GATES: no player-movement *Requested event is auto-chained to its *Starting.
+        // Those *Requested events are Input2TempleRunAutoEventBridge's raw translations of user
+        // input, so they fire whether or not the action is currently legal. An auto-chain here
+        // would run before any controller validated, silently defeating cooldowns, airborne
+        // checks, and lane boundaries. Each controller publishes its own *Starting once its
+        // checks pass. The lifecycle chains below (pause, countdown, start, end) are different:
+        // nothing gates them, so chaining is safe.
         private readonly Dictionary<TempleRunEvents, TempleRunEvents> _autoTempleRun2TempleRunEvents = new Dictionary<TempleRunEvents, TempleRunEvents>()
         {
+            // ================================================================================
+            // FAILURE LIFECYCLE
+            // ================================================================================
+            // Every specific failure funnels into one generic PlayerFailing. Consumers that
+            // mean "the player failed somehow" subscribe to PlayerFailing; only consumers that
+            // genuinely care WHICH failure (PlayerFailureAutoTurnController) take a specific.
+            // Two keys may share one value. PlayerFailing is released by PlayerFailed, which
+            // PlayerFailedController publishes when the hitch is over.
+            { TempleRunEvents.PlayerFailingAtTurn, TempleRunEvents.PlayerFailing },
+            { TempleRunEvents.PlayerFailingAtObstacle, TempleRunEvents.PlayerFailing },
+
             // ================================================================================
             // PAUSE / RESUME BRIDGES (mirror GameFlowAutoEventFlow)
             // ================================================================================
@@ -43,29 +61,39 @@ namespace CrawfisSoftware.TempleRun.Events
             // ================================================================================
             // LANE CHANGE AUTO-CHAINS
             // ================================================================================
-            { TempleRunEvents.LaneChangeLeftRequested, TempleRunEvents.LaneChangingLeft },
-            { TempleRunEvents.LaneChangeRightRequested, TempleRunEvents.LaneChangingRight },
+            // LaneChange*Requested -> LaneChanging* is NOT auto-chained. See the validation-gate
+            // note at the top of this dictionary: chaining it would walk the player past a lane
+            // boundary, or interrupt a change already in flight. LaneChangeController publishes
+            // LaneChangingLeft/Right once its checks pass.
             // LaneChangingLeft -> LaneChangedLeft: Published by LaneOffsetController (after lerp completes)
             // LaneChangingRight -> LaneChangedRight: Published by LaneOffsetController (after lerp completes)
 
             // ================================================================================
             // SLIDE AUTO-CHAINS
             // ================================================================================
-            //{ TempleRunEvents.SlideRequested, TempleRunEvents.SlideStarting },
-            // SlideStarting -> SlideStarted: Published by SlideController (when slide starts)
-            // SlideEnding -> SlideEnded: Published by SlideController (when slide completes)
+            // SlideRequested -> SlideStarting is NOT auto-chained. See the validation-gate note at
+            // the top of this dictionary: chaining it would fire SlideStarting even when
+            // SlideController rejects the request (already sliding, or still on cooldown).
+            // SlideController publishes SlideStarting once its checks pass.
+            // SlideStarting -> SlideStarted: Published by SlideArcController (at animation start)
+            // SlideStarted -> SlideEnded: Published by SlideArcController (when animation completes)
 
             // ================================================================================
             // DASH AUTO-CHAINS
             // ================================================================================
-            { TempleRunEvents.DashRequested, TempleRunEvents.DashStarting },
-            // DashStarting -> DashStarted: Published by DashController (when dash initiates)
-            // DashEnding -> DashEnded: Published by DashController (when dash completes)
+            // DashRequested -> DashStarting is NOT auto-chained. This mapping was previously live
+            // and defeated the dash cooldown outright: DashRequested is the bridge's raw
+            // translation of UserDashRequested, so DashStarting fired even when DashController had
+            // rejected the request. DashController publishes DashStarting once its checks pass.
+            // DashStarting -> DashStarted: Published by DashSpeedController (at animation start)
+            // DashEnding -> DashEnded: Published by DashSpeedController (when dash completes)
 
             // ================================================================================
             // JUMP AUTO-CHAINS
             // ================================================================================
-            { TempleRunEvents.JumpRequested, TempleRunEvents.JumpStarting },
+            // JumpRequested -> JumpStarting is NOT auto-chained. See the validation-gate note at
+            // the top of this dictionary: chaining it would launch a second jump while one is
+            // already in the air. JumpController publishes JumpStarting once its checks pass.
             // JumpStarting -> JumpStarted: Published by JumpArcController (at arc apex)
             // JumpStarted -> JumpLanded: Published by JumpArcController (when arc completes)
 

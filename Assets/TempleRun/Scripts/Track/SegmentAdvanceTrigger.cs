@@ -14,7 +14,7 @@ namespace CrawfisSoftware.TempleRun
     ///    Dependencies: Blackboard.DistanceTracker, EventsFor<TempleRunEvents>
     ///    Subscribes: ActiveTrackChanging — tracks the current segment and exit distance
     ///    Subscribes: TempleRunStarted — enables distance checking
-    ///    Subscribes: PlayerDied — disables distance checking
+    ///    Subscribes: TempleRunEnded — disables distance checking, however the run ended
     ///    Publishes: SegmentEntering, SegmentEntered, SegmentExiting, SegmentExited
     /// </summary>
     /// <remarks>
@@ -44,7 +44,7 @@ namespace CrawfisSoftware.TempleRun
             TrackChanging.Subscribe(OnTrackChanging);
             DistanceUpdated.Subscribe(OnDistanceUpdated);
             TempleRunBus.Subscribe(TempleRunEvents.TempleRunStarted, OnGameStarted);
-            TempleRunBus.Subscribe(TempleRunEvents.PlayerDied, OnGameEnding);
+            TempleRunBus.Subscribe(TempleRunEvents.TempleRunEnded, OnGameEnding);
         }
 
         private void OnDestroy()
@@ -52,7 +52,7 @@ namespace CrawfisSoftware.TempleRun
             TrackChanging.Unsubscribe(OnTrackChanging);
             DistanceUpdated.Unsubscribe(OnDistanceUpdated);
             TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunStarted, OnGameStarted);
-            TempleRunBus.Unsubscribe(TempleRunEvents.PlayerDied, OnGameEnding);
+            TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunEnded, OnGameEnding);
         }
 
         private void OnDistanceUpdated(string eventName, object sender, float distance)

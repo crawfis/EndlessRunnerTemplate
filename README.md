@@ -54,6 +54,12 @@ subscribing to named events.
 3. Enter Play Mode. The bootstrap scene loads the UI and gameplay scenes additively and
    takes you to the main menu → level select → gameplay.
 
+> ⚠️ **Enable "Play Scene 0 Always."** `CrawfisSoftware > Play Scene 0 Always` in the Unity
+> menu bar makes pressing Play always behave as if `0_BootStrap_Game_Only` were loaded first,
+> regardless of which scene tab you actually have open. It defaults to on, but it's a global
+> Editor preference, not a project setting, so a different project can leave it switched off.
+> If Play Mode doesn't land you at the boot scene, check that it's still checked.
+
 ## Documentation
 
 | Doc | What |
@@ -62,11 +68,12 @@ subscribing to named events.
 | [docs/EVENTS.md](docs/EVENTS.md) | Full event catalog: every event, value, auto-chain, and bridge mapping |
 | [docs/TRACKS.md](docs/TRACKS.md) | Track generation pipeline, ScriptableObject data model, and segment geometry |
 | [docs/ADDING_A_MECHANIC.md](docs/ADDING_A_MECHANIC.md) | End-to-end walkthrough: adding a gameplay mechanic |
-| [docs/STUDENT_TASKS.md](docs/STUDENT_TASKS.md) | Task catalog: 123 scoped projects, by sub-specialty, to take the runner to a polished product |
+| [docs/STUDENT_TASKS.md](docs/STUDENT_TASKS.md) | Task catalog: 127 scoped projects, by sub-specialty, to take the runner to a polished product |
 | [docs/TIMEBOX_1_REQUIREMENTS.md](docs/TIMEBOX_1_REQUIREMENTS.md) | The Timebox&nbsp;1 assignment (Studio Setup &amp; Greenlight): five phases, effort budget, git/AI setup, deliverable owners, team plans for 5/6/7/9+, and the presentation running order |
 | [docs/TIMEBOX_2_REQUIREMENTS.md](docs/TIMEBOX_2_REQUIREMENTS.md) | The Timebox&nbsp;2 assignment (Design Wide, Build Narrow): the over-design pass, systems and seams, the design freeze, the greybox rule, sprint math, and agentic engineering |
 | [docs/TIMEBOX_3_PLUS_REQUIREMENTS.md](docs/TIMEBOX_3_PLUS_REQUIREMENTS.md) | The Timebox&nbsp;3+ rhythm, reused every timebox: re-ranking, capture and before/after, video diary, light marketing, and graduating from greybox |
 | [docs/EXERCISE_DRAW_THE_BOUNDARY.md](docs/EXERCISE_DRAW_THE_BOUNDARY.md) | Ungraded in-class team exercise: propose a subdomain split of the gameplay events, judged on bridge crossings and the replaceability the boundary buys |
+| [docs/event-review/](docs/event-review/) | Architecture review of the event system, as two web pages: the **Event Seam Audit** (five recurring coupling forms and the defects they caused) and **The Half-Wired Chain** (six of them walked as shipped code beside the fix). Pairs with Draw the Boundary |
 | [docs/canvas/](docs/canvas/) | Every assignment rendered as Canvas-ready HTML — one page per section, plus a build script per timebox to regenerate |
 | [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md) | Unity 6.5 caveats (UIDocument/Panel Renderer, build order, JsonUtility) |
 | [AGENTS.md](AGENTS.md) | How AI agents should approach work here — any tool, not just Claude |
@@ -81,16 +88,19 @@ subscribing to named events.
 
 Systems never call each other. A system that wants something to happen **publishes an
 event**; systems that care **subscribe** and react. The jump button doesn't call the player
-controller — it publishes `UserJumpRequested`; the jump controller subscribes, does the
-jump, and publishes `JumpStarted`, which the animation and sound systems subscribe to in
-turn. No component holds a reference to a component in another system, so any system can be
-rewritten, replaced, or deleted without touching the others.
+controller — it publishes `UserJumpRequested`. `JumpController` subscribes, validates the
+request (no jumping while already airborne), and republishes it as `JumpRequested`, which
+auto-chains to `JumpStarting`; `JumpArcController` subscribes to that, actually drives the
+jump arc, and publishes `JumpStarted` partway through. Adding "play a sound on jump" later is
+just a new subscriber to `JumpStarted` — zero edits to either controller. No component holds
+a reference to a component in another system, so any system can be rewritten, replaced, or
+deleted without touching the others.
 
 ### Event domains
 
-All communication between systems goes through the `EventsPublisher` event bus. Events are
-grouped into three **domains** — separate enums with separate publishers — so that input,
-gameplay, and application lifecycle stay independent of one another:
+All communication between systems goes through the static, typed `EventsFor<T>` event bus.
+Events are grouped into three **domains** — separate enums, each on its own bus instance —
+so that input, gameplay, and application lifecycle stay independent of one another:
 
 | Domain | Enum | Responsibility |
 |--------|------|----------------|
@@ -98,18 +108,27 @@ gameplay, and application lifecycle stay independent of one another:
 | **TempleRun** | `TempleRunEvents` | Gameplay: player actions, countdown, track/spline generation, collisions, coins, power-ups |
 | **UserInitiated** | `UserInitiatedEvents` | Raw input: turn/lane/jump/slide/dash/pause/quit requests |
 
-Events auto-chain within a domain via dictionary mappings (`*AutoEventFlow.cs`), and cross
-between `TempleRun` and `GameFlow` only through `TempleRunGameFlowBridge`. Domain code never
-references another domain's events directly — that isolation is the core discipline of the
-template.
+Events auto-chain within a domain via dictionary mappings (`*AutoEventFlow.cs`). The only
+crossing point between `TempleRun` and `GameFlow` is `TempleRunGameFlowBridge` — domain code
+must never reference another domain's events directly anywhere else. That isolation is the
+core discipline of the template, and the payoff is replaceability: GameFlow only knows about
+`GameFlowEvents`, so the entire TempleRun game underneath it could be swapped for a
+different game and GameFlow's menus, level select, and session management wouldn't need to
+change a line. See the [Domain Isolation Rule](CLAUDE.md#domain-isolation-rule) for the full
+rule and how to fix a violation.
 
 ```
-USER INPUT (UserInitiatedEvents)
-    ↓
-TEMPLERUN GAMEPLAY (TempleRunEvents)
-    ↓  (via TempleRunGameFlowBridge)
-GAMEFLOW SESSION (GameFlowEvents)
+UserInitiatedEvents ──▶ TempleRunEvents ◀──▶ GameFlowEvents
 ```
+
+Two flows, not one pipeline. `UserInitiated` feeds into `TempleRun` one-way through
+`Input2TempleRunAutoEventBridge`, the only subscriber to raw input in the codebase — so no
+gameplay controller is coupled to "a human pressed a key," and an AI, a replay, or a network
+peer can drive the same mechanic. `TempleRun` and `GameFlow` exchange in both directions
+through `TempleRunGameFlowBridge`: `GameStarting` flows GameFlow → TempleRun to kick off the
+countdown, while `TempleRunEnded` flows TempleRun → GameFlow to end the session.
+
+---
 
 ### Scene structure
 

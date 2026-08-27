@@ -1,7 +1,7 @@
 # Student Task Catalog: From Plain Runner to Polished Product
 
 The template is deliberately a *plain* runner — capsule player, primitive obstacles, flat
-track. That's the point: everything below is a well-scoped way to make it yours. **123
+track. That's the point: everything below is a well-scoped way to make it yours. **127
 tasks**, grouped by sub-specialty so a team can divide work along interests (gameplay code,
 tech art, audio, UI, systems design…). Effort tags are rough: **S** = a few days, **M** = a
 week or two, **L** = a multi-week centerpiece. Tasks are referenced as section-letter +
@@ -363,6 +363,39 @@ expects — is part of the exercise. Read the PanelRenderer rules in
     spawn any power-up, toggle invulnerability, force a turn, swap the level or the selection
     algorithm, and reload the scene set. Every hour of playtesting spent replaying the first
     200 m is an hour this gives back. Sits naturally beside the event console (L6).
+11. **Subscription lifecycle audit (S/M).** Four confirmed violations of the `OnDestroy`
+    rule this repo leads with, each a different failure mode:
+    `LevelSelectorController` subscribes in `OnEnable` but unsubscribes only in `OnDestroy`,
+    so every reopen stacks another duplicate handler; `FireEventAfterSceneLoads` attaches to
+    the *static* `SceneManager.sceneLoaded` with no detach, so a destroyed component stays
+    reachable; `TrackManager` subscribes inside `Initialize()` but unsubscribes once, going
+    unbalanced on a second run; `QuitController` unsubscribes only from inside its own
+    handler and has no `OnDestroy` at all. Fix all four, then write the `/audit-events`
+    check that would have caught them. Both of the first two have a correctly-paired sibling
+    beside them (`FireEventWhenSceneCloses`, `CloseSceneOnEvent`) to diff against.
+12. **Reconnect the orphaned subscribers (S).** Two handlers wait on events nothing
+    publishes, so their behavior has never once run: `DistanceController` subscribes to
+    `PlayerFailing`, but only `PlayerFailingAtTurn` / `PlayerFailingAtObstacle` are ever
+    published — the generic speed reset is dead code; and `MainMenuPanelController`
+    subscribes to `GameplayNotReady`, whose publisher left with the removed UGS bridge.
+    For each, decide honestly: wire up the missing publisher, or delete the handler. The
+    judgment call *is* the exercise.
+13. **Prune the dead event surface (M).** An audit found ~61 enum members that are never
+    published, subscribed, or mapped, plus several chain roots that are wired into the
+    auto-flow but never fired — so the whole chain below them is unreachable. Some are
+    deliberate reserved vocabulary (`*EndRequested` / `*Ending` rungs kept for symmetry);
+    some are genuine cruft, like `TempleRunEvents.DifficultySettingsApplied` /
+    `DifficultyChanging` / `DifficultyChanged` (320–322), which duplicate the
+    `TempleRun*`-prefixed members the live code actually uses and survive only in a stale doc
+    comment. Separate the reserved from the rotten, delete the latter, and document the rule
+    you used. Careful: some events are Inspector-wired by enum value or `[EventName]` string
+    in scene assets and will not appear in a code grep.
+14. **Deduplicate the pause controllers (S).** `PauseController` and `PlayerPauseController`
+    are near-identical: both subscribe to `PlayerPaused` / `PlayerResumed` and both publish
+    `PlayerPauseRequested` / `PlayerResumeRequested`. Work out which is actually wired in the
+    scenes, whether both run at once (and what that does to a toggle), and collapse them into
+    one. A small, self-contained lesson in why duplicated event handlers are worse than
+    duplicated methods.
 
 ## M. Genre Pivot: Runner → Explorer
 

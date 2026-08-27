@@ -2,15 +2,15 @@ using CrawfisSoftware.Events;
 
 using UnityEngine;
 using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
-using UserInputBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.Events.UserInitiatedEvents>;
 
 namespace CrawfisSoftware.TempleRun
 {
     /// <summary>
-    /// Maps input events to game events. Will check if a turn request is the proper direction and within
-    ///    the turn distance. If so, it will fire a turn successful event.
+    /// Checks whether a turn request is the proper direction and within the turn distance. If so,
+    /// it fires a turn successful event.
     ///    Dependencies: Blackboard, DistanceTracker, EventsFor<TempleRunEvents>
-    ///    Subscribes: LeftTurnRequested and RightTurnRequested. If it is a valid turn publishes corresponding turn events.
+    ///    Subscribes: TempleRunEvents.TurnLeftRequested, TurnRightRequested (from bridge
+    ///                translating UserInitiated). If it is a valid turn publishes corresponding turn events.
     ///    Subscribes: ActiveTrackChanged - adjusts the next valid turn distance.
     ///    Publishes: TurnLeftStarting, TurnLeftCompleted, TurnRightStarting, TurnRightCompleted
     ///    Publishes: SegmentRequested (data: Direction) when direction is committed at an Either junction
@@ -63,8 +63,11 @@ namespace CrawfisSoftware.TempleRun
 
         private void Awake()
         {
-            UserInputBus.Subscribe(UserInitiatedEvents.UserLeftTurnRequested, OnLeftTurnRequested);
-            UserInputBus.Subscribe(UserInitiatedEvents.UserRightTurnRequested, OnRightTurnRequested);
+            // Subscribe to TempleRun domain events, not UserInitiated.
+            // This allows turns to be triggered from any source: player input, AI, replay, network.
+            // The bridge translates UserInitiated.UserLeftTurnRequested -> TempleRunEvents.TurnLeftRequested
+            TempleRunBus.Subscribe(TempleRunEvents.TurnLeftRequested, OnLeftTurnRequested);
+            TempleRunBus.Subscribe(TempleRunEvents.TurnRightRequested, OnRightTurnRequested);
             TrackChanging.Subscribe(OnTrackChanging);
             _safeTurnDistance = Blackboard.Instance.GameConfig.SafePreTurnDistance;
         }
@@ -128,8 +131,8 @@ namespace CrawfisSoftware.TempleRun
 
         private void OnDestroy()
         {
-            UserInputBus.Unsubscribe(UserInitiatedEvents.UserLeftTurnRequested, OnLeftTurnRequested);
-            UserInputBus.Unsubscribe(UserInitiatedEvents.UserRightTurnRequested, OnRightTurnRequested);
+            TempleRunBus.Unsubscribe(TempleRunEvents.TurnLeftRequested, OnLeftTurnRequested);
+            TempleRunBus.Unsubscribe(TempleRunEvents.TurnRightRequested, OnRightTurnRequested);
             TrackChanging.Unsubscribe(OnTrackChanging);
         }
     }

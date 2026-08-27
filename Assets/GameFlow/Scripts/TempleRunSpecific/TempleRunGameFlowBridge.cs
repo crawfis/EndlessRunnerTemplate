@@ -15,6 +15,15 @@ namespace CrawfisSoftware.GameFlow.Events
             // TempleRun paused -> request GameFlow pause (for menus/UI)
             { TempleRunEvents.PlayerPaused, GameFlowEvents.PauseRequested },
 
+            // TempleRun resumed -> request GameFlow resume. The counterpart to the line above:
+            // without it nothing ever publishes GameFlowEvents.ResumeRequested, so the
+            // ResumeRequested -> Resuming -> Resumed chain never runs and GameState.IsGamePaused
+            // stays true forever once the player has paused even once.
+            // PlayerResumed is also published after death (PlayerLifeController) and after a
+            // teleport (TeleportController). Both are harmless here: the only subscriber to
+            // GameFlowEvents.Resumed is GameState.OnResume, which idempotently clears the flag.
+            { TempleRunEvents.PlayerResumed, GameFlowEvents.ResumeRequested },
+
             // Countdown ended -> game officially started (absorbed from GameController)
             { TempleRunEvents.CountdownEnded, GameFlowEvents.GameStarted },
 

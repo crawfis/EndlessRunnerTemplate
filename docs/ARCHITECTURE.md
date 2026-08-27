@@ -73,7 +73,7 @@ flowchart TD
       GFE[GameFlowEvents]
     end
 
-    UI -- "Input2TempleRunAutoEventBridge<br/>(+ direct subscribers)" --> TRE
+    UI -- "Input2TempleRunAutoEventBridge" --> TRE
     TRE -- "TempleRunGameFlowBridge" --> GFE
     GFE -- "TempleRunGameFlowBridge" --> TRE
 
@@ -82,9 +82,15 @@ flowchart TD
 ```
 
 - **Auto-chains** move events *within* a domain (e.g. `PauseRequested → Pausing → Paused`).
+  A movement `*Requested → *Starting` is never auto-chained — see
+  [validation gates](EVENTS.md#templerun--templerun-templerunautoeventflowcs).
 - **The bridge** (`TempleRunGameFlowBridge`) is the single sanctioned crossing between
   TempleRun and GameFlow. Domain code translates a foreign event into a local one there,
   then subscribes to the local event. See the [Domain Isolation Rule](../CLAUDE.md#domain-isolation-rule).
+- **The input bridge** (`Input2TempleRunAutoEventBridge`) is the single sanctioned subscriber
+  to `UserInitiatedEvents`. Publishing raw input is open to any source — the `Input/` action
+  classes, `AIController`, a future replay or netcode driver — but only the bridge listens,
+  so no gameplay controller is coupled to "a human pressed a key."
 
 ## A run, end to end
 

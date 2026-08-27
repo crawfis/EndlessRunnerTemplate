@@ -1,15 +1,14 @@
-﻿using CrawfisSoftware.Events;
-
-using UnityEngine;
+﻿using UnityEngine;
 using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
-using UserInputBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.Events.UserInitiatedEvents>;
 
 namespace CrawfisSoftware.TempleRun
 {
     /// <summary>
-    /// Toggles pause state from raw input and applies it when the pause lifecycle completes.
-    ///    Subscribes: UserInitiatedEvents.UserPauseToggle, TempleRunEvents.PlayerPaused,
-    ///                TempleRunEvents.PlayerResumed
+    /// Resolves a pause toggle against current state and applies it when the pause lifecycle
+    /// completes. The toggle arrives as a TempleRun event so pause can be driven from any source:
+    /// player input, AI, replay, network.
+    ///    Subscribes: TempleRunEvents.PlayerPauseToggleRequested (from bridge translating
+    ///                UserInitiated), TempleRunEvents.PlayerPaused, TempleRunEvents.PlayerResumed
     ///    Publishes: TempleRunEvents.PlayerPauseRequested, TempleRunEvents.PlayerResumeRequested
     /// </summary>
     public class PauseController : MonoBehaviour
@@ -20,7 +19,7 @@ namespace CrawfisSoftware.TempleRun
 
         private void Awake()
         {
-            UserInputBus.Subscribe(UserInitiatedEvents.UserPauseToggle, OnPauseToggle);
+            TempleRunBus.Subscribe(TempleRunEvents.PlayerPauseToggleRequested, OnPauseToggle);
 
             TempleRunBus.Subscribe(TempleRunEvents.PlayerPaused, OnPause);
             TempleRunBus.Subscribe(TempleRunEvents.PlayerResumed, OnResume);
@@ -28,7 +27,7 @@ namespace CrawfisSoftware.TempleRun
 
         private void OnDestroy()
         {
-            UserInputBus.Unsubscribe(UserInitiatedEvents.UserPauseToggle, OnPauseToggle);
+            TempleRunBus.Unsubscribe(TempleRunEvents.PlayerPauseToggleRequested, OnPauseToggle);
 
             TempleRunBus.Unsubscribe(TempleRunEvents.PlayerPaused, OnPause);
             TempleRunBus.Unsubscribe(TempleRunEvents.PlayerResumed, OnResume);
