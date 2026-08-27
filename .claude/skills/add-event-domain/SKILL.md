@@ -30,6 +30,12 @@ other code may cross only through a bridge. Create one ONLY if all three hold:
 If any of these fail → STOP and use `/add-event` instead: a new mechanic, panel, or system
 is a category in an existing enum.
 
+A strong **capture-point purpose** reinforces criterion 2: a stream worth logging and
+replaying as a unit is itself a reason the rest of the game must stay decoupled from it.
+The UserInitiated seam is the template's example — timestamp those events and keep the
+run's random seed, and you have a complete, replayable playthrough (ghost runners, demos,
+bug reproductions).
+
 Precedent: the UGS sibling template's domain (`PlayerAuthenticated`, `ScoreUpdating`,
 `LeaderboardOpening` — see the timeline comments in `GameFlowAutoEventFlow.cs`), which
 crossed into GameFlow only through a `UGSGameFlowBridge`.
