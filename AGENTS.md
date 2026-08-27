@@ -55,7 +55,7 @@ just what it is; prefer plain language plus a diagram over exhaustive API listin
 | [docs/ADDING_A_MECHANIC.md](docs/ADDING_A_MECHANIC.md) | Worked end-to-end walkthrough | the recommended workflow or skills change |
 | [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md) | Unity/environment caveats | a caveat is resolved or discovered |
 | [CLAUDE.md](CLAUDE.md) | AI-assistant rules: event-system enforcement, conventions, file reference | rules, conventions, or key paths change |
-| [docs/STUDENT_TASKS.md](docs/STUDENT_TASKS.md), [docs/TIMEBOX_*_REQUIREMENTS.md](docs/) | Course material: the task catalog and the timebox assignments (Canvas HTML mirrors in [docs/canvas/](docs/canvas/)) | tasks or assignments change — regenerate the canvas pages via the build scripts |
+| [docs/STUDENT_TASKS.md](docs/STUDENT_TASKS.md), [docs/TIMEBOX_*_REQUIREMENTS.md](docs/), [docs/EXERCISE_*.md](docs/) | Course material: the task catalog, the timebox assignments, and in-class team exercises (Canvas HTML mirrors in [docs/canvas/](docs/canvas/)) | tasks, assignments, or exercises change — regenerate the canvas pages via the build scripts |
 | [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md) | Issue forms, labels, branch/PR conventions, Kanban workflow | process or label taxonomy changes |
 | [docs/specs/](docs/specs/), [docs/playbooks/](docs/playbooks/) | Design specs / portable upgrade guides | historical records — generally append, don't rewrite |
 

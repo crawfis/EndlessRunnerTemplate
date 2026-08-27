@@ -66,6 +66,7 @@ subscribing to named events.
 | [docs/TIMEBOX_1_REQUIREMENTS.md](docs/TIMEBOX_1_REQUIREMENTS.md) | The Timebox&nbsp;1 assignment (Studio Setup &amp; Greenlight): five phases, effort budget, git/AI setup, deliverable owners, team plans for 5/6/7/9+, and the presentation running order |
 | [docs/TIMEBOX_2_REQUIREMENTS.md](docs/TIMEBOX_2_REQUIREMENTS.md) | The Timebox&nbsp;2 assignment (Design Wide, Build Narrow): the over-design pass, systems and seams, the design freeze, the greybox rule, sprint math, and agentic engineering |
 | [docs/TIMEBOX_3_PLUS_REQUIREMENTS.md](docs/TIMEBOX_3_PLUS_REQUIREMENTS.md) | The Timebox&nbsp;3+ rhythm, reused every timebox: re-ranking, capture and before/after, video diary, light marketing, and graduating from greybox |
+| [docs/EXERCISE_DRAW_THE_BOUNDARY.md](docs/EXERCISE_DRAW_THE_BOUNDARY.md) | Ungraded in-class team exercise: propose a subdomain split of the gameplay events, judged on bridge crossings and the replaceability the boundary buys |
 | [docs/canvas/](docs/canvas/) | Every assignment rendered as Canvas-ready HTML — one page per section, plus a build script per timebox to regenerate |
 | [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md) | Unity 6.5 caveats (UIDocument/Panel Renderer, build order, JsonUtility) |
 | [AGENTS.md](AGENTS.md) | How AI agents should approach work here — any tool, not just Claude |
