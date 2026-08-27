@@ -10,7 +10,8 @@ every AI tool, and its event-system rules are mandatory for every change.
 
 - **Skills are plain markdown, usable from anywhere.** The event-workflow procedures live
   in `.claude/skills/<name>/SKILL.md` (`list-events`, `add-event`, `add-auto-chain`,
-  `add-bridge-mapping`, `audit-events`, `generate-segments`). Claude Code runs them as
+  `add-bridge-mapping`, `add-event-domain`, `audit-events`, `generate-segments`). Claude
+  Code runs them as
   slash commands; from any other tool (Copilot, Cursor, Codex, Gemini, …), open the skill
   file and follow it as a step-by-step checklist — the steps are ordinary Read/Grep/Edit
   work and assume nothing Claude-specific. Wherever a doc says `/add-event`, read it as

@@ -23,6 +23,10 @@ Display a comprehensive view of all events in the event system.
 | TempleRun | `Assets/TempleRun/Scripts/Events/TempleRunEvents.cs` |
 | UserInitiated | `Assets/TempleRun/Scripts/Events/UserInitiatedEvents.cs` |
 
+> The authoritative domain list is every enum marked `[EventEnum]` under `Assets/`. If a
+> grep for `\[EventEnum\]` turns up enums beyond these three (a domain added via
+> `/add-event-domain`), include them in the listing and update this table.
+
 ### Step 2: Read auto-chain mappings
 
 Read the relevant auto-flow file(s) and extract all dictionary entries.

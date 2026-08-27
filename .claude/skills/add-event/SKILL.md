@@ -25,6 +25,12 @@ Ask the user if not obvious from context:
 | **TempleRun** | `Assets/TempleRun/Scripts/Events/TempleRunEvents.cs` | Gameplay: player actions, countdown, turns, track, collisions, coins, power-ups |
 | **UserInitiated** | `Assets/TempleRun/Scripts/Events/UserInitiatedEvents.cs` | Raw input: new player-triggered actions |
 
+> This table lists the domains that exist today. The authoritative list is every enum
+> marked `[EventEnum]` under `Assets/` — grep for `\[EventEnum\]` if you suspect the table
+> is stale, and update it when a domain is added. If the feature genuinely needs a domain
+> that doesn't exist yet (rare), run `/add-event-domain` first — its decision gate tells
+> you whether you really do.
+
 ### Step 2: Read the target enum file
 
 Read the enum file to find:
@@ -54,6 +60,8 @@ Choose the appropriate subset. Not all features need all states. For example:
 - Find the next available value range (gaps of 10 between categories)
 - Values within a group are sequential
 - Add a category comment header: `// ---------- Feature Name ----------`
+- Exception — `UserInitiatedEvents`: implicit sequential values with a `User` prefix and no
+  categories; just append at the end
 
 ### Step 5: Edit the enum file
 

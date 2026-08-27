@@ -37,7 +37,7 @@ subscribing to named events.
 - **Full runner mechanics.** Turns, lane changes, jump, slide, dash, obstacles, coins,
   power-ups (speed, score multiplier, coin magnet, shield), countdown, and a level selector
   with unlock/best-score persistence.
-- **AI-assistant tooling.** Guides for AI agents (`AGENTS.md`, `CLAUDE.md`) plus six
+- **AI-assistant tooling.** Guides for AI agents (`AGENTS.md`, `CLAUDE.md`) plus seven
   skills that enforce and automate the event-system conventions — plain-markdown
   procedures any coding agent can follow (Claude Code runs them as slash commands).
 
@@ -151,6 +151,7 @@ follow as a checklist; in Claude Code they are also slash commands:
 - `/add-auto-chain` — wire same-domain auto-progressions
 - `/add-bridge-mapping` — wire cross-domain bridges
 - `/audit-events` — scan for anti-patterns (missing unsubscriptions, cross-domain leaks, cycles)
+- `/add-event-domain` — stand up a whole new event domain (rare; decision gate inside)
 - `/generate-segments` — author track segments
 
 See [CLAUDE.md](CLAUDE.md) for the full architecture guide and conventions.

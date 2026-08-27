@@ -27,7 +27,9 @@ After adding a bridge mapping, remind the user that any existing code that direc
 
 This is the only bridge in the template. If you add another integration domain
 (analytics, backend services, etc.), create a new bridge class for it following
-the same pattern rather than referencing that domain's events from gameplay code.
+the same pattern rather than referencing that domain's events from gameplay code —
+`/add-event-domain` walks through creating the domain, its bridge class, and which scene
+should host it. Add each new bridge class to the table above.
 
 ## CRITICAL: Always use dictionaries
 

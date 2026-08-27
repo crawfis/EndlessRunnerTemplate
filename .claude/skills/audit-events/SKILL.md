@@ -114,6 +114,11 @@ Each domain's code may ONLY reference events from its own domain. Cross-domain e
    - Exclude `TempleRunGameFlowBridge.cs` — that file is allowed
    - Any other match is a violation
 
+3. **Additional domains** (added via `/add-event-domain`): run the same check for each —
+   the domain's enum name may appear outside its own `Assets/<Domain>/` folder ONLY in
+   bridge files. The authoritative domain list is every enum marked `[EventEnum]` under
+   `Assets/`.
+
 **Report format:**
 ```
 DOMAIN ISOLATION VIOLATION:
@@ -142,4 +147,5 @@ Event System Audit Results:
 - Event enums: `Assets/GameFlow/Scripts/Events/GameFlowEvents.cs`, `Assets/TempleRun/Scripts/Events/TempleRunEvents.cs`, `Assets/TempleRun/Scripts/Events/UserInitiatedEvents.cs`
 - Auto-flows: `Assets/GameFlow/Scripts/Events/GameFlowAutoEventFlow.cs`, `Assets/TempleRun/Scripts/Events/TempleRunAutoEventFlow.cs`
 - Bridge: `Assets/GameFlow/Scripts/TempleRunSpecific/TempleRunGameFlowBridge.cs`
+- Any additional `[EventEnum]` enums, `*AutoEventFlow` classes, and `*Bridge` classes from domains added later
 - All C# scripts: `Assets/**/*.cs`

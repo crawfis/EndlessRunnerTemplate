@@ -22,6 +22,6 @@ Read both before changing code. The non-negotiable core:
 - **Every `Subscribe` (usually in `Awake()`) has a matching `Unsubscribe` in `OnDestroy()`.**
 - **Events come first.** Add or change events by following the step-by-step procedures in
   `.claude/skills/<name>/SKILL.md` (plain markdown, tool-agnostic): `list-events`,
-  `add-event`, `add-auto-chain`, `add-bridge-mapping`, `audit-events`, `generate-segments`.
-  When a doc mentions a slash command such as `/add-event`, that means: follow the
-  corresponding skill file.
+  `add-event`, `add-auto-chain`, `add-bridge-mapping`, `add-event-domain`, `audit-events`,
+  `generate-segments`. When a doc mentions a slash command such as `/add-event`, that
+  means: follow the corresponding skill file.
