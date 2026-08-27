@@ -12,7 +12,7 @@
 <li><strong>Design wide.</strong> Deliberately over-design. Generate far more game than you can possibly build: every mechanic you could do, every mode you want to do, every "wouldn't it be cool if." Turn it into a large body of user stories and a map of the <strong>systems</strong> those stories imply, with the <strong>seams</strong> between them drawn on purpose. Then converge — rank it, cut it, and write down what you are <em>not</em> making.</li>
 <li><strong>Build narrow.</strong> Take the smallest slice that proves your core loop and build it in greybox: cubes, capsules, flat colors, playable end to end by someone who has never seen it.</li>
 </ol>
-<p>The discipline that makes this work is one sentence: <strong>over-design in breadth, never in depth.</strong> A hundred stories on a board cost an afternoon. A hundred stories' worth of speculative code costs the semester. YAGNI applies to your code, not to your thinking.</p>
+<p>The discipline that makes this work is one sentence: <strong>over-design in breadth, never in depth.</strong> A hundred stories on a board cost an afternoon. A hundred stories' worth of speculative code costs the semester. <em>You aren't gonna need it</em> is a rule about code, not about thinking.</p>
 <p>This is your project, so this document does not tell you what to make. It tells you how to stay organized while you decide, and it names the practices this timebox is really about:</p>
 <table style="border-collapse:collapse;width:100%;margin:1em 0;">
 <thead>
@@ -73,7 +73,7 @@
 <li>The systems map and its seams are agreed. Changing them after this point is a decision the whole team makes at a standup, not something one person does in a branch.</li>
 <li>Estimates exist for the MVP stories only, and the sprint is scoped to fit (below).</li>
 </ul>
-<p>If you blow through the freeze date, that is worth reporting honestly in the presentation. Every studio has done it; the ones that learn say so out loud.</p>
+<p>If you blow through the freeze date, that is worth reporting honestly in the presentation. Every studio has done it; the ones that learn, say so out loud.</p>
 <h2 id="the-effort-budget-and-scope-math">The effort budget and scope math</h2>
 <p>The expectation is unchanged: <strong>10–12 hours per person per week, every timebox.</strong> This timebox splits it about evenly, front-loaded toward design.</p>
 <table style="border-collapse:collapse;width:100%;margin:1em 0;">
@@ -182,7 +182,7 @@ plan to              = build hours × 0.7      &lt;-- the number your sprint may
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">tech lead</td>
 </tr>
 <tr>
-<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Build check</strong> — CI on pull requests, or a documented, scripted local build</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Build check</strong> — an automated build on pull requests, or a documented, scripted local build</td>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">integrator</td>
 </tr>
 <tr>
@@ -262,7 +262,7 @@ plan to              = build hours × 0.7      &lt;-- the number your sprint may
 <p>The story list is not just a plan — it is the pressure test for your architecture. This is the most transferable thing in the whole timebox: <strong>the shape of your systems is decided now, cheaply, on paper, or later, expensively, in code.</strong></p>
 <p><strong>1. Name the systems, not the classes.</strong> A system is a responsibility — scoring, progression, spawning, input, save/load, audio, UI presentation. Ten to twenty is normal. Group your stories under them; a story that fits under none is telling you about a system you have not named.</p>
 <p><strong>2. For each system, write three lines:</strong> what it owns, what it needs to know, and <strong>what it must never know</strong>. The third line is the one that does the work. "Scoring must never know what a player is" is a design decision with teeth.</p>
-<p><strong>3. Draw the seams.</strong> Which systems talk, in which direction, and by what means — a call, an event, a shared data asset. Then mark the pairs that are <strong>forbidden</strong> from talking directly. Those forbidden pairs are your architecture; everything else is arrangement. The runner template makes the same choice explicitly: three event domains, no cross-domain references except in one bridge file, so gameplay can be rewritten without touching UI.</p>
+<p><strong>3. Draw the seams.</strong> Which systems talk, in which direction, and by what means — a call, an event, a shared data asset. Then mark the pairs that are <strong>forbidden</strong> from talking directly. Those forbidden pairs are your architecture; everything else is arrangement. The runner template makes the same choice explicitly: three event domains, no cross-domain references except in one bridge file, so gameplay can be rewritten without touching UI. It could and should be split into many more systems (i.e., event Enums).</p>
 <p><strong>4. Apply the replace test.</strong> Name one system you could delete tonight and rewrite tomorrow without touching any other. If you cannot name one, you have drawn a diagram, not a separation.</p>
 <p><strong>5. Decide what is data, not code.</strong> Which numbers belong in ScriptableObjects or config files so they can be tuned without a rebuild — and, later, by someone who is not a programmer. Anything you expect to playtest and change belongs here.</p>
 <p><strong>6. Pressure-test against what you are not building.</strong> Take three stories from <strong>Stretch 2</strong> — features you have deliberately deferred — and walk them through your systems map. Which seams hold? Which one would force you to edit five systems? That is the whole payoff of over-designing: an architecture validated against features that do not exist yet, while changing it is still free.</p>
@@ -302,9 +302,9 @@ plan to              = build hours × 0.7      &lt;-- the number your sprint may
 <p><strong>The retro produces three actions with owners and dates</strong>, reviewed at the next retro. A retro that produces feelings and no actions is a meeting.</p>
 <h2 id="engineering-practice">Engineering practice</h2>
 <p><strong>Definition of Done.</strong> Write it down and hold to it. A reasonable starting point: it compiles with no new warnings · it plays from a fresh clone · it has a test or a documented manual check · it was reviewed by someone who did not write it · the board card is closed · anything surprising about it is written down.</p>
-<p><strong>Review discipline carries over.</strong> The ring, the 24-hour SLA, nobody merging their own work. Report your review turnaround in the presentation — it is a real engineering metric and it tells you more about a team than lines of code do.</p>
+<p><strong>Review discipline carries over.</strong> The ring, a review within 24 hours, nobody merging their own work. Report your review turnaround in the presentation — it is a real engineering metric and it tells you more about a team than lines of code do.</p>
 <p><strong>A testing beachhead.</strong> You do not need coverage; you need the tests that would have caught last week's regression. Start with the core loop's state transitions — the thing that must never break. A system with clean seams is unusually easy to test headlessly: publish the inputs, assert the states. Five meaningful tests beat fifty trivial ones.</p>
-<p><strong>A build check.</strong> Ideally CI on every pull request. Be warned that Unity in CI needs a license secret and can eat a day; if that becomes the sprint, stop and settle for a scripted local build plus a documented pre-merge checklist, and say so. Automating the check matters more than where it runs.</p>
+<p><strong>A build check.</strong> Ideally continuous integration — an automated build on every pull request. Be warned that Unity in CI needs a license secret and can eat a day; if that becomes the sprint, stop and settle for a scripted local build plus a documented pre-merge checklist, and say so. Automating the check matters more than where it runs.</p>
 <p><strong>Budget for refactoring</strong> — about a tenth of your build hours — and keep a <strong>tech debt log</strong>: what you deferred, why, and what it will cost. Debt you wrote down is a decision. Debt you didn't is a surprise.</p>
 <p><strong>Architecture survives its second feature, not its first.</strong> When you add the second enemy, the second weapon, the second level, notice what you had to touch. If one feature forced edits in five systems, your seam list was wrong — and saying so, with the evidence, is a better presentation than a diagram that was never tested.</p>
 <h2 id="agentic-engineering">Agentic engineering</h2>
@@ -314,7 +314,7 @@ plan to              = build hours × 0.7      &lt;-- the number your sprint may
 <p><strong>3. Agent work lands like any other work.</strong> Through a branch, through a pull request, through the review ring. <strong>The author is accountable for every line</strong> and must be able to explain it; if they cannot, it does not merge.</p>
 <p><strong>4. Guardrails.</strong> Decide what agents may not touch: secrets, licensing and credits data, third-party folders, build configuration, anything with money or a grade attached. Decide how you verify: does it still play from a fresh clone, do the tests pass, does your own audit come back clean.</p>
 <p><strong>5. Keep a run log.</strong> For each non-trivial agent task: what you asked, what it produced, what you kept, what you rewrote, and whether it saved time or cost it. Ten honest rows are worth more than a paragraph of enthusiasm, and they make the presentation block write itself.</p>
-<p><strong>The failure mode to watch for</strong> is a velocity chart that looks great and a codebase nobody on the team can explain. If that is happening, your run log will show it before your grade does. Reporting it honestly is a better outcome than hiding it.</p>
+<p><strong>The failure mode to watch for</strong> is a velocity chart that looks great and a codebase nobody on the team can explain. If that is happening, your run log will show it. Reporting it honestly is a better outcome than hiding it.</p>
 <h2 id="playtesting">Playtesting</h2>
 <p>You cannot claim your loop is fun. Someone else has to — and a ninety-second greybox slice is enough to find out.</p>
 <ul>
@@ -325,7 +325,7 @@ plan to              = build hours × 0.7      &lt;-- the number your sprint may
 <li><strong>Ship one change because of it</strong>, and name that change in the presentation. That single slide — "they all did X, so we changed Y" — is the most convincing evidence in your deck that you are building a game rather than a program.</li>
 </ul>
 <h2 id="the-presentation">The presentation</h2>
-<p><strong>Budget: 35–40 minutes plus about 25 minutes of questions</strong>, as in Timebox 1. New presenters. The running order is a suggestion; the right column is what has to be covered.</p>
+<p><strong>Budget: 35–40 minutes plus about 25 minutes of questions</strong>, as in Timebox 1. New presenters. The running order is a suggestion; the right column is what should be covered.</p>
 <table style="border-collapse:collapse;width:100%;margin:1em 0;">
 <thead>
 <tr>
@@ -390,7 +390,7 @@ plan to              = build hours × 0.7      &lt;-- the number your sprint may
 <li>The "not this game" list, written down where the team can see it.</li>
 <li>The replace test, actually run, with a named system as the answer.</li>
 <li>Three Stretch 2 stories walked through the systems map before the freeze.</li>
-<li>An actual recorded next to every estimate.</li>
+<li>An actual recorded time spent next to every estimate.</li>
 <li>The <code>.github/</code> config, standards, and AI policy copied into the new repo on day one.</li>
 <li>Hats rotated — new scrum master, new presenters, new demo owner, plus build/CI, playtest, AI lead.</li>
 <li>Three outside playtesters, and the one change you made because of them.</li>

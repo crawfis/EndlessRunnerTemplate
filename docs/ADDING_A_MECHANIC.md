@@ -1,7 +1,8 @@
 # Adding a Mechanic: End-to-End Walkthrough
 
 This is the recipe for adding a gameplay mechanic the way the template intends — events first,
-logic second. We'll add a **Roll** (a quick ground roll, sibling to Jump/Slide/Dash) to show
+logic second. We'll add a **Roll** — a dodge roll: a quick ground roll under or past a hazard, sibling
+to Jump/Slide/Dash — to show
 every layer. The existing Dash mechanic is the closest template to copy.
 
 The golden rule: **no system calls another system directly.** Input publishes an intent,

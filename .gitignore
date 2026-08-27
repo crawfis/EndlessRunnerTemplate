@@ -80,3 +80,6 @@ debug_event_log.txt
 # Python bytecode from the docs/canvas publishing scripts
 __pycache__/
 *.pyc
+
+# Canvas page backups written by docs/canvas/push_to_canvas.py
+.canvas-backups/
