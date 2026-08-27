@@ -21,6 +21,8 @@ system), [docs/ADDING_A_MECHANIC.md](docs/ADDING_A_MECHANIC.md) (worked example)
 Play in Editor:     Enter Play Mode from Assets/GameFlow/Scenes/Boot/0_BootStrap_Game_Only
 Event Logging:      CrawfisSoftware > Events > Log Events   (same menu: Clear Now,
                     List Current Subscribers, Clear Events on Exiting Play Mode)
+List Domains:       CrawfisSoftware > Events > List Domains   (per domain: prefix, enum,
+                    member / payload / sticky / replay counts — EventsPublisher 2.5.0+)
 Track Authoring:    Edit the TrackSegmentSO / TrackSegmentRegistrySO / TrackLevelSO /
                     TrackLevelRegistrySO assets under Assets/TempleRun/Scriptables/Track/
                     (one asset per segment in Track/Segments/) via the Inspector
