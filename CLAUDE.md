@@ -53,6 +53,13 @@ Track Authoring:    Edit the TrackSegmentSO / TrackSegmentRegistrySO / TrackLeve
 
 **Each domain's code may ONLY subscribe to, publish, or reference events from its own domain.** Cross-domain event references are permitted ONLY inside bridge classes.
 
+The rule's purpose is **replaceability**: a domain that talks only through events can be
+swapped for a completely different implementation — a new track generator, or a
+deterministic autopilot / replayed recording instead of a human (`AIController` already
+publishes the same `UserInitiatedEvents` the input actions do) — or stubbed out with a
+trivial fake, without touching code on the other side. The additive scene composition makes
+this concrete: replacing a domain is loading a different scene that speaks the same events.
+
 | Code Location | May Reference |
 |---------------|---------------|
 | `Assets/TempleRun/**/*.cs` | `TempleRunEvents`, `UserInitiatedEvents` only |

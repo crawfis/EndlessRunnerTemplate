@@ -24,7 +24,12 @@ other code may cross only through a bridge. Create one ONLY if all three hold:
    (TempleRun), not raw input (UserInitiated). Good candidates: backend services
    (auth, leaderboards, cloud save), analytics/telemetry, networking.
 2. **The rest of the game must stay decoupled from it** — you want to add, remove, or swap
-   it without touching gameplay or app-flow code. The bridge is what buys that.
+   it without touching gameplay or app-flow code. The bridge is what buys that. The
+   operational test: could a trivial **stub** — same events consumed and published, same
+   payloads and Sticky behavior, nothing real behind them — sit in its place and keep the
+   game running? (`AIController` is the in-repo proof at the input seam: a deterministic
+   autopilot publishing the same `UserInitiatedEvents` the human's input actions do —
+   nothing downstream knows the difference.)
 3. **It will grow a family of events** — several lifecycle groups, not one or two events.
 
 If any of these fail → STOP and use `/add-event` instead: a new mechanic, panel, or system
