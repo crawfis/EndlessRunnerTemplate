@@ -41,7 +41,7 @@ Search for direct method calls or references that should go through the event sy
 - `SendMessage()` or `BroadcastMessage()` calls
 
 **Exclude from this check:**
-- `EventsPublisher*.Instance` references (these ARE the event system)
+- `EventsFor<T>` bus references and their per-file aliases (`GameFlowBus`, `TempleRunBus`, `UserInputBus`) — these ARE the event system
 - `Blackboard.Instance` (legitimate shared state)
 - References within the same class or same scene
 
@@ -114,11 +114,35 @@ Each domain's code may ONLY reference events from its own domain. Cross-domain e
    - Exclude `TempleRunGameFlowBridge.cs` — that file is allowed
    - Any other match is a violation
 
+3. **Additional domains** (added via `/add-event-domain`): run the same check for each —
+   the domain's enum name may appear outside its own `Assets/<Domain>/` folder ONLY in
+   bridge files. The authoritative domain list is every enum marked `[EventEnum]` under
+   `Assets/`.
+
 **Report format:**
 ```
 DOMAIN ISOLATION VIOLATION:
   [File:Line] references [ForeignDomain]Events from [CurrentDomain] code
   Fix: Add bridge mapping in [BridgeFile] and subscribe to a local domain event instead
+```
+
+### Check 7: Domain Registry Drift
+
+The curated domain list lives in two mirrored tables: `CLAUDE.md` (Architecture Overview,
+"Domain Registry") and the top of `docs/EVENTS.md`.
+
+1. Grep `\[EventEnum\]` across `Assets/**/*.cs`. Every hit must be in a file matching the
+   placement convention `Assets/*/Scripts/Events/*Events.cs` — an event enum anywhere else
+   is a violation.
+2. Compare the enums found against both registry tables. Flag any enum missing from a
+   table, any table row with no matching enum, and any disagreement between the two tables.
+
+**Report format:**
+```
+REGISTRY DRIFT:
+  [EnumName] at [File] is not listed in [CLAUDE.md | docs/EVENTS.md] registry
+  (or) [EnumName] declared outside Assets/*/Scripts/Events/ at [File]
+  (or) Registry row [Domain] has no matching [EventEnum] enum
 ```
 
 ## Output Summary
@@ -132,6 +156,7 @@ Event System Audit Results:
   Circular chains: [count]
   Publish/subscribe mismatches: [count]
   Domain isolation violations: [count]
+  Registry drift: [count]
 
   Total issues: [count]
   Severity: [CLEAN / WARNINGS / CRITICAL]
@@ -142,4 +167,5 @@ Event System Audit Results:
 - Event enums: `Assets/GameFlow/Scripts/Events/GameFlowEvents.cs`, `Assets/TempleRun/Scripts/Events/TempleRunEvents.cs`, `Assets/TempleRun/Scripts/Events/UserInitiatedEvents.cs`
 - Auto-flows: `Assets/GameFlow/Scripts/Events/GameFlowAutoEventFlow.cs`, `Assets/TempleRun/Scripts/Events/TempleRunAutoEventFlow.cs`
 - Bridge: `Assets/GameFlow/Scripts/TempleRunSpecific/TempleRunGameFlowBridge.cs`
+- Any additional `[EventEnum]` enums, `*AutoEventFlow` classes, and `*Bridge` classes from domains added later
 - All C# scripts: `Assets/**/*.cs`

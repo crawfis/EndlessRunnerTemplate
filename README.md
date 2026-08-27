@@ -27,8 +27,8 @@ subscribing to named events.
 ## Highlights
 
 - **Event-driven core.** No cross-system method calls. Three event domains
-  (`GameFlow`, `TempleRun`, `UserInitiated`) communicate through singleton publishers, with
-  declarative auto-chaining and a single cross-domain bridge.
+  (`GameFlow`, `TempleRun`, `UserInitiated`) communicate through a static typed event bus
+  (`EventsFor<T>`), with declarative auto-chaining and a single cross-domain bridge.
 - **Additive scene composition.** A persistent bootstrap scene loads UI and gameplay scenes
   additively; gameplay is split from visuals, audio, and environment.
 - **Data-driven track generation.** Track segments and per-level rulesets are authored as
@@ -37,8 +37,9 @@ subscribing to named events.
 - **Full runner mechanics.** Turns, lane changes, jump, slide, dash, obstacles, coins,
   power-ups (speed, score multiplier, coin magnet, shield), countdown, and a level selector
   with unlock/best-score persistence.
-- **AI-assistant tooling.** A `CLAUDE.md` guide and six project skills that enforce and
-  automate the event-system conventions.
+- **AI-assistant tooling.** Guides for AI agents (`AGENTS.md`, `CLAUDE.md`) plus seven
+  skills that enforce and automate the event-system conventions — plain-markdown
+  procedures any coding agent can follow (Claude Code runs them as slash commands).
 
 ## Requirements
 
@@ -65,9 +66,11 @@ subscribing to named events.
 | [docs/TIMEBOX_1_REQUIREMENTS.md](docs/TIMEBOX_1_REQUIREMENTS.md) | The Timebox&nbsp;1 assignment (Studio Setup &amp; Greenlight): five phases, effort budget, git/AI setup, deliverable owners, team plans for 5/6/7/9+, and the presentation running order |
 | [docs/TIMEBOX_2_REQUIREMENTS.md](docs/TIMEBOX_2_REQUIREMENTS.md) | The Timebox&nbsp;2 assignment (Design Wide, Build Narrow): the over-design pass, systems and seams, the design freeze, the greybox rule, sprint math, and agentic engineering |
 | [docs/TIMEBOX_3_PLUS_REQUIREMENTS.md](docs/TIMEBOX_3_PLUS_REQUIREMENTS.md) | The Timebox&nbsp;3+ rhythm, reused every timebox: re-ranking, capture and before/after, video diary, light marketing, and graduating from greybox |
+| [docs/EXERCISE_DRAW_THE_BOUNDARY.md](docs/EXERCISE_DRAW_THE_BOUNDARY.md) | Ungraded in-class team exercise: propose a subdomain split of the gameplay events, judged on bridge crossings and the replaceability the boundary buys |
 | [docs/canvas/](docs/canvas/) | Every assignment rendered as Canvas-ready HTML — one page per section, plus a build script per timebox to regenerate |
 | [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md) | Unity 6.5 caveats (UIDocument/Panel Renderer, build order, JsonUtility) |
-| [CLAUDE.md](CLAUDE.md) | AI-assistant guide: conventions and the event-system rules |
+| [AGENTS.md](AGENTS.md) | How AI agents should approach work here — any tool, not just Claude |
+| [CLAUDE.md](CLAUDE.md) | AI-assistant guide: conventions and the event-system rules (written for every AI tool; Claude Code additionally runs the skills as slash commands) |
 | [docs/specs/](docs/specs/) | Design specs and migration plans for proposed changes |
 | [docs/playbooks/](docs/playbooks/) | Portable, project-agnostic upgrade guides (e.g. UIDocument → PanelRenderer) |
 | [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md) | Issue forms, labels, branch/PR conventions, and the Kanban workflow |
@@ -140,13 +143,16 @@ See [docs/TRACKS.md](docs/TRACKS.md).
 ## Extending the Template
 
 Because everything is event-driven, adding a feature starts with the events, not the code.
-The project ships with skills (see `.claude/skills/`) that enforce the conventions:
+The project ships with skills (see `.claude/skills/`) that enforce the conventions. Each is
+a plain-markdown procedure (`.claude/skills/<name>/SKILL.md`) that any AI coding tool can
+follow as a checklist; in Claude Code they are also slash commands:
 
 - `/list-events` — review the current event landscape
 - `/add-event` — add events to the correct domain with proper naming/numbering
 - `/add-auto-chain` — wire same-domain auto-progressions
 - `/add-bridge-mapping` — wire cross-domain bridges
 - `/audit-events` — scan for anti-patterns (missing unsubscriptions, cross-domain leaks, cycles)
+- `/add-event-domain` — stand up a whole new event domain (rare; decision gate inside)
 - `/generate-segments` — author track segments
 
 See [CLAUDE.md](CLAUDE.md) for the full architecture guide and conventions.

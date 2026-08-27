@@ -1,8 +1,24 @@
 # AGENTS.md
 
-Guidance for AI assistants working in this repository. See [CLAUDE.md](CLAUDE.md) for the
-concrete architecture, conventions, and event-system rules — this file is about *how to
-approach the work*, not the code specifics.
+Guidance for AI assistants working in this repository — any assistant, not just Claude.
+This file is about *how to approach the work*, not the code specifics. The concrete
+architecture, conventions, and event-system rules live in [CLAUDE.md](CLAUDE.md):
+**read that file in full before changing code** — despite the name it is written for
+every AI tool, and its event-system rules are mandatory for every change.
+
+## Working here from any AI tool
+
+- **Skills are plain markdown, usable from anywhere.** The event-workflow procedures live
+  in `.claude/skills/<name>/SKILL.md` (`list-events`, `add-event`, `add-auto-chain`,
+  `add-bridge-mapping`, `add-event-domain`, `audit-events`, `generate-segments`). Claude
+  Code runs them as
+  slash commands; from any other tool (Copilot, Cursor, Codex, Gemini, …), open the skill
+  file and follow it as a step-by-step checklist — the steps are ordinary Read/Grep/Edit
+  work and assume nothing Claude-specific. Wherever a doc says `/add-event`, read it as
+  "follow `.claude/skills/add-event/SKILL.md`".
+- **Pointer files:** `GEMINI.md` and `.github/copilot-instructions.md` exist only to route
+  those tools to this file pair. Keep them thin pointers — extend AGENTS.md / CLAUDE.md
+  instead, and mirror any change to the shared pointer text in both.
 
 ## This is a design-heavy, iterative, experimental project
 
@@ -39,6 +55,8 @@ just what it is; prefer plain language plus a diagram over exhaustive API listin
 | [docs/ADDING_A_MECHANIC.md](docs/ADDING_A_MECHANIC.md) | Worked end-to-end walkthrough | the recommended workflow or skills change |
 | [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md) | Unity/environment caveats | a caveat is resolved or discovered |
 | [CLAUDE.md](CLAUDE.md) | AI-assistant rules: event-system enforcement, conventions, file reference | rules, conventions, or key paths change |
+| [docs/STUDENT_TASKS.md](docs/STUDENT_TASKS.md), [docs/TIMEBOX_*_REQUIREMENTS.md](docs/), [docs/EXERCISE_*.md](docs/) | Course material: the task catalog, the timebox assignments, and in-class team exercises (Canvas HTML mirrors in [docs/canvas/](docs/canvas/)) | tasks, assignments, or exercises change — regenerate the canvas pages via the build scripts |
+| [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md) | Issue forms, labels, branch/PR conventions, Kanban workflow | process or label taxonomy changes |
 | [docs/specs/](docs/specs/), [docs/playbooks/](docs/playbooks/) | Design specs / portable upgrade guides | historical records — generally append, don't rewrite |
 
 **Docs are part of the change.** A refactor that moves a seam (e.g. JSON → ScriptableObjects)

@@ -23,6 +23,10 @@ Display a comprehensive view of all events in the event system.
 | TempleRun | `Assets/TempleRun/Scripts/Events/TempleRunEvents.cs` |
 | UserInitiated | `Assets/TempleRun/Scripts/Events/UserInitiatedEvents.cs` |
 
+> The authoritative domain list is every enum marked `[EventEnum]` under `Assets/`. If a
+> grep for `\[EventEnum\]` turns up enums beyond these three (a domain added via
+> `/add-event-domain`), include them in the listing and update this table.
+
 ### Step 2: Read auto-chain mappings
 
 Read the relevant auto-flow file(s) and extract all dictionary entries.
@@ -43,7 +47,7 @@ For each domain, output a table grouped by category:
 
 ```
 ## [Domain] Events ([count] events)
-Publisher: EventsPublisher[Domain].Instance
+Bus: EventsFor<[Domain]Events>
 
 ### [Category Name]
 | Event | Value | Auto-Chain | Bridge | Notes |
@@ -57,6 +61,10 @@ Publisher: EventsPublisher[Domain].Instance
 **Auto-Chain column**: Show `-> TargetEvent` if this event auto-triggers another.
 **Bridge column**: Show `-> Domain.Event` if this event bridges to another domain.
 **Notes**: Show `(target of auto-chain from X)` or `(target of bridge from Domain.X)` for events that are targets.
+
+When regenerating `docs/EVENTS.md` from this output, preserve and refresh the Domain
+Registry table at the top of that file (mirrored from CLAUDE.md's Architecture Overview)
+before the per-domain sections.
 
 ### Step 5: Show available value ranges
 
