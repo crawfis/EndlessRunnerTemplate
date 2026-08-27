@@ -43,7 +43,7 @@ For each domain, output a table grouped by category:
 
 ```
 ## [Domain] Events ([count] events)
-Publisher: EventsPublisher[Domain].Instance
+Bus: EventsFor<[Domain]Events>
 
 ### [Category Name]
 | Event | Value | Auto-Chain | Bridge | Notes |

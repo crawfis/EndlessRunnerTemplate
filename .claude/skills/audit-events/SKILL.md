@@ -41,7 +41,7 @@ Search for direct method calls or references that should go through the event sy
 - `SendMessage()` or `BroadcastMessage()` calls
 
 **Exclude from this check:**
-- `EventsPublisher*.Instance` references (these ARE the event system)
+- `EventsFor<T>` bus references and their per-file aliases (`GameFlowBus`, `TempleRunBus`, `UserInputBus`) — these ARE the event system
 - `Blackboard.Instance` (legitimate shared state)
 - References within the same class or same scene
 
