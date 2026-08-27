@@ -12,7 +12,7 @@ namespace CrawfisSoftware.TempleRun
     ///    Dependencies: Blackboard, DistanceTracker, EventsFor<TempleRunEvents>
     ///    Subscribes: TempleRunEvents.ActiveTrackChanging — increases the active track length
     ///    Subscribes: TempleRunEvents.TempleRunStarted — begins distance checking
-    ///    Subscribes: TempleRunEvents.PlayerDied — stops distance checking
+    ///    Subscribes: TempleRunEvents.TempleRunEnded — stops distance checking, however the run ended
     ///    Publishes: TempleRunEvents.PlayerFailingAtTurn — Data is the current player distance (float). Turn segments only.
     /// </summary>
     /// <remarks>For local multi-player we may need a player ID. Would be good to include this in the event data.</remarks>
@@ -45,7 +45,7 @@ namespace CrawfisSoftware.TempleRun
             TempleRunBus.Subscribe(TempleRunEvents.TurnLeftCompleted, OnSuccessfullTurn);
             TempleRunBus.Subscribe(TempleRunEvents.TurnRightCompleted, OnSuccessfullTurn);
             TempleRunBus.Subscribe(TempleRunEvents.TempleRunStarted, OnGameStarted);
-            TempleRunBus.Subscribe(TempleRunEvents.PlayerDied, OnGameEnding);
+            TempleRunBus.Subscribe(TempleRunEvents.TempleRunEnded, OnGameEnding);
         }
 
         private void Update()
@@ -68,7 +68,7 @@ namespace CrawfisSoftware.TempleRun
             TempleRunBus.Unsubscribe(TempleRunEvents.TurnLeftCompleted, OnSuccessfullTurn);
             TempleRunBus.Unsubscribe(TempleRunEvents.TurnRightCompleted, OnSuccessfullTurn);
             TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunStarted, OnGameStarted);
-            TempleRunBus.Unsubscribe(TempleRunEvents.PlayerDied, OnGameEnding);
+            TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunEnded, OnGameEnding);
         }
 
         private void OnTrackChanging(string eventName, object sender, TrackSegmentInfo trackSegmentInfo)

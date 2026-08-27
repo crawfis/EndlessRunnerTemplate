@@ -9,7 +9,8 @@ namespace CrawfisSoftware.TempleRun
     /// Speed controller that updates a DistanceTracker.
     ///    Dependencies: Blackboard, DistanceTracker and GameConfig (from Blackboard)
     ///    Subscribes: TempleRunStarted
-    ///    Subscribes: PlayerDied
+    ///    Subscribes: PlayerFailing — resets speed to initial after a non-fatal failure
+    ///    Subscribes: TempleRunEnded — stops the run, however the run ended
     ///    Subscribes: TeleportStarted — pauses movement during cinematic teleport
     ///    Subscribes: TeleportEnded — snaps distance to LandingDistance from event data, resumes movement
     /// </summary>
@@ -29,7 +30,7 @@ namespace CrawfisSoftware.TempleRun
         {
             TempleRunBus.Subscribe(TempleRunEvents.PlayerFailing, OnResetSpeed);
             TempleRunBus.Subscribe(TempleRunEvents.TempleRunStarted, OnGameStarted);
-            TempleRunBus.Subscribe(TempleRunEvents.PlayerDied, OnGameOver);
+            TempleRunBus.Subscribe(TempleRunEvents.TempleRunEnded, OnGameOver);
             TempleRunBus.Subscribe(TempleRunEvents.TeleportStarted, OnTeleportStarted);
             TempleRunBus.Subscribe(TempleRunEvents.TeleportEnded, OnTeleportEnded);
         }
@@ -38,7 +39,7 @@ namespace CrawfisSoftware.TempleRun
         {
             TempleRunBus.Unsubscribe(TempleRunEvents.PlayerFailing, OnResetSpeed);
             TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunStarted, OnGameStarted);
-            TempleRunBus.Unsubscribe(TempleRunEvents.PlayerDied, OnGameOver);
+            TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunEnded, OnGameOver);
             TempleRunBus.Unsubscribe(TempleRunEvents.TeleportStarted, OnTeleportStarted);
             TempleRunBus.Unsubscribe(TempleRunEvents.TeleportEnded, OnTeleportEnded);
             DeleteCoroutine();

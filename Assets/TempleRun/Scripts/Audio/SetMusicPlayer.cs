@@ -19,7 +19,9 @@ namespace CrawfisSoftware.TempleRun.Audio
             AudioManagerSingleton.Instance.SetMusicPlayer(_musicPlayer);
             _musicPlayer.Volume = _initialVolume;
             TempleRunBus.Subscribe(TempleRunEvents.TempleRunStartRequested, OnTempleRunStartRequested);
-            TempleRunBus.Subscribe(TempleRunEvents.PlayerDied, OnPlayerDied);
+            // Stopping the run's music is a run-ended behavior, not a death-specific one:
+            // quitting reaches TempleRunEnded without ever publishing PlayerDied.
+            TempleRunBus.Subscribe(TempleRunEvents.TempleRunEnded, OnRunEnded);
             TempleRunBus.Subscribe(TempleRunEvents.PlayerPaused, OnPause);
             TempleRunBus.Subscribe(TempleRunEvents.PlayerResumed, OnResume);
         }
@@ -39,7 +41,7 @@ namespace CrawfisSoftware.TempleRun.Audio
         private void OnDestroy()
         {
             TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunStartRequested, OnTempleRunStartRequested);
-            TempleRunBus.Unsubscribe(TempleRunEvents.PlayerDied, OnPlayerDied);
+            TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunEnded, OnRunEnded);
             TempleRunBus.Unsubscribe(TempleRunEvents.PlayerPaused, OnPause);
             TempleRunBus.Unsubscribe(TempleRunEvents.PlayerResumed, OnResume);
         }
@@ -49,7 +51,7 @@ namespace CrawfisSoftware.TempleRun.Audio
             _musicPlayer.Play();
         }
 
-        private void OnPlayerDied(string eventName, object sender, object data)
+        private void OnRunEnded(string eventName, object sender, object data)
         {
             _musicPlayer.Stop();
         }

@@ -7,11 +7,9 @@ namespace CrawfisSoftware.TempleRun
     /// Manages the number of lives a player has, converting the PlayerFailing events to a PlayerDied event when
     /// all of the lives run out.
     ///    Dependencies: Blackboard, EventsFor<TempleRunEvents>
-    ///    Subscribes: TempleRunEvents.PlayerFailingAtTurn
-    ///    Subscribes: TempleRunEvents.PlayerFailingAtObstacle
+    ///    Subscribes: TempleRunEvents.PlayerFailing (auto-chained from any specific failure)
     ///    Subscribes: TempleRunEvents.TempleRunStarted (resets lives at game start)
     ///    Publishes: TempleRunEvents.PlayerDied — Data is the final score (float).
-    ///    Publishes: TempleRunEvents.PlayerResumed — Unpauses after death so the game-ending flow can proceed.
     /// </summary>
     /// <remarks>For local multi-player we may need a player ID. Would be good to include this in the event data.</remarks>
     internal class PlayerLifeController : MonoBehaviour
@@ -22,8 +20,9 @@ namespace CrawfisSoftware.TempleRun
 
         private void Awake()
         {
-            TempleRunBus.Subscribe(TempleRunEvents.PlayerFailingAtTurn, OnPlayerFailed);
-            TempleRunBus.Subscribe(TempleRunEvents.PlayerFailingAtObstacle, OnPlayerFailed);
+            // One subscription, not one per kind of failure: the auto-flow funnels every
+            // specific failure into PlayerFailing. A new failure cause costs no edit here.
+            TempleRunBus.Subscribe(TempleRunEvents.PlayerFailing, OnPlayerFailed);
             TempleRunBus.Subscribe(TempleRunEvents.TempleRunStarted, OnGameStarted);
         }
 
@@ -42,14 +41,16 @@ namespace CrawfisSoftware.TempleRun
             {
                 float score = Blackboard.Instance.DistanceTracker.DistanceTravelled;
                 TempleRunBus.Publish(TempleRunEvents.PlayerDied, this, score);
-                TempleRunBus.Publish(TempleRunEvents.PlayerResumed, this, Time.time);
+                // No resume published here. This class used to unpause on death purely to
+                // cancel a pause PlayerFailedController had started - the lives system had to
+                // know that failing causes a freeze. The freeze now ends on its own, when
+                // PlayerFailedController publishes PlayerFailed.
             }
         }
 
         private void OnDestroy()
         {
-            TempleRunBus.Unsubscribe(TempleRunEvents.PlayerFailingAtTurn, OnPlayerFailed);
-            TempleRunBus.Unsubscribe(TempleRunEvents.PlayerFailingAtObstacle, OnPlayerFailed);
+            TempleRunBus.Unsubscribe(TempleRunEvents.PlayerFailing, OnPlayerFailed);
             TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunStarted, OnGameStarted);
         }
     }

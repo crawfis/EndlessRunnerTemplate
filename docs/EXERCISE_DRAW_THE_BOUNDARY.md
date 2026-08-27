@@ -16,9 +16,11 @@ The template's event architecture is three domains and one law:
 domain's events except inside a bridge. The whole law fits in a box:
 
 ```
-TempleRun code  may reference only  TempleRunEvents + UserInitiatedEvents.
+TempleRun code  may reference only  TempleRunEvents.
 GameFlow code   may reference only  GameFlowEvents.
-Every crossing lives in ONE file — TempleRunGameFlowBridge.cs — nine mappings total.
+Raw input is published by anyone, but subscribed to ONLY by the input bridge.
+Every crossing lives in a bridge — TempleRunGameFlowBridge.cs, ten mappings;
+                                   Input2TempleRunAutoEventBridge.cs, nine.
 ```
 
 `TempleRunEvents` has grown to **120 events** in one enum, and every feature your studio
@@ -118,6 +120,13 @@ argument. It contains, in order:
 > [`.claude/skills/add-event-domain/SKILL.md`](../.claude/skills/add-event-domain/SKILL.md).
 > All of it is plain markdown — every AI tool, and every human, can read it.
 
+> **Worked examples of the law being broken:** the
+> [Event Seam Audit](event-review/event-seam-audit.html) catalogues five recurring ways a
+> system reaches past its own boundary in this very codebase, and
+> [The Half-Wired Chain](event-review/the-half-wired-chain.html) walks six of them as shipped
+> code beside the fix. Read at least the audit's "The pattern, named" section before you draw
+> your cut — every form in it is a crossing someone did not realise they were making.
+
 ## How to judge a proposal
 
 Nothing here is graded — so judge each other. In discussion, press every proposal on these,
@@ -148,7 +157,8 @@ Evaluate at least two. At least one of these is a trap — the count will tell y
 
 Study `UserInitiatedEvents` before you write a word — it is a split that pays all three
 ways. The seam is real: raw input earned its own enum at the cost of exactly one small
-bridge (`Input2TempleRunAutoEventBridge`, three mappings). It is *replaceable*, and the
+bridge (`Input2TempleRunAutoEventBridge`, nine mappings — one per input event, and the only
+subscriber to raw input in the codebase). It is *replaceable*, and the
 repo already proves it: `AIController` — a deterministic autopilot that reads the upcoming
 turn and fires at the last safe moment — publishes `UserLeftTurnRequested` /
 `UserRightTurnRequested` through the same bus, exactly as the human's input actions do.

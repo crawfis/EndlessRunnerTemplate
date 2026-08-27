@@ -10,7 +10,8 @@ namespace CrawfisSoftware.TempleRun
     /// <summary>
     /// Handles auto-turning after a failure that originates from reaching the end of a track segment.
     ///    Dependencies: TurnController, EventsFor<TempleRunEvents>
-    ///    Subscribes: PlayerFailing
+    ///    Subscribes: PlayerFailingAtTurn — deliberately the SPECIFIC failure, not the generic
+    ///                PlayerFailing: only a failed turn should auto-advance the track.
     ///    Publishes: Turn completed events via TurnController
     /// </summary>
     internal class PlayerFailureAutoTurnController : MonoBehaviour

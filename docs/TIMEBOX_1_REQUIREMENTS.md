@@ -19,7 +19,7 @@ design, documentation, and process — not features.
 
 **You have 1.5 weeks.** Task IDs like **A4** or **I12** point into the
 [Student Task Catalog](https://github.com/crawfis/EndlessRunnerTemplate/blob/main/docs/STUDENT_TASKS.md)
-— 123 scoped projects grouped by sub-specialty. This document says how many to take, who
+— 127 scoped projects grouped by sub-specialty. This document says how many to take, who
 takes them, and everything else that is due.
 
 **The five phases:**

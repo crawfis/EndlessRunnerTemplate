@@ -8,7 +8,8 @@ namespace CrawfisSoftware.TempleRun
     /// <summary>
     /// Detects collisions between the player and obstacles using Unity trigger colliders.
     /// If the player is jumping high enough, or sliding low enough, the collision is ignored (obstacle cleared).
-    /// Otherwise publishes ObstacleHit which auto-chains to PlayerFailing.
+    /// Otherwise publishes ObstacleHit. PowerUpBuffController gates that (a Shield absorbs it);
+    /// unabsorbed, it publishes PlayerFailingAtObstacle, which auto-chains to PlayerFailing.
     ///    Dependencies: Blackboard, JumpConfig, SlideConfig
     ///    Publishes: TempleRunEvents.ObstacleHit
     /// </summary>

@@ -1,0 +1,537 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Event Seam Audit</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:ital,wght@0,400;0,500;1,400&display=swap">
+
+<style>
+  :root {
+    --ground: #F5F7F8;
+    --surface: #FFFFFF;
+    --surface-2: #EAEFF2;
+    --ink: #141A21;
+    --ink-2: #3E4854;
+    --ink-3: #6A7683;
+    --rule: #D6DEE4;
+    --rule-soft: #E6ECEF;
+    --accent: #0E6E78;
+    --accent-soft: #DEEEF0;
+    --crit: #A8321F;
+    --crit-soft: #FBEAE6;
+    --warn: #855400;
+    --warn-soft: #F8EFDB;
+    --inert: #64707D;
+    --inert-soft: #EAEDF0;
+    --done: #1F6B45;
+    --done-soft: #E2F0E8;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #0E1216;
+      --surface: #151B22;
+      --surface-2: #1C232B;
+      --ink: #E7ECF1;
+      --ink-2: #B2BDC8;
+      --ink-3: #8492A0;
+      --rule: #29323C;
+      --rule-soft: #1F272F;
+      --accent: #45B5BF;
+      --accent-soft: #10323A;
+      --crit: #F0796B;
+      --crit-soft: #351915;
+      --warn: #DFA33F;
+      --warn-soft: #2E2410;
+      --inert: #8492A0;
+      --inert-soft: #212932;
+      --done: #5FC08D;
+      --done-soft: #122C1F;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #0E1216;
+    --surface: #151B22;
+    --surface-2: #1C232B;
+    --ink: #E7ECF1;
+    --ink-2: #B2BDC8;
+    --ink-3: #8492A0;
+    --rule: #29323C;
+    --rule-soft: #1F272F;
+    --accent: #45B5BF;
+    --accent-soft: #10323A;
+    --crit: #F0796B;
+    --crit-soft: #351915;
+    --warn: #DFA33F;
+    --warn-soft: #2E2410;
+    --inert: #8492A0;
+    --inert-soft: #212932;
+    --done: #5FC08D;
+    --done-soft: #122C1F;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0 20px 96px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 820px; margin: 0 auto; }
+
+  /* ---------- masthead ---------- */
+  .masthead {
+    padding: 56px 0 28px;
+    border-bottom: 2px solid var(--ink);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .eyebrow {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 11.5px;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0;
+  }
+  h1 {
+    font-size: clamp(30px, 5.4vw, 43px);
+    line-height: 1.08;
+    font-weight: 600;
+    letter-spacing: -0.021em;
+    margin: 0;
+    text-wrap: balance;
+  }
+  .standfirst {
+    font-family: "IBM Plex Serif", Georgia, serif;
+    font-size: 18px;
+    line-height: 1.58;
+    color: var(--ink-2);
+    margin: 0;
+    max-width: 62ch;
+  }
+  .provenance {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 12px;
+    color: var(--ink-3);
+    line-height: 1.75;
+    margin: 4px 0 0;
+  }
+
+  /* ---------- scoreboard ---------- */
+  .board {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(122px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    margin: 28px 0 0;
+  }
+  .tile {
+    background: var(--surface);
+    padding: 16px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .tile .n {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 27px;
+    font-weight: 500;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .tile .l {
+    font-size: 12px;
+    color: var(--ink-3);
+    line-height: 1.35;
+  }
+  .n.crit { color: var(--crit); }
+  .n.warn { color: var(--warn); }
+  .n.inert { color: var(--inert); }
+  .n.done { color: var(--done); }
+
+  /* ---------- sections ---------- */
+  section { margin-top: 52px; }
+  h2 {
+    font-size: 23px;
+    font-weight: 600;
+    letter-spacing: -0.012em;
+    margin: 0 0 6px;
+    padding-bottom: 9px;
+    border-bottom: 1px solid var(--rule);
+    text-wrap: balance;
+  }
+  .section-note {
+    font-family: "IBM Plex Serif", Georgia, serif;
+    color: var(--ink-2);
+    font-size: 16.5px;
+    margin: 12px 0 24px;
+    max-width: 64ch;
+  }
+  h3 {
+    font-size: 17px;
+    font-weight: 600;
+    margin: 0 0 7px;
+    letter-spacing: -0.004em;
+  }
+  p { margin: 0 0 12px; max-width: 66ch; }
+  p:last-child { margin-bottom: 0; }
+
+  /* ---------- findings ---------- */
+  .finding {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--inert);
+    padding: 17px 19px;
+    margin-bottom: 12px;
+  }
+  .finding.critical { border-left-color: var(--crit); }
+  .finding.coupling { border-left-color: var(--warn); }
+  .finding.fixed { border-left-color: var(--done); }
+
+  .fhead {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+  .chip {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    padding: 3px 7px;
+    border-radius: 2px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .chip.critical { background: var(--crit-soft); color: var(--crit); }
+  .chip.coupling { background: var(--warn-soft); color: var(--warn); }
+  .chip.inert { background: var(--inert-soft); color: var(--inert); }
+  .chip.fixed { background: var(--done-soft); color: var(--done); }
+  .chip.accent { background: var(--accent-soft); color: var(--accent); }
+
+  .finding h3 { margin: 0; flex: 1 1 260px; }
+  .finding p { font-size: 15px; color: var(--ink-2); }
+
+  .ref {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 13px;
+    color: var(--ink);
+    background: var(--surface-2);
+    padding: 1px 5px;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+  .fix {
+    margin-top: 11px;
+    padding-top: 11px;
+    border-top: 1px dashed var(--rule);
+    font-size: 14.5px;
+    color: var(--ink-2);
+  }
+  .fix strong { color: var(--ink); font-weight: 600; }
+
+  /* ---------- chain notation ---------- */
+  .chain {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 13px;
+    line-height: 1.9;
+    background: var(--surface-2);
+    border: 1px solid var(--rule);
+    padding: 12px 14px;
+    margin: 12px 0;
+    overflow-x: auto;
+    white-space: pre;
+    color: var(--ink-2);
+  }
+  .chain b { color: var(--accent); font-weight: 500; }
+  .chain s { color: var(--crit); text-decoration-color: var(--crit); }
+
+  /* ---------- table ---------- */
+  .tablewrap { overflow-x: auto; border: 1px solid var(--rule); margin: 16px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; min-width: 520px; }
+  th, td { text-align: left; padding: 9px 13px; border-bottom: 1px solid var(--rule-soft); vertical-align: top; }
+  th {
+    background: var(--surface-2);
+    font-size: 11.5px;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  td { background: var(--surface); }
+  tr:last-child td { border-bottom: none; }
+  td code, th code {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 12.5px;
+  }
+
+  /* ---------- callout ---------- */
+  .callout {
+    background: var(--accent-soft);
+    border: 1px solid var(--accent);
+    padding: 17px 19px;
+    margin: 22px 0;
+  }
+  .callout h3 { color: var(--accent); }
+  .callout p { color: var(--ink-2); font-size: 15px; }
+
+  /* ---------- ordered plan ---------- */
+  ol.plan { margin: 0; padding: 0; list-style: none; counter-reset: step; }
+  ol.plan li {
+    counter-increment: step;
+    display: grid;
+    grid-template-columns: 34px 1fr;
+    gap: 13px;
+    padding: 13px 0;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  ol.plan li:last-child { border-bottom: none; }
+  ol.plan li::before {
+    content: counter(step);
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 13px;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    width: 26px; height: 26px;
+    display: grid; place-items: center;
+    font-variant-numeric: tabular-nums;
+  }
+  ol.plan p { margin: 0; font-size: 15px; }
+  ol.plan .t { font-weight: 600; color: var(--ink); }
+
+  ul.tight { margin: 10px 0; padding-left: 19px; }
+  ul.tight li { margin-bottom: 7px; font-size: 15px; color: var(--ink-2); max-width: 64ch; }
+
+  footer {
+    margin-top: 60px;
+    padding-top: 20px;
+    border-top: 1px solid var(--rule);
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 12px;
+    color: var(--ink-3);
+    line-height: 1.8;
+  }
+
+  a { color: var(--accent); }
+  a:focus-visible, li:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">EndlessRunner · Architecture Review</p>
+    <h1>Where the event seams leak</h1>
+    <p class="standfirst">A review of the EndlessRunner event system, starting from one observation — that failure logic had pause logic hard-coded into it — and following that pattern through the codebase. It recurs in five distinct forms and accounted for six defects. Three are now fixed; the rest are scoped below.</p>
+    <p class="provenance">SCOPE&nbsp;&nbsp;&nbsp;Assets/**/*.cs, *.unity, *.prefab · 3 enums · 4 dispatch classes<br>METHOD&nbsp;&nbsp;Three parallel sweeps: concern-coupling, duplicated subscription sets, doc-vs-code drift</p>
+  </header>
+
+  <div class="board">
+    <div class="tile"><span class="n crit">3</span><span class="l">Defects still open</span></div>
+    <div class="tile"><span class="n done">9</span><span class="l">Fixed this session</span></div>
+    <div class="tile"><span class="n warn">5</span><span class="l">Coupling forms</span></div>
+    <div class="tile"><span class="n inert">61</span><span class="l">Unreferenced enum members</span></div>
+    <div class="tile"><span class="n inert">28</span><span class="l">Doc-vs-code mismatches</span></div>
+  </div>
+
+  <section>
+    <h2>The pattern, named</h2>
+    <p class="section-note">The original observation generalizes. Each form below is a different way a system reaches past its own boundary — and none of them are caught by the compiler, because everything compiles into <span class="ref">Assembly-CSharp</span> and every one of these is a legal C# expression.</p>
+
+    <div class="finding coupling">
+      <div class="fhead"><span class="chip coupling">Form 1</span><h3>Subscribing to the cause, not the state</h3></div>
+      <p>A consumer wants to know "the run ended" and subscribes to <span class="ref">PlayerDied</span> because that is how runs usually end. Any other route to the same state then silently skips it.</p>
+    </div>
+
+    <div class="finding coupling">
+      <div class="fhead"><span class="chip coupling">Form 2</span><h3>Borrowing a neighbour's vocabulary</h3></div>
+      <p>The post-failure freeze had no events of its own, so it was spelled using the pause events. Two unrelated concerns now share one state machine — and the pause events cross the bridge into GameFlow, carrying the gameplay hitch with them.</p>
+    </div>
+
+    <div class="finding coupling">
+      <div class="fhead"><span class="chip coupling">Form 3</span><h3>Entering the chain at the tail</h3></div>
+      <p>Publishing <span class="ref">*ed</span> directly instead of <span class="ref">*Requested</span>, skipping the <span class="ref">*ing</span> rung. The intermediate becomes unreachable, so animation and audio have no event to attach to. Found at seven sites; four remain.</p>
+    </div>
+
+    <div class="finding coupling">
+      <div class="fhead"><span class="chip coupling">Form 4</span><h3>Owning what you don't own</h3></div>
+      <p>A gameplay controller writes application-global state, or calls another controller by C# reference. The event rules don't catch it because no event is involved.</p>
+    </div>
+
+    <div class="finding coupling">
+      <div class="fhead"><span class="chip coupling">Form 5</span><h3>The abandoned migration</h3></div>
+      <p>A replacement vocabulary was declared, partly adopted, and left in place beside the original. Both survive; new code picks whichever it finds first.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Defects found</h2>
+    <p class="section-note">Ordered by how likely a player is to hit them. Each was confirmed by reading the code path end to end. The first three are now fixed; none of the fixes has been reproduced in Play Mode, so that verification is still outstanding.</p>
+
+    <div class="finding fixed">
+      <div class="fhead"><span class="chip fixed">Fixed</span><span class="chip inert">Form 1</span><h3>Quit left five systems running</h3></div>
+      <p><span class="ref">SegmentAdvanceTrigger</span>, <span class="ref">TurnCollisionDetector</span>, <span class="ref">DistanceController</span>, <span class="ref">Metronome</span> and <span class="ref">SetMusicPlayer</span> all subscribed to <span class="ref">PlayerDied</span> — but their handlers are named <span class="ref">OnGameEnding</span>, <span class="ref">OnGameOver</span>, <span class="ref">StopMetronome</span>. They mean <em>the run ended</em>. Quitting reaches the same state without ever publishing <span class="ref">PlayerDied</span>:</p>
+      <div class="chain">UserQuitRequested → TempleRunEndRequested → TempleRunEnding → <b>TempleRunEnded</b>
+<s>PlayerDied</s>  ← never published on the quit path</div>
+      <p>So on quit the music and metronome kept playing, distance kept accumulating, and turn-failure detection stayed armed. The fifth subscriber was the last one found — <span class="ref">SetMusicPlayer.OnPlayerDied</span> was named honestly, which is exactly why it escaped notice, though stopping the run's music is a run-ended behavior.</p>
+      <div class="fix"><strong>Fixed</strong> — all five repointed to <span class="ref">TempleRunEnded</span>, and the honest handler renamed <span class="ref">OnRunEnded</span> to match. Not an auto-chain: <span class="ref">PlayerDied</span>'s single dictionary slot is already taken by <span class="ref">TempleRunEndRequested</span>.</div>
+    </div>
+
+    <div class="finding fixed">
+      <div class="fhead"><span class="chip fixed">Fixed</span><span class="chip inert">Form 2</span><h3>Pressing pause during a death stumble un-paused the game</h3></div>
+      <p><span class="ref">PauseController</span> keeps an <span class="ref">_isPaused</span> flag set from <span class="ref">PlayerPaused</span> — an event it neither owns nor initiated. The failure hitch publishes that same event, so the flag is already <span class="ref">true</span> when the player presses pause, and the toggle resolves the wrong way:</p>
+      <div class="chain">obstacle hit → PlayerPauseRequested → … → <b>PlayerPaused</b>
+                                      ↳ PauseController._isPaused = true
+player presses pause → TogglePauseResume() sees true → <s>PlayerResumeRequested</s></div>
+      <p>Two independent writers shared one boolean. <span class="ref">DeathDelay()</span> then fired its own resume regardless, because it waits in real time.</p>
+      <div class="fix"><strong>Fixed</strong> — the failure hitch has its own lifecycle. <span class="ref">PlayerFailing</span> / <span class="ref">PlayerFailed</span>, both already in the enum and never published, now carry it; <span class="ref">GameTime</span> tracks freezes as a set of reasons so a hitch and a user pause can overlap without thawing each other.</div>
+    </div>
+
+    <div class="finding fixed">
+      <div class="fhead"><span class="chip fixed">Fixed</span><span class="chip inert">Form 1</span><h3>The post-failure speed reset had never run</h3></div>
+      <p><span class="ref">DistanceController</span> subscribes to <span class="ref">PlayerFailing</span> to reset speed after a non-fatal failure. Nothing published it — publishers used only <span class="ref">PlayerFailingAtTurn</span> and <span class="ref">PlayerFailingAtObstacle</span>. Meanwhile three separate controllers each subscribed to <em>both</em> of those specifics to mean "failed somehow."</p>
+      <div class="fix"><strong>Fixed</strong> — both specifics now auto-chain into the generic (two keys, one value; both slots were free). One change revived the dead subscription, collapsed the duplicated pairs, and gave the failure hitch the vocabulary it needed. Watch for it in Play Mode: this behavior is switching on for the first time, so speed now genuinely resets after a non-fatal stumble.</div>
+    </div>
+
+    <div class="finding critical">
+      <div class="fhead"><span class="chip critical">Form 3</span><h3>Power-up HUD stays lit into the game-over overlay</h3></div>
+      <p><span class="ref">PowerUpBuffController.OnTempleRunEnded</span> tears buffs down by direct call, so <span class="ref">PowerUpDeactivating</span> and <span class="ref">PowerUpDeactivated</span> never fire at run end — though every other teardown path publishes them. Any icon, VFX or SFX listening for deactivation never hears it.</p>
+      <div class="fix"><strong>Fix</strong> — publish <span class="ref">PowerUpDeactivateRequested</span> per active buff and let the existing chain drive teardown. Needs the <span class="ref">PowerUpDefinition</span> stored alongside the coroutine.</div>
+    </div>
+
+    <div class="finding critical">
+      <div class="fhead"><span class="chip critical">Form 5</span><h3>Difficulty failures publish into the wrong family</h3></div>
+      <p><span class="ref">GameDifficultyManager</span> straddles two rival vocabularies in the same class, two fields apart: the success path publishes into the <span class="ref">TempleRunDifficulty*</span> set (310–318), the failure path into the bare <span class="ref">Difficulty*</span> set (320–323). Nothing subscribes to the latter, so difficulty-change failures are silent.</p>
+      <div class="fix"><strong>Fix</strong> — repoint to <span class="ref">TempleRunDifficultyChangeFailed</span>, then delete 320–323. The section comment calls them "new difficulty events (direct, non-legacy)"; the migration was declared and abandoned.</div>
+    </div>
+
+    <div class="finding critical">
+      <div class="fhead"><span class="chip critical">Form 1</span><h3><code>MainMenuHidden</code> fires twice on the level-select path</h3></div>
+      <p>Each GameFlow panel hardcodes knowledge of every other panel: <span class="ref">MainMenuPanelController</span> hides on three different events, and <span class="ref">HidePanel()</span> publishes <span class="ref">MainMenuHidden</span> unconditionally. Selecting a level triggers it via <span class="ref">LevelSelectorShowing</span> and again via <span class="ref">GameScenesLoading</span>.</p>
+      <div class="fix"><strong>Fix</strong> — each panel subscribes only to its own <span class="ref">*Hiding</span>. The auto-chains for <span class="ref">MainMenuHideRequested</span> and <span class="ref">LevelSelectorHideRequested</span> already exist and are simply unreachable; nothing publishes their source.</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Boundary violations</h2>
+    <p class="section-note">These don't misbehave today. They remove the replaceability the domain rule exists to protect — which is the whole reason the template is built this way.</p>
+
+    <div class="finding coupling">
+      <div class="fhead"><span class="chip coupling">Form 4</span><h3>A player controller owns the application clock</h3></div>
+      <p><span class="ref">PauseController.Pause()</span> writes app-global <span class="ref">Time.timeScale = 0</span>, freezing GameFlow, UI Toolkit animation and every coroutine in the app. <span class="ref">GameTime</span> already subscribes to the same two events and scopes the freeze to a gameplay clock — which is what a domain-isolated pause looks like. Nothing in <span class="ref">Assets/GameFlow</span> or <span class="ref">_Common</span> writes <span class="ref">timeScale</span> at all.</p>
+      <p>The codebase already works around it: two separate controllers need <span class="ref">WaitForSecondsRealtime</span> to escape a freeze a player controller imposed.</p>
+      <div class="fix"><strong>Fix</strong> — let <span class="ref">GameTime</span> be the single pause-applier. If GameFlow needs the app frozen for a menu, it should do that in GameFlow, off <span class="ref">GameFlowEvents.Paused</span>.</div>
+    </div>
+
+    <div class="finding coupling">
+      <div class="fhead"><span class="chip coupling">Form 4</span><h3>A direct cross-system method call</h3></div>
+      <p><span class="ref">PlayerFailureAutoTurnController</span> holds a serialized <span class="ref">TurnController</span> reference and calls <span class="ref">ForceTurn()</span> on it — the one place in <span class="ref">Player/</span> that commands another controller by C# reference rather than through the bus. This is a literal violation of the first rule in CLAUDE.md. The failure system's decision then surfaces in the event log wearing <span class="ref">TurnController</span>'s identity.</p>
+      <div class="fix"><strong>Fix</strong> — add <span class="ref">TurnForceRequested</span> (value 57 is free, marked as a removed slot) and let <span class="ref">TurnController</span> subscribe. Not expressible as an auto-chain: the deliberate delay before the auto-turn requires a coroutine, and auto-chains publish synchronously.</div>
+    </div>
+
+    <div class="finding coupling">
+      <div class="fhead"><span class="chip coupling">Form 4</span><h3>The power-up system owns whether obstacles are lethal</h3></div>
+      <p><span class="ref">PowerUpBuffController</span> subscribes to <span class="ref">ObstacleHit</span> and decides the outcome for the whole game. Disable or replace power-ups and obstacles silently stop being lethal; add any non-power-up mitigation — i-frames, a forgiving difficulty, a second-chance mechanic — and you must edit the power-up manager.</p>
+      <div class="fix"><strong>Fix</strong> — a small resolver in the obstacle concern that polls registered absorbers. Restoring the bare auto-chain is <em>not</em> sufficient: it would fire regardless of shield, which is the validation-gate trap documented at the top of that dictionary.</div>
+    </div>
+
+    <div class="finding fixed">
+      <div class="fhead"><span class="chip fixed">Fixed</span><span class="chip inert">Form 2</span><h3>Two controllers resumed a pause they never caused</h3></div>
+      <p><span class="ref">PlayerLifeController</span> published a resume purely to cancel a pause that <em>a different controller</em> started — so the lives system could not be swapped without knowing failure causes a pause. <span class="ref">TeleportController</span> resumed although nothing paused; the teleport freeze is <span class="ref">DistanceController._isMoving</span>, already self-contained.</p>
+      <div class="fix"><strong>Fixed</strong> — both publishes removed. The lives system no longer needs to know that failing freezes anything: the hitch now ends itself with <span class="ref">PlayerFailed</span>. The teleport case mattered more than it looked — with a freeze tracked per holder, a teleport ending would have released a <em>user</em> pause it never took.</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Fixed this session</h2>
+
+    <div class="finding fixed">
+      <div class="fhead"><span class="chip fixed">Done</span><h3>Input domain isolation</h3></div>
+      <p>Six of nine input events bypassed the bridge and were consumed directly by gameplay controllers, contradicting the codebase's own comments. All nine now bridge; four controllers migrated; <span class="ref">CLAUDE.md</span>'s rule rewritten around a publish/subscribe asymmetry — publishing raw input is open to any source, subscribing is closed to the bridge. <span class="ref">UserInitiatedEvents</span> now has zero dead members.</p>
+    </div>
+
+    <div class="finding fixed">
+      <div class="fhead"><span class="chip fixed">Done</span><h3>Two inert validation gates</h3></div>
+      <p><span class="ref">SlideStarting</span> was a dead event and the slide chain never ran through it. The dash cooldown was defeated entirely — <span class="ref">DashRequested → DashStarting</span> auto-chained from the pre-validation event, so a dash on cooldown still fired. Three such mappings removed; each controller now publishes its own <span class="ref">*Starting</span> after its checks pass.</p>
+    </div>
+
+    <div class="finding fixed">
+      <div class="fhead"><span class="chip fixed">Done</span><h3>The unreachable resume</h3></div>
+      <p><span class="ref">GameFlowEvents.ResumeRequested</span> had no publisher, so <span class="ref">GameState</span> could enter its paused state and never leave. Added the missing <span class="ref">PlayerResumed → ResumeRequested</span> bridge line, the counterpart to a mapping that had existed alone since the beginning.</p>
+    </div>
+
+    <div class="finding fixed">
+      <div class="fhead"><span class="chip fixed">Done</span><h3>Three tail-entry publishes</h3></div>
+      <p><span class="ref">PlayerFailedController</span>, <span class="ref">PlayerLifeController</span> and <span class="ref">TeleportController</span> each published a chain's terminal state directly. The clearest evidence sat inside a single coroutine that paused by publishing the tail and resumed by publishing the head, four lines apart.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Documentation as archaeology</h2>
+    <p class="section-note">Twenty-eight doc-vs-code mismatches. Most are ordinary staleness, but a subset describes designs that were specified and never built — and those turned out to be the most useful findings in the whole review, because they name the missing wiring precisely.</p>
+
+    <div class="callout">
+      <h3>The intended design was written down</h3>
+      <p><span class="ref">GameFlowAutoEventFlow.cs:68</span> documents the chain <span class="ref">PlayerFailing → PlayerPause … PlayerResume</span> as though it exists. It never did — nothing has ever published <span class="ref">PlayerFailing</span>. The decoupling this review recommends is the design that was originally specified, recorded in a comment, and then implemented by hand inside a controller instead.</p>
+    </div>
+
+    <p>Systems named in comments that do not exist anywhere in the repository:</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Named in a comment</th><th>Reality</th></tr></thead>
+        <tbody>
+          <tr><td><code>GameOverController</code></td><td>No such class; <code>GameEndRequested</code> is referenced by nothing</td></tr>
+          <tr><td><code>LoadingScreenController</code></td><td>It is <code>GameFlowUIPanelController</code></td></tr>
+          <tr><td>RemoteConfig updating difficulty</td><td>It is <code>LevelConfigApplier</code></td></tr>
+          <tr><td>Sign-out / sign-in loop, leaderboard bridges</td><td>UGS events; absent from this template and not marked as removed</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>The <span class="ref">Subscribes:</span> / <span class="ref">Publishes:</span> contract blocks have drifted broadly — several name enum members that no longer exist (pre-<span class="ref">User*</span>-prefix rename), several have the direction reversed, and several omit a class's primary subscription. They are load-bearing here: they are how a reader learns what a component listens to, and how an AI agent reads the architecture.</p>
+  </section>
+
+  <section>
+    <h2>Before deleting anything</h2>
+    <div class="callout">
+      <h3>A grep is not enough to prove an event is dead</h3>
+      <p>Events are also wired through the Inspector — as serialized enum values and as <span class="ref">[EventName]</span> strings in scene assets. <span class="ref">GameFlowEvents.Quitting</span>, <span class="ref">GameScenesUnloaded</span> and <span class="ref">GameScenesLoaded</span> all look unpublished in C# and are not: they come from <span class="ref">0_BootStrap_Game_Only.unity</span>, <span class="ref">Game_Boot_0_Test_Initialization.unity</span> and <span class="ref">TempleRunGameplay.unity</span> respectively.</p>
+      <p>Separately, five files still call the legacy <span class="ref">EventsPublisher.Instance</span> string API that CLAUDE.md describes as retired — in <span class="ref">QuitController</span> and four scene-management classes. They compile because the type remains in the package, and at least one path is load-bearing. Worth knowing before anyone tidies them.</p>
+    </div>
+    <p>Of the 61 unreferenced enum members, a large share is deliberate reserved vocabulary — the <span class="ref">*EndRequested</span> and <span class="ref">*Ending</span> rungs kept for symmetry across mechanics. The genuine cruft is narrower: the duplicate difficulty family (320–323), the entire <span class="ref">Gameplay*</span> family in GameFlow while <span class="ref">Game*</span> carries the traffic, and the Save/Load block that exists only as commented-out mappings.</p>
+  </section>
+
+  <section>
+    <h2>Suggested order</h2>
+    <p class="section-note">The first two steps are done. What remains, sequenced so each makes the next smaller.</p>
+    <ol class="plan">
+      <li><p><span class="t">Play-Mode verification.</span> Nothing below matters until the applied fixes are exercised: quit mid-run, pause during a stumble, and confirm the speed reset — a behavior switching on for the first time.</p></li>
+      <li><p><span class="t">Make <code>GameTime</code> the only pause-applier.</span> <code>PauseController</code> still writes app-global <code>timeScale</code>. The freeze-set is already in place, so this is now removal rather than redesign.</p></li>
+      <li><p><span class="t">Delete <code>PlayerPauseController</code>.</span> Confirmed to appear in no scene or prefab. Not a duplicate to reconcile — dead code to remove.</p></li>
+      <li><p><span class="t">Give the obstacle-hit decision its own owner.</span> The power-up system currently decides whether obstacles are lethal for the whole game.</p></li>
+      <li><p><span class="t">Repair the remaining contract comments.</span> Cheap, and it is what the next reader — human or agent — will trust.</p></li>
+    </ol>
+  </section>
+
+  <footer>
+    Findings verified by reading each code path; none reproduced in Play Mode.<br>
+    Auto-chain slot availability checked against the 15 occupied keys in <code>_autoTempleRun2TempleRunEvents</code>.<br>
+    The dispatch dictionary is <code>Dictionary&lt;T,T&gt;</code> — one successor per event. That ceiling shapes several fixes above.
+  </footer>
+
+</div>
+
+</body>
+</html>

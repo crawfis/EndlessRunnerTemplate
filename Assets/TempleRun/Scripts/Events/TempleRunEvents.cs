@@ -28,6 +28,9 @@ namespace CrawfisSoftware.TempleRun
         PlayerResumeRequested = 23,
         PlayerResuming = 24,
         PlayerResumed = 25,
+        // Bridged from UserInitiatedEvents.UserPauseToggle. PauseController resolves the toggle
+        // against its own state into PlayerPauseRequested or PlayerResumeRequested.
+        PlayerPauseToggleRequested = 26,
         //PlayerPause = PlayerPaused, // Legacy naming
         //PlayerResume = PlayerResumed, // Legacy naming
 

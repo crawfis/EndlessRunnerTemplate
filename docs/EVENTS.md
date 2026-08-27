@@ -46,7 +46,7 @@ Publisher: `TempleRunBus` (`EventsFor<TempleRunEvents>`).
 | Category | Members (value) |
 |----------|-----------------|
 | Player lifecycle | `PlayerFailRequested`(0), `PlayerFailing`(1), `PlayerFailed`(2), `PlayerDeathRequested`(3), `PlayerDying`(4), `PlayerDied`(5), `PlayerReviveRequested`(6), `PlayerReviving`(7), `PlayerRevived`(8), `PlayerFailingAtTurn`(12), `PlayerFailingAtObstacle`(13) |
-| Pause / Resume | `PlayerPauseRequested`(20), `PlayerPausing`(21), `PlayerPaused`(22), `PlayerResumeRequested`(23), `PlayerResuming`(24), `PlayerResumed`(25) |
+| Pause / Resume | `PlayerPauseRequested`(20), `PlayerPausing`(21), `PlayerPaused`(22), `PlayerResumeRequested`(23), `PlayerResuming`(24), `PlayerResumed`(25), `PlayerPauseToggleRequested`(26) *(bridged from `UserPauseToggle`; `PauseController` resolves it against current state)* |
 | Countdown | `CountdownStartRequested`(30), `CountdownStarting`(31), `CountdownStarted`(32), `CountdownTick`(33), `CountdownEnding`(34), `CountdownEnded`(35), `CountdownCancelled`(36) |
 | Game lifecycle | `TempleRunStartRequested`(38), `TempleRunStarting`(39), `TempleRunStarted`(40), `TempleRunEndRequested`(41), `TempleRunEnding`(42), `TempleRunEnded`(43) |
 | Turning | `TurnLeftRequested`(50), `TurnLeftStarting`(51), `TurnLeftCompleted`(52), `TurnRightRequested`(53), `TurnRightStarting`(54), `TurnRightCompleted`(55), `SegmentRequested`(56) *(data: Direction — chosen at an Either junction)* |
@@ -111,18 +111,28 @@ PlayerResumeRequested      → PlayerResuming → PlayerResumed
 CountdownStartRequested    → CountdownStarting
 TempleRunStartRequested    → TempleRunStarting → TempleRunStarted
 PlayerDied                 → TempleRunEndRequested → TempleRunEnding → TempleRunEnded
-LaneChangeLeftRequested    → LaneChangingLeft
-LaneChangeRightRequested   → LaneChangingRight
-DashRequested              → DashStarting
-JumpRequested              → JumpStarting
 CoinCollectRequested       → CoinCollecting
 PowerUpCollectRequested    → PowerUpCollecting
 PowerUpCollected           → PowerUpActivateRequested → PowerUpActivating
 PowerUpDeactivateRequested → PowerUpDeactivating
 ```
-*Deliberately NOT auto-chained (commented): `SlideRequested → SlideStarting` and
-`ObstacleHit → PlayerFailingAtObstacle` — the latter is gated by `PowerUpBuffController`
-so a Shield can absorb the hit instead of failing.*
+
+**Validation gates — why no player-movement `*Requested` is auto-chained.** Every movement
+`*Requested` event is `Input2TempleRunAutoEventBridge`'s *raw* translation of user input, so it
+fires whether or not the action is currently legal. An auto-chain runs before any controller
+validates, so chaining `*Requested → *Starting` silently defeats the gate. Each controller
+publishes its own `*Starting` once its checks pass:
+
+| Event | Gate | Published by |
+|-------|------|--------------|
+| `JumpStarting` | not already airborne | `JumpController` |
+| `SlideStarting` | not sliding, cooldown elapsed | `SlideController` |
+| `DashStarting` | not dashing, cooldown elapsed | `DashController` |
+| `LaneChangingLeft` / `Right` | lane boundary, none in flight | `LaneChangeController` |
+| `TurnLeftStarting` / `TurnRightStarting` | direction matches, inside turn window | `TurnController` |
+
+`ObstacleHit → PlayerFailingAtObstacle` is also deliberately unchained, gated by
+`PowerUpBuffController` so a Shield can absorb the hit instead of failing.
 
 ---
 
@@ -133,6 +143,7 @@ The **only** place cross-domain event references are allowed.
 ### TempleRun → GameFlow
 ```
 PlayerPaused    → PauseRequested
+PlayerResumed   → ResumeRequested
 CountdownEnded  → GameStarted
 TempleRunEnded  → GameEnding
 ```
@@ -151,11 +162,24 @@ There is an intentional cycle: `CountdownEnded → GameStarted` (TR→GF) and
 
 ## Input bridge (`Input2TempleRunAutoEventBridge.cs`)
 
+The **only** place in the codebase that may subscribe to `UserInitiatedEvents`. Every one of
+the nine is bridged; no gameplay controller subscribes to raw input.
+
 UserInitiated → TempleRun:
 ```
-UserQuitRequested  → TempleRunEndRequested
-UserSlideRequested → SlideRequested
-UserDashRequested  → DashRequested
+UserQuitRequested             → TempleRunEndRequested
+UserSlideRequested            → SlideRequested
+UserDashRequested             → DashRequested
+UserJumpRequested             → JumpRequested
+UserLeftTurnRequested         → TurnLeftRequested
+UserRightTurnRequested        → TurnRightRequested
+UserLeftLaneChangeRequested   → LaneChangeLeftRequested
+UserRightLaneChangeRequested  → LaneChangeRightRequested
+UserPauseToggle               → PlayerPauseToggleRequested
 ```
-The other six `UserInitiatedEvents` (turns, lane changes, jump, pause toggle) are consumed
-**directly** by their controllers rather than bridged.
+
+`UserInitiatedEvents` has a publish/subscribe asymmetry the other domains don't: **publishing
+is open** (the `Scripts/Input/` action classes, `AIController`, and any future replay or
+netcode driver), **subscribing is closed** (this bridge only). Open publishing is what lets an
+autopilot stand in for a human; closed subscribing is what lets the whole input domain be
+replaced by a source that speaks `TempleRunEvents` directly, without a controller caring.

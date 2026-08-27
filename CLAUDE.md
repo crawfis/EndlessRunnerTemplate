@@ -10,7 +10,7 @@ conventions, and paths. For a human-facing overview, see [README.md](README.md).
 [docs/EVENTS.md](docs/EVENTS.md) (event catalog), [docs/TRACKS.md](docs/TRACKS.md) (track
 system), [docs/ADDING_A_MECHANIC.md](docs/ADDING_A_MECHANIC.md) (worked example),
 [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md) (Unity caveats).
-**Course material:** [docs/STUDENT_TASKS.md](docs/STUDENT_TASKS.md) (the 123-task catalog),
+**Course material:** [docs/STUDENT_TASKS.md](docs/STUDENT_TASKS.md) (the 127-task catalog),
 `docs/TIMEBOX_*_REQUIREMENTS.md` (the timebox assignments), and `docs/EXERCISE_*.md`
 (in-class team exercises) — students working in this repo will ask for help with these.
 
@@ -64,13 +64,35 @@ this concrete: replacing a domain is loading a different scene that speaks the s
 
 | Code Location | May Reference |
 |---------------|---------------|
-| `Assets/TempleRun/**/*.cs` | `TempleRunEvents`, `UserInitiatedEvents` only |
+| `Assets/TempleRun/**/*.cs` (non-bridge) | `TempleRunEvents` only |
 | `Assets/GameFlow/**/*.cs` (non-bridge) | `GameFlowEvents` only |
 | `TempleRunGameFlowBridge.cs` | `TempleRunEvents` + `GameFlowEvents` (bridge duty) |
+| `Input2TempleRunAutoEventBridge.cs` | `UserInitiatedEvents` + `TempleRunEvents` (bridge duty) |
+
+**`UserInitiatedEvents` is a one-way funnel, not a shared vocabulary.** It has a
+publish/subscribe asymmetry the other domains don't:
+
+- **Publishing is open.** Any *input source* may publish it — the `Scripts/Input/` action
+  classes, `AIController`, and any future replay or netcode driver. That is the seam that
+  makes the player replaceable.
+- **Subscribing is closed.** Only `Input2TempleRunAutoEventBridge` may subscribe. Gameplay
+  controllers subscribe to the *TempleRun* event the bridge translates it into.
+
+Both halves are load-bearing. Open publishing is what lets an autopilot stand in for a human;
+closed subscribing is what lets the entire input domain be swapped for a network or replay
+source that speaks `TempleRunEvents` directly, without a controller caring.
 
 **Violations — what NOT to do:**
 - TempleRun scripts subscribing to or publishing `GameFlowEvents` (e.g., `GameFlowBus.Subscribe(GameFlowEvents.GameStarted, ...)` in a TempleRun file)
 - GameFlow scripts subscribing to or publishing `TempleRunEvents` (e.g., `TempleRunBus.Publish(TempleRunEvents.CountdownTick, ...)` in a GameFlow file)
+- A gameplay controller subscribing to `UserInitiatedEvents` (e.g., `UserInputBus.Subscribe(UserInitiatedEvents.UserJumpRequested, ...)` in `JumpController`). Add a bridge mapping and subscribe to the TempleRun event instead.
+
+> **Validation gates and auto-chains.** Once input arrives via the bridge, the domain's
+> `*Requested` event is the bridge's *raw* translation — it fires whether or not the action is
+> legal. So a controller that validates (cooldown, already-airborne, lane boundary) must
+> **publish `*Starting` itself** once its checks pass; it must NOT be auto-chained
+> `*Requested → *Starting`, because an auto-chain fires before any validation runs and
+> silently defeats the gate. See the comments in `TempleRunAutoEventFlow.cs`.
 
 **How to fix a violation:** If TempleRun code needs to react to a GameFlow event, add a bridge mapping in `TempleRunGameFlowBridge.cs` that translates the GameFlow event into a TempleRun event, then subscribe to the TempleRun event in your TempleRun code.
 

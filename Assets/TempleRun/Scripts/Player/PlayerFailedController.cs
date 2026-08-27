@@ -1,4 +1,4 @@
-﻿using CrawfisSoftware.TempleRun.GameConfig;
+using CrawfisSoftware.TempleRun.GameConfig;
 
 using System.Collections;
 
@@ -8,42 +8,46 @@ using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.
 namespace CrawfisSoftware.TempleRun
 {
     /// <summary>
-    /// Simple behavior for failure. In this case, pauses the game for a fixed time and then resumes.
-    ///    Dependencies: TempleRunConstants, EventsFor<TempleRunEvents>
-    ///    Subscribes: TempleRunEvents.PlayerFailingAtTurn
-    ///    Subscribes: TempleRunEvents.PlayerFailingAtObstacle
-    ///    Publishes: TempleRunEvents.PlayerPaused (pause the game)
-    ///    Publishes: TempleRunEvents.PlayerResumeRequested (resume after delay)
+    /// Owns the length of the post-failure hitch: the brief freeze after the player stumbles,
+    /// before control returns. PlayerFailing (auto-chained from whichever specific failure
+    /// occurred) begins the hitch; this class ends it by publishing PlayerFailed.
+    ///
+    /// The hitch has its own events rather than reusing the pause events. Sharing them meant a
+    /// stumble set PauseController's state, so pressing pause during a stumble resumed instead
+    /// of pausing - and it sent the hitch across the bridge into GameFlow as a session pause.
+    ///    Dependencies: TempleRunConstants, EventsFor&lt;TempleRunEvents&gt;
+    ///    Subscribes: TempleRunEvents.PlayerFailing
+    ///    Publishes: TempleRunEvents.PlayerFailed (the hitch is over)
     /// </summary>
     internal class PlayerFailedController : MonoBehaviour
     {
-        private Coroutine _pauseCoroutine;
+        private Coroutine _hitchCoroutine;
 
         private void Awake()
         {
-            TempleRunBus.Subscribe(TempleRunEvents.PlayerFailingAtTurn, OnPlayerFailing);
-            TempleRunBus.Subscribe(TempleRunEvents.PlayerFailingAtObstacle, OnPlayerFailing);
+            TempleRunBus.Subscribe(TempleRunEvents.PlayerFailing, OnPlayerFailing);
         }
 
         private void OnPlayerFailing(string eventName, object sender, object data)
         {
-            // Guard: ignore if already paused (e.g., turn failure + obstacle hit in same frame)
-            if (_pauseCoroutine != null) return;
-            _pauseCoroutine = StartCoroutine(DeathDelay());
+            // Guard: ignore if a hitch is already running (e.g. turn failure + obstacle hit in
+            // the same frame). The first one owns the timing.
+            if (_hitchCoroutine != null) return;
+            _hitchCoroutine = StartCoroutine(FailureHitch());
         }
-        private IEnumerator DeathDelay()
+
+        private IEnumerator FailureHitch()
         {
-            TempleRunBus.Publish(TempleRunEvents.PlayerPaused, this, UnityEngine.Time.time);
+            // Real time, because GameTime is frozen for the duration of the hitch.
             yield return new WaitForSecondsRealtime(TempleRunConstants.ResumeDelay);
-            _pauseCoroutine = null;
-            TempleRunBus.Publish(TempleRunEvents.PlayerResumeRequested, this, UnityEngine.Time.time);
+            _hitchCoroutine = null;
+            TempleRunBus.Publish(TempleRunEvents.PlayerFailed, this, UnityEngine.Time.time);
         }
 
         private void OnDestroy()
         {
-            StopAllCoroutines(); // Saved them so could call individually instead.
-            TempleRunBus.Unsubscribe(TempleRunEvents.PlayerFailingAtTurn, OnPlayerFailing);
-            TempleRunBus.Unsubscribe(TempleRunEvents.PlayerFailingAtObstacle, OnPlayerFailing);
+            StopAllCoroutines();
+            TempleRunBus.Unsubscribe(TempleRunEvents.PlayerFailing, OnPlayerFailing);
         }
     }
 }
