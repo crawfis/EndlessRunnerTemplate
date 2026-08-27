@@ -1,7 +1,7 @@
 # Student Task Catalog: From Plain Runner to Polished Product
 
 The template is deliberately a *plain* runner — capsule player, primitive obstacles, flat
-track. That's the point: everything below is a well-scoped way to make it yours. **109
+track. That's the point: everything below is a well-scoped way to make it yours. **111
 tasks**, grouped by sub-specialty so a team can divide work along interests (gameplay code,
 tech art, audio, UI, systems design…). Effort tags are rough: **S** = a few days, **M** = a
 week or two, **L** = a multi-week centerpiece. Tasks are referenced as section-letter +
@@ -16,6 +16,11 @@ build on the sibling **[RunnerUGSTemplate](https://github.com/crawfis/RunnerUGST
 (RUGS) — the same runner with Unity Gaming Services integrated as a fourth event domain.
 See sections N and O.
 
+**Working through Timebox 1?** [TIMEBOX_1_REQUIREMENTS.md](TIMEBOX_1_REQUIREMENTS.md) is the
+assignment: the five phases, the effort budget, git and AI setup, every deliverable matched
+to an owner, sample team plans for five through nine-plus people, and the Greenlight
+presentation running order. The tasks below are what those plans point at — two per person.
+
 **The one rule still applies.** Whatever you build, systems communicate through events
 (see [ARCHITECTURE.md](ARCHITECTURE.md)). Start every feature with the
 [required skills workflow](../CLAUDE.md#required-skills-workflow): `/list-events` →
@@ -26,33 +31,48 @@ See sections N and O.
 
 ## A. Core Gameplay & Feel
 
-1. **Collision-driven turn failure (S/M).** Replace the distance-window turn-failure check
+1. **Real character controller with auto-run (M/L).** The player is not a physical body
+   today: `MoveCharacterByDistance` *computes* the transform every frame as a pure function
+   of `DistanceTracker.DistanceTravelled` — anchor + distance × direction, plus lane offset
+   and jump/slide height — so nothing about the player can be blocked, pushed, or fall.
+   Replace it with a real first- or third-person controller (Unity's Starter Assets, or your
+   own `CharacterController`/`Rigidbody`) that applies the forward run *itself*, with input
+   still doing lanes, jump, slide and dash. Cinemachine 3 is already a dependency, so the
+   camera rig is authoring rather than code — but first person is a genuine design change:
+   you lose the read on what's ahead, so obstacle spacing and the turn warning distance need
+   retuning. The real work is the inversion — distance stops *driving* position and starts
+   being *measured from* it. Keep `DistanceTracker` as the single source of truth (segment
+   advance, spawning, difficulty, turn windows and teleport all read it) and feed it the
+   forward component of the frame's actual movement instead of `speed × deltaTime`.
+   **Prerequisite for A2 and A3** — physical failure only means something once the player is
+   physically there — and the foundation of the explorer pivot (section M).
+2. **Collision-driven turn failure (S/M).** Replace the distance-window turn-failure check
    with physical trigger volumes on the corner walls — running into the wall publishes
    `PlayerFailingAtTurn` instead of a distance comparison. Compare the two approaches: which
    is more tunable? More honest to the player?
-2. **Trigger-based obstacle hits with a stumble state (M).** Distinct reactions: glancing
+3. **Trigger-based obstacle hits with a stumble state (M).** Distinct reactions: glancing
    hit → stumble (slow down, grace period, drop coins); head-on → fail. Subway Surfers'
    stumble is a big part of its fairness feel.
-3. **Roll mechanic (S).** The worked example in [ADDING_A_MECHANIC.md](ADDING_A_MECHANIC.md)
+4. **Roll mechanic (S).** The worked example in [ADDING_A_MECHANIC.md](ADDING_A_MECHANIC.md)
    — a quick ground roll sibling to Jump/Slide/Dash. A good first task for any team member.
-4. **Double jump / air control (S).** Second jump mid-air; small lane-change authority while
+5. **Double jump / air control (S).** Second jump mid-air; small lane-change authority while
    airborne. Requires reasoning about the jump controller's state machine.
-5. **Wall-run or grind rails (L).** Rails or wall segments the player can commit to as an
+6. **Wall-run or grind rails (L).** Rails or wall segments the player can commit to as an
    alternate path over obstacles. Touches track data, player state, and visuals.
-6. **Climb & jump-up (M/L).** Tiles at different heights: low blocks you jump onto, tall
+7. **Climb & jump-up (M/L).** Tiles at different heights: low blocks you jump onto, tall
    ones you climb (with an animation pause). Pairs with the voxel tile art task (G3).
-7. **Moving obstacles (M).** Swinging blades, rolling boulders, trains sliding between
+8. **Moving obstacles (M).** Swinging blades, rolling boulders, trains sliding between
    lanes. Spawned per-segment like static obstacles but with scripted motion — keep motion
    logic separate from spawn logic.
-8. **Near-miss detection (S/M).** Detect shaving past an obstacle within ε and reward it
+9. **Near-miss detection (S/M).** Detect shaving past an obstacle within ε and reward it
    (score bonus, sound, slow-mo flash). A small system with outsized feel impact.
-9. **Combo / momentum multiplier (M).** Chained actions (jump→slide→near-miss) build a
-   multiplier that decays when you play safe. Design the decay curve carefully.
-10. **Checkpoint milestones (S).** Every 500 m: fanfare, brief invulnerability, +bonus.
-11. **Revive / second chance (M).** On death, offer one revive per run (paid with a
+10. **Combo / momentum multiplier (M).** Chained actions (jump→slide→near-miss) build a
+    multiplier that decays when you play safe. Design the decay curve carefully.
+11. **Checkpoint milestones (S).** Every 500 m: fanfare, brief invulnerability, +bonus.
+12. **Revive / second chance (M).** On death, offer one revive per run (paid with a
     currency or a cooldown). Requires a clean re-entry path through the event flow —
     `PlayerReviveRequested/Reviving/Revived` already exist as hooks.
-12. **Tune the feel (M).** A pure design task: sweep speeds, jump arcs, lane-change
+13. **Tune the feel (M).** A pure design task: sweep speeds, jump arcs, lane-change
     durations, camera FOV/follow-lag across difficulty levels; document before/after and
     playtest results.
 
@@ -72,7 +92,7 @@ See sections N and O.
    Add S-curves, gentle slopes, or banked turns. The hardest and most rewarding code task
    in the track system.
 5. **Vertical track variation (L).** Make `LaneHeights` real: raised/lowered lanes and
-   segments at different elevations connected by ramps or the climb mechanic (A6).
+   segments at different elevations connected by ramps or the climb mechanic (A7).
 6. **Branch-and-rejoin routes (L).** Beyond the `Either` T-junction: parallel routes that
    split and merge, one riskier but coin-rich.
 7. **Biome / theme system (M).** Drive prefab sets from `VisualTheme` and switch themes
@@ -169,7 +189,7 @@ See sections N and O.
 2. **Themed obstacle & track art (M/L).** Replace primitives with modeled sets (temple
    stone, subway props). Respect the spawner prefab contract (origin, trigger colliders).
 3. **Voxel tile sets with heights (L).** Voxel track tiles at multiple heights feeding the
-   climb/jump-up mechanic (A6) — art and gameplay co-designed. (A voxel spawner already
+   climb/jump-up mechanic (A7) — art and gameplay co-designed. (A voxel spawner already
    exists in `TrackVisuals` to build on.)
 4. **Trackside dressing with recycling (M).** Props along the track (pillars, banners,
    wrecks) spawned per segment and pooled like everything else.
@@ -203,8 +223,10 @@ expects — is part of the exercise. Read the PanelRenderer rules in
    obstacle nears) driven by game events; skippable.
 4. **Game-over celebration (S/M).** New-best fanfare, progress bar to the next unlock —
    make losing feel like progress.
-5. **Localization (M).** String tables for 2+ languages via Unity Localization; audit
-   every hard-coded string out of the UXML.
+5. **Localization (M).** String tables for 2+ languages via Unity Localization — start
+   from the [ConsumerUI_RxGames](https://github.com/crawfis/ConsumerUI_RxGames) sample,
+   which also shows Google Sheets → translation tables — and audit every hard-coded
+   string out of the UXML.
 6. **Accessibility pass (M).** Colorblind-safe obstacle/pickup signaling, reduced-motion
    toggle (kills camera shake/FOV kick), scalable HUD text, full input remapping.
 7. **USS design system (M).** One shared stylesheet of USS variables — color roles,
@@ -224,6 +246,11 @@ expects — is part of the exercise. Read the PanelRenderer rules in
     Toolkit's runtime data-binding to bind labels/bars to a view-model that the event
     handlers update. Compare the two patterns and write up which you'd keep — that
     write-up is course gold.
+12. **Credits & licenses screen (S).** A data-driven credits panel: one row per person,
+    package, and third-party asset, read from a ScriptableObject or JSON so crediting a new
+    asset is a data edit rather than a UXML edit. Point it at the same register you keep
+    license URLs in, and update it the day you import something — every team writes this in
+    a panic at the end of the semester; write it in week one instead.
 
 ## J. Audio
 
@@ -283,7 +310,8 @@ survives the pivot; what changes is how the player inhabits it.
 2. **Player-controlled forward movement (M/L).** Throttle, brake, even stop — forward
    speed becomes an input, not a constant. `DistanceTracker` and everything derived from
    distance (spawning, difficulty, turn windows) must tolerate a player who lingers.
-   Suddenly obstacles are things to *study*, not just dodge.
+   Suddenly obstacles are things to *study*, not just dodge. Starts from A1's controller —
+   the auto-run is already there; here the player takes the throttle.
 3. **Explorer camera & controls (M/L).** A third-person controller within the generated
    world: camera orbit, look-around, over-the-shoulder framing. Combined with M1–M2 you
    have a walkable PCG environment.
@@ -346,7 +374,7 @@ O1 before anything else.
    boards, per-level boards keyed to the level number, and a friends/bucket view. Design
    which boards *mean* something — a board nobody can climb is worse than none.
 3. **Achievements that teach the game (M).** Replace the placeholder achievements with a
-   real set tied to catalog mechanics — near-misses (A8), combos (A9), missions (E1) — as
+   real set tied to catalog mechanics — near-misses (A9), combos (A10), missions (E1) — as
    instant and progressive tiers. Good achievements are a curriculum for playing well.
 4. **Live tuning with Remote Config (M).** Move difficulty and economy knobs
    (`DifficultyConfig` values, coin values, power-up durations) behind Remote Config so

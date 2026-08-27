@@ -1,0 +1,298 @@
+<!-- Timebox 3+ requirements -- complete, single page
+     Generated from docs/TIMEBOX_3_PLUS_REQUIREMENTS.md by docs/canvas/build_timebox3plus.py --
+     edit the Markdown, never this file. Paste into a Canvas page via the Rich
+     Content Editor's HTML view (the </> button). Canvas strips <script>/<style>,
+     so all styling here is inline. -->
+<h1 id="timebox-3-and-beyond--the-production-rhythm">Timebox 3 and Beyond — The Production Rhythm</h1>
+<p><em>CSE 5912 Capstone · Every timebox from here</em></p>
+<h2 id="overview-the-rhythm">Overview: the rhythm</h2>
+<p>This document covers Timebox 3 and every timebox after it. <strong>The rhythm does not change; only the goal does.</strong> Each timebox: pick one sentence's worth of goal, build it, put it in front of players, ship a build someone else can run, and show what changed.</p>
+<p>Three things are different from Timebox 2:</p>
+<table style="border-collapse:collapse;width:100%;margin:1em 0;">
+<thead>
+<tr>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;"></th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Timebox 2</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Timebox 3 onward</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Design</strong></td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">generate the whole backlog from nothing</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">re-rank the backlog you have, one timebox ahead</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Build</strong></td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">about half your hours</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">about two thirds</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>New work</strong></td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">—</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">capture, before/after, a video diary, and light marketing</td>
+</tr>
+</tbody>
+</table>
+<p>That last row is the addition, and it is small: a couple of hours per timebox, owned by one person. It exists because <strong>the record of how your game changed is worth as much as the change itself</strong> — for your final presentation, your postmortem, and anyone you ever want to show this to.</p>
+<p>Everything else carries forward unchanged from Timebox 2: the definition of done, the review ring, the 48-hour freeze, the estimates-versus-actuals discipline, the agent contract, and the retro that produces three actions with owners.</p>
+<h2 id="the-effort-budget">The effort budget</h2>
+<p>Unchanged: <strong>10–12 hours per person per week.</strong> The split moves toward building.</p>
+<pre style="background-color:#f5f5f5;border:1px solid #c7cdd1;padding:8px 10px;overflow-x:auto;"><code>total person-hours   = members × weeks × 11
+build hours          = total × 0.7
+plan to              = build hours × 0.7      &lt;-- the number your timebox may hold</code></pre>
+<table style="border-collapse:collapse;width:100%;margin:1em 0;">
+<thead>
+<tr>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Timebox length</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Person-hours</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Build hours</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">You may plan</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Two weeks</strong></td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">~132</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">~92</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>~65 hours of estimated work</strong></td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Three weeks</strong></td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">~198</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">~139</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>~95 hours of estimated work</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Six-person team; run the same three lines for yours. The remaining 30% is still not slack — it is the merge that fought back and the estimate that was wrong.</p>
+<p>Capture, the devlog, and marketing come out of the non-build hours and should cost <strong>about two hours per timebox, for one person</strong>. If they cost more, cut them, not the sprint.</p>
+<h2 id="whats-due-every-timebox">What's due, every timebox</h2>
+<table style="border-collapse:collapse;width:100%;margin:1em 0;">
+<thead>
+<tr>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Deliverable</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Hat</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Sprint goal</strong> — one sentence, testable, set before tasks are assigned</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">scrum master + design owner</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Re-ranked backlog</strong> — MVP for this timebox, with estimates on those stories only</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">design owner</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>The build</strong> — tagged, and runnable from a fresh clone on someone else's machine</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">integrator</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Estimates vs. actuals</strong>, and your velocity as a trend across timeboxes</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">scrum master</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Capture set</strong> — stills and a clip at the tag, in the shared archive</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">capture owner</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Before/after</strong> — the same view at the last tag and at this one</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">capture owner</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Video diary</strong> — 60–120 seconds</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">devlog owner</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Living pitch</strong> — one paragraph, updated</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">design owner</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Playtest report</strong> — three or more outside testers, and one change you shipped because of them</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">playtest owner</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Systems map</strong> — updated where reality diverged from it</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">tech lead</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Agent run log</strong>, and any change to the contract</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">AI lead</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Retro</strong> — three actions with owners and dates; last timebox's actions reviewed</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">scrum master</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Presentation, printed 4-up handout, peer evaluations</strong></td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">deck owner + presenters</td>
+</tr>
+</tbody>
+</table>
+<h2 id="design-now-that-you-have-a-backlog">Design, now that you have a backlog</h2>
+<p>Design does not stop; it shrinks and changes shape.</p>
+<ul>
+<li><strong>Design one timebox ahead, not five.</strong> Enough detail for what you are about to build, and a ranked list behind it.</li>
+<li><strong>Planning is re-ranking, not re-generating.</strong> The backlog already exists. What changes is the order, and it changes because playtests told you something.</li>
+<li><strong>Feed the backlog from playtests.</strong> Every session produces stories. Add them; they are the best-evidenced items you have.</li>
+<li><strong>Retire stories the game outgrew.</strong> Move them to "not this game" with a one-line reason. A backlog nobody prunes is a graveyard nobody reads.</li>
+<li><strong>Keep the systems map current.</strong> When the code diverges from the map, update the map — then say where it diverged and why in the presentation. That is a genuinely interesting slide and it is the difference between an architecture and a drawing.</li>
+<li><strong>Spikes for real unknowns only.</strong> If nobody on the team has done it, size a spike. If three people have opinions but no one has tried it, that is also a spike.</li>
+</ul>
+<h2 id="capture-everything">Capture everything</h2>
+<p>Screenshots and clips are the cheapest thing you will ever make and the only thing you cannot make later. <strong>You cannot re-shoot the greybox once the art lands.</strong></p>
+<ul>
+<li><strong>One capture owner per timebox</strong> (rotate it, or fold it into the demo owner's hat).</li>
+<li><strong>Every tag gets a capture set:</strong> five to ten stills and one 30–60 second clip. Unity Recorder is already available to you.</li>
+<li><strong>Fix the setup so comparisons mean something.</strong> Same resolution, same scene, same camera position, same lighting preset, every time. A before/after where the camera moved is not a before/after; it is two pictures.</li>
+<li><strong>Name files predictably:</strong> <code>2026-03-14_v0.4_arena-first-pass_01.png</code> — date, tag, subject, index.</li>
+<li><strong>Store them outside the game repository</strong> unless your LFS budget is healthy — a shared drive or a small separate repo. Never delete anything.</li>
+<li><strong>Capture the ugly stages and the failures.</strong> Greybox, broken physics, the bug where the player launched into orbit. These are the most compelling material in a final presentation and the funniest thirty seconds of any devlog.</li>
+</ul>
+<p><strong>Before and after</strong> is then free, and it is required every timebox: the same view at the previous tag and at this one, side by side, as the second slide of your presentation. Keep the comparisons in a running reel — one pair per timebox — and by the end of the course you have the entire semester in ninety seconds that cost you nothing extra.</p>
+<h2 id="the-video-diary">The video diary</h2>
+<p><strong>60 to 120 seconds, once per timebox, owned by one rotating member.</strong> Cut from captures you already have, so the real cost is the edit.</p>
+<p>A structure that works: what we set out to do · what we shipped · what broke · what we learned · what is next. Voiceover or captions both fine — readable beats polished, and honest beats either. The timebox where something went badly makes the best episode.</p>
+<p>Post it where it can be linked — a devlog entry, an unlisted video, the project wiki — and link it from the deck. <strong>Every episode gets played twice</strong>: as the teaser that opens the presentation it was made for, and again as the recap at the top of the next one. Make something you would be happy to show twice. At the end of the course these episodes are your postmortem, already written.</p>
+<h2 id="marketing-lightly">Marketing, lightly</h2>
+<p>A couple of hours a timebox, not a workstream. The point is to practice describing your game to someone who does not already know it.</p>
+<ul>
+<li><strong>A living pitch:</strong> one paragraph, rewritten every timebox. If it got <em>harder</em> to write this time, your game is drifting — that is useful information, cheaply bought.</li>
+<li><strong>Who is it for, and where are they already?</strong> One honest sentence. "Everyone" is not an audience.</li>
+<li><strong>A page:</strong> title, tagline, three bullets, three images, one GIF. An itch.io page is free and takes an hour, and having a public URL changes how a team talks about its own game.</li>
+<li><strong>A press-kit folder that accretes:</strong> logo, key art, best stills, GIFs, one-sentence and one-paragraph descriptions, and the credits and license register you have been keeping since Timebox 1.</li>
+<li><strong>Key art can be a composed greybox shot.</strong> A good camera angle and one accent color is enough to have something to show while the art is still cubes.</li>
+</ul>
+<h2 id="graduating-from-greybox">Graduating from greybox</h2>
+<p>Art replaces greybox <strong>when the metrics are locked and the loop is fun</strong>, not when someone gets bored of cubes.</p>
+<ul>
+<li><strong>Art respects the greybox numbers.</strong> Jump height, reach, gap width, character scale — the greybox decided those, and the model conforms to them.</li>
+<li>If art <em>forces</em> a metric to change, that is a design decision, not an art decision: make it deliberately and <strong>re-playtest</strong>.</li>
+<li><strong>One system at a time.</strong> Replace the player, ship, capture, playtest. Then the environment. Replacing everything at once means you cannot tell which change made it worse.</li>
+<li><strong>Keep a greybox scene alive</strong> for testing and for the before/after comparisons.</li>
+<li><strong>Never art something you might cut.</strong> Check the ranking first.</li>
+</ul>
+<h2 id="running-the-timebox">Running the timebox</h2>
+<p>Compressed from Timebox 2; the mechanics are unchanged.</p>
+<ul>
+<li><strong>One-sentence sprint goal</strong>, fixed before assignment, on a slide.</li>
+<li><strong>Estimate before, actual after</strong>, on every task. By Timebox 4 you have three data points — that is a velocity <em>trend</em>, and a trend is the first plan you can actually trust.</li>
+<li><strong>Nothing In Progress more than two days.</strong> One task per person at a time.</li>
+<li><strong>A "cut first" set decided at planning</strong>, cut in daylight at a standup, reported honestly.</li>
+<li><strong>The 48-hour freeze</strong>, the tag, and a build verified from a fresh clone by someone who did not make it.</li>
+<li><strong>The retro reviews last timebox's three actions before writing three new ones.</strong> Actions nobody revisits are theatre.</li>
+</ul>
+<h2 id="the-presentation">The presentation</h2>
+<p><strong>35–40 minutes plus about 25 minutes of questions.</strong> New presenters each time.</p>
+<p><strong>Two presenters carry the whole thing.</strong> They deliver every block, they drive the demo, and they answer every question — including questions about systems they did not build. They are presenting <em>as</em> the team, not introducing it. Each hat still owns its material and briefs the presenters beforehand; nobody else takes the mic. This is deliberate: preparing to explain someone else's system is how the team ends up understanding its own project, and it is why the presenters rotate every timebox.</p>
+<p>The running order is a suggestion; the right column is what has to be covered.</p>
+<table style="border-collapse:collapse;width:100%;margin:1em 0;">
+<thead>
+<tr>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Time</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Block</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Who</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Must cover</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Time</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Block</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Who</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Must cover</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">---</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">---</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">---</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">---</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">0:00–0:04</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Where we were, where we are</strong> (4m)</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">presenter 1</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">last timebox's one sentence and whether you hit it; <strong>play last timebox's episode</strong> as the recap, then <strong>play the new episode as this talk's teaser</strong>; the before/after pair</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">0:04–0:16</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>What we implemented</strong> (12m)</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">both</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">the technical block — see below. This is the bulk of the talk</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">0:16–0:25</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Demo</strong> (9m)</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">presenter 2</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">the loop as it stands now, played end to end, driven by a presenter</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">0:25–0:29</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Design and playtest (4m)</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">presenter 1</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">what testers did, what you changed because of it, how the backlog was re-ranked, what you cut</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">0:29–0:34</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Process and metrics</strong> (5m)</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">presenter 2</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">the numbers — see below — plus velocity trend, estimates vs. actuals, the scope you cut, and the top risks</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">0:34–0:37</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Agentic engineering (3m)</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">presenter 1</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">the run log in one slide, what changed in the agent contract, what you stopped letting it do</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">0:37–0:40</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Next timebox and risks (3m)</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">presenter 2</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">the next one-sentence goal, the top three risks, and what you need from the class</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Both videos open the talk.</strong> Last timebox's episode is the recap; the new one is the teaser that sets up everything the next thirty minutes explains. Two minutes total, and the room knows exactly what it is about to hear about. The first time you run this order you will not have a previous episode — open with the before/after pair alone and start the series here.</p>
+<h3 id="the-technical-block-is-the-talk">The technical block is the talk</h3>
+<p>Twelve minutes on <strong>what you implemented and how it works</strong> is the centre of every production presentation. The class is here to learn how you did it, not merely that you did it.</p>
+<ul>
+<li><strong>Go system by system.</strong> What it does, how it works, what it touches, what it deliberately does not touch.</li>
+<li><strong>Show the thing, not a screenshot of the thing.</strong> The updated systems map, the data model, the state machine, the message flow, a short and genuinely interesting piece of code.</li>
+<li><strong>Name the hard problem.</strong> What turned out to be harder than you estimated, what you tried, what finally worked — or what you are still stuck on. A well-explained failure teaches the room more than a clean success.</li>
+<li><strong>Say where the systems map diverged from the code,</strong> and what you did about it.</li>
+<li><strong>Cover the tests</strong> you wrote for it and what your Definition of Done demanded.</li>
+<li><strong>Offer one thing another team could steal</strong>, and say what it cost you to build.</li>
+</ul>
+<p><strong>The presenters did not build all of this</strong>, and explaining it anyway is the exercise. Whoever built each system briefs the presenter who will explain it — that briefing is where a team discovers which parts of its own codebase only one person understands.</p>
+<h3 id="the-metrics-slide">The metrics slide</h3>
+<p>Show the numbers, for the <strong>team and for each person</strong>, as of the freeze tag:</p>
+<table style="border-collapse:collapse;width:100%;margin:1em 0;">
+<thead>
+<tr>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Member</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Commits</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">PRs opened</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">PRs reviewed</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Lines +/−</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Issues closed</th>
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+<p>GitHub gives you most of it — Insights → Contributors for commits and lines, the pull request list filtered by author and by reviewer, the board for closed issues. <code>git shortlog -sn --no-merges</code> takes two seconds for the commit column.</p>
+<p>Then say what the table <strong>does not</strong> capture, because you will be asked. A day of deleting dead code shows as negative lines. The person who reviewed twenty pull requests has a modest commit count and was arguably the most useful member of the team. Whoever ran the playtests, cut the video, or built the deck may barely appear at all. Present the numbers honestly <em>and</em> name the work that does not show up in them — that pairing is the actual skill.</p>
+<p>If a row is genuinely near zero, it is a retro conversation the week before, not a surprise in front of the class.</p>
+<p><strong>Demo the loop, not the features.</strong> One continuous session a stranger could follow beats six disconnected clips — every single timebox.</p>
+<h2 id="easy-to-forget">Easy to forget</h2>
+<ul>
+<li>Capture <em>before</em> you replace anything. The greybox does not come back.</li>
+<li>Same camera, same resolution, same lighting — or the before/after says nothing.</li>
+<li>The tag, and a build someone else actually ran.</li>
+<li>The video diary, cut and posted.</li>
+<li><strong>Both</strong> episodes queued and ready — last timebox's as the recap, the new one as the teaser.</li>
+<li>The living pitch, rewritten — not copied from last time.</li>
+<li>Last timebox's three retro actions, reviewed out loud before new ones are written.</li>
+<li>Printed 4-up handout and peer evaluations, before class.</li>
+</ul>

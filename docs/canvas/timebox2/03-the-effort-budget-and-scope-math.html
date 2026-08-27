@@ -1,0 +1,59 @@
+<!-- Canvas page title: Timebox 2: The effort budget and scope math
+     Generated from docs/TIMEBOX_2_REQUIREMENTS.md by docs/canvas/build_timebox2.py --
+     edit the Markdown, never this file. Paste into a Canvas page via the Rich
+     Content Editor's HTML view (the </> button). Canvas strips <script>/<style>,
+     so all styling here is inline.
+     Module item 3 of 14. -->
+<p>The expectation is unchanged: <strong>10–12 hours per person per week, every timebox.</strong> This timebox splits it about evenly, front-loaded toward design.</p>
+<table style="border-collapse:collapse;width:100%;margin:1em 0;">
+<thead>
+<tr>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;"></th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Share</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Per person, per week</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Design, stories, systems, playtests, documents, presentation</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">~half</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">5–6 h</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Building the greybox slice</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">~half</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">5–6 h</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The math you should actually do</strong>, with your team size and your number of weeks:</p>
+<pre style="background-color:#f5f5f5;border:1px solid #c7cdd1;padding:8px 10px;overflow-x:auto;"><code>total person-hours   = members × weeks × 11
+build hours          = total × 0.5
+plan to              = build hours × 0.7      &lt;-- the number your sprint may hold</code></pre>
+<p>Worked out for a six-person team:</p>
+<table style="border-collapse:collapse;width:100%;margin:1em 0;">
+<thead>
+<tr>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Timebox length</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Person-hours</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Build hours</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">The sprint may hold</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Two weeks</strong></td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">~132</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">~66</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>~45 hours of estimated work</strong></td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Three weeks</strong></td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">~198</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">~99</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>~70 hours of estimated work</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Run the same three lines for your own team size. That 70% is not slack — it is the part of every sprint that goes to the thing that broke, the merge that fought back, and the estimate that was wrong. A sprint planned to 100% of capacity is a sprint that ends in a panic.</p>
+<p>Notice how small the build number is next to the story list you are about to write. That gap is the point of this timebox, not a failure of it: <strong>you will design ten times what you build, and choosing which tenth is the skill.</strong></p>

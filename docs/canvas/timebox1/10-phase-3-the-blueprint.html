@@ -1,0 +1,29 @@
+<!-- Canvas page title: Timebox 1: Phase 3 — The blueprint
+     Generated from docs/TIMEBOX_1_REQUIREMENTS.md by docs/canvas/build_timebox1.py --
+     edit the Markdown, never this file. Paste into a Canvas page via the Rich
+     Content Editor's HTML view (the </> button). Canvas strips <script>/<style>,
+     so all styling here is inline.
+     Module item 10 of 15. -->
+<p><strong>Goal: prove you have a plan before you write production code.</strong></p>
+<h3 id="the-vision">The vision</h3>
+<p>Owner: <strong>design / PRD owner</strong>.</p>
+<ul>
+<li><strong>The hook and the pillars.</strong> One sentence for what the game is, and three pillars that every later decision gets checked against.</li>
+<li><strong>PRD or specification (draft).</strong> Core mechanic — the one verb your game is about — plus target audience, the gameplay loop, and the reference games you are learning from. A draft is expected; a blank is not.</li>
+<li><strong>User stories → features → tasks.</strong> Break stories down until a task is <em>very</em> small — something one person finishes in a sitting. Include research and design tasks, especially for the parts nobody has done before; "spike: how do we do split-screen" is a legitimate, estimable task.</li>
+<li><strong>Three tiers:</strong> MVP, Stretch Goals #1, Stretch Goals #2. Be honest about which is which.</li>
+<li><strong>Timebox 2 plans</strong>, as goals and tasks, not intentions.</li>
+</ul>
+<h3 id="technical-standards">Technical standards</h3>
+<p>Owner: <strong>tech lead</strong>. Use the Lead Architect role to draft the checklist, then decide as a team and write it down:</p>
+<ul>
+<li><strong>Naming conventions.</strong> PascalCase versus camelCase for classes, methods, fields, properties, and serialized fields. The template's own convention — <code>_underscorePrefix</code> for private fields, PascalCase properties — is in <a href="https://github.com/crawfis/EndlessRunnerTemplate/blob/main/CLAUDE.md"><code>CLAUDE.md</code></a>; adopt it or replace it deliberately.</li>
+<li><strong>Folder structure.</strong> The exact hierarchy under <code>Assets/</code>, and where third-party material lives (see <code>_THIRD_PARTY/</code> above).</li>
+<li><strong>Scene naming.</strong> A convention with a load order in it — <code>00_Boot</code>, <code>01_Menu</code>, <code>02_Play</code> — and where additive scenes fit. The template's own scheme (<code>0_BootStrap_Game_Only</code>, <code>Game_Boot_0/1/2</code>, then the gameplay scenes) is a worked example of the same idea.</li>
+</ul>
+<h3 id="systems-architecture">Systems architecture</h3>
+<ul>
+<li><strong>Decoupling.</strong> Where does the Observer pattern — an event bus — separate UI from gameplay? The template answers this one way (three event domains, auto-chaining, a single cross-domain bridge), described in <a href="https://github.com/crawfis/EndlessRunnerTemplate/blob/main/docs/ARCHITECTURE.md">ARCHITECTURE.md</a>. Say whether you are adopting that, and why.</li>
+<li><strong>Data.</strong> What belongs in ScriptableObjects rather than in code? Track segments, level rulesets, and per-mechanic configs are already SOs here; your game will have its own.</li>
+<li><strong>The diagram.</strong> A systems/UML diagram of the flow, plus the menu flow chart and the game progression flow chart. Ask the AI for a text description first, then draw it — a diagram you can describe in words is a diagram you understand.</li>
+</ul>

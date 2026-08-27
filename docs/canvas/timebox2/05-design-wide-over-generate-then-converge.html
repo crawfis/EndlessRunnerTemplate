@@ -1,0 +1,52 @@
+<!-- Canvas page title: Timebox 2: Design wide: over-generate, then converge
+     Generated from docs/TIMEBOX_2_REQUIREMENTS.md by docs/canvas/build_timebox2.py --
+     edit the Markdown, never this file. Paste into a Canvas page via the Rich
+     Content Editor's HTML view (the </> button). Canvas strips <script>/<style>,
+     so all styling here is inline.
+     Module item 5 of 14. -->
+<h3 id="diverge-first-and-do-it-badly-on-purpose">Diverge first, and do it badly on purpose</h3>
+<p>The first session produces <strong>quantity, not quality</strong>, and nobody is allowed to say "that won't work" yet. Every mechanic, mode, enemy, verb, failure state, progression hook, and silly idea goes on the wall. Aim high enough that it feels wasteful — for a six-person team, <strong>sixty to a hundred user stories</strong> and <strong>fifteen or more named systems</strong> is a realistic morning's work with the whole team in a room.</p>
+<p>Judgment is the <em>second</em> pass, and it is much easier when there is a lot to judge. A team that generates six ideas will build the third one because it is the only one left standing. A team that generates sixty will notice that four of them are the same idea, that two of them are the actual game, and that one of them is a semester of work disguised as a feature.</p>
+<h3 id="write-them-as-user-stories">Write them as user stories</h3>
+<p>One format, used by everyone:</p>
+<pre style="background-color:#f5f5f5;border:1px solid #c7cdd1;padding:8px 10px;overflow-x:auto;"><code>As a &lt;kind of player&gt;, I want &lt;to be able to do something&gt;, so that &lt;it matters to me&gt;.</code></pre>
+<p>The "so that" clause is the one that earns its keep — it is where a mechanic without a purpose exposes itself. Keep them small enough that one person could finish one in a sitting; split anything that needs the word "and."</p>
+<p><strong>Acceptance criteria and estimates go on the MVP stories only.</strong> Writing Given/When/Then for eighty stories you may never build is the exact waste this section is trying to teach you to avoid.</p>
+<h3 id="then-converge-in-daylight">Then converge, in daylight</h3>
+<p>Rank every story into four buckets, as a team, in one meeting:</p>
+<table style="border-collapse:collapse;width:100%;margin:1em 0;">
+<thead>
+<tr>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Bucket</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>MVP</strong></td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">the slice that proves the core loop. This is what you build this timebox</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Stretch 1</strong></td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">the next timebox, if the loop works</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Stretch 2</strong></td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">the game you would ship with more time</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Not this game</strong></td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">good ideas that belong to a different project</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The "not this game" list is a deliverable, not a bin.</strong> Written down, it stops the same argument from returning every second week, and it is genuinely interesting to present: what you decided not to make says more about your design than what you kept.</p>
+<p>Whatever survives into MVP has to answer one question: <em>does a player experience the core loop without it?</em> If yes, it is not MVP.</p>
+<h3 id="ai-is-a-divergence-engine">AI is a divergence engine</h3>
+<p>This is the design half's agentic-engineering work. Use an assistant for the part it is genuinely good at — volume and breadth — and keep the judgment:</p>
+<ul>
+<li>"Here is our hook and our three pillars. Generate forty user stories a player of this game would want, in the format above. Do not filter for feasibility."</li>
+<li>"List every system a game like this typically needs, including the ones teams forget."</li>
+<li>"Act as a skeptical senior designer. What is missing from this list? What breaks when we have ten of these instead of one?"</li>
+</ul>
+<p>Then <strong>you</strong> cut. Generated ideas are raw material, not decisions, and every story that survives into MVP should have a human who can say why in one sentence.</p>

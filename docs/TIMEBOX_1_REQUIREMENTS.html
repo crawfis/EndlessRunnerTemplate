@@ -1,0 +1,827 @@
+<!-- Timebox 1 requirements -- complete, single page
+     Generated from docs/TIMEBOX_1_REQUIREMENTS.md by docs/canvas/build_timebox1.py --
+     edit the Markdown, never this file. Paste into a Canvas page via the Rich
+     Content Editor's HTML view (the </> button). Canvas strips <script>/<style>,
+     so all styling here is inline. -->
+<h1 id="timebox-1--studio-setup--greenlight">Timebox 1 — Studio Setup &amp; Greenlight</h1>
+<p><em>CSE 5912 Capstone · The AI-Driven Studio</em></p>
+<h2 id="overview-and-objective">Overview and objective</h2>
+<p>This is not a homework assignment. This is <strong>pre-production</strong>. The goal of Timebox 1 is to turn a group of students into a game studio: define your identity, stand up your DevOps pipeline, and deliver a <strong>Greenlight pitch</strong> that proves you are ready to build a complex software product.</p>
+<p>You will use generative AI not to do the work for you, but to play three roles for your studio — <strong>Agile Coach</strong>, <strong>Lead Architect</strong>, and <strong>Technical Auditor</strong>. Prompts for each are in the phase that needs them.</p>
+<p>The endless-runner template is your <strong>playground</strong>: it is where you prove the team can code, review, merge, and build before any of that matters. The bulk of this timebox is therefore design, documentation, and process — not features.</p>
+<p><strong>You have 1.5 weeks.</strong> Task IDs like <strong>A4</strong> or <strong>I12</strong> point into the <a href="https://github.com/crawfis/EndlessRunnerTemplate/blob/main/docs/STUDENT_TASKS.md">Student Task Catalog</a> — 111 scoped projects grouped by sub-specialty. This document says how many to take, who takes them, and everything else that is due.</p>
+<p><strong>The five phases:</strong></p>
+<table style="border-collapse:collapse;width:100%;margin:1em 0;">
+<thead>
+<tr>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Phase</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">What it produces</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>1 — Logistics and the team charter</strong></td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">how you work, agreed in writing, before you decide what to build</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>2 — Visual identity</strong></td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">two palettes: the studio brand for presentations, the art direction for the game</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>3 — The blueprint</strong></td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">the vision, the coding standards, and the systems architecture</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>4 — Pipeline validation</strong></td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">proof the team can code, review, merge, build — and audit its own code</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>5 — The Greenlight presentation</strong></td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">the pitch, the demo, and the metrics that back them</td>
+</tr>
+</tbody>
+</table>
+<h2 id="the-effort-budget">The effort budget</h2>
+<table style="border-collapse:collapse;width:100%;margin:1em 0;">
+<thead>
+<tr>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;"></th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Per member</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Team of six</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Weekly expectation</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">10–12 h</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">60–72 h</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Timebox 1 (1.5 weeks)</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">15–18 h</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">90–108 h</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Meetings, planning, documents, presentation</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">~half → 7–9 h</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">45–54 h</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Learning the template and building</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">~half → 7–9 h</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">45–54 h</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>The 10–12 hours a week is the expectation for <strong>every</strong> timebox. The half-and-half split is specific to this one — later timeboxes tilt hard toward building.</li>
+<li>Seven to nine hours of build time is <strong>two build items per person</strong>, not one: two <strong>S</strong> catalog tasks, or one required item (Phase 4) plus an <strong>S</strong> task, or an <strong>S</strong> task plus a written <strong>spike</strong> for something bigger — a time-boxed investigation whose deliverable is a teardown and an event map rather than working code.</li>
+<li><strong>This is your backlog math.</strong> Six people have roughly fifty build-hours in this timebox. If the board holds two hundred, your estimates are fiction — and the Production Metrics block of your presentation is where that shows.</li>
+<li><strong>The second build item is the first thing to cut.</strong> The documents and the presentation <em>are</em> the timebox; the runner work is how you learn it. Never the other way round.</li>
+</ul>
+<h2 id="the-48-hour-freeze">The 48-hour freeze</h2>
+<p>Professional release cycles end with a freeze, so yours does too.</p>
+<ul>
+<li><strong>Code freeze: no new features in the 48 hours before class.</strong> That window is for merging, building, fixing, rehearsing, and printing.</li>
+<li><strong>Tag the release:</strong> <code>git tag -a v0.1-greenlight -m "Timebox 1 greenlight"</code> and push the tag. That tag is "the version we demoed", and you can check it out again at any point later in the project.</li>
+<li><strong>The audit reads from before the freeze.</strong> Every metric you present — commits, closed tasks, documents, review turnaround — is pulled as of the tag. Work that lands after it does not count toward this timebox, which is exactly the incentive a freeze is meant to create.</li>
+</ul>
+<h2 id="the-hats">The hats</h2>
+<p>Every deliverable has one of these next to it. One name per hat; one person may wear more than one.</p>
+<table style="border-collapse:collapse;width:100%;margin:1em 0;">
+<thead>
+<tr>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Hat</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Owns</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Rotates</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Scrum master</strong></td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">standups, the board, the deadline calendar, unblocking, the retro. The process owner, not the decision maker</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">every timebox</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Deck owner</strong></td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">assembles the deck from everyone's artifacts, owns the menu and game flow charts, prints the 4-up copy, uploads it after class</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">every timebox</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Presenter ×2</strong></td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">carry the deck after the whole-team intros; able to answer on any slide, not just their own</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">every timebox</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Demo &amp; video owner</strong></td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">cuts the build, records the run, owns the fallback video and the machine it plays from</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">every timebox</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Integrator</strong></td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">the repository: setup, branch protection, LFS, the freeze and the tag, and the fresh-clone check that it still plays</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">rarely</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Tech lead</strong></td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">architecture doc, coding standards, the AI policy and audit, and sign-off on every third-party import</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">rarely</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Design / PRD owner</strong></td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">the vision — hook, pillars, core mechanic, target audience, MVP and stretch tiers — and the user stories behind it</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">rarely</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Art director</strong></td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">studio brand palette and slide theme; game art direction and mood board</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">rarely</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>QA &amp; triage</strong></td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">plays daily, files bugs and stories upstream with the Issue forms, owns the code-metrics slide</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">every timebox</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Art &amp; licensing</strong></td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">placeholder art sourcing, the license register, credits data, the "art we need" ask to the class</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">rarely</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Producer</strong> (9+ only)</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">the deliverable checklist end to end and the dependencies between pods, so the scrum master can stay on the board</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">rarely</td>
+</tr>
+</tbody>
+</table>
+<h2 id="deliverables-checklist">Deliverables checklist</h2>
+<p>Everything below goes to your project wiki and your AI workspace. Copy this into your team charter and fill in names.</p>
+<table style="border-collapse:collapse;width:100%;margin:1em 0;">
+<thead>
+<tr>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Deliverable</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Hat</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Phase</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Team charter</strong> — core hours, conflict resolution, skill gaps, communication SLAs, broken-build rule</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">scrum master</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">1</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Bios; individual, team, and project S.M.A.R.T. goals</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">everyone writes their own</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">1</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Contact list, meeting cadence, channels, hardware limits, help-seeking path</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">scrum master</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">1</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Team repository (disposable — Timebox 2 starts a fresh one), collaborators, branch protection, LFS, agreed Unity version, visibility</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">integrator</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">1</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">GitHub → Discord/Slack integration so commits appear in chat</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">integrator</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">1</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Brand guidelines</strong> — studio 3-color palette with hex codes and a slide theme</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">art director</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">2</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Art direction</strong> — game 5-color palette and mood board</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">art director</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">2</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Game name, icon, splash; studio name, logo</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">art director + art &amp; licensing</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">2</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">PRD draft: hook, pillars, core mechanic, target audience, MVP, stretch #1/#2</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">design owner</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">3</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">User stories → features → (very) small tasks, on the board</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">design owner; board by scrum master</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">3</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Technical standards doc</strong> — naming conventions, folder hierarchy, scene naming</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">tech lead</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">3</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Architecture diagram</strong> — systems/UML flow, plus the menu and game flow charts</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">tech lead + deck owner</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">3</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Kanban board: columns, estimate/priority/type/owner fields</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">scrum master</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">4</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Timebox flow: task assignment, deadlines, PR policy, mentoring, third-party import control, merge and build windows</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">tech lead + scrum master</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">4</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Main menu with localization (<strong>I5</strong>)</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">one engineer</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">4</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Credits screen and license register (<strong>I12</strong>)</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">art &amp; licensing + one engineer</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">4</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Player Settings (company, product, version <code>0.1.0</code>); Editor Settings root namespace</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">integrator</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">4</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Two build items per person from the catalog</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">everyone</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">4</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Code audit</strong> — AI critique of coupling, readability, flexibility, with before/after</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">tech lead</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">4</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Bugs and stories filed upstream on the template repo</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">QA &amp; triage, everyone contributes</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">4</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>AI policy</strong> — tools, boundaries, how AI-written code is reviewed</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">tech lead</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">—</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Presentation deck, 16×9, plus printed handouts at 4 slides per page</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">deck owner + presenters</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">5</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Build, demo video, wiki post</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">demo &amp; video owner</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">5</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Sprint log</strong> exported from Git and the board; code metrics as of the freeze tag</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">QA &amp; triage</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">5</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Team member evaluation</strong> — the peer rubric, printed and filled in, handed in <strong>before</strong> class</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">everyone, individually</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">5</td>
+</tr>
+</tbody>
+</table>
+<h2 id="ai-coach-architect-auditor">AI: coach, architect, auditor</h2>
+<p>Owner: <strong>tech lead</strong>. This gets its own block in the presentation.</p>
+<p>The point is not "we used AI." It is that you gave it a <strong>role</strong> and kept the judgment. Each phase carries a prompt for the role it needs:</p>
+<table style="border-collapse:collapse;width:100%;margin:1em 0;">
+<thead>
+<tr>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Role</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Phase</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">What it produces</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Agile Coach</strong></td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">1</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">interviews the team, then synthesizes the Team Charter</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Creative Director</strong></td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">2</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">the studio brand palette and the game's art direction</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Lead Architect</strong></td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">3</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">naming and folder standards, the systems architecture, a UML description</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Technical Auditor</strong></td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">4</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">a critique of your code for coupling, readability, and flexibility</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Your policy</strong> — one page, in the repo or on the wiki — has to answer:</p>
+<ul>
+<li><strong>Per member.</strong> Which assistants each of you uses, or chooses not to. Opting out is a legitimate position; state it and say why. Note what your hardware and licenses allow.</li>
+<li><strong>Per team.</strong> Where AI is welcome (boilerplate, tests, docs, issue triage, review, brainstorming) and where it is not. Decide it explicitly rather than discovering the disagreement inside a pull request.</li>
+<li><strong>How AI-written code is labeled and reviewed.</strong> The honest rule: reviewed exactly like hand-written code, and the author must be able to explain every line of it. If they can't, it doesn't merge.</li>
+<li><strong>Prompt frameworks.</strong> If you use BMad or another structured method for the PRD and story breakdown, say which, and how it went.</li>
+<li><strong>The retro.</strong> Where did it save you an hour? Where was it confidently wrong, and what did you change afterwards? That is the slide the class will actually learn from.</li>
+</ul>
+<p>A worked example ships in this repository: <a href="https://github.com/crawfis/EndlessRunnerTemplate/blob/main/CLAUDE.md"><code>CLAUDE.md</code></a> is an AI contract — architecture rules, folder map, a required workflow — alongside skills (<code>/list-events</code>, <code>/add-event</code>, <code>/audit-events</code>, <code>/generate-segments</code>) that encode the project's conventions so an assistant follows them instead of inventing its own. Read it as a model for the contract you will write for <em>your</em> game, whichever assistant you use.</p>
+<h2 id="phase-1--logistics-and-the-team-charter">Phase 1 — Logistics and the team charter</h2>
+<p><strong>Goal: define HOW you work before you define WHAT you work on.</strong></p>
+<p>Do not just list names. You need a <strong>Team Charter</strong> — a working agreement that covers availability, conflict resolution, and communication SLAs.</p>
+<h3 id="the-ai-prompt--agile-coach">The AI prompt — Agile Coach</h3>
+<pre style="background-color:#f5f5f5;border:1px solid #c7cdd1;padding:8px 10px;overflow-x:auto;"><code>Act as an Expert Agile Coach. My team is forming a game studio for a Capstone engineering
+project. We need to draft a &quot;Team Working Agreement&quot; (Team Charter).
+
+Task: Interview me. Ask me 5 specific questions, one at a time, regarding:
+  1. Core Hours: When is everyone guaranteed to be online?
+  2. Conflict Resolution: How do we decide if two people disagree on a mechanic?
+  3. Skill Gaps: Where are we weak (Art vs. Code) and how will we cover it?
+  4. Communication SLAs: How fast must we reply to Discord/Slack messages?
+  5. Commit Standards: What happens if someone breaks the build?
+
+Goal: After I answer, synthesize this into a professional &quot;Team Manifesto&quot; document.</code></pre>
+<p>Answer it as a team, in one meeting, with everyone present. A charter written by one person is a document; a charter answered together is an agreement.</p>
+<h3 id="the-rest-of-phase-1">The rest of Phase 1</h3>
+<ul>
+<li><strong>Know each other.</strong> Names, emails, and how to reach someone who has gone quiet. Values, interests, and skills — who wants to write shaders, who wants to write tools, who wants to design levels. And <strong>hardware limits</strong>: find the weakest machine on the team in week one, not the night before a demo, because it sets your performance budget.</li>
+<li><strong>Meeting cadence and channels.</strong> A standing time everyone can actually make, plus Discord/Slack/Teams — one place, not four.</li>
+<li><strong>Toolchain.</strong> Link GitHub to your Discord or Slack so commits and pull requests appear in chat. It is five minutes of setup and it makes the team's pulse visible without anyone having to ask "what is everyone working on?"</li>
+<li><strong>Seeking help.</strong> Name the path: teammate first, then the team channel, then the instructor. A student stuck for three days in silence is a process failure, not a personal one.</li>
+<li><strong>First presenters.</strong> Pick them now; they rotate every timebox.</li>
+<li><strong>Bios.</strong> One slide each: what aspects of game <em>programming</em> interest you.</li>
+<li><strong>S.M.A.R.T. goals</strong> at three levels: individual, team, and project. Specific, Measurable, Achievable, Relevant, Time-bound — see the <a href="https://www.forbes.com/advisor/business/smart-goals/">Forbes</a> and <a href="https://www.smartsheet.com/blog/essential-guide-writing-smart-goals">Smartsheet</a> guides. "Learn Unity" is not one. "Ship a playable roll mechanic with SFX by the Timebox 2 demo" is.</li>
+</ul>
+<h2 id="the-repository-licensing-and-third-party-assets">The repository, licensing, and third-party assets</h2>
+<p>Owner: <strong>integrator</strong>, with the tech lead on policy. Part of Phase 1, and due in the first two days — everything else waits on it.</p>
+<p><strong>This repository is disposable.</strong> At Timebox 2 you throw it away and start a fresh one for the actual game, and that is the point: this is where you practice the workflow — branch protection, pull requests, LFS, merge drivers, a scene two people both edited — while breaking it costs nothing. What carries forward is not the code. It is your <code>.github/</code> configuration, the PR template, the coding standards, the AI policy, the charter, and the muscle memory. Get <em>those</em> right here.</p>
+<ul>
+<li><p><strong>Start from the template; don't fork.</strong> <code>crawfis/EndlessRunnerTemplate</code> (the old <code>crawfis/EndlessRunner</code> link redirects here) is a GitHub <em>template repository</em>: <strong>Use this template → Create a new repository</strong> gives your team a clean history it owns. A fork aims its pull requests back upstream and drags this repo's history along. Add every team member as a collaborator with write access.</p></li>
+<li><p><strong>Agree on one Unity version, and write it down.</strong> Take the latest release the whole team can actually install — the template's README says which Unity 6 release it was built on, so start there and don't go backwards — then everyone installs exactly that, patch number included. A mismatched patch silently rewrites scenes and prefabs, and your teammates will see hundreds of changed lines nobody made. Agree in the first meeting, and verify on every machine.</p></li>
+<li><p><strong>Then make the version a fact, not a memory.</strong> The template deliberately ignores <code>ProjectSettings/ProjectVersion.txt</code> so it never pins anyone; your team repo should do the opposite. Delete that line from <code>.gitignore</code> and commit the file, so the version lives in the repo where a new machine can read it.</p></li>
+<li><p><strong>Everyone clones and plays before anyone edits.</strong> Open the project, enter Play Mode from <code>Assets/GameFlow/Scenes/Boot/0_BootStrap_Game_Only</code>, confirm a clean console. A "works on my machine" problem found in week one is free.</p></li>
+<li><p><strong>Protect <code>main</code>.</strong> Settings → Branches: require a pull request, require at least one approving review, disallow direct pushes. Branch names are <code>issue-&lt;number&gt;-short-description</code>; PR bodies say <code>Closes #&lt;n&gt;</code>. The conventions are in <a href="https://github.com/crawfis/EndlessRunnerTemplate/blob/main/.github/CONTRIBUTING.md"><code>.github/CONTRIBUTING.md</code></a> — the review policy you have to decide yourselves is in Phase 4.</p></li>
+<li><p><strong>Turn on Git LFS before the first real asset.</strong> The template ships no LFS configuration because it ships no binary art. The day someone adds textures, models, or audio:</p>
+<pre style="background-color:#f5f5f5;border:1px solid #c7cdd1;padding:8px 10px;overflow-x:auto;"><code>git lfs install
+git lfs track &quot;*.psd&quot; &quot;*.fbx&quot; &quot;*.png&quot; &quot;*.tga&quot; &quot;*.wav&quot; &quot;*.mp3&quot; &quot;*.ogg&quot;
+git add .gitattributes &amp;&amp; git commit -m &quot;chore: track binary art with LFS&quot;</code></pre>
+<p>Do it <em>before</em> the assets land — converting afterwards means rewriting history. GitHub's free LFS allowance is small (about a gigabyte of storage and the same again in monthly bandwidth), so demo videos belong on the wiki or a shared drive, not in the repo.</p></li>
+<li><p><strong>Teach git to merge Unity files.</strong> Scenes and prefabs are YAML and git's default merge mangles them. Unity ships <code>UnityYAMLMerge</code> (SmartMerge): register it as the merge driver for <code>*.unity</code>, <code>*.prefab</code>, and <code>*.asset</code> in <code>.gitattributes</code> plus a matching <code>[merge]</code> block in your global <code>.gitconfig</code>, and scene conflicts become survivable instead of fatal. The template's <code>.gitattributes</code> already pins Unity YAML to LF endings so those files stop appearing modified after every editor session — leave those lines alone. Asset serialization is already Force Text; don't change it.</p></li>
+<li><p><strong>One owner per scene, per timebox.</strong> Even with SmartMerge, two people editing the same <code>.unity</code> file is the most common way a game team loses a day. The template is already split into additive scenes — <code>TempleRunTrackPCG</code>, <code>TrackVisuals</code>, <code>PlayerVisuals</code>, <code>Obstacles</code>, <code>Collectables</code>, <code>Sfx</code>, <code>Environment</code>, <code>GuiOverlay</code> — so assign them, and put new work in a new scene or a prefab rather than in someone else's.</p></li>
+<li><p><strong>Track the template upstream</strong> so you can pull fixes as the semester goes:</p>
+<pre style="background-color:#f5f5f5;border:1px solid #c7cdd1;padding:8px 10px;overflow-x:auto;"><code>git remote add upstream https://github.com/crawfis/EndlessRunnerTemplate.git
+git fetch upstream          # then merge or cherry-pick what you want</code></pre></li>
+<li><p><strong>Plan the hand-off.</strong> When you create the Timebox 2 repository — from the template again, or from scratch if you pivot — copy <code>.github/</code> (issue forms, labels, the PR template) and your policy documents across on day one, so the real repo starts with the process you already proved instead of a blank slate.</p></li>
+</ul>
+<h3 id="third-party-assets-licenses-and-repository-visibility">Third-party assets, licenses, and repository visibility</h3>
+<ul>
+<li><strong>Go private if a license says you must.</strong> Paid Asset Store packages, licensed audio, and most "personal use" downloads may not be redistributed — and a public repository holding them <em>is</em> redistribution. If anyone imports something like that, switch the repo to private (Settings → General → Change visibility). Read the actual license, not the store page; check in particular whether it covers the whole team or a single seat.</li>
+<li><strong>Everything gets attribution.</strong> Every third-party asset — art, audio, fonts, code, packages — earns a row in the license register and a line in the credits screen (<strong>I12</strong>) <em>the day it is imported</em>, not in the last week of the project. Record the name, author, source URL, license, and where in the project it is used. That register is what lets you answer "can we ship this?" later without archaeology.</li>
+<li><strong>Consider a <code>_THIRD_PARTY/</code> folder that git ignores.</strong> Put every imported package under one top-level folder, add that folder to <code>.gitignore</code>, and have each member install into it on their own machine. The repository stays small and holds nothing it may not be allowed to hold. This works because <code>.unitypackage</code> imports carry their own <code>.meta</code> files, so the GUIDs your prefabs and scenes reference are identical on every machine — <em>provided everyone installs the same version</em>. Keep a manifest beside the license register saying which asset, which version, and where it came from. If the license permits sharing inside the team, zipping that folder and passing it around is simpler and safer than everyone downloading separately, because the bytes are then identical.</li>
+<li><strong>Never edit anything inside <code>_THIRD_PARTY/</code>.</strong> An edit there exists only on your machine: everyone else's project silently differs, and your change disappears the next time anyone reinstalls or updates the package. If a third-party script needs to behave differently, wrap it, subclass it, or copy the file out into your own folder under your own namespace and change <em>that</em>. The rule holds even if you commit the folder — package upgrades overwrite your edits either way.</li>
+</ul>
+<h2 id="phase-2--visual-identity">Phase 2 — Visual identity</h2>
+<p><strong>Goal: professionalize your presentation and align your creative vision.</strong> These are two different jobs, and teams routinely conflate them.</p>
+<table style="border-collapse:collapse;width:100%;margin:1em 0;">
+<thead>
+<tr>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Identity</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Focus</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Deliverable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Studio brand</strong></td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">corporate identity, for presentations and documents</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">3-color palette with hex codes, plus a slide theme</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Game art direction</strong></td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">mood and atmosphere</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">5-color palette, plus a mood board description</td>
+</tr>
+</tbody>
+</table>
+<h3 id="the-ai-prompt--creative-director">The AI prompt — Creative Director</h3>
+<pre style="background-color:#f5f5f5;border:1px solid #c7cdd1;padding:8px 10px;overflow-x:auto;"><code>Act as a Creative Director. We need to define two distinct visual identities.
+
+Identity 1: The Studio Brand (For Presentations)
+  Our Vibe: Professional, Agile, Engineering-focused.
+  Task: Suggest a 3-color palette (Primary, Secondary, Accent) with Hex Codes.
+  Constraint: The background must be light enough for black text. High contrast is
+  required for projector readability.
+
+Identity 2: The Game Art Direction
+  The Mood: [INSERT MOOD, e.g., Cyberpunk Horror].
+  Mechanics via Color: How will we use color to signal &quot;Danger&quot; vs. &quot;Safety&quot;?
+  Deliverable: A description for a &quot;Mood Board&quot; we can generate.</code></pre>
+<p>The projector constraint is not decoration: dark, busy slide themes are unreadable in the room and illegible on the printed 4-up handout. Decide the brand palette before the deck exists, not after.</p>
+<p><strong>Colour as a mechanic</strong> is the part worth arguing about. If red means danger in your game, it cannot also be the accent colour on your HUD. That decision belongs here, while it is still cheap.</p>
+<p><strong>Also in Phase 2:</strong> game name, icon, and splash screens; studio name and logo. Placeholder is fine — <em>decided</em> is the point. These land in Player Settings (Phase 4) and on the title slide.</p>
+<h2 id="phase-3--the-blueprint">Phase 3 — The blueprint</h2>
+<p><strong>Goal: prove you have a plan before you write production code.</strong></p>
+<h3 id="the-vision">The vision</h3>
+<p>Owner: <strong>design / PRD owner</strong>.</p>
+<ul>
+<li><strong>The hook and the pillars.</strong> One sentence for what the game is, and three pillars that every later decision gets checked against.</li>
+<li><strong>PRD or specification (draft).</strong> Core mechanic — the one verb your game is about — plus target audience, the gameplay loop, and the reference games you are learning from. A draft is expected; a blank is not.</li>
+<li><strong>User stories → features → tasks.</strong> Break stories down until a task is <em>very</em> small — something one person finishes in a sitting. Include research and design tasks, especially for the parts nobody has done before; "spike: how do we do split-screen" is a legitimate, estimable task.</li>
+<li><strong>Three tiers:</strong> MVP, Stretch Goals #1, Stretch Goals #2. Be honest about which is which.</li>
+<li><strong>Timebox 2 plans</strong>, as goals and tasks, not intentions.</li>
+</ul>
+<h3 id="technical-standards">Technical standards</h3>
+<p>Owner: <strong>tech lead</strong>. Use the Lead Architect role to draft the checklist, then decide as a team and write it down:</p>
+<ul>
+<li><strong>Naming conventions.</strong> PascalCase versus camelCase for classes, methods, fields, properties, and serialized fields. The template's own convention — <code>_underscorePrefix</code> for private fields, PascalCase properties — is in <a href="https://github.com/crawfis/EndlessRunnerTemplate/blob/main/CLAUDE.md"><code>CLAUDE.md</code></a>; adopt it or replace it deliberately.</li>
+<li><strong>Folder structure.</strong> The exact hierarchy under <code>Assets/</code>, and where third-party material lives (see <code>_THIRD_PARTY/</code> above).</li>
+<li><strong>Scene naming.</strong> A convention with a load order in it — <code>00_Boot</code>, <code>01_Menu</code>, <code>02_Play</code> — and where additive scenes fit. The template's own scheme (<code>0_BootStrap_Game_Only</code>, <code>Game_Boot_0/1/2</code>, then the gameplay scenes) is a worked example of the same idea.</li>
+</ul>
+<h3 id="systems-architecture">Systems architecture</h3>
+<ul>
+<li><strong>Decoupling.</strong> Where does the Observer pattern — an event bus — separate UI from gameplay? The template answers this one way (three event domains, auto-chaining, a single cross-domain bridge), described in <a href="https://github.com/crawfis/EndlessRunnerTemplate/blob/main/docs/ARCHITECTURE.md">ARCHITECTURE.md</a>. Say whether you are adopting that, and why.</li>
+<li><strong>Data.</strong> What belongs in ScriptableObjects rather than in code? Track segments, level rulesets, and per-mechanic configs are already SOs here; your game will have its own.</li>
+<li><strong>The diagram.</strong> A systems/UML diagram of the flow, plus the menu flow chart and the game progression flow chart. Ask the AI for a text description first, then draw it — a diagram you can describe in words is a diagram you understand.</li>
+</ul>
+<h2 id="phase-4--pipeline-validation">Phase 4 — Pipeline validation</h2>
+<p><strong>Goal: prove your team can code, review, merge, and build.</strong> The endless runner is the playground; the pipeline is the deliverable.</p>
+<h3 id="the-board-and-the-flow">The board and the flow</h3>
+<p>Owner: <strong>scrum master</strong>, with the tech lead on the code policies.</p>
+<p>Kanban in GitHub Projects or Trello, with Backlog / Ready / In Progress / In Review / Done and fields for estimate, priority, type, and owner. <a href="https://github.com/crawfis/EndlessRunnerTemplate/blob/main/.github/PROJECTS_v2.md"><code>.github/PROJECTS_v2.md</code></a> is a ready-made configuration including the automations. At least one scrum cycle happens inside this timebox; say which cadence you chose and why.</p>
+<p>Write down the timebox flow: how tasks get assigned, internal deadlines ahead of the demo, the mentoring path, who approves third-party imports (licensing rules above), and when the merge and build windows are — ending at the 48-hour freeze.</p>
+<h3 id="pull-requests">Pull requests</h3>
+<p>The mechanics are in <code>.github/CONTRIBUTING.md</code>; what it leaves to you is <strong>who reviews</strong>.</p>
+<ul>
+<li><strong>Use a ring, not a volunteer pool.</strong> Order the team; each person reviews the next person's PRs, wrapping around. "Whoever's free" means nobody, and then everything merges at 11pm the night before the demo.</li>
+<li><strong>How many approvals:</strong> five or fewer → one. Six to eight → one, plus the tech lead for anything touching an event enum, an auto-flow, a bridge, or a new package. Nine or more → two, one of them from the other pod.</li>
+<li><strong>Nobody merges their own PR</strong>, and nobody approves a PR they wrote code in.</li>
+<li><strong>24-hour review SLA.</strong> Past that the scrum master reassigns. A PR open three days is a standup topic, not a background process.</li>
+<li><strong>Keep them small</strong> — a few hundred changed lines. One mechanic plus its event is a good PR.</li>
+<li><strong>Reviewer checklist</strong> — create <code>.github/pull_request_template.md</code> and paste it in:
+<ul>
+<li>plays from <code>0_BootStrap_Game_Only</code> with a clean console</li>
+<li>every <code>Subscribe</code> has its <code>Unsubscribe</code> in <code>OnDestroy</code></li>
+<li>no cross-domain event reference outside a bridge file; <code>/audit-events</code> comes back clean</li>
+<li>no <code>FindObjectOfType</code> / <code>SendMessage</code> / cross-scene <code>GetComponent</code> for communication</li>
+<li>new third-party asset? The tech lead approved it <em>and</em> the license register and the credits data both gained a row</li>
+<li>AI-assisted code is reviewed exactly like hand-written code, and the author can explain it in the PR body</li>
+</ul></li>
+</ul>
+<h3 id="the-code-audit">The code audit</h3>
+<p>Before merging, run your scripts past the <strong>Technical Auditor</strong> role for a critique on <strong>coupling, readability, and flexibility</strong>:</p>
+<pre style="background-color:#f5f5f5;border:1px solid #c7cdd1;padding:8px 10px;overflow-x:auto;"><code>Act as a Lead Developer performing code review. Critique the attached Unity C# script on
+three axes:
+  1. Coupling: what does this class know about that it shouldn&#39;t? What breaks if a
+     collaborator is replaced?
+  2. Readability: what would a new team member misread on first pass?
+  3. Flexibility: which decision here will we regret when we add the second variant of
+     this feature?
+For each finding, say what you would change and why — do not rewrite the file.</code></pre>
+<p>Keep the before and after: a diff and a two-line summary per script. <strong>That comparison is a presentation slide</strong>, and it is the most convincing evidence in the deck that the team can critique its own work. The audit does not replace human review — it is what you run before asking for one.</p>
+<h3 id="what-to-build">What to build</h3>
+<p><strong>Required of every team</strong> — these come out of the same build budget as catalog picks.</p>
+<ol type="1">
+<li><strong>Main menu with localization</strong> — integrate the starter package (<a href="https://github.com/crawfis/ConsumerUI_RxGames">ConsumerUI_RxGames</a>), UI Toolkit only, two or more languages. Catalog <strong>I5</strong>.</li>
+<li><strong>Credits screen</strong> — data-driven, with a license register beside it, updated the day you import anything third-party. Catalog <strong>I12</strong>.</li>
+<li><strong>Player Settings</strong> — Company, Product, and Version in <code>0.1.0</code> format. The template ships <code>CrawfisSoftware</code> / <code>Endless Runner</code>; make them yours.</li>
+<li><strong>Editor Settings</strong> — set the Root namespace.</li>
+<li><strong>File issues upstream</strong> — bugs and user stories on the template repo using its <a href="https://github.com/crawfis/EndlessRunnerTemplate/issues">Issue forms</a>. Generating a first pass with AI is fair game; read them before you file them.</li>
+</ol>
+<p><strong>Then pick from the catalog: two build items per person</strong>, from <em>different</em> sections, so the demo shows breadth instead of five variations of the same mechanic. Anything tagged <strong>M</strong> or <strong>L</strong> is a <strong>spike</strong> in this timebox — a one-page teardown plus an event map, not a half-built system. Picking extra features to research and plan for later is encouraged; those are tasks too, and they go on the board with estimates.</p>
+<table style="border-collapse:collapse;width:100%;margin:1em 0;">
+<thead>
+<tr>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Flavor</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">You care about</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Catalog</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Timebox 1 starter picks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Runner-focused</strong> — make <em>this</em> game good</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">feel, pacing, encounter design, progression</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">A, B, D, E</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>A4</strong> roll · <strong>A5</strong> double jump · <strong>A9</strong> near-miss · <strong>A11</strong> checkpoints · <strong>D5</strong> coin choreography · <strong>E6</strong> per-level records</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Tech-focused</strong> — build skills that transfer to <em>any</em> game</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">UI, rendering, audio, tooling, architecture</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">C, F, G, H, I, J, K, L</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>I4</strong> game-over celebration · <strong>F4</strong> dash trails · <strong>F5</strong> screen-space feedback · <strong>L6</strong> event console · <strong>L1</strong> <code>AutoEventFlowBase</code></td>
+</tr>
+</tbody>
+</table>
+<p>Catalog sections <strong>M–O</strong> (the explorer pivot, multiplayer, live services) are semester-spine decisions, not Timebox 1 work. If your team is drawn to one, its spike <em>is</em> the deliverable.</p>
+<p>None of this code has to survive: Timebox 2 starts in a new repository for the game itself. Optimize for what each person <em>learns</em> and for what the team can demo, not for what you keep.</p>
+<h2 id="phase-5--the-greenlight-presentation">Phase 5 — The Greenlight presentation</h2>
+<p><strong>Budget: 35–40 minutes of presentation plus about 25 minutes of questions and discussion.</strong> Thirty-five is a floor, not a ceiling — larger teams should plan on longer, and any team may run longer when it has more to show. Everyone introduces themselves; then <strong>two presenters</strong> carry the deck, with hand-offs for the demo and the AI block.</p>
+<p>The running order is a suggestion; the right-hand column is what the pitch has to cover somewhere. Rehearse it once with a timer so you know which blocks are really five minutes and which are two.</p>
+<table style="border-collapse:collapse;width:100%;margin:1em 0;">
+<thead>
+<tr>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Time</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Block</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Who</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Must cover</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">0:00–0:03</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Team intros</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">everyone, ~25 s each</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">name, which part of game programming you want, one thing about your machine</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">0:03–0:08</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Studio logistics</strong> (5m)</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">presenter 1</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">studio name, logo, mission; the charter — core hours, conflict resolution, SLAs, broken-build rule; who wears which hat</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">0:08–0:18</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Core vision</strong> (10m)</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">presenter 1</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">the hook, the pillars, target audience, the gameplay loop, brand and art-direction boards, MVP versus stretch #1/#2</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">0:18–0:25</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Pipeline validation</strong> (7m)</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">demo &amp; video owner</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">the repo, PR history, branch protection, the freeze tag — then the runner itself: menu, language switch, each member's features, the credits screen</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">0:25–0:30</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Technical architecture</strong> (5m)</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">presenter 2</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">systems/UML diagram, event domains and where UI is decoupled, ScriptableObject data, menu and game flow charts, keyboard <em>and</em> gamepad mappings (justify skipping the gamepad)</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">0:30–0:34</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>AI approach and policy</strong> (4m)</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">tech lead</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">the four roles and what each produced, the team policy, how AI code is reviewed, the code audit before/after, one thing it got wrong</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">0:34–0:42</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Production metrics</strong> (8m)</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">scrum master</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">backlog math against the hour budget, commits and lines of code as of the freeze tag, review turnaround, scrum cadence, S.M.A.R.T. goals for Sprint 2, risk assessment, and the art/audio resources you want the class's help finding</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Scaling.</strong> Intros run about 25 seconds a person, so a nine-person team spends four minutes there. Add that to the total rather than squeezing the demo — a bigger team has more work to show, not less time to show it in.</p>
+<p><strong>The 25 minutes of questions are not a buffer.</strong> Prepare for them: keep an appendix of backup slides (the event map, the board, the audit diffs, the metrics breakdown), decide who fields which kind of question, and make sure every member can speak to their own work. Two people carry the deck; in Q&amp;A the whole team is on.</p>
+<p><strong>Slide rules.</strong> Comprehensive visuals throughout, 16×9, and no dark or visually cluttered backgrounds — your Phase 2 brand palette was chosen for exactly this. Bring a printed copy formatted <strong>four slides per page</strong>, using the printer's 4-up option rather than PowerPoint's handout mode. Hand in your <strong>team member evaluation rubric, printed and filled in, before class</strong>. Upload the materials afterwards.</p>
+<h2 id="the-demo-and-the-video">The demo and the video</h2>
+<p>Owner: <strong>demo &amp; video owner</strong>.</p>
+<ul>
+<li><strong>Record it, then demo live.</strong> Unity Recorder is already a dependency (<code>com.unity.recorder</code> in <code>Packages/manifest.json</code>) — capture a 60–90 second 1080p run from the Boot scene. The recording is the demo that cannot fail in the room; the live build is a bonus you offer when the machine cooperates.</li>
+<li><strong>Script the ninety seconds.</strong> ~15 s of menu including the language switch · ~45 s of play that hits each member's feature in the order the slides introduce them · ~15 s of the event console or event log, because that is what makes the architecture visible to the class · ~15 s of the credits screen, which is your license discipline on screen.</li>
+<li><strong>Build from the freeze tag</strong>, named for the version in Player Settings — the chore, the tag, and the demo then verify each other.</li>
+<li><strong>Bring the video as a local file</strong>, and the deck as PDF as well as PPTX. Post the clip on the project wiki and link it from the deck. Export a GIF too: GIFs play in any deck without codec roulette.</li>
+</ul>
+<h2 id="sample-team-plans">Sample team plans</h2>
+<p>Five rules make these work:</p>
+<ul>
+<li><strong>One name per deliverable.</strong> "The team" is not an owner.</li>
+<li><strong>Two build items per person, from different catalog sections.</strong></li>
+<li><strong>Presenters are not the deck owner</strong> (teams of 6+). Whoever assembles the slides has already internalized them; make a second person able to explain them out loud.</li>
+<li><strong>Everyone rotates.</strong> Presenter, scrum master, and demo owner rotate every timebox — track who has served, so the last timebox isn't four people's first turn at once.</li>
+<li><strong>Anything tagged M or L in the catalog is a spike, not a feature.</strong> Nobody has a week of build time this timebox, so the deliverable is a written one — a one-page teardown, an event map, and an estimated task breakdown Timebox 2 can build from — not a half-finished system.</li>
+</ul>
+<h3 id="five">Five</h3>
+<p>Five people, five hats, one review ring. Everyone owns documents <em>and</em> two build items.</p>
+<table style="border-collapse:collapse;width:100%;margin:1em 0;">
+<thead>
+<tr>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">#</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Hats</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Documents</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Build</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Reviews</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">1</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Scrum master</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">charter, logistics, board, S.M.A.R.T. collection</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>A4</strong> roll mechanic · <strong>A11</strong> checkpoint milestones</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">#5's PRs</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">2</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Deck owner · art director</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">brand palette, art direction, menu + game flow charts</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>I5</strong> main menu + localization · <strong>F4</strong> dash &amp; slide trails</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">#1's</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">3</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Demo &amp; video · integrator</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">repository setup, MVP timeline, freeze and tag</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>I12</strong> credits &amp; licenses screen · Player Settings, namespace, build</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">#2's</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">4</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Presenter · design/PRD owner</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">PRD, pillars, user stories, gameplay loop</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>D5</strong> coin choreography · <strong>E6</strong> per-level records</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">#3's</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">5</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Presenter · tech lead</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">architecture diagram, standards, AI policy and code audit</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>L6</strong> in-game event console · <strong>A9</strong> near-miss detection</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">#4's</td>
+</tr>
+</tbody>
+</table>
+<p><strong>What the demo shows:</strong> a language switch on the menu → a run with the new roll, authored coin arcs, near-miss flashes and a checkpoint fanfare → the event console streaming all of it live → the credits screen. Everyone's work in ninety seconds, and the architecture visible on screen instead of described on a slide.</p>
+<p><strong>Four.</strong> Fold the deck owner into presenter #1; keep two build items each and drop one person's second item to cover the extra documents.</p>
+<p><strong>Three — the penalized case.</strong> The deliverable list does not shrink when the team does, which is exactly what the penalty is about. Pair the hats (scrum master + deck, PRD + presenter, tech lead + demo/video + presenter), keep the required items in Phase 4, and take <strong>one shared vertical slice</strong> rather than six separate tasks — say <strong>A4</strong> roll with its SFX (<strong>J2</strong>) and a HUD hint (<strong>I1</strong>, scoped to one label) — so the demo is one coherent thing instead of six half-features. Everything else goes into the documents.</p>
+<h3 id="six">Six</h3>
+<p>The sixth person buys a dedicated QA &amp; triage hat, and that is real work: someone has to file the upstream issues and own the metrics slide as of the freeze tag.</p>
+<table style="border-collapse:collapse;width:100%;margin:1em 0;">
+<thead>
+<tr>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">#</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Hats</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Documents</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Build</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Reviews</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">1</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Scrum master</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">charter, logistics, board, S.M.A.R.T. collection</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>A4</strong> roll mechanic · <strong>A11</strong> checkpoint milestones</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">#6's PRs</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">2</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Deck owner · art director</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">brand palette, art direction, flow charts</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>F4</strong> dash &amp; slide trails · <strong>F5</strong> screen-space feedback</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">#1's</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">3</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Integrator · demo &amp; video</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">repository setup, freeze and tag, MVP timeline</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>I12</strong> credits &amp; licenses screen · Player Settings, namespace, build, video</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">#2's</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">4</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Presenter · design/PRD owner</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">PRD, pillars, user stories, gameplay loop</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>D5</strong> coin choreography · <strong>E6</strong> per-level records</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">#3's</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">5</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Presenter · tech lead</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">architecture diagram, standards, AI policy and code audit</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>L6</strong> in-game event console · <strong>A9</strong> near-miss detection</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">#4's</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">6</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">QA &amp; triage · art &amp; licensing</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">upstream issues, sprint log and metrics, license register</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>I5</strong> main menu + localization · icon and splash screens</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">#5's</td>
+</tr>
+</tbody>
+</table>
+<p>At six, the deck owner stops presenting. That is the point of the sixth person.</p>
+<h3 id="seven">Seven</h3>
+<p>Seven splits the two hats that were quietly overloaded at six: <code>main</code> gets its own owner, and the art direction separates from the deck.</p>
+<table style="border-collapse:collapse;width:100%;margin:1em 0;">
+<thead>
+<tr>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">#</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Hats</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Documents</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Build</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Reviews</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">1</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Scrum master</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">charter, logistics, board, S.M.A.R.T. collection</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>A4</strong> roll mechanic · <strong>A11</strong> checkpoint milestones</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">#7's PRs</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">2</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Deck owner</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">deck assembly, menu + game flow charts</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>F4</strong> dash &amp; slide trails · <strong>F5</strong> screen-space feedback</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">#1's</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">3</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Demo &amp; video owner</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">demo script, video, wiki post</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>I12</strong> credits &amp; licenses screen · <strong>I4</strong> game-over celebration</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">#2's</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">4</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Integrator</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">repository setup, branch protection, LFS, freeze and tag</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>L1</strong> consolidate <code>AutoEventFlowBase</code> · Player Settings, namespace, build</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">#3's</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">5</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Presenter · design/PRD owner</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">PRD, pillars, user stories, gameplay loop</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>D5</strong> coin choreography · <strong>E6</strong> per-level records</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">#4's</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">6</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Presenter · tech lead</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">architecture diagram, standards, AI policy and code audit</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>L6</strong> in-game event console · <strong>A9</strong> near-miss detection</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">#5's</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">7</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Art director · art &amp; licensing</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">brand palette, art direction, license register, icon and splash</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>I5</strong> main menu + localization · <strong>A5</strong> double jump</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">#6's</td>
+</tr>
+</tbody>
+</table>
+<p>QA &amp; triage rides with the scrum master here, or becomes the eighth person. The second-reviewer rule starts at this size: anything touching an event enum, an auto-flow, or a bridge gets the tech lead as a second approver.</p>
+<h3 id="nine-or-more">Nine or more</h3>
+<p>Above eight, the failure mode is not idleness — it is nine people editing the same three files. Split into <strong>pods that own disjoint folders and scenes</strong>; the event system is exactly what makes that possible, since pods publish and subscribe rather than calling each other.</p>
+<table style="border-collapse:collapse;width:100%;margin:1em 0;">
+<thead>
+<tr>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Seat</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Count</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Who</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Timebox 1 output</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Production</strong></td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">3</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">scrum master · producer · deck owner (with the art director hat)</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">board, deliverable checklist, charter, brand, deck, both flow charts, and their own build items</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Runner pod</strong> — <code>Assets/TempleRun/**</code></td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">3–4</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">pod lead (first reviewer) + 2–3</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">six to eight S tasks from A/B/D/E, plus the spine spike</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Tech pod</strong> — <code>Assets/GameFlow/**</code>, <code>Assets/_Common/**</code>, UI</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">3–4</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">pod lead (also the integrator) + 2–3, one of them the demo &amp; video owner</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">six to eight S tasks from I/F/J/L, including the required <strong>I5</strong> and <strong>I12</strong></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>The spine spike is the real Timebox 1 output at this size.</strong> Nine people need a direction before they need features. Pick one of <strong>A1</strong> (real character controller), section <strong>M</strong> (the explorer pivot), or <strong>N1</strong> (split-screen), and deliver it as a written design plus event map plus task breakdown. That document is what the other eight build against in Timebox 2 — a far better slide than three more S tasks.</li>
+<li><strong>Presenters: one per pod</strong>, so the deck is defended by the people who built the thing. The deck owner never presents at this size.</li>
+<li><strong>Reviews: two approvals</strong> — your pod lead, plus one person from the other pod. The cross-pod reviewer is not a formality; they are the one who notices when your pod reaches across the domain boundary instead of publishing an event.</li>
+<li><strong>Producer, not co-scrum-master.</strong> The producer owns the deliverable checklist and the inter-pod dependencies; the scrum master owns the board and the standup. If those hats blur, both jobs stop happening.</li>
+</ul>
+<h2 id="easy-to-forget">Easy to forget</h2>
+<ul>
+<li>Everyone on the one agreed Unity version, verified on their own machine.</li>
+<li>LFS configured <em>before</em> the first binary asset lands.</li>
+<li>Company, Product, Version <code>0.1.0</code>, and the root namespace — all four changed.</li>
+<li>The license register and the credits screen updated the same day as the import, not at the end of the semester — and the repo made private if any license requires it.</li>
+<li>The freeze at 48 hours, and <code>v0.1-greenlight</code> tagged and pushed.</li>
+<li>The printed 4-up deck, on paper, in the room.</li>
+<li>The team member evaluation rubric, printed and filled in, handed in <strong>before</strong> class.</li>
+<li>A wiki page for the timebox result, with the video linked.</li>
+</ul>

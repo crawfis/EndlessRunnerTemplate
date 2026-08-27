@@ -1,0 +1,48 @@
+<!-- Canvas page title: Timebox 1: AI: coach, architect, auditor
+     Generated from docs/TIMEBOX_1_REQUIREMENTS.md by docs/canvas/build_timebox1.py --
+     edit the Markdown, never this file. Paste into a Canvas page via the Rich
+     Content Editor's HTML view (the </> button). Canvas strips <script>/<style>,
+     so all styling here is inline.
+     Module item 6 of 15. -->
+<p>Owner: <strong>tech lead</strong>. This gets its own block in the presentation.</p>
+<p>The point is not "we used AI." It is that you gave it a <strong>role</strong> and kept the judgment. Each phase carries a prompt for the role it needs:</p>
+<table style="border-collapse:collapse;width:100%;margin:1em 0;">
+<thead>
+<tr>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Role</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Phase</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">What it produces</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Agile Coach</strong></td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">1</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">interviews the team, then synthesizes the Team Charter</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Creative Director</strong></td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">2</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">the studio brand palette and the game's art direction</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Lead Architect</strong></td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">3</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">naming and folder standards, the systems architecture, a UML description</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Technical Auditor</strong></td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">4</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">a critique of your code for coupling, readability, and flexibility</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Your policy</strong> — one page, in the repo or on the wiki — has to answer:</p>
+<ul>
+<li><strong>Per member.</strong> Which assistants each of you uses, or chooses not to. Opting out is a legitimate position; state it and say why. Note what your hardware and licenses allow.</li>
+<li><strong>Per team.</strong> Where AI is welcome (boilerplate, tests, docs, issue triage, review, brainstorming) and where it is not. Decide it explicitly rather than discovering the disagreement inside a pull request.</li>
+<li><strong>How AI-written code is labeled and reviewed.</strong> The honest rule: reviewed exactly like hand-written code, and the author must be able to explain every line of it. If they can't, it doesn't merge.</li>
+<li><strong>Prompt frameworks.</strong> If you use BMad or another structured method for the PRD and story breakdown, say which, and how it went.</li>
+<li><strong>The retro.</strong> Where did it save you an hour? Where was it confidently wrong, and what did you change afterwards? That is the slide the class will actually learn from.</li>
+</ul>
+<p>A worked example ships in this repository: <a href="https://github.com/crawfis/EndlessRunnerTemplate/blob/main/CLAUDE.md"><code>CLAUDE.md</code></a> is an AI contract — architecture rules, folder map, a required workflow — alongside skills (<code>/list-events</code>, <code>/add-event</code>, <code>/audit-events</code>, <code>/generate-segments</code>) that encode the project's conventions so an assistant follows them instead of inventing its own. Read it as a model for the contract you will write for <em>your</em> game, whichever assistant you use.</p>
