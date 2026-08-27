@@ -1,7 +1,7 @@
 # Student Task Catalog: From Plain Runner to Polished Product
 
 The template is deliberately a *plain* runner — capsule player, primitive obstacles, flat
-track. That's the point: everything below is a well-scoped way to make it yours. **111
+track. That's the point: everything below is a well-scoped way to make it yours. **123
 tasks**, grouped by sub-specialty so a team can divide work along interests (gameplay code,
 tech art, audio, UI, systems design…). Effort tags are rough: **S** = a few days, **M** = a
 week or two, **L** = a multi-week centerpiece. Tasks are referenced as section-letter +
@@ -76,6 +76,12 @@ presentation running order. The tasks below are what those plans point at — tw
     durations, camera FOV/follow-lag across difficulty levels; document before/after and
     playtest results.
 
+14. **Cinemachine camera rig (M).** Cinemachine 3.1.7 ships as a dependency and is used
+    *nowhere* — the camera is a plain child of the player. Build a real rig: separate cameras
+    for running, jumping, dashing, turning and death, blended by state, with Impulse for
+    landings and hits. Cinemachine 3.0 broke most of the 2.x API and most tutorials with it,
+    so budget time for the samples. Pairs with the speed pass (F2) and the feel tuning (A13).
+
 ## B. Track Generation & World Structure
 
 1. **Straight-tiles-only mode (M).** A subway-style level: no turns at all, lanes only —
@@ -122,6 +128,18 @@ presentation running order. The tasks below are what those plans point at — tw
 7. **Companion pet (M).** Follows the player, scoops near-lane coins at intervals — a
    lighter cousin of the coin magnet power-up.
 
+8. **AI rival racer (M/L).** `AIController` already exists as a deterministic, perfect
+   turner — it publishes a turn request at a fixed distance from every wall. Make it a
+   *competitor*: give it a reaction time, let it misjudge, rubber-band its speed to how the
+   player is doing, and let it genuinely win or lose. A rival that never errs is a metronome,
+   not an opponent, so the error model *is* the design work. Distinct from the chaser (C5),
+   which pursues rather than races.
+9. **World-space character UI (M).** Names, health or stamina bars, and status icons floating
+   above characters — in UI Toolkit, which is the interesting part, because world-space panels
+   are the awkward corner of the framework. You need this the moment there is a rival (C8) or
+   a second player (N1). Read the PanelRenderer notes in [KNOWN_ISSUES.md](KNOWN_ISSUES.md)
+   first.
+
 ## D. Power-Ups & Collectables
 
 1. **New `IPowerUpEffect` strategies (S/M each).** Power-up behavior is a strategy
@@ -139,6 +157,11 @@ presentation running order. The tasks below are what those plans point at — tw
 6. **Premium currency (S/M).** Rare gems alongside coins; separate wallet, separate sinks.
    Foundation for the economy tasks (E5).
 
+7. **Inventory & consumables (M).** Power-ups apply the instant you touch them. Add a held
+   slot instead: pick it up, carry it, spend it when *you* choose. One slot first, then N,
+   then decide whether a second pickup swaps or stacks — that decision is the design. Builds
+   on `IPowerUpEffect`, so the effects themselves need no changes.
+
 ## E. Progression, Scores & Economy
 
 1. **Mission system (L).** Three concurrent objectives ("slide 20 times", "collect 500
@@ -151,8 +174,9 @@ presentation running order. The tasks below are what those plans point at — tw
 4. **Daily challenge & streaks (M).** A seeded daily level (same track for everyone — the
    RNG is already injectable) plus streak rewards.
 5. **Shop & monetization design (L).** Spend coins/gems on skins, upgrades, consumables;
-   stub IAP behind an interface (no real store needed). A serious design exercise in
-   pricing a virtual economy — document your sink/faucet analysis.
+   stub IAP behind an interface (no real store needed), and stub a rewarded-ad placement
+   behind the same kind of interface. A serious design exercise in pricing a virtual economy —
+   document your sink/faucet analysis, and argue where an ad belongs, or whether it does.
 6. **Per-level stats & records (S).** Best distance, coins, longest combo per level;
    surface them in the level selector.
 7. **Scoring rebalance (S/M).** Today score ≈ distance. Design a score model (distance +
@@ -167,6 +191,16 @@ presentation running order. The tasks below are what those plans point at — tw
 10. **World-map level select (M/L).** Replace the level list with a map screen (in UI
     Toolkit — see section I): a winding path of level nodes showing stars and locks, with
     an animated reveal when a new level unlocks. The map *is* the progression display.
+
+11. **Arcade initials & local high scores (S).** A three-letter entry screen and a top-ten
+    table per level, persisted. Deliberately old-fashioned, genuinely satisfying, and a
+    complete UI Toolkit exercise in an afternoon: focus handling, keyboard and gamepad
+    navigation, and a list that animates a new entry into place.
+12. **Game modes (M).** Time attack, one-life hardcore, a finite-distance level with an actual
+    end, a daily seeded run. The point is *not* four forks of the game: define a mode as a
+    rule-set — win condition, fail condition, starting state, which systems switch off — and
+    make the existing loop read it. If adding a fifth mode means editing five files, the
+    abstraction is wrong.
 
 ## F. VFX
 
@@ -195,6 +229,11 @@ presentation running order. The tasks below are what those plans point at — tw
    wrecks) spawned per segment and pooled like everything else.
 5. **Decals & wear (S).** Track-surface variety — cracks, arrows before turns, skid marks.
 
+6. **Seeded run variation (S/M).** Randomize materials, skybox, lighting and prop sets per
+   run from the injectable RNG, so two runs of the same level look different — and identical
+   again when replayed from the same seed. That seed discipline is what makes the feature
+   useful for bug reports, daily challenges (E4) and ghost racing (L4).
+
 ## H. Lighting & Rendering
 
 1. **Time-of-day over a run (M).** Day → dusk → night as distance grows: gradient ambient,
@@ -222,7 +261,9 @@ expects — is part of the exercise. Read the PanelRenderer rules in
 3. **First-run tutorial (M).** Contextual teach moments ("swipe up to jump" as the first
    obstacle nears) driven by game events; skippable.
 4. **Game-over celebration (S/M).** New-best fanfare, progress bar to the next unlock —
-   make losing feel like progress.
+   make losing feel like progress. Include an instant retry that restarts the run without
+   reloading the scene set: the gap between dying and trying again is the single biggest
+   lever on "one more go."
 5. **Localization (M).** String tables for 2+ languages via Unity Localization — start
    from the [ConsumerUI_RxGames](https://github.com/crawfis/ConsumerUI_RxGames) sample,
    which also shows Google Sheets → translation tables — and audit every hard-coded
@@ -252,6 +293,12 @@ expects — is part of the exercise. Read the PanelRenderer rules in
     license URLs in, and update it the day you import something — every team writes this in
     a panic at the end of the semester; write it in week one instead.
 
+13. **In-game feedback & bug report (S/M).** A key opens a small form, captures a screenshot
+    and the last N events from `EventHistory`, and writes a report — or opens a pre-filled
+    GitHub issue. There is already a `ScreenCaptureEditor` to build on. The team that ships
+    this gets several times the playtest data, because "press F2 when something feels wrong"
+    is a much lower bar than "remember it and tell us afterwards."
+
 ## J. Audio
 
 1. **Adaptive music (M/L).** Layered stems that build with speed/combo intensity; duck on
@@ -274,7 +321,13 @@ expects — is part of the exercise. Read the PanelRenderer rules in
 4. **WebGL build & publish (M).** Ship to itch.io: build size diet, loading screen,
    browser input quirks. Publishing is its own skill; do it early, not last.
 
-## L. Architecture & Code (major changes)
+5. **VR / XR (L).** Bring the runner to a headset. Be warned that this is a comfort problem
+   before it is a rendering one: constant forward motion the player does not control is the
+   classic way to make someone sick, so the real work is vignetting, a grounded reference
+   frame, snap turns, and rethinking a game built around a camera nobody steers. Start with a
+   written spike.
+
+## L. Architecture, Code & Tooling
 
 1. **Consolidate `AutoEventFlowBase` (S/M).** The documented starter refactor: four
    dispatch classes re-implement the same `Enum.Parse` logic; unify them in the shared
@@ -295,6 +348,20 @@ expects — is part of the exercise. Read the PanelRenderer rules in
 7. **Difficulty director (L).** Replace static difficulty with a director that watches
    player performance (deaths, near-misses, combo health) and adjusts spawn intensity —
    rubber-banding done honestly. Combines B3, B10, and E7 thinking.
+
+8. **CI/CD (M/L).** GitHub Actions that builds the project on every pull request, publishes a
+   WebGL artifact you can click, and deploys to itch.io on a tag. This is the build check
+   every team wants and few get. Budget for the licensing step — Unity in CI needs an
+   activation secret, and that is the part that eats the day, not the YAML.
+9. **Editor authoring tools (M).** Make the track data pleasant to author: a custom inspector
+   and scene-view handles for `TrackSegmentSO` spawn slots, a validation pass that flags dead
+   ends and empty level pools before Play Mode does, and a window that generates segment or
+   prefab variants in bulk. `TrackDataImporter` is the only editor tooling here today. Tools
+   are how one designer keeps six programmers busy.
+10. **Debug console & prototyping hotkeys (S/M).** A runtime overlay to skip to segment N,
+    spawn any power-up, toggle invulnerability, force a turn, swap the level or the selection
+    algorithm, and reload the scene set. Every hour of playtesting spent replaying the first
+    200 m is an hour this gives back. Sits naturally beside the event console (L6).
 
 ## M. Genre Pivot: Runner → Explorer
 
