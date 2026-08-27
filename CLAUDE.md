@@ -104,10 +104,21 @@ When adding any new feature or behavior, you MUST follow this workflow:
 
 Unity 6.5 endless runner demonstrating **event-driven architecture**.
 
-**Three Event Domains:**
-- `GameFlowEvents` - Application lifecycle (loading screens, menus, level selection, game sessions, pause/resume, config/difficulty, quit)
-- `TempleRunEvents` - Gameplay-specific (player lifecycle, countdown, turns, slides, jumps, dashes, lane changes, collisions, coins, power-ups, track/spline generation, teleportation)
-- `UserInitiatedEvents` - Raw input events (turn requests, lane changes, jump, slide, dash, pause toggle, quit)
+**Domain Registry** — the authoritative list of event domains:
+
+| Domain | Enum (bus alias) | Purpose | Flow / bridge hosting (lifetime) | Bridges |
+|--------|------------------|---------|----------------------------------|---------|
+| **GameFlow** | `GameFlowEvents` (`GameFlowBus`) | App/session lifecycle: loading, menus, level select, pause, config/difficulty, quit | `GameFlowAutoEventFlow` in `0_BootStrap_Game_Only` (whole app) | ↔ TempleRun via `TempleRunGameFlowBridge` (hosted in `Game_Boot_2_Play`) |
+| **TempleRun** | `TempleRunEvents` (`TempleRunBus`) | Gameplay: player lifecycle, countdown, movement, collisions, coins/power-ups, track/spline generation, teleportation | `TempleRunAutoEventFlow` in `TempleRunGameplay` (one run) | ↔ GameFlow via `TempleRunGameFlowBridge`; ← UserInitiated via `Input2TempleRunAutoEventBridge` |
+| **UserInitiated** | `UserInitiatedEvents` (`UserInputBus`) | Raw input requests: turns, lanes, jump, slide, dash, pause toggle, quit | none (input never auto-chains) | → TempleRun via `Input2TempleRunAutoEventBridge` (hosted in `TempleRunGameplay`) |
+
+Two invariants keep this registry trustworthy:
+- **Placement:** domain enums live only in `Assets/*/Scripts/Events/` folders, named
+  `*Events.cs` — the full inventory is one glob (`Assets/*/Scripts/Events/*Events.cs`),
+  equivalently every enum marked `[EventEnum]`. An `[EventEnum]` enum anywhere else is an
+  audit finding (`/audit-events`).
+- **Registration:** `/add-event-domain` adds a row here and to the mirror table at the top
+  of [docs/EVENTS.md](docs/EVENTS.md) as part of its checklist.
 
 **One static facade per domain.** `EventsFor<T>` is static and lazily initialized, so there
 is no singleton, no scene GameObject and no execution-order attribute to get right. Alias it

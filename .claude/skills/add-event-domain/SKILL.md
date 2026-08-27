@@ -118,15 +118,15 @@ unsubscription is what makes the shorter lifetimes safe.
 
 This is the step people forget. Update every place that enumerates domains:
 
-- `CLAUDE.md` — Three Event Domains list, Domain Isolation table, Namespaces block,
-  Key Files table, folder tree
+- `CLAUDE.md` — the Domain Registry table (Architecture Overview), Domain Isolation table,
+  Namespaces block, Key Files table, folder tree
 - Skills — `list-events` (Step 1/2 tables), `add-event` (Step 1 table), `add-auto-chain`
   (auto-flow files table), `add-bridge-mapping` (Available Bridges), `audit-events`
   (Check 6 + Files to Scan)
 - Pointer files — `GEMINI.md` and `.github/copilot-instructions.md` (the domain-isolation
   bullet; keep the two mirrored)
-- Docs — `docs/ARCHITECTURE.md`; regenerate `docs/EVENTS.md` via `/list-events`; the
-  event-domain table in `README.md`
+- Docs — `docs/ARCHITECTURE.md`; the Domain Registry mirror at the top of `docs/EVENTS.md`
+  (then regenerate the catalog via `/list-events`); the event-domain table in `README.md`
 
 ### Step 8: Verify
 

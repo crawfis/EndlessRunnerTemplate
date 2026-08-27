@@ -126,6 +126,25 @@ DOMAIN ISOLATION VIOLATION:
   Fix: Add bridge mapping in [BridgeFile] and subscribe to a local domain event instead
 ```
 
+### Check 7: Domain Registry Drift
+
+The curated domain list lives in two mirrored tables: `CLAUDE.md` (Architecture Overview,
+"Domain Registry") and the top of `docs/EVENTS.md`.
+
+1. Grep `\[EventEnum\]` across `Assets/**/*.cs`. Every hit must be in a file matching the
+   placement convention `Assets/*/Scripts/Events/*Events.cs` — an event enum anywhere else
+   is a violation.
+2. Compare the enums found against both registry tables. Flag any enum missing from a
+   table, any table row with no matching enum, and any disagreement between the two tables.
+
+**Report format:**
+```
+REGISTRY DRIFT:
+  [EnumName] at [File] is not listed in [CLAUDE.md | docs/EVENTS.md] registry
+  (or) [EnumName] declared outside Assets/*/Scripts/Events/ at [File]
+  (or) Registry row [Domain] has no matching [EventEnum] enum
+```
+
 ## Output Summary
 
 At the end, provide a summary:
@@ -137,6 +156,7 @@ Event System Audit Results:
   Circular chains: [count]
   Publish/subscribe mismatches: [count]
   Domain isolation violations: [count]
+  Registry drift: [count]
 
   Total issues: [count]
   Severity: [CLEAN / WARNINGS / CRITICAL]

@@ -4,9 +4,18 @@ A checked-in reference of every event in the template, its numeric value, and ho
 flow between domains. This is a snapshot for browsing; the source of truth is the enum files,
 and the `/list-events` skill regenerates this on demand.
 
-- `GameFlowEvents` → `Assets/GameFlow/Scripts/Events/GameFlowEvents.cs`
-- `TempleRunEvents` → `Assets/TempleRun/Scripts/Events/TempleRunEvents.cs`
-- `UserInitiatedEvents` → `Assets/TempleRun/Scripts/Events/UserInitiatedEvents.cs`
+**Domain registry** (mirrored from CLAUDE.md's Architecture Overview — update both together):
+
+| Domain | Enum (bus alias) | Purpose | Flow / bridge hosting (lifetime) | Bridges |
+|--------|------------------|---------|----------------------------------|---------|
+| **GameFlow** | `GameFlowEvents` (`GameFlowBus`) | App/session lifecycle: loading, menus, level select, pause, config/difficulty, quit | `GameFlowAutoEventFlow` in `0_BootStrap_Game_Only` (whole app) | ↔ TempleRun via `TempleRunGameFlowBridge` (hosted in `Game_Boot_2_Play`) |
+| **TempleRun** | `TempleRunEvents` (`TempleRunBus`) | Gameplay: player lifecycle, countdown, movement, collisions, coins/power-ups, track/spline generation, teleportation | `TempleRunAutoEventFlow` in `TempleRunGameplay` (one run) | ↔ GameFlow via `TempleRunGameFlowBridge`; ← UserInitiated via `Input2TempleRunAutoEventBridge` |
+| **UserInitiated** | `UserInitiatedEvents` (`UserInputBus`) | Raw input requests: turns, lanes, jump, slide, dash, pause toggle, quit | none (input never auto-chains) | → TempleRun via `Input2TempleRunAutoEventBridge` (hosted in `TempleRunGameplay`) |
+
+Enum files: `Assets/GameFlow/Scripts/Events/GameFlowEvents.cs`;
+`Assets/TempleRun/Scripts/Events/TempleRunEvents.cs` and `UserInitiatedEvents.cs`.
+The placement convention is `Assets/*/Scripts/Events/*Events.cs` — every domain enum
+matches that glob and carries `[EventEnum]`.
 
 Naming convention: `*Requested` (a request) → `*ing`/`*Starting` (in progress) →
 `*ed`/`*Started` (done); `*Failed` / `*Cancelled` for the off-nominal paths.
