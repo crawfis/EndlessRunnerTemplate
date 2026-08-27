@@ -1,8 +1,12 @@
 # Timebox 3 and Beyond — The Production Rhythm
 
-*CSE 5912 Capstone · Every timebox from here*
+> CSE 5912 Capstone. The complete Timebox 3 assignment, assembled from the course
+> pages on 2026-08-27. Hand this file to your AI assistant as context before asking it to
+> help you plan, estimate, or draft anything the assignment asks for.
 
-## Overview: the rhythm
+## Overview and the Rhythm
+
+*CSE 5912 Capstone · Every timebox from here*
 
 This document covers Timebox 3 and every timebox after it. **The rhythm does not change; only
 the goal does.** Each timebox: pick one sentence's worth of goal, build it, put it in front of
@@ -10,22 +14,22 @@ players, ship a build someone else can run, and show what changed.
 
 Three things are different from Timebox 2:
 
-| | Timebox 2 | Timebox 3 onward |
-|---|---|---|
+|  | Timebox 2 | Timebox 3 onward |
+|----|----|----|
 | **Design** | generate the whole backlog from nothing | re-rank the backlog you have, one timebox ahead |
 | **Build** | about half your hours | about two thirds |
 | **New work** | — | capture, before/after, a video diary, and light marketing |
 
 That last row is the addition, and it is small: a couple of hours per timebox, owned by one
-person. It exists because **the record of how your game changed is worth as much as the
-change itself** — for your final presentation, your postmortem, and anyone you ever want to
-show this to.
+person. It exists because **the record of how your game changed is worth as much as the change
+itself** — for your final presentation, your postmortem, and anyone you ever want to show this
+to.
 
 Everything else carries forward unchanged from Timebox 2: the definition of done, the review
 ring, the 48-hour freeze, the estimates-versus-actuals discipline, the agent contract, and the
 retro that produces three actions with owners.
 
-## The effort budget
+## The Effort Budget
 
 Unchanged: **10–12 hours per person per week.** The split moves toward building.
 
@@ -35,21 +39,21 @@ build hours          = total × 0.7
 plan to              = build hours × 0.7      <-- the number your timebox may hold
 ```
 
-| Timebox length | Person-hours | Build hours | You may plan |
-|---|---|---|---|
-| **Two weeks** | ~132 | ~92 | **~65 hours of estimated work** |
-| **Three weeks** | ~198 | ~139 | **~95 hours of estimated work** |
+| Timebox length  | Person-hours | Build hours | You may plan                    |
+|-----------------|--------------|-------------|---------------------------------|
+| **Two weeks**   | ~132         | ~92         | **~65 hours of estimated work** |
+| **Three weeks** | ~198         | ~139        | **~95 hours of estimated work** |
 
-Six-person team; run the same three lines for yours. The remaining 30% is still not slack —
-it is the merge that fought back and the estimate that was wrong.
+Six-person team; run the same three lines for yours. The remaining 30% is still not slack — it
+is the merge that fought back and the estimate that was wrong.
 
 Capture, the devlog, and marketing come out of the non-build hours and should cost **about two
 hours per timebox, for one person**. If they cost more, cut them, not the sprint.
 
-## What's due, every timebox
+## What is Due Every Timebox
 
 | Deliverable | Hat |
-|---|---|
+|----|----|
 | **Sprint goal** — one sentence, testable, set before tasks are assigned | scrum master + design owner |
 | **Re-ranked backlog** — MVP for this timebox, with estimates on those stories only | design owner |
 | **The build** — tagged, and runnable from a fresh clone on someone else's machine | integrator |
@@ -64,25 +68,25 @@ hours per timebox, for one person**. If they cost more, cut them, not the sprint
 | **Retro** — three actions with owners and dates; last timebox's actions reviewed | scrum master |
 | **Presentation, printed 4-up handout, peer evaluations** | deck owner + presenters |
 
-## Design, now that you have a backlog
+## Design Now That You Have a Backlog
 
 Design does not stop; it shrinks and changes shape.
 
-- **Design one timebox ahead, not five.** Enough detail for what you are about to build, and
-  a ranked list behind it.
+- **Design one timebox ahead, not five.** Enough detail for what you are about to build, and a
+  ranked list behind it.
 - **Planning is re-ranking, not re-generating.** The backlog already exists. What changes is
   the order, and it changes because playtests told you something.
 - **Feed the backlog from playtests.** Every session produces stories. Add them; they are the
   best-evidenced items you have.
-- **Retire stories the game outgrew.** Move them to "not this game" with a one-line reason.
-  A backlog nobody prunes is a graveyard nobody reads.
-- **Keep the systems map current.** When the code diverges from the map, update the map —
-  then say where it diverged and why in the presentation. That is a genuinely interesting
-  slide and it is the difference between an architecture and a drawing.
-- **Spikes for real unknowns only.** If nobody on the team has done it, size a spike. If
-  three people have opinions but no one has tried it, that is also a spike.
+- **Retire stories the game outgrew.** Move them to "not this game" with a one-line reason. A
+  backlog nobody prunes is a graveyard nobody reads.
+- **Keep the systems map current.** When the code diverges from the map, update the map — then
+  say where it diverged and why in the presentation. That is a genuinely interesting slide and
+  it is the difference between an architecture and a drawing.
+- **Spikes for real unknowns only.** If nobody on the team has done it, size a spike. If three
+  people have opinions but no one has tried it, that is also a spike.
 
-## Capture everything
+## Capture Everything
 
 Screenshots and clips are the cheapest thing you will ever make and the only thing you cannot
 make later. **You cannot re-shoot the greybox once the art lands.**
@@ -95,8 +99,8 @@ make later. **You cannot re-shoot the greybox once the art lands.**
   before/after; it is two pictures.
 - **Name files predictably:** `2026-03-14_v0.4_arena-first-pass_01.png` — date, tag, subject,
   index.
-- **Store them outside the game repository** unless your LFS budget is healthy — a shared
-  drive or a small separate repo. Never delete anything.
+- **Store them outside the game repository** unless your LFS budget is healthy — a shared drive
+  or a small separate repo. Never delete anything.
 - **Capture the ugly stages and the failures.** Greybox, broken physics, the bug where the
   player launched into orbit. These are the most compelling material in a final presentation
   and the funniest thirty seconds of any devlog.
@@ -106,7 +110,7 @@ previous tag and at this one, side by side, as the second slide of your presenta
 comparisons in a running reel — one pair per timebox — and by the end of the course you have
 the entire semester in ninety seconds that cost you nothing extra.
 
-## The video diary
+## The Video Diary
 
 **60 to 120 seconds, once per timebox, owned by one rotating member.** Cut from captures you
 already have, so the real cost is the edit.
@@ -115,15 +119,16 @@ A structure that works: what we set out to do · what we shipped · what broke �
 · what is next. Voiceover or captions both fine — readable beats polished, and honest beats
 either. The timebox where something went badly makes the best episode.
 
-Post it where it can be linked — a devlog entry, an unlisted video, the project wiki — and
-link it from the deck. **Every episode gets played twice**: as the teaser that opens the
+Post it where it can be linked — a devlog entry, an unlisted video, the project wiki — and link
+it from the deck. **Every episode gets played twice**: as the teaser that opens the
 presentation it was made for, and again as the recap at the top of the next one. Make something
-you would be happy to show twice. At the end of the course these episodes are your postmortem, already written.
+you would be happy to show twice. At the end of the course these episodes are your postmortem,
+already written.
 
 ## Marketing, lightly
 
-A couple of hours a timebox, not a workstream. The point is to practice describing your game
-to someone who does not already know it.
+A couple of hours a timebox, not a workstream. The point is to practice describing your game to
+someone who does not already know it.
 
 - **A living pitch:** one paragraph, rewritten every timebox. If it got *harder* to write this
   time, your game is drifting — that is useful information, cheaply bought.
@@ -137,10 +142,10 @@ to someone who does not already know it.
 - **Key art can be a composed greybox shot.** A good camera angle and one accent color is
   enough to have something to show while the art is still cubes.
 
-## Graduating from greybox
+## Graduating from Greybox
 
-Art replaces greybox **when the metrics are locked and the loop is fun**, not when someone
-gets bored of cubes.
+Art replaces greybox **when the metrics are locked and the loop is fun**, not when someone gets
+bored of cubes.
 
 - **Art respects the greybox numbers.** Jump height, reach, gap width, character scale — the
   greybox decided those, and the model conforms to them.
@@ -151,7 +156,7 @@ gets bored of cubes.
 - **Keep a greybox scene alive** for testing and for the before/after comparisons.
 - **Never art something you might cut.** Check the ranking first.
 
-## Running the timebox
+## Running the Timebox
 
 Compressed from Timebox 2; the mechanics are unchanged.
 
@@ -165,7 +170,7 @@ Compressed from Timebox 2; the mechanics are unchanged.
 - **The retro reviews last timebox's three actions before writing three new ones.** Actions
   nobody revisits are theatre.
 
-## The presentation
+## The Presentation
 
 **35–40 minutes plus about 25 minutes of questions.** New presenters each time.
 
@@ -179,9 +184,9 @@ presenters rotate every timebox.
 The running order is a suggestion; the right column is what should be covered.
 
 | Time | Block | Who | Must cover |
-|---|---|---|---|
+|----|----|----|----|
 | Time | Block | Who | Must cover |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | 0:00–0:04 | **Where we were, where we are** (4m) | presenter 1 | last timebox's one sentence and whether you hit it; **play last timebox's episode** as the recap, then **play the new episode as this talk's teaser**; the before/after pair |
 | 0:04–0:16 | **What we implemented** (12m) | both | the technical block — see below. This is the bulk of the talk |
 | 0:16–0:25 | **Demo** (9m) | presenter 2 | the loop as it stands now, played end to end, driven by a presenter |
@@ -220,11 +225,11 @@ discovers which parts of its own codebase only one person understands.
 Show the numbers, for the **team and for each person**, as of the freeze tag:
 
 | Member | Commits | PRs opened | PRs reviewed | Lines +/− | Issues closed |
-|---|---|---|---|---|---|
+|--------|---------|------------|--------------|-----------|---------------|
 
 GitHub gives you most of it — Insights → Contributors for commits and lines, the pull request
-list filtered by author and by reviewer, the board for closed issues. `git shortlog -sn --no-merges`
-takes two seconds for the commit column.
+list filtered by author and by reviewer, the board for closed issues.
+`git shortlog -sn --no-merges` takes two seconds for the commit column.
 
 Then say what the table **does not** capture, because you will be asked. A day of deleting dead
 code shows as negative lines. The person who reviewed twenty pull requests has a modest commit
@@ -238,7 +243,7 @@ front of the class.
 **Demo the loop, not the features.** One continuous session a stranger could follow beats six
 disconnected clips — every single timebox.
 
-## Easy to forget
+## Easy to Forget
 
 - Capture *before* you replace anything. The greybox does not come back.
 - Same camera, same resolution, same lighting — or the before/after says nothing.

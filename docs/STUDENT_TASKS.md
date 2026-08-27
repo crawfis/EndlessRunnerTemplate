@@ -53,8 +53,9 @@ presentation running order. The tasks below are what those plans point at — tw
 3. **Trigger-based obstacle hits with a stumble state (M).** Distinct reactions: glancing
    hit → stumble (slow down, grace period, drop coins); head-on → fail. Subway Surfers'
    stumble is a big part of its fairness feel.
-4. **Roll mechanic (S).** The worked example in [ADDING_A_MECHANIC.md](ADDING_A_MECHANIC.md)
-   — a quick ground roll sibling to Jump/Slide/Dash. A good first task for any team member.
+4. **Dodge roll (S).** The worked example in [ADDING_A_MECHANIC.md](ADDING_A_MECHANIC.md) —
+   a quick ground roll under or past a hazard, sibling to Jump/Slide/Dash. A good first task
+   for any team member.
 5. **Double jump / air control (S).** Second jump mid-air; small lane-change authority while
    airborne. Requires reasoning about the jump controller's state machine.
 6. **Wall-run or grind rails (L).** Rails or wall segments the player can commit to as an

@@ -83,7 +83,7 @@
 <p>Professional release cycles end with a freeze, so yours does too.</p>
 <ul>
 <li><strong>Code freeze: no new features in the 48 hours before class.</strong> That window is for merging, building, fixing, rehearsing, and printing.</li>
-<li><strong>Tag the release:</strong> <code>git tag -a v0.1-greenlight -m "Timebox 1 greenlight"</code> and push the tag. That tag is "the version we demoed", and you can check it out again at any point later in the project.</li>
+<li><strong>Tag the release:</strong> <code>git tag -a v0.1-greenlight -m "Timebox 1 greenlight"</code> and push the tag. That tag is "the version we demoed" and you can check it out later in the semester.</li>
 <li><strong>The audit reads from before the freeze.</strong> Every metric you present — commits, closed tasks, documents, review turnaround — is pulled as of the tag. Work that lands after it does not count toward this timebox, which is exactly the incentive a freeze is meant to create.</li>
 </ul>
 <h2 id="the-hats">The hats</h2>
@@ -119,7 +119,7 @@
 </tr>
 <tr>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Integrator</strong></td>
-<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">the repository: setup, branch protection, LFS, the freeze and the tag, and the fresh-clone check that it still plays</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">the repository: setup, branch protection, large-file storage, the freeze and the tag, and the fresh-clone check that it still plays</td>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">rarely</td>
 </tr>
 <tr>
@@ -129,7 +129,7 @@
 </tr>
 <tr>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Design / PRD owner</strong></td>
-<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">the vision — hook, pillars, core mechanic, target audience, MVP and stretch tiers — and the user stories behind it</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">the product requirements document (PRD): hook, pillars, core mechanic, target audience, the minimum viable product (MVP) and the stretch tiers — and the user stories behind it</td>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">rarely</td>
 </tr>
 <tr>
@@ -166,7 +166,7 @@
 </thead>
 <tbody>
 <tr>
-<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Team charter</strong> — core hours, conflict resolution, skill gaps, communication SLAs, broken-build rule</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Team charter</strong> — core hours, conflict resolution, skill gaps, communication agreements, broken-build rule</td>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">scrum master</td>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">1</td>
 </tr>
@@ -181,7 +181,7 @@
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">1</td>
 </tr>
 <tr>
-<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Team repository (disposable — Timebox 2 starts a fresh one), collaborators, branch protection, LFS, agreed Unity version, visibility</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Team repository (disposable — Timebox 2 starts a fresh one), collaborators, branch protection, large-file storage, agreed Unity version, visibility</td>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">integrator</td>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">1</td>
 </tr>
@@ -337,7 +337,7 @@
 <p>A worked example ships in this repository: <a href="https://github.com/crawfis/EndlessRunnerTemplate/blob/main/CLAUDE.md"><code>CLAUDE.md</code></a> is an AI contract — architecture rules, folder map, a required workflow — alongside skills (<code>/list-events</code>, <code>/add-event</code>, <code>/audit-events</code>, <code>/generate-segments</code>) that encode the project's conventions so an assistant follows them instead of inventing its own. Read it as a model for the contract you will write for <em>your</em> game, whichever assistant you use.</p>
 <h2 id="phase-1--logistics-and-the-team-charter">Phase 1 — Logistics and the team charter</h2>
 <p><strong>Goal: define HOW you work before you define WHAT you work on.</strong></p>
-<p>Do not just list names. You need a <strong>Team Charter</strong> — a working agreement that covers availability, conflict resolution, and communication SLAs.</p>
+<p>Do not just list names. You need a <strong>Team Charter</strong> — a working agreement that covers availability, conflict resolution, and communication agreements.</p>
 <h3 id="the-ai-prompt--agile-coach">The AI prompt — Agile Coach</h3>
 <pre style="background-color:#f5f5f5;border:1px solid #c7cdd1;padding:8px 10px;overflow-x:auto;"><code>Act as an Expert Agile Coach. My team is forming a game studio for a Capstone engineering
 project. We need to draft a &quot;Team Working Agreement&quot; (Team Charter).
@@ -346,7 +346,7 @@ Task: Interview me. Ask me 5 specific questions, one at a time, regarding:
   1. Core Hours: When is everyone guaranteed to be online?
   2. Conflict Resolution: How do we decide if two people disagree on a mechanic?
   3. Skill Gaps: Where are we weak (Art vs. Code) and how will we cover it?
-  4. Communication SLAs: How fast must we reply to Discord/Slack messages?
+  4. Communication agreements: How fast must we reply to Discord/Slack messages?
   5. Commit Standards: What happens if someone breaks the build?
 
 Goal: After I answer, synthesize this into a professional &quot;Team Manifesto&quot; document.</code></pre>
@@ -359,18 +359,18 @@ Goal: After I answer, synthesize this into a professional &quot;Team Manifesto&q
 <li><strong>Seeking help.</strong> Name the path: teammate first, then the team channel, then the instructor. A student stuck for three days in silence is a process failure, not a personal one.</li>
 <li><strong>First presenters.</strong> Pick them now; they rotate every timebox.</li>
 <li><strong>Bios.</strong> One slide each: what aspects of game <em>programming</em> interest you.</li>
-<li><strong>S.M.A.R.T. goals</strong> at three levels: individual, team, and project. Specific, Measurable, Achievable, Relevant, Time-bound — see the <a href="https://www.forbes.com/advisor/business/smart-goals/">Forbes</a> and <a href="https://www.smartsheet.com/blog/essential-guide-writing-smart-goals">Smartsheet</a> guides. "Learn Unity" is not one. "Ship a playable roll mechanic with SFX by the Timebox 2 demo" is.</li>
+<li><strong>S.M.A.R.T. goals</strong> at three levels: individual, team, and project. Specific, Measurable, Achievable, Relevant, Time-bound — see the <a href="https://www.forbes.com/advisor/business/smart-goals/">Forbes</a> and <a href="https://www.smartsheet.com/blog/essential-guide-writing-smart-goals">Smartsheet</a> guides. "Learn Unity" is not one. "Ship a playable dodge roll with sound by the Timebox 2 demo" is.</li>
 </ul>
 <h2 id="the-repository-licensing-and-third-party-assets">The repository, licensing, and third-party assets</h2>
 <p>Owner: <strong>integrator</strong>, with the tech lead on policy. Part of Phase 1, and due in the first two days — everything else waits on it.</p>
-<p><strong>This repository is disposable.</strong> At Timebox 2 you throw it away and start a fresh one for the actual game, and that is the point: this is where you practice the workflow — branch protection, pull requests, LFS, merge drivers, a scene two people both edited — while breaking it costs nothing. What carries forward is not the code. It is your <code>.github/</code> configuration, the PR template, the coding standards, the AI policy, the charter, and the muscle memory. Get <em>those</em> right here.</p>
+<p><strong>This repository is disposable.</strong> At Timebox 2 you throw it away and start a fresh one for the actual game, and that is the point: this is where you practice the workflow — branch protection, pull requests, Git LFS, merge drivers, a scene two people both edited — while breaking it costs nothing. What carries forward is not the code. It is your <code>.github/</code> configuration, the PR template, the coding standards, the AI policy, the charter, and the muscle memory. Get <em>those</em> right here.</p>
 <ul>
 <li><p><strong>Start from the template; don't fork.</strong> <code>crawfis/EndlessRunnerTemplate</code> (the old <code>crawfis/EndlessRunner</code> link redirects here) is a GitHub <em>template repository</em>: <strong>Use this template → Create a new repository</strong> gives your team a clean history it owns. A fork aims its pull requests back upstream and drags this repo's history along. Add every team member as a collaborator with write access.</p></li>
 <li><p><strong>Agree on one Unity version, and write it down.</strong> Take the latest release the whole team can actually install — the template's README says which Unity 6 release it was built on, so start there and don't go backwards — then everyone installs exactly that, patch number included. A mismatched patch silently rewrites scenes and prefabs, and your teammates will see hundreds of changed lines nobody made. Agree in the first meeting, and verify on every machine.</p></li>
 <li><p><strong>Then make the version a fact, not a memory.</strong> The template deliberately ignores <code>ProjectSettings/ProjectVersion.txt</code> so it never pins anyone; your team repo should do the opposite. Delete that line from <code>.gitignore</code> and commit the file, so the version lives in the repo where a new machine can read it.</p></li>
 <li><p><strong>Everyone clones and plays before anyone edits.</strong> Open the project, enter Play Mode from <code>Assets/GameFlow/Scenes/Boot/0_BootStrap_Game_Only</code>, confirm a clean console. A "works on my machine" problem found in week one is free.</p></li>
 <li><p><strong>Protect <code>main</code>.</strong> Settings → Branches: require a pull request, require at least one approving review, disallow direct pushes. Branch names are <code>issue-&lt;number&gt;-short-description</code>; PR bodies say <code>Closes #&lt;n&gt;</code>. The conventions are in <a href="https://github.com/crawfis/EndlessRunnerTemplate/blob/main/.github/CONTRIBUTING.md"><code>.github/CONTRIBUTING.md</code></a> — the review policy you have to decide yourselves is in Phase 4.</p></li>
-<li><p><strong>Turn on Git LFS before the first real asset.</strong> The template ships no LFS configuration because it ships no binary art. The day someone adds textures, models, or audio:</p>
+<li><p><strong>Turn on Git LFS before the first real asset.</strong> Large File Storage keeps big binaries out of the repository's history and stores a pointer instead. The template ships no LFS setup because it ships no binary art. The day someone adds textures, models, or audio:</p>
 <pre style="background-color:#f5f5f5;border:1px solid #c7cdd1;padding:8px 10px;overflow-x:auto;"><code>git lfs install
 git lfs track &quot;*.psd&quot; &quot;*.fbx&quot; &quot;*.png&quot; &quot;*.tga&quot; &quot;*.wav&quot; &quot;*.mp3&quot; &quot;*.ogg&quot;
 git add .gitattributes &amp;&amp; git commit -m &quot;chore: track binary art with LFS&quot;</code></pre>
@@ -464,7 +464,7 @@ Identity 2: The Game Art Direction
 <li><strong>Use a ring, not a volunteer pool.</strong> Order the team; each person reviews the next person's PRs, wrapping around. "Whoever's free" means nobody, and then everything merges at 11pm the night before the demo.</li>
 <li><strong>How many approvals:</strong> five or fewer → one. Six to eight → one, plus the tech lead for anything touching an event enum, an auto-flow, a bridge, or a new package. Nine or more → two, one of them from the other pod.</li>
 <li><strong>Nobody merges their own PR</strong>, and nobody approves a PR they wrote code in.</li>
-<li><strong>24-hour review SLA.</strong> Past that the scrum master reassigns. A PR open three days is a standup topic, not a background process.</li>
+<li><strong>Every pull request gets a review within 24 hours.</strong> Past that the scrum master reassigns. A PR open three days is a standup topic, not a background process.</li>
 <li><strong>Keep them small</strong> — a few hundred changed lines. One mechanic plus its event is a good PR.</li>
 <li><strong>Reviewer checklist</strong> — create <code>.github/pull_request_template.md</code> and paste it in:
 <ul>
@@ -511,7 +511,7 @@ For each finding, say what you would change and why — do not rewrite the file.
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Runner-focused</strong> — make <em>this</em> game good</td>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">feel, pacing, encounter design, progression</td>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">A, B, D, E</td>
-<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>A4</strong> roll · <strong>A5</strong> double jump · <strong>A9</strong> near-miss · <strong>A11</strong> checkpoints · <strong>D5</strong> coin choreography · <strong>E6</strong> per-level records</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>A4</strong> dodge roll · <strong>A5</strong> double jump · <strong>A9</strong> near-miss · <strong>A11</strong> checkpoints · <strong>D5</strong> coin choreography · <strong>E6</strong> per-level records</td>
 </tr>
 <tr>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Tech-focused</strong> — build skills that transfer to <em>any</em> game</td>
@@ -546,7 +546,7 @@ For each finding, say what you would change and why — do not rewrite the file.
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">0:03–0:08</td>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Studio logistics</strong> (5m)</td>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">presenter 1</td>
-<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">studio name, logo, mission; the charter — core hours, conflict resolution, SLAs, broken-build rule; who wears which hat</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">studio name, logo, mission; the charter — core hours, conflict resolution, communication agreements, broken-build rule; who wears which hat</td>
 </tr>
 <tr>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">0:08–0:18</td>
@@ -581,7 +581,7 @@ For each finding, say what you would change and why — do not rewrite the file.
 </tbody>
 </table>
 <p><strong>Scaling.</strong> Intros run about 25 seconds a person, so a nine-person team spends four minutes there. Add that to the total rather than squeezing the demo — a bigger team has more work to show, not less time to show it in.</p>
-<p><strong>The 25 minutes of questions are not a buffer.</strong> Prepare for them: keep an appendix of backup slides (the event map, the board, the audit diffs, the metrics breakdown), decide who fields which kind of question, and make sure every member can speak to their own work. Two people carry the deck; in Q&amp;A the whole team is on.</p>
+<p><strong>The 25 minutes of questions are not a buffer.</strong> Prepare for them: keep an appendix of backup slides (the event map, the board, the audit diffs, the metrics breakdown), decide who fields which kind of question, and make sure the two speakers can cover every member's work. It is a cohesive team effort.</p>
 <p><strong>Slide rules.</strong> Comprehensive visuals throughout, 16×9, and no dark or visually cluttered backgrounds — your Phase 2 brand palette was chosen for exactly this. Bring a printed copy formatted <strong>four slides per page</strong>, using the printer's 4-up option rather than PowerPoint's handout mode. Hand in your <strong>team member evaluation rubric, printed and filled in, before class</strong>. Upload the materials afterwards.</p>
 <h2 id="the-demo-and-the-video">The demo and the video</h2>
 <p>Owner: <strong>demo &amp; video owner</strong>.</p>
@@ -617,7 +617,7 @@ For each finding, say what you would change and why — do not rewrite the file.
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">1</td>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Scrum master</td>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">charter, logistics, board, S.M.A.R.T. collection</td>
-<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>A4</strong> roll mechanic · <strong>A11</strong> checkpoint milestones</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>A4</strong> dodge roll · <strong>A11</strong> checkpoint milestones</td>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">#5's PRs</td>
 </tr>
 <tr>
@@ -650,9 +650,8 @@ For each finding, say what you would change and why — do not rewrite the file.
 </tr>
 </tbody>
 </table>
-<p><strong>What the demo shows:</strong> a language switch on the menu → a run with the new roll, authored coin arcs, near-miss flashes and a checkpoint fanfare → the event console streaming all of it live → the credits screen. Everyone's work in ninety seconds, and the architecture visible on screen instead of described on a slide.</p>
-<p><strong>Four.</strong> Fold the deck owner into presenter #1; keep two build items each and drop one person's second item to cover the extra documents.</p>
-<p><strong>Three — the penalized case.</strong> The deliverable list does not shrink when the team does, which is exactly what the penalty is about. Pair the hats (scrum master + deck, PRD + presenter, tech lead + demo/video + presenter), keep the required items in Phase 4, and take <strong>one shared vertical slice</strong> rather than six separate tasks — say <strong>A4</strong> roll with its SFX (<strong>J2</strong>) and a HUD hint (<strong>I1</strong>, scoped to one label) — so the demo is one coherent thing instead of six half-features. Everything else goes into the documents.</p>
+<p><strong>What the demo shows:</strong> a language switch on the menu → a run with the new dodge roll, authored coin arcs, near-miss flashes and a checkpoint fanfare → the event console streaming all of it live → the credits screen. Everyone's work in ninety seconds, and the architecture visible on screen instead of described on a slide.</p>
+<p><strong>Four — the penalized case.</strong> The deliverable list does not shrink when the team does, which is exactly what the penalty is about. Pair the hats (scrum master + deck owner, design/PRD owner + presenter, tech lead + presenter, integrator + demo and video), keep the required items in Phase 4, and take <strong>one shared vertical slice</strong> rather than eight separate tasks — say <strong>A4</strong> dodge roll with its sound effects (<strong>J2</strong>) and a HUD hint (<strong>I1</strong>, scoped to one label) — so the demo is one coherent thing instead of eight half-features. Everything else goes into the documents.</p>
 <h3 id="six">Six</h3>
 <p>The sixth person buys a dedicated QA &amp; triage hat, and that is real work: someone has to file the upstream issues and own the metrics slide as of the freeze tag.</p>
 <table style="border-collapse:collapse;width:100%;margin:1em 0;">
@@ -670,7 +669,7 @@ For each finding, say what you would change and why — do not rewrite the file.
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">1</td>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Scrum master</td>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">charter, logistics, board, S.M.A.R.T. collection</td>
-<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>A4</strong> roll mechanic · <strong>A11</strong> checkpoint milestones</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>A4</strong> dodge roll · <strong>A11</strong> checkpoint milestones</td>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">#6's PRs</td>
 </tr>
 <tr>
@@ -728,7 +727,7 @@ For each finding, say what you would change and why — do not rewrite the file.
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">1</td>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Scrum master</td>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">charter, logistics, board, S.M.A.R.T. collection</td>
-<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>A4</strong> roll mechanic · <strong>A11</strong> checkpoint milestones</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>A4</strong> dodge roll · <strong>A11</strong> checkpoint milestones</td>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">#7's PRs</td>
 </tr>
 <tr>
