@@ -1,0 +1,76 @@
+<!-- Canvas page title: Timebox 1: Phase 4 — Pipeline validation
+     Generated from docs/TIMEBOX_1_REQUIREMENTS.md by docs/canvas/build_timebox1.py --
+     edit the Markdown, never this file. Paste into a Canvas page via the Rich
+     Content Editor's HTML view (the </> button). Canvas strips <script>/<style>,
+     so all styling here is inline.
+     Module item 11 of 15. -->
+<p><strong>Goal: prove your team can code, review, merge, and build.</strong> The endless runner is the playground; the pipeline is the deliverable.</p>
+<h3 id="the-board-and-the-flow">The board and the flow</h3>
+<p>Owner: <strong>scrum master</strong>, with the tech lead on the code policies.</p>
+<p>Kanban in GitHub Projects or Trello, with Backlog / Ready / In Progress / In Review / Done and fields for estimate, priority, type, and owner. <a href="https://github.com/crawfis/EndlessRunnerTemplate/blob/main/.github/PROJECTS_v2.md"><code>.github/PROJECTS_v2.md</code></a> is a ready-made configuration including the automations. At least one scrum cycle happens inside this timebox; say which cadence you chose and why.</p>
+<p>Write down the timebox flow: how tasks get assigned, internal deadlines ahead of the demo, the mentoring path, who approves third-party imports (licensing rules above), and when the merge and build windows are — ending at the 48-hour freeze.</p>
+<h3 id="pull-requests">Pull requests</h3>
+<p>The mechanics are in <code>.github/CONTRIBUTING.md</code>; what it leaves to you is <strong>who reviews</strong>.</p>
+<ul>
+<li><strong>Use a ring, not a volunteer pool.</strong> Order the team; each person reviews the next person's PRs, wrapping around. "Whoever's free" means nobody, and then everything merges at 11pm the night before the demo.</li>
+<li><strong>How many approvals:</strong> five or fewer → one. Six to eight → one, plus the tech lead for anything touching an event enum, an auto-flow, a bridge, or a new package. Nine or more → two, one of them from the other pod.</li>
+<li><strong>Nobody merges their own PR</strong>, and nobody approves a PR they wrote code in.</li>
+<li><strong>24-hour review SLA.</strong> Past that the scrum master reassigns. A PR open three days is a standup topic, not a background process.</li>
+<li><strong>Keep them small</strong> — a few hundred changed lines. One mechanic plus its event is a good PR.</li>
+<li><strong>Reviewer checklist</strong> — create <code>.github/pull_request_template.md</code> and paste it in:
+<ul>
+<li>plays from <code>0_BootStrap_Game_Only</code> with a clean console</li>
+<li>every <code>Subscribe</code> has its <code>Unsubscribe</code> in <code>OnDestroy</code></li>
+<li>no cross-domain event reference outside a bridge file; <code>/audit-events</code> comes back clean</li>
+<li>no <code>FindObjectOfType</code> / <code>SendMessage</code> / cross-scene <code>GetComponent</code> for communication</li>
+<li>new third-party asset? The tech lead approved it <em>and</em> the license register and the credits data both gained a row</li>
+<li>AI-assisted code is reviewed exactly like hand-written code, and the author can explain it in the PR body</li>
+</ul></li>
+</ul>
+<h3 id="the-code-audit">The code audit</h3>
+<p>Before merging, run your scripts past the <strong>Technical Auditor</strong> role for a critique on <strong>coupling, readability, and flexibility</strong>:</p>
+<pre style="background-color:#f5f5f5;border:1px solid #c7cdd1;padding:8px 10px;overflow-x:auto;"><code>Act as a Lead Developer performing code review. Critique the attached Unity C# script on
+three axes:
+  1. Coupling: what does this class know about that it shouldn&#39;t? What breaks if a
+     collaborator is replaced?
+  2. Readability: what would a new team member misread on first pass?
+  3. Flexibility: which decision here will we regret when we add the second variant of
+     this feature?
+For each finding, say what you would change and why — do not rewrite the file.</code></pre>
+<p>Keep the before and after: a diff and a two-line summary per script. <strong>That comparison is a presentation slide</strong>, and it is the most convincing evidence in the deck that the team can critique its own work. The audit does not replace human review — it is what you run before asking for one.</p>
+<h3 id="what-to-build">What to build</h3>
+<p><strong>Required of every team</strong> — these come out of the same build budget as catalog picks.</p>
+<ol type="1">
+<li><strong>Main menu with localization</strong> — integrate the starter package (<a href="https://github.com/crawfis/ConsumerUI_RxGames">ConsumerUI_RxGames</a>), UI Toolkit only, two or more languages. Catalog <strong>I5</strong>.</li>
+<li><strong>Credits screen</strong> — data-driven, with a license register beside it, updated the day you import anything third-party. Catalog <strong>I12</strong>.</li>
+<li><strong>Player Settings</strong> — Company, Product, and Version in <code>0.1.0</code> format. The template ships <code>CrawfisSoftware</code> / <code>Endless Runner</code>; make them yours.</li>
+<li><strong>Editor Settings</strong> — set the Root namespace.</li>
+<li><strong>File issues upstream</strong> — bugs and user stories on the template repo using its <a href="https://github.com/crawfis/EndlessRunnerTemplate/issues">Issue forms</a>. Generating a first pass with AI is fair game; read them before you file them.</li>
+</ol>
+<p><strong>Then pick from the catalog: two build items per person</strong>, from <em>different</em> sections, so the demo shows breadth instead of five variations of the same mechanic. Anything tagged <strong>M</strong> or <strong>L</strong> is a <strong>spike</strong> in this timebox — a one-page teardown plus an event map, not a half-built system. Picking extra features to research and plan for later is encouraged; those are tasks too, and they go on the board with estimates.</p>
+<table style="border-collapse:collapse;width:100%;margin:1em 0;">
+<thead>
+<tr>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Flavor</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">You care about</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Catalog</th>
+<th style="border:1px solid #c7cdd1;padding:6px 10px;text-align:left;background-color:#f5f5f5;vertical-align:top;">Timebox 1 starter picks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Runner-focused</strong> — make <em>this</em> game good</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">feel, pacing, encounter design, progression</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">A, B, D, E</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>A4</strong> roll · <strong>A5</strong> double jump · <strong>A9</strong> near-miss · <strong>A11</strong> checkpoints · <strong>D5</strong> coin choreography · <strong>E6</strong> per-level records</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Tech-focused</strong> — build skills that transfer to <em>any</em> game</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">UI, rendering, audio, tooling, architecture</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">C, F, G, H, I, J, K, L</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>I4</strong> game-over celebration · <strong>F4</strong> dash trails · <strong>F5</strong> screen-space feedback · <strong>L6</strong> event console · <strong>L1</strong> <code>AutoEventFlowBase</code></td>
+</tr>
+</tbody>
+</table>
+<p>Catalog sections <strong>M–O</strong> (the explorer pivot, multiplayer, live services) are semester-spine decisions, not Timebox 1 work. If your team is drawn to one, its spike <em>is</em> the deliverable.</p>
+<p>None of this code has to survive: Timebox 2 starts in a new repository for the game itself. Optimize for what each person <em>learns</em> and for what the team can demo, not for what you keep.</p>

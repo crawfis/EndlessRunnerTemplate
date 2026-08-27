@@ -1,0 +1,12 @@
+<!-- Canvas page title: Timebox 2: Engineering practice
+     Generated from docs/TIMEBOX_2_REQUIREMENTS.md by docs/canvas/build_timebox2.py --
+     edit the Markdown, never this file. Paste into a Canvas page via the Rich
+     Content Editor's HTML view (the </> button). Canvas strips <script>/<style>,
+     so all styling here is inline.
+     Module item 10 of 14. -->
+<p><strong>Definition of Done.</strong> Write it down and hold to it. A reasonable starting point: it compiles with no new warnings · it plays from a fresh clone · it has a test or a documented manual check · it was reviewed by someone who did not write it · the board card is closed · anything surprising about it is written down.</p>
+<p><strong>Review discipline carries over.</strong> The ring, the 24-hour SLA, nobody merging their own work. Report your review turnaround in the presentation — it is a real engineering metric and it tells you more about a team than lines of code do.</p>
+<p><strong>A testing beachhead.</strong> You do not need coverage; you need the tests that would have caught last week's regression. Start with the core loop's state transitions — the thing that must never break. A system with clean seams is unusually easy to test headlessly: publish the inputs, assert the states. Five meaningful tests beat fifty trivial ones.</p>
+<p><strong>A build check.</strong> Ideally CI on every pull request. Be warned that Unity in CI needs a license secret and can eat a day; if that becomes the sprint, stop and settle for a scripted local build plus a documented pre-merge checklist, and say so. Automating the check matters more than where it runs.</p>
+<p><strong>Budget for refactoring</strong> — about a tenth of your build hours — and keep a <strong>tech debt log</strong>: what you deferred, why, and what it will cost. Debt you wrote down is a decision. Debt you didn't is a surprise.</p>
+<p><strong>Architecture survives its second feature, not its first.</strong> When you add the second enemy, the second weapon, the second level, notice what you had to touch. If one feature forced edits in five systems, your seam list was wrong — and saying so, with the evidence, is a better presentation than a diagram that was never tested.</p>

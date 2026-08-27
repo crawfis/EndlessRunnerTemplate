@@ -76,3 +76,7 @@ crashlytics-build.properties
 
 # Runtime event trace from DebugEventFileLogger
 debug_event_log.txt
+
+# Python bytecode from the docs/canvas publishing scripts
+__pycache__/
+*.pyc
