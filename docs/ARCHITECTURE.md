@@ -179,7 +179,7 @@ runtime. Full detail, data model, and geometry math: [TRACKS.md](TRACKS.md).
 
 ```
 Assets/
-├── _Common/    shared config (DifficultyConfig), AutoEventFlowBase placeholder, utilities
+├── _Common/    shared config (DifficultyConfig), AutoEventFlowBase dispatch, utilities
 ├── GameFlow/   app lifecycle: events, bridge, menus/level-select, scene management, progress
 └── TempleRun/  gameplay: events, player mechanics, track generation, input, visuals
 ```

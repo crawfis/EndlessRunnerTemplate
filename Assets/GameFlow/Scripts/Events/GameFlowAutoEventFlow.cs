@@ -2,8 +2,6 @@ using CrawfisSoftware.Events;
 
 using System.Collections.Generic;
 
-using UnityEngine;
-using GameFlowBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.GameFlow.Events.GameFlowEvents>;
 
 namespace CrawfisSoftware.GameFlow.Events
 {
@@ -95,38 +93,38 @@ namespace CrawfisSoftware.GameFlow.Events
     ///
     /// ========================================================================================
     /// </summary>
-    internal class GameFlowAutoEventFlow : MonoBehaviour
+    internal class GameFlowAutoEventFlow : AutoEventFlowBase<GameFlowEvents, GameFlowEvents>
     {
-        private readonly Dictionary<GameFlowEvents, GameFlowEvents> _autoGameFlow2GameFlowEvents = new Dictionary<GameFlowEvents, GameFlowEvents>()
+        private static readonly (GameFlowEvents From, GameFlowEvents To)[] ChainTable =
         {
             // ================================================================================
             // LOADING SCREEN BRIDGES
             // ================================================================================
-            { GameFlowEvents.LoadingScreenShowRequested, GameFlowEvents.LoadingScreenShowing },
-            { GameFlowEvents.LoadingScreenHideRequested, GameFlowEvents.LoadingScreenHiding },
+            (GameFlowEvents.LoadingScreenShowRequested, GameFlowEvents.LoadingScreenShowing),
+            (GameFlowEvents.LoadingScreenHideRequested, GameFlowEvents.LoadingScreenHiding),
             // LoadingScreenShowing -> LoadingScreenShown: Published by LoadingScreenController
             // LoadingScreenHiding -> LoadingScreenHidden: Published by LoadingScreenController
 
             // ================================================================================
             // MAIN MENU BRIDGES
             // ================================================================================
-            { GameFlowEvents.MainMenuShowRequested, GameFlowEvents.MainMenuShowing },
-            { GameFlowEvents.MainMenuHideRequested, GameFlowEvents.MainMenuHiding },
+            (GameFlowEvents.MainMenuShowRequested, GameFlowEvents.MainMenuShowing),
+            (GameFlowEvents.MainMenuHideRequested, GameFlowEvents.MainMenuHiding),
             // MainMenuShowing -> MainMenuShown: Published by MainMenuPanelController
             // MainMenuHiding -> MainMenuHidden: Published by MainMenuPanelController
 
             // ================================================================================
             // LEVEL SELECTOR BRIDGES
             // ================================================================================
-            { GameFlowEvents.LevelSelectorShowRequested, GameFlowEvents.LevelSelectorShowing },
-            { GameFlowEvents.LevelSelectorHideRequested, GameFlowEvents.LevelSelectorHiding },
+            (GameFlowEvents.LevelSelectorShowRequested, GameFlowEvents.LevelSelectorShowing),
+            (GameFlowEvents.LevelSelectorHideRequested, GameFlowEvents.LevelSelectorHiding),
             // LevelSelectorShowing -> LevelSelectorShown: Published by LevelSelectorPanelController
             // LevelSelectorHiding -> LevelSelectorHidden: Published by LevelSelectorPanelController
 
             // ================================================================================
             // GAME SESSION BRIDGES
             // ================================================================================
-            { GameFlowEvents.GameStartRequested, GameFlowEvents.GameStarting },
+            (GameFlowEvents.GameStartRequested, GameFlowEvents.GameStarting),
             // GameEndRequested -> GameEnding: Published by GameOverController (carries score data)
             // GameStarting -> GameStarted: Published after countdown ends
             // GameEnding -> GameEnded: Published after scenes unloaded
@@ -134,16 +132,16 @@ namespace CrawfisSoftware.GameFlow.Events
             // ================================================================================
             // SCENE LOADING BRIDGES
             // ================================================================================
-            { GameFlowEvents.GameScenesLoadRequested, GameFlowEvents.GameScenesLoading },
-            { GameFlowEvents.GameScenesUnloadRequested, GameFlowEvents.GameScenesUnloading },
+            (GameFlowEvents.GameScenesLoadRequested, GameFlowEvents.GameScenesLoading),
+            (GameFlowEvents.GameScenesUnloadRequested, GameFlowEvents.GameScenesUnloading),
             // GameScenesLoading -> GameScenesLoaded: Published by scene loader
             // GameScenesUnloading -> GameScenesUnloaded: Published by scene unloader
 
             // ================================================================================
             // CONFIG / DIFFICULTY BRIDGES
             // ================================================================================
-            { GameFlowEvents.GameConfigChangeRequested, GameFlowEvents.GameConfigApplying },
-            { GameFlowEvents.DifficultyChangeRequested, GameFlowEvents.DifficultyChanging },
+            (GameFlowEvents.GameConfigChangeRequested, GameFlowEvents.GameConfigApplying),
+            (GameFlowEvents.DifficultyChangeRequested, GameFlowEvents.DifficultyChanging),
             // GameConfigApplying -> GameConfigApplied: Published by config system
             // DifficultyChanging -> DifficultyChanged: Published by difficulty system
             // DifficultySettingsApplied: Published when RemoteConfig updates difficulty
@@ -151,23 +149,23 @@ namespace CrawfisSoftware.GameFlow.Events
             // ================================================================================
             // PAUSE / RESUME BRIDGES
             // ================================================================================
-            { GameFlowEvents.PauseRequested, GameFlowEvents.Pausing },
-            { GameFlowEvents.Pausing, GameFlowEvents.Paused },
-            { GameFlowEvents.ResumeRequested, GameFlowEvents.Resuming },
-            { GameFlowEvents.Resuming, GameFlowEvents.Resumed },
+            (GameFlowEvents.PauseRequested, GameFlowEvents.Pausing),
+            (GameFlowEvents.Pausing, GameFlowEvents.Paused),
+            (GameFlowEvents.ResumeRequested, GameFlowEvents.Resuming),
+            (GameFlowEvents.Resuming, GameFlowEvents.Resumed),
 
             // ================================================================================
             // SAVE / LOAD BRIDGES (optional, not currently active)
             // ================================================================================
-            //{ GameFlowEvents.SaveLoadRequested, GameFlowEvents.SaveLoading },
-            //{ GameFlowEvents.SaveLoading, GameFlowEvents.SaveLoaded },
-            //{ GameFlowEvents.SaveRequested, GameFlowEvents.Saving },
-            //{ GameFlowEvents.Saving, GameFlowEvents.Saved },
+            //(GameFlowEvents.SaveLoadRequested, GameFlowEvents.SaveLoading),
+            //(GameFlowEvents.SaveLoading, GameFlowEvents.SaveLoaded),
+            //(GameFlowEvents.SaveRequested, GameFlowEvents.Saving),
+            //(GameFlowEvents.Saving, GameFlowEvents.Saved),
 
             // ================================================================================
             // QUIT BRIDGE (optional, currently published directly)
             // ================================================================================
-            //{ GameFlowEvents.QuitRequested, GameFlowEvents.Quitting },
+            //(GameFlowEvents.QuitRequested, GameFlowEvents.Quitting),
 
             // ================================================================================
             // FLOW ORCHESTRATION (cross-phase auto-chains)
@@ -178,20 +176,20 @@ namespace CrawfisSoftware.GameFlow.Events
             // This template has no UGS: the loading screen finishing IS the "boot done" signal,
             // so LoadingScreenHidden re-signals GameplayReady. (Previously this only happened via
             // the Test_AutoFireEventOnStart helper object in the scene.)
-            { GameFlowEvents.LoadingScreenHidden, GameFlowEvents.GameplayReady },
-            { GameFlowEvents.GameplayReady, GameFlowEvents.MainMenuShowRequested },
+            (GameFlowEvents.LoadingScreenHidden, GameFlowEvents.GameplayReady),
+            (GameFlowEvents.GameplayReady, GameFlowEvents.MainMenuShowRequested),
 
             // --- Level Selected -> Scene Loading ---
             // After user selects a level, proceed to scene loading (existing flow)
-            { GameFlowEvents.LevelSelected, GameFlowEvents.GameScenesLoadRequested },
+            (GameFlowEvents.LevelSelected, GameFlowEvents.GameScenesLoadRequested),
 
             // --- Scenes Loaded -> Game Start ---
             // After scenes finish loading, start the game (TempleRun countdown lives in TempleRun domain)
-            { GameFlowEvents.GameScenesLoaded, GameFlowEvents.GameStartRequested },
+            (GameFlowEvents.GameScenesLoaded, GameFlowEvents.GameStartRequested),
 
             // --- Player Death -> Game End ---
             // After game ends, unload gameplay scenes
-            { GameFlowEvents.GameEnding, GameFlowEvents.GameScenesUnloadRequested },
+            (GameFlowEvents.GameEnding, GameFlowEvents.GameScenesUnloadRequested),
 
             // --- Game Ended -> back to Main Menu ---
             // In the UGS template the post-game loop returned to the menu via
@@ -199,26 +197,10 @@ namespace CrawfisSoftware.GameFlow.Events
             // This template has no UGS, so close the loop directly: GameEnded re-signals
             // GameplayReady, which already auto-chains to MainMenuShowRequested -> MainMenuShowing.
             // (Previously this only happened via the Test_AutoFireEvent helper object in the scene.)
-            { GameFlowEvents.GameEnded, GameFlowEvents.GameplayReady },
+            (GameFlowEvents.GameEnded, GameFlowEvents.GameplayReady),
         };
 
-        protected virtual void Awake()
-        {
-            GameFlowBus.SubscribeToAll(AutoFireGameFlowEventFromGameFlowEvent);
-        }
-
-        protected virtual void OnDestroy()
-        {
-            GameFlowBus.UnsubscribeFromAll(AutoFireGameFlowEventFromGameFlowEvent);
-        }
-
-        private void AutoFireGameFlowEventFromGameFlowEvent(string eventName, object sender, object data)
-        {
-            if (!GameFlowBus.TryGetEnum(eventName, out GameFlowEvents gameFlowEvent)) return;
-            if (_autoGameFlow2GameFlowEvents.TryGetValue(gameFlowEvent, out GameFlowEvents autoEvent))
-            {
-                GameFlowBus.Publish(autoEvent, sender, data);
-            }
-        }
+        protected override IReadOnlyList<(GameFlowEvents From, GameFlowEvents To)> Chains => ChainTable;
     }
 }
+

@@ -262,11 +262,20 @@ private readonly Dictionary<GameFlowEvents, GameFlowEvents> _autoGameFlow2GameFl
 
 When `GameScenesLoaded` fires, it automatically triggers `GameStartRequested` -> `GameStarting`.
 
-> Note: `AutoEventFlowBase.cs` under `Assets/_Common/Events/` is an empty (zero-byte)
-> placeholder. The four dispatch classes (`GameFlowAutoEventFlow`, `TempleRunAutoEventFlow`,
-> `TempleRunGameFlowBridge`, `Input2TempleRunAutoEventBridge`) each re-implement the same
-> subscribe-to-all-then-dictionary-dispatch logic. Consolidating that shared logic into
-> `AutoEventFlowBase` is a good, self-contained refactoring exercise.
+> **Chains are declared as a flat list of pairs, not a dictionary.** All four dispatch
+> classes share one implementation in `Assets/_Common/Events/AutoEventFlowBase.cs`:
+> `EventChainDispatcher<TSource, TDest>` does subscribe-to-all, lookup and publish;
+> `AutoEventFlowBase<TSource, TDest>` is the MonoBehaviour wrapper for a single direction.
+> A bidirectional bridge cannot inherit twice, so `TempleRunGameFlowBridge` holds two
+> dispatchers instead.
+>
+> The pair list exists so **one event may declare several consequences** — a dictionary
+> allowed exactly one successor each. That ceiling never produced bugs directly; it produced
+> workarounds. Finding a source event's slot already taken, developers published the second
+> consequence by hand inside a controller, which is how failure logic came to publish pause
+> events. Targets fire in declaration order, synchronously, so each target's own chain
+> completes before the next is published — keep multi-target groups together and say why the
+> order matters.
 
 ### Adding New Events
 
@@ -354,7 +363,7 @@ private readonly Dictionary<...> _mapping = ...; // readonly: underscore prefix
 | Input | `Assets/TempleRun/Scripts/Input/MovementInputActions.cs`, `SwipeDetectorActions.cs`, `DashInputActions.cs`, `AccelerometerInputActions.cs`, `PauseQuitInputActions.cs`; `GameControls.cs` + `LeftRightJumpSlide.cs` are **source-generated** from the `.inputactions` assets — regenerate, don't hand-edit |
 | Editor Tools | `Assets/TempleRun/Editor/TrackDataImporter.cs` (one-shot JSON -> SO importer; menu `CrawfisSoftware > Track > Import JSON -> ScriptableObjects`) |
 | **Shared/Common** | |
-| Auto-Event Base | `Assets/_Common/Events/AutoEventFlowBase.cs` (placeholder — see note above) |
+| Auto-Event Base | `Assets/_Common/Events/AutoEventFlowBase.cs` — `EventChainDispatcher<TSource, TDest>` + `AutoEventFlowBase<TSource, TDest>`; the one dispatch implementation, shared by all four flow/bridge classes |
 | Shared Config | `Assets/_Common/Config/DifficultyConfig.cs` |
 | Utilities | `Assets/_Common/Utility/Logger.cs`, `EventLoggerDump.cs`, `DebugEventFileLogger.cs`, `DebugLog.cs`, `TimedEvent.cs`, `TextureExtensions.cs`; `Assets/_Common/Events/EventHistory.cs`; test helpers in `Assets/_Common/Test/` |
 | Vendored | `Assets/ThirdParty/CrawfisSoftware/` — Random providers, AssetManagement helpers, editor tools (screenshots, play-first-scene, dev-build toggle), `Spawners/GridSpawner.cs` |
@@ -393,8 +402,8 @@ private readonly Dictionary<...> _mapping = ...; // readonly: underscore prefix
   and never "fix" line-ending-only diffs.
 
 ### Dead / Placeholder Files (don't be misled by grep hits)
-- `Assets/_Common/Events/AutoEventFlowBase.cs` - empty file (the consolidation exercise
-  noted above)
+- (`Assets/_Common/Events/AutoEventFlowBase.cs` was an empty placeholder until the dispatch
+  consolidation; it now holds the shared implementation.)
 - `Assets/GameFlow/Scripts/Config/BlackboardGameFlow.cs` - fully commented out
 - `Assets/TempleRun/Scripts/Config/DifficultyConfig.cs` - fully commented out; the live
   class is `Assets/_Common/Config/DifficultyConfig.cs` (namespace `CrawfisSoftware.Config`)
@@ -455,7 +464,7 @@ Three primary domains with clear separation of concerns:
 Assets/
 ├── _Common/                          # Shared infrastructure
 │   ├── Config/                       # DifficultyConfig (domain-neutral, namespace CrawfisSoftware.Config)
-│   ├── Events/                       # AutoEventFlowBase (empty placeholder), EventHistory
+│   ├── Events/                       # AutoEventFlowBase + EventChainDispatcher, EventHistory
 │   ├── Test/                         # Test_AutoFireEvent, Test_AutoFireEventOnStart
 │   └── Utility/                      # Logger, EventLoggerDump, DebugEventFileLogger, DebugLog, TimedEvent, TextureExtensions
 │

@@ -330,9 +330,16 @@ expects — is part of the exercise. Read the PanelRenderer rules in
 
 ## L. Architecture, Code & Tooling
 
-1. **Consolidate `AutoEventFlowBase` (S/M).** The documented starter refactor: four
-   dispatch classes re-implement the same `Enum.Parse` logic; unify them in the shared
-   base class. Teaches the event plumbing end to end.
+1. **Consolidate the two spawner base classes (S/M).** The starter refactor, now that
+   `AutoEventFlowBase` is done. `SpawnerBase` and `PrefabSpawnerAbstract` are parallel
+   implementations of one algorithm: both subscribe to the same three events, both claim
+   spawned objects into a dictionary keyed by `SegmentGeometryData.SequenceIndex`, both
+   destroy a group on `ActiveTrackChanged` with a cursor starting at `-1`. `SpawnerBase`'s
+   own docstring admits it — "Mirrors `PrefabSpawnerAbstract`". Extract the shared
+   segment-lifetime bookkeeping into one base; the subclasses differ only in what they
+   instantiate and whether deletion is immediate or delayed. Same shape as the
+   `AutoEventFlowBase` consolidation, and it teaches the spawner lifecycle the way that one
+   taught event dispatch.
 2. **Generalized object pooling (M).** One pooling service for obstacles, coins, VFX, and
    tiles, replacing per-spawner recycling. Measure allocation before/after.
 3. **Save system (M).** A versioned profile (coins, unlocks, settings, stats) saved via

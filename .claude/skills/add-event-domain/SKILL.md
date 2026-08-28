@@ -97,16 +97,23 @@ existing domains.
 
 ### Step 4 (optional): Auto-flow class
 
-Copy the pattern from `GameFlowAutoEventFlow.cs`: a
-`Dictionary<AnalyticsEvents, AnalyticsEvents>` of mappings, `SubscribeToAll` in `Awake()`,
-`UnsubscribeFromAll` in `OnDestroy()`. Skip this until the domain actually has same-domain
-progressions. (If `AutoEventFlowBase` has been fleshed out by then, derive from it instead
-of copying.)
+Derive from `AutoEventFlowBase<AnalyticsEvents, AnalyticsEvents>` and supply a
+`static readonly (AnalyticsEvents From, AnalyticsEvents To)[]` of chains — subscribe,
+dispatch and unsubscribe are handled for you. Copy the shape from
+`GameFlowAutoEventFlow.cs`. Skip this until the domain actually has same-domain
+progressions.
+
+One event may declare several targets: the chains are a flat list of pairs, not a
+dictionary. Targets fire in declaration order, synchronously. Do **not** chain a
+`*Requested` that arrives raw from input to its `*Starting` — chaining runs before any
+controller validates, which silently defeats the gate.
 
 ### Step 5: Bridge class — required as soon as the domain talks to another
 
-Copy `TempleRunGameFlowBridge.cs`: two direction dictionaries plus `SubscribeToAll` on both
-buses. **Never reference the new domain's enum from another domain's code** — the bridge is
+Copy `TempleRunGameFlowBridge.cs`: two `static readonly` pair arrays, one per direction, each
+driving an `EventChainDispatcher<TSource, TDest>` attached in `Awake()` and detached in
+`OnDestroy()`. (A bidirectional bridge cannot inherit `AutoEventFlowBase` twice, which is why
+it composes two dispatchers instead.) **Never reference the new domain's enum from another domain's code** — the bridge is
 the only crossing point; that is the whole point of the domain. Then add mappings with
 `/add-bridge-mapping`, and add the new bridge class to that skill's "Available Bridges"
 table.
