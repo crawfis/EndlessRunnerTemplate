@@ -23,7 +23,7 @@ Every crossing lives in a bridge — TempleRunGameFlowBridge.cs, ten mappings;
                                    Input2TempleRunAutoEventBridge.cs, nine.
 ```
 
-`TempleRunEvents` has grown to **120 events** in one enum, and every feature your studio
+`TempleRunEvents` has grown to **121 events** in one enum, and every feature your studio
 ships this term will touch that file. Should it be split into subdomains — `TrackEvents`,
 `PowerUpEvents`, `MovementEvents`? Maybe. Smaller files, clear ownership, and fewer merge
 conflicts come along for the ride, but they are not the goal. **The goal is

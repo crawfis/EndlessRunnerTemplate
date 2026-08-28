@@ -9,7 +9,7 @@ namespace CrawfisSoftware.TempleRun
     /// Registration-based distance notification service. Any component can register
     /// a distance threshold and receive a callback when the player reaches it.
     ///    Dependencies: EventsFor<TempleRunEvents>, Blackboard.DistanceTracker
-    ///    Subscribes: TempleRunEvents.DistanceUpdated
+    ///    Publishes: TempleRunEvents.DistanceUpdated
     /// </summary>
     public class DistanceInterestService : MonoBehaviour
     {

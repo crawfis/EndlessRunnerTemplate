@@ -7,9 +7,9 @@
 <p><em>CSE 5912 Capstone · The AI-Driven Studio</em></p>
 <h2 id="overview-and-objective">Overview and objective</h2>
 <p>This is not a homework assignment. This is <strong>pre-production</strong>. The goal of Timebox 1 is to turn a group of students into a game studio: define your identity, stand up your DevOps pipeline, and deliver a <strong>Greenlight pitch</strong> that proves you are ready to build a complex software product.</p>
-<p>You will use generative AI not to do the work for you, but to play three roles for your studio — <strong>Agile Coach</strong>, <strong>Lead Architect</strong>, and <strong>Technical Auditor</strong>. Prompts for each are in the phase that needs them.</p>
+<p>You will use generative AI not to do the work for you, but to play four roles for your studio — <strong>Agile Coach</strong>, <strong>Lead Architect</strong>, <strong>Creative Director</strong>, and <strong>Technical Auditor</strong>. Prompts for each are in the phase that needs them.</p>
 <p>The endless-runner template is your <strong>playground</strong>: it is where you prove the team can code, review, merge, and build before any of that matters. The bulk of this timebox is therefore design, documentation, and process — not features.</p>
-<p><strong>You have 1.5 weeks.</strong> Task IDs like <strong>A4</strong> or <strong>I12</strong> point into the <a href="https://github.com/crawfis/EndlessRunnerTemplate/blob/main/docs/STUDENT_TASKS.md">Student Task Catalog</a> — 123 scoped projects grouped by sub-specialty. This document says how many to take, who takes them, and everything else that is due.</p>
+<p><strong>You have 1.5 weeks.</strong> Task IDs like <strong>A4</strong> or <strong>I12</strong> point into the <a href="https://github.com/crawfis/EndlessRunnerTemplate/blob/main/docs/STUDENT_TASKS.md">Student Task Catalog</a> — 127 scoped projects grouped by sub-specialty. This document says how many to take, who takes them, and everything else that is due.</p>
 <p><strong>The five phases:</strong></p>
 <table style="border-collapse:collapse;width:100%;margin:1em 0;">
 <thead>
@@ -376,7 +376,7 @@ git lfs track &quot;*.psd&quot; &quot;*.fbx&quot; &quot;*.png&quot; &quot;*.tga&
 git add .gitattributes &amp;&amp; git commit -m &quot;chore: track binary art with LFS&quot;</code></pre>
 <p>Do it <em>before</em> the assets land — converting afterwards means rewriting history. GitHub's free LFS allowance is small (about a gigabyte of storage and the same again in monthly bandwidth), so demo videos belong on the wiki or a shared drive, not in the repo.</p></li>
 <li><p><strong>Teach git to merge Unity files.</strong> Scenes and prefabs are YAML and git's default merge mangles them. Unity ships <code>UnityYAMLMerge</code> (SmartMerge): register it as the merge driver for <code>*.unity</code>, <code>*.prefab</code>, and <code>*.asset</code> in <code>.gitattributes</code> plus a matching <code>[merge]</code> block in your global <code>.gitconfig</code>, and scene conflicts become survivable instead of fatal. The template's <code>.gitattributes</code> already pins Unity YAML to LF endings so those files stop appearing modified after every editor session — leave those lines alone. Asset serialization is already Force Text; don't change it.</p></li>
-<li><p><strong>One owner per scene, per timebox.</strong> Even with SmartMerge, two people editing the same <code>.unity</code> file is the most common way a game team loses a day. The template is already split into additive scenes — <code>TempleRunTrackPCG</code>, <code>TrackVisuals</code>, <code>PlayerVisuals</code>, <code>Obstacles</code>, <code>Collectables</code>, <code>Sfx</code>, <code>Environment</code>, <code>GuiOverlay</code> — so assign them, and put new work in a new scene or a prefab rather than in someone else's.</p></li>
+<li><p><strong>One owner per scene, per timebox.</strong> Even with SmartMerge, two people editing the same <code>.unity</code> file is the most common way a game team loses a day. The template is already split into additive scenes — <code>TempleRunTrackPCG</code>, <code>TempleRunTrackVisuals</code>, <code>TempleRunPlayerVisuals</code>, <code>TempleRunObstacles</code>, <code>TempleRunCollectables</code>, <code>TempleRunSfx</code>, <code>TempleRunEnvironment</code>, <code>TempleRunGuiOverlay</code> — so assign them, and put new work in a new scene or a prefab rather than in someone else's.</p></li>
 <li><p><strong>Track the template upstream</strong> so you can pull fixes as the semester goes:</p>
 <pre style="background-color:#f5f5f5;border:1px solid #c7cdd1;padding:8px 10px;overflow-x:auto;"><code>git remote add upstream https://github.com/crawfis/EndlessRunnerTemplate.git
 git fetch upstream          # then merge or cherry-pick what you want</code></pre></li>
@@ -448,7 +448,7 @@ Identity 2: The Game Art Direction
 </ul>
 <h3 id="systems-architecture">Systems architecture</h3>
 <ul>
-<li><strong>Decoupling.</strong> Where does the Observer pattern — an event bus — separate UI from gameplay? The template answers this one way (three event domains, auto-chaining, a single cross-domain bridge), described in <a href="https://github.com/crawfis/EndlessRunnerTemplate/blob/main/docs/ARCHITECTURE.md">ARCHITECTURE.md</a>. Say whether you are adopting that, and why.</li>
+<li><strong>Decoupling.</strong> Where does the Observer pattern — an event bus — separate UI from gameplay? The template answers this one way (three event domains, auto-chaining, one bridge per domain crossing), described in <a href="https://github.com/crawfis/EndlessRunnerTemplate/blob/main/docs/ARCHITECTURE.md">ARCHITECTURE.md</a>. Say whether you are adopting that, and why.</li>
 <li><strong>Data.</strong> What belongs in ScriptableObjects rather than in code? Track segments, level rulesets, and per-mechanic configs are already SOs here; your game will have its own.</li>
 <li><strong>The diagram.</strong> A systems/UML diagram of the flow, plus the menu flow chart and the game progression flow chart. Ask the AI for a text description first, then draw it — a diagram you can describe in words is a diagram you understand.</li>
 </ul>
@@ -517,7 +517,7 @@ For each finding, say what you would change and why — do not rewrite the file.
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Tech-focused</strong> — build skills that transfer to <em>any</em> game</td>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">UI, rendering, audio, tooling, architecture</td>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">C, F, G, H, I, J, K, L</td>
-<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>I4</strong> game-over celebration · <strong>F4</strong> dash trails · <strong>F5</strong> screen-space feedback · <strong>L6</strong> event console · <strong>L1</strong> <code>AutoEventFlowBase</code></td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>I4</strong> game-over celebration · <strong>F4</strong> dash trails · <strong>F5</strong> screen-space feedback · <strong>L6</strong> event console · <strong>L1</strong> spawner base classes</td>
 </tr>
 </tbody>
 </table>
@@ -748,7 +748,7 @@ For each finding, say what you would change and why — do not rewrite the file.
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">4</td>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Integrator</td>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">repository setup, branch protection, LFS, freeze and tag</td>
-<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>L1</strong> consolidate <code>AutoEventFlowBase</code> · Player Settings, namespace, build</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>L1</strong> consolidate the spawner base classes · Player Settings, namespace, build</td>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">#3's</td>
 </tr>
 <tr>

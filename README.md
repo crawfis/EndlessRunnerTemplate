@@ -28,14 +28,14 @@ subscribing to named events.
 
 - **Event-driven core.** No cross-system method calls. Three event domains
   (`GameFlow`, `TempleRun`, `UserInitiated`) communicate through a static typed event bus
-  (`EventsFor<T>`), with declarative auto-chaining and a single cross-domain bridge.
+  (`EventsFor<T>`), with declarative auto-chaining and exactly one bridge per domain crossing.
 - **Additive scene composition.** A persistent bootstrap scene loads UI and gameplay scenes
   additively; gameplay is split from visuals, audio, and environment.
 - **Data-driven track generation.** Track segments and per-level rulesets are authored as
   ScriptableObject assets (edited in the Inspector) and selected at runtime by
   tag/difficulty — no code changes needed to add a segment or a level.
 - **Full runner mechanics.** Turns, lane changes, jump, slide, dash, obstacles, coins,
-  power-ups (speed, score multiplier, coin magnet, shield), countdown, and a level selector
+  power-ups (speed, score multiplier, coin magnet, coin doubler, shield), countdown, and a level selector
   with unlock/best-score persistence.
 - **AI-assistant tooling.** Guides for AI agents (`AGENTS.md`, `CLAUDE.md`) plus seven
   skills that enforce and automate the event-system conventions — plain-markdown
@@ -88,9 +88,11 @@ subscribing to named events.
 
 Systems never call each other. A system that wants something to happen **publishes an
 event**; systems that care **subscribe** and react. The jump button doesn't call the player
-controller — it publishes `UserJumpRequested`. `JumpController` subscribes, validates the
-request (no jumping while already airborne), and republishes it as `JumpRequested`, which
-auto-chains to `JumpStarting`; `JumpArcController` subscribes to that, actually drives the
+controller — it publishes `UserJumpRequested`, which `Input2TempleRunAutoEventBridge`
+translates to `JumpRequested`. `JumpController` subscribes, validates the request (no jumping
+while already airborne), and publishes `JumpStarting` itself once the check passes —
+deliberately *not* auto-chained, so the validation gate can reject; `JumpArcController`
+subscribes to that, actually drives the
 jump arc, and publishes `JumpStarted` partway through. Adding "play a sound on jump" later is
 just a new subscriber to `JumpStarted` — zero edits to either controller. No component holds
 a reference to a component in another system, so any system can be rewritten, replaced, or
@@ -108,7 +110,8 @@ so that input, gameplay, and application lifecycle stay independent of one anoth
 | **TempleRun** | `TempleRunEvents` | Gameplay: player actions, countdown, track/spline generation, collisions, coins, power-ups |
 | **UserInitiated** | `UserInitiatedEvents` | Raw input: turn/lane/jump/slide/dash/pause/quit requests |
 
-Events auto-chain within a domain via dictionary mappings (`*AutoEventFlow.cs`). The only
+Events auto-chain within a domain via a flat list of `(From, To)` pairs (`*AutoEventFlow.cs`),
+so one event may fan out to several consequences. The only
 crossing point between `TempleRun` and `GameFlow` is `TempleRunGameFlowBridge` — domain code
 must never reference another domain's events directly anywhere else. That isolation is the
 core discipline of the template, and the payoff is replaceability: GameFlow only knows about
@@ -135,10 +138,10 @@ countdown, while `TempleRunEnded` flows TempleRun → GameFlow to end the sessio
 Scenes load additively from `0_BootStrap_Game_Only`:
 
 - **Boot chain:** `0_BootStrap_Game_Only` → `Game_Boot_0_Test_Initialization` →
-  `Game_Boot_1_UI` (menus, level selector, HUD panels) → `Game_Boot_2_Play` (event
-  publishers, bridge, difficulty).
-- **Gameplay:** `TempleRunGameplay` + `TempleRunTrackPCG`, which in turn load the visuals,
-  player, obstacles, collectables, environment, SFX, and GUI overlay scenes.
+  `Game_Boot_1_UI` (menus, level selector, HUD panels) → `Game_Boot_2_Play` (bridge,
+  blackboard, difficulty, level scene loader).
+- **Gameplay:** `TempleRunGameplay` (which in turn loads the visuals, player, obstacles,
+  collectables, environment, SFX, and GUI overlay scenes) plus the shared `TempleRunTrackPCG`.
 
 Gameplay logic is kept separate from its visual and audio representation so either can be
 swapped without touching the other.
@@ -150,7 +153,8 @@ Track generation is a three-stage, fully event-decoupled pipeline:
 1. **Segment selection** (`TrackManager`) — picks abstract segments from a library filtered
    by the active level's tags/difficulty.
 2. **Geometry** (`PathProvider`) — turns each segment into an Entrance → Pivot → Exit spline
-   (axis-aligned 90° turns), including "Either" T-junctions resolved by the player's choice.
+   via a pluggable `IPathSegmentBuilder` (default `AxisAligned90Builder`; `ArcTurnBuilder`
+   gives rounded corners), including "Either" T-junctions resolved by the player's choice.
 3. **Visuals** (`PrefabSpawnerAbstract` subclasses) — spawns and recycles track geometry.
 
 Segments and per-level rulesets are ScriptableObject assets in

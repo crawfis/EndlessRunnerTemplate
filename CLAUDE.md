@@ -161,9 +161,12 @@ using TempleRunBus  = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun
 using UserInputBus  = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.Events.UserInitiatedEvents>;
 ```
 
-> The `EventsPublisher*.Instance` singletons were removed. `[DefaultExecutionOrder(-10000)]`
+> The per-domain `EventsPublisherEnums*.Instance` singletons were removed. `[DefaultExecutionOrder(-10000)]`
 > only ordered `Awake` within one scene load batch, so it never protected the additively
-> loaded scenes that actually hosted them.
+> loaded scenes that actually hosted them. (The package's untyped, string-based
+> `EventsPublisher.Instance` still backs the inspector-configured scene-management and
+> logging helpers — `FireEventAfterSceneLoads`, `CloseSceneOnEvent`, `TimedEvent`, the
+> event loggers, the `Test_AutoFireEvent*` helpers.)
 
 ## Event System Patterns
 
@@ -246,18 +249,20 @@ Read a retained value without subscribing with `EventsFor<T>.TryGetLast` (or the
 
 ### Auto-Event Flow Pattern
 
-Events auto-chain through dictionary mappings in `GameFlowAutoEventFlow.cs` and `TempleRunAutoEventFlow.cs`:
+Events auto-chain through flat `(From, To)` pair tables in `GameFlowAutoEventFlow.cs` and `TempleRunAutoEventFlow.cs`:
 
 ```csharp
 // In GameFlowAutoEventFlow.cs - GameFlow domain auto-chains
-// (three entries excerpted from a much larger dictionary)
-private readonly Dictionary<GameFlowEvents, GameFlowEvents> _autoGameFlow2GameFlowEvents = new()
+// (three entries excerpted from a much larger table)
+private static readonly (GameFlowEvents From, GameFlowEvents To)[] ChainTable =
 {
-    { GameFlowEvents.GameStartRequested, GameFlowEvents.GameStarting },
-    { GameFlowEvents.GameScenesLoaded, GameFlowEvents.GameStartRequested },
-    { GameFlowEvents.GameEnding, GameFlowEvents.GameScenesUnloadRequested },
-    // ... more mappings
+    (GameFlowEvents.GameStartRequested, GameFlowEvents.GameStarting),
+    (GameFlowEvents.GameScenesLoaded, GameFlowEvents.GameStartRequested),
+    (GameFlowEvents.GameEnding, GameFlowEvents.GameScenesUnloadRequested),
+    // ... more entries
 };
+
+protected override IReadOnlyList<(GameFlowEvents From, GameFlowEvents To)> Chains => ChainTable;
 ```
 
 When `GameScenesLoaded` fires, it automatically triggers `GameStartRequested` -> `GameStarting`.
@@ -302,22 +307,33 @@ When `GameScenesLoaded` fires, it automatically triggers `GameStartRequested` ->
 ### Namespaces
 ```
 CrawfisSoftware.Events            - Event-system core: EventsFor<T>/EventId<T> (package) + UserInitiatedEvents + EventHistory
-CrawfisSoftware.TempleRun         - Gameplay logic (TempleRunEvents enum, Blackboard, player controllers)
+                                    + EventChainDispatcher/AutoEventFlowBase (_Common/Events)
+CrawfisSoftware.TempleRun         - Gameplay logic (TempleRunEvents enum, Blackboard, player controllers,
+                                    most of Track/ and all of TrackVisuals/, GUIController)
 CrawfisSoftware.TempleRun.Events  - TempleRun auto-event flow + Input2TempleRunAutoEventBridge
-CrawfisSoftware.TempleRun.Track   - Track system (+ .Track.Geometry for the spline builders)
-CrawfisSoftware.TempleRun.*       - Per-area: .Input, .UI, .Audio, .PowerUps, .GameConfig, .Editor
-CrawfisSoftware.GameFlow          - Application lifecycle
+CrawfisSoftware.TempleRun.Track   - Segment-selection seam only (Track/Selection/); .Track.Geometry holds the spline builders
+CrawfisSoftware.TempleRun.*       - Per-area: .Input, .UI (CountdownUIController only), .Audio, .PowerUps, .GameConfig, .Editor
+CrawfisSoftware.GameFlow          - Application lifecycle (incl. QuitController, LoadSceneAdditively)
 CrawfisSoftware.GameFlow.Events   - GameFlowEvents, GameFlowAutoEventFlow, TempleRunGameFlowBridge
 CrawfisSoftware.GameFlow.UI       - UI controllers
-CrawfisSoftware.GameFlow.*        - Per-area: .Config, .GameConfig, .GameControl, .SceneManagement
+CrawfisSoftware.GameFlow.*        - Per-area: .Config, .GameConfig, .GameControl (UnloadNonActiveScenes only), .SceneManagement
 CrawfisSoftware.Config            - Shared, domain-neutral config (DifficultyConfig)
+CrawfisSoftware.Utility / .Utilities / .Utility.Testing / .Test - _Common utilities and test helpers
+CrawfisSoftware.Scriptables / .AssetManagement / .Spawners - vendored ThirdParty code
 ```
+
+Two known strays declare a namespace that doesn't match their folder:
+`Assets/GameFlow/Scripts/Config/PlayerPrefKeys.cs` (namespace `CrawfisSoftware.TempleRun.GameConfig`)
+and `Assets/_Common/Utility/DebugLog.cs` (namespace `CrawfisSoftware.TempleRun`). Use the
+declared namespace when referencing them.
 
 ### Field Naming
 ```csharp
 [SerializeField] private string _sceneName;      // Private: underscore prefix
 public float TurnAvailableDistance { get; }      // Properties: PascalCase
 private readonly Dictionary<...> _mapping = ...; // readonly: underscore prefix
+private static readonly (X From, X To)[] ChainTable = ...; // static readonly: PascalCase
+                                                 // (also EventId<T> fields, e.g. TrackChanging)
 ```
 
 ### Transform Conventions
@@ -352,9 +368,9 @@ private readonly Dictionary<...> _mapping = ...; // readonly: underscore prefix
 | Player Controllers | `Assets/TempleRun/Scripts/Player/TurnController.cs`, `JumpController.cs`, `SlideController.cs`, `DashController.cs`, `LaneChangeController.cs`, `PlayerLifeController.cs`, `PowerUpBuffController.cs`, `CountdownController.cs`, `DistanceController.cs`, `MoveCharacterByDistance.cs`, `PauseController.cs`, `PlayerPauseController.cs`, `AIController.cs` |
 | Player Support | `Assets/TempleRun/Scripts/Player/` — collision detectors (`ObstacleCollisionDetector.cs`, `CollectableCollisionDetector.cs`, `TurnCollisionDetector.cs`), `CoinCollectionController.cs`, motion shaping (`JumpArcController.cs`, `SlideArcController.cs`, `DashSpeedController.cs`, `LaneOffsetController.cs`), failure/teleport (`PlayerFailedController.cs`, `PlayerFailureAutoTurnController.cs`, `TeleportController.cs`, `CharacterTeleporter.cs`); `Assets/TempleRun/Scripts/GameTime.cs` (pausable gameplay clock) |
 | Power-Up Effects | `Assets/TempleRun/Scripts/PowerUps/IPowerUpEffect.cs`, `PowerUpEffectBase.cs`, `SpeedBoostEffect.cs`, `ScoreMultiplierEffect.cs`, `CoinMagnetEffect.cs`, `CoinDoublerEffect.cs`, `ShieldEffect.cs` |
-| Track Generation | `Assets/TempleRun/Scripts/Track/TrackManager.cs` (+ `TrackManagerAbstract.cs`, `TrackManagerForTiles.cs`, `TrackManagerList.cs` variants), `PathProvider.cs`, `SegmentTransitionController.cs`, `SegmentAdvanceTrigger.cs`, `TrackSegmentLibrary.cs`, `TrackLibraryLoader.cs`, `TrackSegmentInfo.cs`, `Direction.cs`, `DistanceTracker.cs`, `DistanceInterestService.cs` |
+| Track Generation | `Assets/TempleRun/Scripts/Track/TrackManager.cs` (+ `TrackManagerAbstract.cs`, `TrackManagerForTiles.cs`, `TrackManagerList.cs` variants), `PathProvider.cs`, `SegmentTransitionController.cs`, `SegmentAdvanceTrigger.cs`, `TrackSegmentLibrary.cs`, `TrackLibraryLoader.cs`, `TrackSegmentInfo.cs`, `Direction.cs`, `DistanceTracker.cs`, `DistanceInterestService.cs`, `SegmentGeometryData.cs`; SO classes `TrackSegmentSO.cs`, `TrackSegmentRegistrySO.cs`, `TrackLevelSO.cs`, `TrackLevelRegistrySO.cs` |
 | Segment Selection | `Assets/TempleRun/Scripts/Track/Selection/` — `ISegmentSelector.cs` + `ISegmentPool.cs` (pluggable policy seam), `WeightedDifficultySelector.cs` (default, wired in `TrackManager`), `DistanceRampSelector.cs`, `WaveSelector.cs`, `AuthoredSequenceSelector.cs` |
-| Track Geometry | `Assets/TempleRun/Scripts/Track/Geometry/` — `IPathSegmentBuilder.cs`, `AxisAligned90Builder.cs`, `ArcTurnBuilder.cs`, `PathPose.cs`, `PathSpan.cs`, `PathSegmentResult.cs`, `CardinalDirections.cs`; `SegmentGeometryData.cs` |
+| Track Geometry | `Assets/TempleRun/Scripts/Track/Geometry/` — `IPathSegmentBuilder.cs`, `AxisAligned90Builder.cs`, `ArcTurnBuilder.cs`, `PathPose.cs`, `PathSpan.cs`, `PathSegmentResult.cs`, `CardinalDirections.cs` |
 | Spawners | `Assets/TempleRun/Scripts/Track/SpawnerBase.cs`, `CoinSpawner.cs`, `ObstacleSpawner.cs`, `PowerUpSpawner.cs`, `PowerUpIdentifier.cs` |
 | Track Visuals | `Assets/TempleRun/Scripts/TrackVisuals/PrefabSpawnerAbstract.cs`, `SimplePlane/SplinePrefabSpawner.cs`, `SimplePlane/TextureScaler.cs`, `Voxels/VoxelPrefabSpawner.cs`, `Voxels/VoxelLaneTrackSpawner.cs` (lane-stretched voxels; the only visual that draws both T-junction arms) |
 | Gameplay UI | `Assets/TempleRun/Scripts/UI/GUIController.cs` (distance HUD via UXML), `CountdownUIController.cs` |
@@ -366,7 +382,7 @@ private readonly Dictionary<...> _mapping = ...; // readonly: underscore prefix
 | Auto-Event Base | `Assets/_Common/Events/AutoEventFlowBase.cs` — `EventChainDispatcher<TSource, TDest>` + `AutoEventFlowBase<TSource, TDest>`; the one dispatch implementation, shared by all four flow/bridge classes |
 | Shared Config | `Assets/_Common/Config/DifficultyConfig.cs` |
 | Utilities | `Assets/_Common/Utility/Logger.cs`, `EventLoggerDump.cs`, `DebugEventFileLogger.cs`, `DebugLog.cs`, `TimedEvent.cs`, `TextureExtensions.cs`; `Assets/_Common/Events/EventHistory.cs`; test helpers in `Assets/_Common/Test/` |
-| Vendored | `Assets/ThirdParty/CrawfisSoftware/` — Random providers, AssetManagement helpers, editor tools (screenshots, play-first-scene, dev-build toggle), `Spawners/GridSpawner.cs` |
+| Vendored | `Assets/ThirdParty/CrawfisSoftware/` — Random providers, AssetManagement helpers, editor tools (screenshots, play-first-scene, dev-build toggle), `Spawners/GridSpawner.cs`, `ScriptableInt.cs` |
 
 ## Gotchas and Warnings
 
@@ -486,7 +502,7 @@ Assets/
 │   │   ├── Player/                   # Turn/Jump/Slide/Dash/Lane/Life controllers, collision detectors, countdown, distance, pause, teleport, AI
 │   │   ├── PowerUps/                 # IPowerUpEffect strategy: PowerUpEffectBase + five concrete effects
 │   │   ├── Track/                    # TrackManager (+variants), PathProvider, SegmentTransitionController, spawners, SO classes, TrackLibraryLoader
-│   │   │   ├── Geometry/             # IPathSegmentBuilder, AxisAligned90Builder, ArcTurnBuilder, PathPose, PathSpan
+│   │   │   ├── Geometry/             # IPathSegmentBuilder, AxisAligned90Builder, ArcTurnBuilder, PathPose, PathSpan, PathSegmentResult, CardinalDirections
 │   │   │   └── Selection/            # ISegmentSelector/ISegmentPool + Weighted/DistanceRamp/Wave/AuthoredSequence selectors
 │   │   ├── TrackVisuals/             # PrefabSpawnerAbstract; SimplePlane/ (spline plane) and Voxels/ (incl. VoxelLaneTrackSpawner)
 │   │   ├── Input/                    # Movement/Swipe/Dash/Accelerometer/PauseQuit actions; generated GameControls + LeftRightJumpSlide

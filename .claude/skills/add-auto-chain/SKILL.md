@@ -20,14 +20,20 @@ Add an auto-event chain mapping within a single event domain. Auto-chains fire a
 | **GameFlow** | `Assets/GameFlow/Scripts/Events/GameFlowAutoEventFlow.cs` |
 | **TempleRun** | `Assets/TempleRun/Scripts/Events/TempleRunAutoEventFlow.cs` |
 
-Note: `UserInitiatedEvents` does NOT have an auto-flow — input events are always handled by subscribers directly.
+Note: `UserInitiatedEvents` does NOT have a same-domain auto-flow — raw input crosses into
+gameplay only via `Input2TempleRunAutoEventBridge`, the one permitted subscriber to raw input.
 
 A domain added via `/add-event-domain` gets its own `<Domain>AutoEventFlow` following the
-same dictionary pattern — add it to the table above when it exists.
+same chain-table pattern (a subclass of `AutoEventFlowBase<TSource, TDest>`) — add it to the
+table above when it exists.
 
-## CRITICAL: Always use dictionaries
+## CRITICAL: Always use the chain table
 
-**NEVER add individual `Subscribe` / `Unsubscribe` calls in auto-flow or bridge classes.** All event mappings MUST go into the appropriate dictionary. The `SubscribeToAll` handler will pick them up automatically. Individual subscriptions break the declarative pattern and create maintenance burden.
+**NEVER add individual `Subscribe` / `Unsubscribe` calls in auto-flow or bridge classes.** All event mappings MUST go into the class's `ChainTable` array — a flat list of `(From, To)` pairs. The shared `EventChainDispatcher` subscribes to everything and dispatches automatically. Individual subscriptions break the declarative pattern and create maintenance burden.
+
+One source event may declare **several** targets (multiple pairs with the same `From`).
+Targets fire synchronously in declaration order, so keep a multi-target group together and
+comment why the order matters.
 
 ## Procedure
 
@@ -42,20 +48,25 @@ Read the enum file and confirm both events exist. If not, tell the user to run `
 ### Step 3: Read the auto-flow file
 
 Read the appropriate `*AutoEventFlow.cs` to understand:
-- The dictionary variable name (e.g., `_autoGameFlow2GameFlowEvents`)
-- Existing mappings and their comment structure
-- Where the new mapping logically belongs
+- The `ChainTable` array (returned through the `Chains` property)
+- Existing entries and their comment structure
+- Where the new entry logically belongs
 
-### Step 4: Check for circular chains
+### Step 4: Check for circular chains and validation gates
 
 **CRITICAL**: Trace the full chain to ensure no infinite loops:
 - If A -> B is being added, check: does B -> ... -> A exist anywhere?
 - Check both auto-chains AND bridge mappings that could create a loop
 - If a cycle is detected, STOP and warn the user
 
+**Also check for a validation gate**: never chain a `*Requested` event that arrives raw from
+input to its `*Starting` — the controller that validates (cooldown, airborne, lane boundary)
+publishes `*Starting` itself, and an auto-chain would fire before the check runs. See the
+comments atop `TempleRunAutoEventFlow.cs`.
+
 ### Step 5: Add the mapping
 
-Add the new entry to the dictionary. Place it:
+Add the new `(From, To)` entry to the `ChainTable` array. Place it:
 - Near related mappings (same feature group)
 - With a comment explaining the chain purpose
 - Following the existing comment block style
@@ -85,18 +96,25 @@ Not auto-chained (intentional):
 
 **Immediate progression** (no async work):
 ```csharp
-{ GameFlowEvents.PauseRequested, GameFlowEvents.Pausing },
-{ GameFlowEvents.Pausing, GameFlowEvents.Paused },
+(GameFlowEvents.PauseRequested, GameFlowEvents.Pausing),
+(GameFlowEvents.Pausing, GameFlowEvents.Paused),
 ```
 
 **Async progression** (auto-chain the request, controller publishes completion):
 ```csharp
-{ GameFlowEvents.GameScenesLoadRequested, GameFlowEvents.GameScenesLoading },
-// GameScenesLoading -> GameScenesLoaded: Published by scene loader after async load
+(GameFlowEvents.GameScenesLoadRequested, GameFlowEvents.GameScenesLoading),
+// GameScenesLoading -> GameScenesLoaded: Published by FireEventAfterSceneLoads
+//             once every gameplay scene has loaded
 ```
 
 **Orchestration** (cross-phase):
 ```csharp
-{ GameFlowEvents.GameplayReady, GameFlowEvents.MainMenuShowRequested },
-{ GameFlowEvents.GameScenesLoaded, GameFlowEvents.GameStartRequested },
+(GameFlowEvents.GameplayReady, GameFlowEvents.MainMenuShowRequested),
+(GameFlowEvents.GameScenesLoaded, GameFlowEvents.GameStartRequested),
+```
+
+**Fan-out** (one source, several consequences — fire in declaration order):
+```csharp
+(TempleRunEvents.PlayerFailingAtTurn, TempleRunEvents.PlayerFailing),
+(TempleRunEvents.PlayerFailingAtObstacle, TempleRunEvents.PlayerFailing),
 ```

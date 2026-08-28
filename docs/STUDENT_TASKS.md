@@ -88,12 +88,15 @@ presentation running order. The tasks below are what those plans point at — tw
 1. **Straight-tiles-only mode (M).** A subway-style level: no turns at all, lanes only —
    author a `TrackLevelSO` whose pool is exclusively `Straight` segments, then rebalance
    obstacles/coins so lane discipline carries the challenge.
-2. **New `ISegmentSelector`: distance-based difficulty ramp (M).** The selection policy is
-   a pluggable strategy (`Assets/TempleRun/Scripts/Track/Selection/`) with two existing
-   implementations (`WeightedDifficultySelector`, `AuthoredSequenceSelector`). Add one that
-   ramps target difficulty with `DistanceTravelled`.
-3. **New `ISegmentSelector`: wave pacing (M).** Encounter design — rest, build tension,
-   spike, rest. The selector alternates easy and hard pools on a distance rhythm.
+2. **Wire up a non-default `ISegmentSelector` (M).** The selection policy is a pluggable
+   strategy (`Assets/TempleRun/Scripts/Track/Selection/`) with four existing
+   implementations (`WeightedDifficultySelector` — the default wired in `TrackManager` —
+   plus `AuthoredSequenceSelector`, `DistanceRampSelector`, and `WaveSelector`). Expose the
+   choice as data (e.g. per `TrackLevelSO`), wire `DistanceRampSelector` or `WaveSelector`
+   into a level, and tune it until the ramp or the wave is actually felt in play.
+3. **New `ISegmentSelector`: your own pacing policy (M).** Study `DistanceRampSelector` and
+   `WaveSelector`, then design a selector neither covers — e.g. adaptive difficulty that
+   reacts to recent failures, or authored set-pieces spliced into weighted selection.
 4. **New `IPathSegmentBuilder` (L).** Geometry is also a strategy
    (`Assets/TempleRun/Scripts/Track/Geometry/`, `AxisAligned90Builder`, `ArcTurnBuilder`).
    Add S-curves, gentle slopes, or banked turns. The hardest and most rewarding code task
@@ -380,13 +383,13 @@ expects — is part of the exercise. Read the PanelRenderer rules in
     handler and has no `OnDestroy` at all. Fix all four, then write the `/audit-events`
     check that would have caught them. Both of the first two have a correctly-paired sibling
     beside them (`FireEventWhenSceneCloses`, `CloseSceneOnEvent`) to diff against.
-12. **Reconnect the orphaned subscribers (S).** Two handlers wait on events nothing
-    publishes, so their behavior has never once run: `DistanceController` subscribes to
-    `PlayerFailing`, but only `PlayerFailingAtTurn` / `PlayerFailingAtObstacle` are ever
-    published — the generic speed reset is dead code; and `MainMenuPanelController`
-    subscribes to `GameplayNotReady`, whose publisher left with the removed UGS bridge.
-    For each, decide honestly: wire up the missing publisher, or delete the handler. The
-    judgment call *is* the exercise.
+12. **Reconnect the orphaned subscriber (S).** A handler waits on an event nothing
+    publishes, so its behavior has never once run: `MainMenuPanelController` subscribes to
+    `GameplayNotReady`, whose publisher left with the removed UGS bridge. Decide honestly:
+    wire up the missing publisher, or delete the handler. The judgment call *is* the
+    exercise. (A second orphan — `DistanceController`'s `PlayerFailing` speed reset — was
+    fixed when `PlayerFailingAtTurn`/`PlayerFailingAtObstacle` were auto-chained into
+    `PlayerFailing`; diff that fix as a worked example before choosing.)
 13. **Prune the dead event surface (M).** An audit found ~61 enum members that are never
     published, subscribed, or mapped, plus several chain roots that are wired into the
     auto-flow but never fired — so the whole chain below them is unreachable. Some are

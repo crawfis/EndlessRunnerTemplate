@@ -34,7 +34,7 @@ Publisher: `GameFlowBus` (`EventsFor<GameFlowEvents>`). Values are grouped by ca
 | Scenes | `GameScenesUnloadRequested`(30), `GameScenesUnloading`(31), `GameScenesUnloaded`(32), `GameScenesUnloadFailed`(33), `GameScenesLoadRequested`(34), `GameScenesLoading`(35), `GameScenesLoaded`(36), `GameScenesLoadFailed`(37), `GameScenesActivating`(38), `GameScenesActivated`(39) |
 | Gameplay Lifecycle | `GameplayPreparing`(50), `GameplayReady`(51), `GameplayNotReady`(52), `GameplayStarting`(53), `GameplayStarted`(54), `GameplayEnding`(55), `GameplayEnded`(56) |
 | Pause | `PauseRequested`(60), `Pausing`(61), `Paused`(62), `ResumeRequested`(63), `Resuming`(64), `Resumed`(65) |
-| Config / Difficulty | `GameConfigChangeRequested`(80), `GameConfigApplying`(81), `GameConfigApplied`(82), `GameConfigApplyFailed`(83), `LevelApplied`(85) *(data: int selected level number)*, `DifficultyChangeRequested`(90), `DifficultyChanging`(91), `DifficultyChanged`(92), `DifficultyChangeFailed`(93), `DifficultySettingsApplied`(94) |
+| Config / Difficulty | `GameConfigChangeRequested`(80), `GameConfigApplying`(81), `GameConfigApplied`(82) *(data: DifficultyConfig)*, `GameConfigApplyFailed`(83), `LevelApplied`(85) *(data: int selected level number)*, `DifficultyChangeRequested`(90), `DifficultyChanging`(91), `DifficultyChanged`(92), `DifficultyChangeFailed`(93), `DifficultySettingsApplied`(94) *(data: IList&lt;DifficultyConfig&gt;)* |
 | Save / Load *(hooks; auto-chains commented out by default)* | `SaveLoadRequested`(100), `SaveLoading`(101), `SaveLoaded`(102), `SaveLoadFailed`(103), `SaveRequested`(110), `Saving`(111), `Saved`(112), `SaveFailed`(113) |
 | Quit | `QuitRequested`(120), `Quitting`(121), `QuitCancelled`(122), `QuitCompleted`(123) |
 | Level Selector | `LevelSelectorShowRequested`(130), `LevelSelectorShowing`(131), `LevelSelectorShown`(132), `LevelSelectorHideRequested`(133), `LevelSelectorHiding`(134), `LevelSelectorHidden`(135), `LevelSelected`(136) *(data: LevelConfig)*, `LevelUnlocked`(137) *(data: LevelConfig)*, `LevelProgressSaved`(138) |
@@ -59,12 +59,12 @@ Publisher: `TempleRunBus` (`EventsFor<TempleRunEvents>`).
 | Power-up collect | `PowerUpCollectRequested`(160), `PowerUpCollecting`(161), `PowerUpCollected`(162) |
 | Power-up activate | `PowerUpActivateRequested`(180), `PowerUpActivating`(181), `PowerUpActivated`(182), `PowerUpDeactivateRequested`(183), `PowerUpDeactivating`(184), `PowerUpDeactivated`(185) |
 | Splines | `SplineSegmentCreateRequested`(200), `SplineSegmentCreating`(201), `SplineSegmentCreated`(202) *(data: SplineSegmentData)*, `SplineSegmentReleaseRequested`(203), `SplineSegmentReleasing`(204), `SplineSegmentReleased`(205), `CurrentSplineChangeRequested`(220), `CurrentSplineChanging`(221), `CurrentSplineChanged`(222) |
-| Track segments | `TrackSegmentCreateRequested`(240), `TrackSegmentCreating`(241), `TrackSegmentCreated`(242), `TrackSegmentRecycleRequested`(243), `TrackSegmentRecycling`(244), `TrackSegmentRecycled`(245), `ActiveTrackChangeRequested`(260), `ActiveTrackChanging`(261), `ActiveTrackChanged`(262) |
+| Track segments | `TrackSegmentCreateRequested`(240), `TrackSegmentCreating`(241), `TrackSegmentCreated`(242) *(data: TrackSegmentInfo)*, `TrackSegmentRecycleRequested`(243), `TrackSegmentRecycling`(244), `TrackSegmentRecycled`(245), `ActiveTrackChangeRequested`(260), `ActiveTrackChanging`(261) *(data: TrackSegmentInfo)*, `ActiveTrackChanged`(262) *(data: TrackSegmentInfo)* |
 | Teleport | `TeleportRequested`(280), `TeleportStarting`(281), `TeleportStarted`(282), `TeleportEndRequested`(283), `TeleportEnding`(284), `TeleportEnded`(285) |
-| Bridged from GameFlow | `TempleRunConfigApplied`(300), `TempleRunScenesReady`(302), `TempleRunLevelApplied`(304) *(data: int selected level number)* |
-| Difficulty (bridged) | `TempleRunDifficultySettingsApplied`(310), `TempleRunDifficultyChanging`(312), `TempleRunDifficultyChanged`(314), `TempleRunDifficultyChangeFailed`(316), `TempleRunDifficultyChangeRequested`(318) |
-| Difficulty (direct) | `DifficultySettingsApplied`(320), `DifficultyChanging`(321), `DifficultyChanged`(322), `DifficultyChangeFailed`(323) |
-| Distance | `DistanceUpdated`(330) |
+| Bridged from GameFlow | `TempleRunConfigApplied`(300) *(data: DifficultyConfig)*, `TempleRunScenesReady`(302), `TempleRunLevelApplied`(304) *(data: int selected level number; **sticky** — replayed to late subscribers)* |
+| Difficulty (bridged) | `TempleRunDifficultySettingsApplied`(310) *(data: IList&lt;DifficultyConfig&gt;; **sticky**)*, `TempleRunDifficultyChanging`(312) *(data: DifficultyConfig)*, `TempleRunDifficultyChanged`(314) *(data: DifficultyConfig)*, `TempleRunDifficultyChangeFailed`(316), `TempleRunDifficultyChangeRequested`(318) *(data: string difficulty name)* |
+| Difficulty (direct) | `DifficultySettingsApplied`(320), `DifficultyChanging`(321), `DifficultyChanged`(322), `DifficultyChangeFailed`(323) *(data: DifficultyConfig)* |
+| Distance | `DistanceUpdated`(330) *(data: float distance travelled)* |
 | Segment lifecycle | `SegmentEntering`(342), `SegmentEntered`(343), `SegmentExiting`(344), `SegmentExited`(345) *(all data: TrackSegmentInfo)* |
 | Segment geometry | `SegmentGeometryReady`(350) *(data: SegmentGeometryData)* |
 
@@ -108,6 +108,8 @@ GameEnded                    → GameplayReady             (post-game → back t
 ```
 PlayerPauseRequested       → PlayerPausing → PlayerPaused
 PlayerResumeRequested      → PlayerResuming → PlayerResumed
+PlayerFailingAtTurn        → PlayerFailing   (two sources fanning into one target;
+PlayerFailingAtObstacle    → PlayerFailing    PlayerFailed is published by PlayerFailedController)
 CountdownStartRequested    → CountdownStarting
 TempleRunStartRequested    → TempleRunStarting → TempleRunStarted
 PlayerDied                 → TempleRunEndRequested → TempleRunEnding → TempleRunEnded
@@ -138,7 +140,8 @@ publishes its own `*Starting` once its checks pass:
 
 ## Cross-domain bridge (`TempleRunGameFlowBridge.cs`)
 
-The **only** place cross-domain event references are allowed.
+The **only** place TempleRun ↔ GameFlow event references are allowed. (The input crossing
+has its own bridge — see the next section.)
 
 ### TempleRun → GameFlow
 ```
@@ -149,11 +152,12 @@ TempleRunEnded  → GameEnding
 ```
 ### GameFlow → TempleRun
 ```
-GameStarted        → TempleRunStartRequested
-GameStarting       → CountdownStartRequested
-GameConfigApplied  → TempleRunConfigApplied
-LevelApplied       → TempleRunLevelApplied
-GameScenesLoaded   → TempleRunScenesReady
+GameStarted               → TempleRunStartRequested
+GameStarting              → CountdownStartRequested
+GameConfigApplied         → TempleRunConfigApplied
+LevelApplied              → TempleRunLevelApplied
+GameScenesLoaded          → TempleRunScenesReady
+DifficultySettingsApplied → TempleRunDifficultySettingsApplied
 ```
 
 There is an intentional cycle: `CountdownEnded → GameStarted` (TR→GF) and

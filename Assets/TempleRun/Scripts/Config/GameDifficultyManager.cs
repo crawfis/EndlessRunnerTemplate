@@ -14,8 +14,8 @@ namespace CrawfisSoftware.TempleRun.GameConfig
     /// Manages difficulty configurations for TempleRun gameplay.
     /// Subscribes to TempleRunEvents (via bridge from GameFlow domain).
     ///    Dependencies: DifficultyConfig (shared in _Common)
-    ///    Subscribes: TempleRunEvents.DifficultyChanging, TempleRunEvents.DifficultySettingsApplied
-    ///    Publishes: TempleRunEvents.DifficultyChanged, TempleRunEvents.DifficultyChangeFailed
+    ///    Subscribes: TempleRunEvents.TempleRunDifficultyChangeRequested, TempleRunEvents.TempleRunDifficultySettingsApplied
+    ///    Publishes: TempleRunEvents.TempleRunDifficultyChanging, TempleRunEvents.DifficultyChangeFailed
     /// </summary>
     public class GameDifficultyManager : MonoBehaviour
     {

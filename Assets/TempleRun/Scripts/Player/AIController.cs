@@ -9,10 +9,10 @@ namespace CrawfisSoftware.TempleRun
     /// <summary>
     /// Deterministic (and perfect?) AI that triggers a turn request whenever the current
     /// distances gets within a user-specified value of the end of the currently discovered track.
-    ///    Dependency: TurnController, EventsFor<TempleRunEvents>
-    ///    Subscribes: GameStarted
-    ///    Publishes: LeftTurnRequested
-    ///    Publishes: RightTurnRequested
+    ///    Dependency: TurnController, EventsFor<TempleRunEvents>, EventsFor<UserInitiatedEvents>
+    ///    Subscribes: TempleRunEvents.TempleRunStarted
+    ///    Publishes: UserInitiatedEvents.UserLeftTurnRequested
+    ///    Publishes: UserInitiatedEvents.UserRightTurnRequested
     /// </summary>
     public class AIController : MonoBehaviour
     {

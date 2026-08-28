@@ -45,11 +45,11 @@ Patterns you will recognize from a software-design course, and where each one li
 
 | Pattern / principle | Where it shows up |
 |---------------------|-------------------|
-| Publish/subscribe (observer) | The entire event bus: `EventsPublisher*.PublishEvent` / `SubscribeToEvent` |
-| Singleton | The three publishers (`EventsPublisher*.Instance`), `Blackboard.Instance` — initialized first via `[DefaultExecutionOrder(-10000)]` |
+| Publish/subscribe (observer) | The entire event bus: static `EventsFor<T>.Publish` / `.Subscribe`, aliased per file as `GameFlowBus` / `TempleRunBus` / `UserInputBus` |
+| Singleton | `Blackboard.Instance` — shared gameplay state. The event buses are *not* singletons: `EventsFor<T>` is static and lazily initialized, so there is no scene object and no initialization race |
 | Bridge (between subsystems) | `TempleRunGameFlowBridge` — the *single* sanctioned crossing between the gameplay and app-lifecycle domains |
 | Lifecycle as a naming state machine | Every action is a `Requested → *ing → *ed` event chain, with `*Failed` / `*Cancelled` off-ramps |
-| Declarative control flow | Auto-chains: dictionaries mapping event → next event (`*AutoEventFlow.cs`), instead of imperative sequencing code |
+| Declarative control flow | Auto-chains: flat `(From, To)` pair tables — one event may declare several successors — in `*AutoEventFlow.cs`, instead of imperative sequencing code |
 | Data-driven design | Track segments/levels as ScriptableObjects ([TRACKS.md](TRACKS.md)); tuning configs per mechanic |
 | Separation of data, loading, and use | Authoring SOs → `TrackLibraryLoader` → runtime `TrackSegmentLibrary`; the authored asset is never mutated |
 | Blackboard | `Blackboard.Instance` — shared runtime gameplay state written and read via well-known properties |
@@ -58,8 +58,8 @@ Patterns you will recognize from a software-design course, and where each one li
 
 ## Event domains
 
-Every system communicates through a typed event bus. Each domain owns an enum and a singleton
-publisher; nothing calls across domains directly except the one bridge.
+Every system communicates through a typed event bus. Each domain owns an enum and a static
+`EventsFor<T>` bus; nothing calls across domains directly except the bridges.
 
 ```mermaid
 flowchart TD
@@ -130,7 +130,7 @@ flowchart TD
     B["0_BootStrap_Game_Only<br/><i>(build index 0, persistent)</i>"]
     B --> I["Game_Boot_0_Test_Initialization"]
     I --> UIs["Game_Boot_1_UI<br/><i>menus, level selector, HUD panels</i>"]
-    I --> P["Game_Boot_2_Play<br/><i>publishers, bridge, difficulty</i>"]
+    I --> P["Game_Boot_2_Play<br/><i>bridge, blackboard, difficulty, level scene loader</i>"]
 
     subgraph Gameplay["Loaded on GameScenesLoading (DynamicLevelSceneLoader)"]
       GP["TempleRunGameplay"]
@@ -158,7 +158,7 @@ manager class:
 | `LoadSceneAdditively` | unconditional additive load in `Start()` (the boot chain) |
 | `DynamicLevelSceneLoader` | on `GameScenesLoading`, loads `GameState.SelectedLevel.GameplaySceneName` + `TempleRunTrackPCG` |
 | `FireEventAfterSceneLoads` | waits for a set of scenes to load, then fires a completion event (this is what produces `GameScenesLoaded`) |
-| `UnloadNonActiveScenes` | on `GameEnded`, unloads every scene with `buildIndex > _lastSceneIndexToKeep`, then publishes `GameScenesUnloaded` |
+| `UnloadNonActiveScenes` | on its Inspector-configured trigger (`GameScenesUnloading` in the boot chain; `QuitRequested` on the quit-time instance), unloads every scene with `buildIndex > _lastSceneIndexToKeep`, then publishes its configured completion event (`GameScenesUnloaded` / `Quitting`) |
 | `CloseSceneOnEvent` / `FireEventWhenSceneCloses` | per-scene self-unload / unload notification |
 
 > ⚠️ **Build-order dependency.** `UnloadNonActiveScenes._lastSceneIndexToKeep` relies on the
