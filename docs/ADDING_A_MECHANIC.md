@@ -36,19 +36,23 @@ And a raw-input event to `UserInitiatedEvents.cs`:
 UserRollRequested,
 ```
 
-## 2. Auto-chain the request → starting
+## 2. Do NOT auto-chain the request → starting
 
-Requests that kick off immediately (no async gate) auto-progress. Dash does this; mirror it:
-```
-/add-auto-chain TempleRunEvents.RollRequested -> TempleRunEvents.RollStarting
-```
-This adds one line to `TempleRunAutoEventFlow.cs`:
+`RollRequested` is the bridge's *raw* translation of input — it fires whether or not a roll
+is currently legal. The controller is the validation gate: it publishes `RollStarting` itself
+once its checks pass (see §5). Auto-chaining `RollRequested → RollStarting` would fire before
+any validation runs and silently defeat the gate — that exact mapping was once live for Dash
+and defeated the dash cooldown outright (see the comments in `TempleRunAutoEventFlow.cs`).
+
+Use `/add-auto-chain` only for progressions that really are unconditional (e.g.
+`PlayerDied → TempleRunEndRequested`). A chain is one `(From, To)` entry in the flow class's
+`ChainTable` array:
 ```csharp
-{ TempleRunEvents.RollRequested, TempleRunEvents.RollStarting },
+(TempleRunEvents.PlayerDied, TempleRunEvents.TempleRunEndRequested),
 ```
-> Only auto-chain what should fire automatically. The `*Started` / `*Ended` events are
-> published by the controller when the animation/coroutine actually finishes — never
-> auto-chained.
+One source may declare several targets; they fire synchronously in declaration order.
+The `*Started` / `*Ended` events are published by the controller when the
+animation/coroutine actually finishes — never auto-chained.
 
 ## 3. Turn input into an intent
 
@@ -56,8 +60,8 @@ Input scripts publish **only** `UserInitiatedEvents`, never TempleRun events (ke
 layer domain-clean). Add a binding in `MovementInputActions.cs` (or a small dedicated input
 class like `DashInputActions.cs`):
 ```csharp
-_playerControls.Player.Roll.performed += OnRoll;      // in OnEnable
-_playerControls.Player.Roll.performed -= OnRoll;      // in OnDisable/OnDestroy — always!
+_inputActions.Player.Roll.performed += OnRoll;      // in OnEnable
+_inputActions.Player.Roll.performed -= OnRoll;      // in OnDisable/OnDestroy — always!
 
 private void OnRoll(InputAction.CallbackContext ctx)
 {
@@ -69,13 +73,13 @@ private void OnRoll(InputAction.CallbackContext ctx)
 
 ## 4. Bridge input → gameplay
 
-Translate the raw intent into a gameplay request. Dash and Slide do this in
+Translate the raw intent into a gameplay request. Every input intent does this in
 `Input2TempleRunAutoEventBridge.cs`:
 ```csharp
-{ UserInitiatedEvents.UserRollRequested, TempleRunEvents.RollRequested },
+(UserInitiatedEvents.UserRollRequested, TempleRunEvents.RollRequested),
 ```
-(Some inputs — turns, lane changes, jump — are instead consumed directly by their controllers.
-Either is fine; the bridge is the tidy default for a new mechanic.)
+(The bridge is the **only** place in the codebase allowed to subscribe to
+`UserInitiatedEvents`; gameplay controllers subscribe to the TempleRun event it produces.)
 
 ## 5. Write the controller
 
@@ -89,19 +93,20 @@ internal class RollController : MonoBehaviour
     private void Awake()
     {
         TempleRunBus.Subscribe(
-            TempleRunEvents.RollStarting, OnRollStarting);
+            TempleRunEvents.RollRequested, OnRollRequested);
     }
 
     private void OnDestroy()   // MANDATORY — matching unsubscribe
     {
         TempleRunBus.Unsubscribe(
-            TempleRunEvents.RollStarting, OnRollStarting);
+            TempleRunEvents.RollRequested, OnRollRequested);
     }
 
-    private void OnRollStarting(string e, object sender, object data)
+    private void OnRollRequested(string e, object sender, object data)
     {
-        if (_isRolling) return;             // guard
+        if (_isRolling) return;             // the validation gate
         _isRolling = true;
+        TempleRunBus.Publish(TempleRunEvents.RollStarting, this, null);
         StartCoroutine(RollRoutine());
     }
 
@@ -136,9 +141,10 @@ unused events, no accidental cycle.
 ## Checklist
 
 - [ ] Events added to the right enum(s) with consistent numbering
-- [ ] Request → Starting auto-chained; Started/Ended published by the controller
+- [ ] Request consumed by the controller, which publishes `*Starting` only after validation
+      — never auto-chain `*Requested → *Starting`; Started/Ended also published by the controller
 - [ ] Input publishes only `UserInitiatedEvents`, and unsubscribes its handlers
-- [ ] Bridge maps the intent into a gameplay request (or a controller consumes it directly)
+- [ ] Bridge maps the intent into a gameplay request (the bridge is the only `UserInitiatedEvents` subscriber)
 - [ ] Controller subscribes in `Awake`, **unsubscribes in `OnDestroy`**, publishes results
 - [ ] Visuals/audio live in separate subscribers, not the controller
 - [ ] `/audit-events` is clean

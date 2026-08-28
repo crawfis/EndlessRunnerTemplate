@@ -76,6 +76,7 @@ Trace all auto-chain and bridge mappings to detect cycles:
    - `GameFlowAutoEventFlow.cs`
    - `TempleRunAutoEventFlow.cs`
    - `TempleRunGameFlowBridge.cs`
+   - `Input2TempleRunAutoEventBridge.cs`
 2. Run cycle detection on the graph
 3. Report any cycles found
 
@@ -101,20 +102,27 @@ NEVER PUBLISHED (subscribed but never fires):
 
 ### Check 6: Domain Isolation Violations (Cross-Domain Event References)
 
-Each domain's code may ONLY reference events from its own domain. Cross-domain event references are ONLY permitted inside the bridge file (`TempleRunGameFlowBridge.cs`).
+Each domain's code may ONLY reference events from its own domain. Cross-domain event references are ONLY permitted inside a bridge file (`TempleRunGameFlowBridge.cs`, `Input2TempleRunAutoEventBridge.cs`).
 
 **Scan for these violations:**
 
 1. **TempleRun code referencing GameFlowEvents:**
    - Grep for `GameFlowEvents\.` in `Assets/TempleRun/**/*.cs`
-   - Any match is a violation (TempleRun should only use `TempleRunEvents` and `UserInitiatedEvents`)
+   - Any match is a violation (TempleRun gameplay code uses only `TempleRunEvents`)
 
 2. **GameFlow code referencing TempleRunEvents (outside bridges):**
    - Grep for `TempleRunEvents\.` in `Assets/GameFlow/**/*.cs`
    - Exclude `TempleRunGameFlowBridge.cs` — that file is allowed
    - Any other match is a violation
 
-3. **Additional domains** (added via `/add-event-domain`): run the same check for each —
+3. **Gameplay code subscribing to raw input:**
+   - Grep for `UserInputBus.Subscribe` and `Subscribe(UserInitiatedEvents.` in `Assets/**/*.cs`
+   - Exclude `Input2TempleRunAutoEventBridge.cs` — the ONLY permitted subscriber
+   - Any other match is a violation (publishing `UserInitiatedEvents` is open to input
+     sources — the `Scripts/Input/` action classes, `AIController`, replay/netcode drivers —
+     but subscribing is closed; controllers subscribe to the TempleRun event the bridge produces)
+
+4. **Additional domains** (added via `/add-event-domain`): run the same check for each —
    the domain's enum name may appear outside its own `Assets/<Domain>/` folder ONLY in
    bridge files. The authoritative domain list is every enum marked `[EventEnum]` under
    `Assets/`.
@@ -166,6 +174,6 @@ Event System Audit Results:
 
 - Event enums: `Assets/GameFlow/Scripts/Events/GameFlowEvents.cs`, `Assets/TempleRun/Scripts/Events/TempleRunEvents.cs`, `Assets/TempleRun/Scripts/Events/UserInitiatedEvents.cs`
 - Auto-flows: `Assets/GameFlow/Scripts/Events/GameFlowAutoEventFlow.cs`, `Assets/TempleRun/Scripts/Events/TempleRunAutoEventFlow.cs`
-- Bridge: `Assets/GameFlow/Scripts/TempleRunSpecific/TempleRunGameFlowBridge.cs`
+- Bridges: `Assets/GameFlow/Scripts/TempleRunSpecific/TempleRunGameFlowBridge.cs`, `Assets/TempleRun/Scripts/Events/Input2TempleRunAutoEventBridge.cs`
 - Any additional `[EventEnum]` enums, `*AutoEventFlow` classes, and `*Bridge` classes from domains added later
 - All C# scripts: `Assets/**/*.cs`

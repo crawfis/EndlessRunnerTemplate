@@ -24,16 +24,17 @@ After adding a bridge mapping, remind the user that any existing code that direc
 | Bridge Class | File | Connects |
 |-------------|------|----------|
 | **TempleRunGameFlowBridge** | `Assets/GameFlow/Scripts/TempleRunSpecific/TempleRunGameFlowBridge.cs` | TempleRun <-> GameFlow (bidirectional) |
+| **Input2TempleRunAutoEventBridge** | `Assets/TempleRun/Scripts/Events/Input2TempleRunAutoEventBridge.cs` | UserInitiated -> TempleRun (one-way; the only permitted subscriber to raw input) |
 
-This is the only bridge in the template. If you add another integration domain
+These are the only two bridges in the template. If you add another integration domain
 (analytics, backend services, etc.), create a new bridge class for it following
 the same pattern rather than referencing that domain's events from gameplay code —
 `/add-event-domain` walks through creating the domain, its bridge class, and which scene
 should host it. Add each new bridge class to the table above.
 
-## CRITICAL: Always use dictionaries
+## CRITICAL: Always use the direction tables
 
-**NEVER add individual `Subscribe` / `Unsubscribe` calls in bridge or auto-flow classes.** All event mappings MUST go into the appropriate dictionary. The `SubscribeToAll` handler will pick them up automatically. Individual subscriptions break the declarative pattern and create maintenance burden.
+**NEVER add individual `Subscribe` / `Unsubscribe` calls in bridge or auto-flow classes.** All event mappings MUST go into the appropriate `(From, To)` pair table. The shared `EventChainDispatcher` subscribes to everything and dispatches automatically. Individual subscriptions break the declarative pattern and create maintenance burden.
 
 ## Procedure
 
@@ -51,17 +52,17 @@ Read both enum files to confirm the source and target events exist. If they don'
 ### Step 3: Read the bridge file
 
 Read the appropriate bridge class to understand:
-- The existing dictionary mappings
-- The direction dictionaries (e.g., `_autoTempleRun2GameFlowEvents` vs `_autoGameFlow2TempleRunEvents`)
+- The existing `(From, To)` pair tables
+- The direction tables (e.g., `TempleRunToGameFlow` vs `GameFlowToTempleRun`)
 - Comment style used
 
 ### Step 4: Add the mapping
 
-Add the new entry to the correct direction dictionary. Include a comment explaining why this bridge exists.
+Add the new entry to the correct direction table. Include a comment explaining why this bridge exists.
 
-**TempleRunGameFlowBridge has two dictionaries:**
-- `_autoTempleRun2GameFlowEvents` — TempleRun fires, GameFlow receives
-- `_autoGameFlow2TempleRunEvents` — GameFlow fires, TempleRun receives
+**TempleRunGameFlowBridge has two direction tables (each driving its own `EventChainDispatcher` — a bidirectional bridge cannot inherit `AutoEventFlowBase` twice):**
+- `TempleRunToGameFlow` — TempleRun fires, GameFlow receives
+- `GameFlowToTempleRun` — GameFlow fires, TempleRun receives
 
 ### Step 5: Check for circular paths
 
@@ -83,13 +84,14 @@ Event flow path:
 
 ## Example
 
-Adding `TempleRunEvents.CoinCollected -> GameFlowEvents.ScoreUpdateRequested`:
+Adding `TempleRunEvents.CoinCollected -> GameFlowEvents.ScoreUpdateRequested`
+(`ScoreUpdateRequested` is hypothetical — create it with `/add-event` first):
 
 1. Verify both events exist in their enums
 2. Open `TempleRunGameFlowBridge.cs`
-3. Add to `_autoTempleRun2GameFlowEvents`:
+3. Add to `TempleRunToGameFlow`:
    ```csharp
    // Coin collected in gameplay -> request score update in GameFlow
-   { TempleRunEvents.CoinCollected, GameFlowEvents.ScoreUpdateRequested },
+   (TempleRunEvents.CoinCollected, GameFlowEvents.ScoreUpdateRequested),
    ```
 4. Trace: CoinCollected -> (bridge) -> ScoreUpdateRequested -> (auto-chain?) -> ...

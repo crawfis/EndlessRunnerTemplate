@@ -9,8 +9,8 @@ turn a group of students into a game studio: define your identity, stand up your
 pipeline, and deliver a **Greenlight pitch** that proves you are ready to build a complex
 software product.
 
-You will use generative AI not to do the work for you, but to play three roles for your
-studio — **Agile Coach**, **Lead Architect**, and **Technical Auditor**. Prompts for each are
+You will use generative AI not to do the work for you, but to play four roles for your
+studio — **Agile Coach**, **Lead Architect**, **Creative Director**, and **Technical Auditor**. Prompts for each are
 in the phase that needs them.
 
 The endless-runner template is your **playground**: it is where you prove the team can code,
@@ -260,8 +260,9 @@ muscle memory. Get *those* right here.
   serialization is already Force Text; don't change it.
 - **One owner per scene, per timebox.** Even with SmartMerge, two people editing the same
   `.unity` file is the most common way a game team loses a day. The template is already split
-  into additive scenes — `TempleRunTrackPCG`, `TrackVisuals`, `PlayerVisuals`, `Obstacles`,
-  `Collectables`, `Sfx`, `Environment`, `GuiOverlay` — so assign them, and put new work in a
+  into additive scenes — `TempleRunTrackPCG`, `TempleRunTrackVisuals`, `TempleRunPlayerVisuals`,
+  `TempleRunObstacles`, `TempleRunCollectables`, `TempleRunSfx`, `TempleRunEnvironment`,
+  `TempleRunGuiOverlay` — so assign them, and put new work in a
   new scene or a prefab rather than in someone else's.
 - **Track the template upstream** so you can pull fixes as the semester goes:
 
@@ -382,8 +383,8 @@ team and write it down:
 ### Systems architecture
 
 - **Decoupling.** Where does the Observer pattern — an event bus — separate UI from gameplay?
-  The template answers this one way (three event domains, auto-chaining, a single cross-domain
-  bridge), described in
+  The template answers this one way (three event domains, auto-chaining, one bridge per
+  domain crossing), described in
   [ARCHITECTURE.md](https://github.com/crawfis/EndlessRunnerTemplate/blob/main/docs/ARCHITECTURE.md).
   Say whether you are adopting that, and why.
 - **Data.** What belongs in ScriptableObjects rather than in code? Track segments, level

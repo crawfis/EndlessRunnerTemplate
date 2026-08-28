@@ -29,7 +29,8 @@ Display a comprehensive view of all events in the event system.
 
 ### Step 2: Read auto-chain mappings
 
-Read the relevant auto-flow file(s) and extract all dictionary entries.
+Read the relevant auto-flow file(s) and extract every `(From, To)` entry from the
+`ChainTable` arrays. One source may map to several targets — list each pair.
 
 | Domain | File |
 |--------|------|
@@ -40,6 +41,7 @@ Read the relevant auto-flow file(s) and extract all dictionary entries.
 
 Read bridge files and extract cross-domain mappings:
 - `Assets/GameFlow/Scripts/TempleRunSpecific/TempleRunGameFlowBridge.cs`
+- `Assets/TempleRun/Scripts/Events/Input2TempleRunAutoEventBridge.cs`
 
 ### Step 4: Format output
 
@@ -75,10 +77,12 @@ At the end, show the next available value ranges for adding new events:
 
 | Domain | Last Used | Next Available Range |
 |--------|-----------|---------------------|
-| GameFlow | 123 (QuitCompleted) | 130+ |
-| TempleRun | 285 (TeleportEnded) | 290+ |
-| UserInitiated | 2 (PauseToggle) | 3+ |
+| GameFlow | 138 (LevelProgressSaved) | 140+ |
+| TempleRun | 350 (SegmentGeometryReady) | 360+ |
+| UserInitiated | 8 (UserDashRequested) | 9+ |
 ```
+
+(The counts above are a snapshot — always recompute from the enum files.)
 
 ### Step 6: Show flow summary (if `all`)
 
@@ -87,8 +91,9 @@ When listing all domains, include the cross-domain flow:
 ```
 ## Cross-Domain Event Flow
 
-UserInput -> TempleRun:
-  (no bridges - handled by direct subscription in controllers)
+UserInput -> TempleRun (via Input2TempleRunAutoEventBridge — the ONLY permitted
+subscriber to UserInitiatedEvents; controllers subscribe to the TempleRun event):
+  [list all UserInitiated -> TempleRun mappings]
 
 TempleRun -> GameFlow (via TempleRunGameFlowBridge):
   [list all TempleRun -> GameFlow mappings]

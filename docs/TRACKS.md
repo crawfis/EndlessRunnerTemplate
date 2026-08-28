@@ -11,16 +11,17 @@ Three decoupled stages, communicating only through events:
 
 ```mermaid
 flowchart LR
-    A["1. Selection<br/>TrackManager<br/><i>picks abstract segments<br/>from TrackSegmentLibrary</i>"]
+    A["1. Selection<br/>TrackManager + ISegmentSelector<br/><i>picks abstract segments<br/>from the TrackSegmentLibrary pool</i>"]
       -->|TrackSegmentCreated| B
     B["2. Geometry<br/>PathProvider<br/><i>Entrance→Pivot→Exit spline</i>"]
       -->|SplineSegmentCreated<br/>SegmentGeometryReady| C
     C["3. Visuals + spawns<br/>PrefabSpawner*, Spawner*<br/><i>track mesh, obstacles,<br/>coins, power-ups</i>"]
 ```
 
-1. **Selection** — `TrackManager` keeps a look-ahead queue, asks `TrackSegmentLibrary` for the
-   next segment (weighted, optionally difficulty-gated), and publishes `TrackSegmentCreated`
-   plus `ActiveTrackChanging` as the player advances.
+1. **Selection** — `TrackManager` keeps a look-ahead queue, asks its pluggable
+   `ISegmentSelector` for the next segment (passing `TrackSegmentLibrary` as the read-only
+   `ISegmentPool`), and publishes `TrackSegmentCreated` plus `ActiveTrackChanging` as the
+   player advances.
 2. **Geometry** — `PathProvider` converts each abstract segment into a concrete
    Entrance → Pivot → Exit spline (axis-aligned 90° turns) and publishes `SplineSegmentCreated`
    (visual geometry) and `SegmentGeometryReady` (full geometry incl. pivot/exit).
@@ -141,10 +142,14 @@ builder.
 
 ## Selection at runtime
 
-`TrackSegmentLibrary.SelectNext(previousId, repeatCount, random, targetDifficulty, range)`:
+Selection is a pluggable policy: `ISegmentSelector.SelectNext(ISegmentPool, SelectionContext)`
+in `Track/Selection/`. The default is `WeightedDifficultySelector` (wired in `TrackManager`);
+`DistanceRampSelector`, `WaveSelector`, and `AuthoredSequenceSelector` ship as alternates.
+The default's rules:
 
 1. If the previous segment has explicit `Connections`, candidates are limited to those.
-   Otherwise all active segments are candidates.
+   Otherwise all active segments are candidates. (Currently unauthorable: no SO field feeds
+   `Connections`, so this branch is inactive for Inspector-authored tracks.)
 2. `MaxRepeat` filters out a segment that would repeat too many times consecutively.
 3. When `targetDifficulty >= 0`, candidates are gated to `DifficultyRating` within `± range`
    (falls back to ungated if that leaves nothing).
@@ -189,7 +194,7 @@ A single `Levels` array of `TrackLevelSO` references, resolved by `LevelNumber`.
 
 ## Either / T-junctions
 
-A segment with `Direction: "Either"` presents a branch. `PathProvider` publishes only the
+A segment with `Direction: Either` presents a branch. `PathProvider` publishes only the
 approach spline and stashes the pending exit; generation halts until the player commits with
 `SegmentRequested` (data: `Direction`), then the exit geometry is resolved and re-published
 with the same sequence index.
@@ -199,7 +204,7 @@ with the same sequence index.
 - **Inspector:** select a `TrackSegmentSO`, `TrackSegmentRegistrySO`, or `TrackLevelSO` asset in
   `Assets/TempleRun/Scriptables/Track/` and edit it directly. Create new ones via
   `Assets > Create > CrawfisSoftware > TempleRun > Track Segment` / `Track Segment Registry` /
-  `Track Level`. Add a new segment to a level by adding it to the registry and tagging it (or
+  `Track Level` / `Track Level Registry`. Add a new segment to a level by adding it to the registry and tagging it (or
   listing its id in the level's `ActiveSegmentIds`).
 - **Migration:** the segments and levels were converted from the legacy JSON by the one-shot
   `CrawfisSoftware > Track > Import JSON -> ScriptableObjects` importer

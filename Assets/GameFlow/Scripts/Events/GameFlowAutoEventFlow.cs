@@ -22,7 +22,7 @@ namespace CrawfisSoftware.GameFlow.Events
     /// [AUTO] LoadingScreenHideRequested -> LoadingScreenHiding
     /// [Published] DifficultySettingsApplied
     /// [AUTO] DifficultyChangeRequested -> DifficultyChanging
-    /// [Published] DifficultyChanged
+    /// (DifficultyChanged is currently unpublished; difficulty resolution lives in TempleRun via the bridge)
     /// [Published] LoadingScreenShown -> LoadingScreenHidden
     /// [Published] MainMenuShown
     ///
@@ -45,8 +45,7 @@ namespace CrawfisSoftware.GameFlow.Events
     /// [AUTO] LevelSelected -> GameScenesLoadRequested
     /// [AUTO] GameScenesLoadRequested -> GameScenesLoading
     /// [Published] LevelSelectorHidden
-    /// [Published] DifficultyChanging -> DifficultyChanged
-    /// [Published] GameConfigApplying -> GameConfigApplied
+    /// (DifficultyChanged and GameConfigApplied are currently unpublished - see GameFlowEvents.cs)
     /// [Published] GameScenesLoaded
     /// [AUTO] GameScenesLoaded -> GameStartRequested
     /// [AUTO] GameStartRequested -> GameStarting
@@ -60,7 +59,7 @@ namespace CrawfisSoftware.GameFlow.Events
     /// [Published] GameStarted
     ///
     /// --- GAMEPLAY LOOP (see TempleRunAutoEventFlow for gameplay events) ---
-    /// [TempleRun] LeftTurnRequested/RightTurnRequested -> LeftTurnSucceeded/RightTurnSucceeded
+    /// [TempleRun] TurnLeftRequested/TurnRightRequested -> TurnLeftCompleted/TurnRightCompleted
     /// [TempleRun] TrackSegmentCreated, SplineSegmentCreated
     /// [TempleRun] ActiveTrackChanging -> CurrentSplineChanging -> TeleportStarted -> TeleportEnded -> CurrentSplineChanged
     /// [TempleRun] PlayerFailingAtTurn/AtObstacle -> PlayerFailing ... PlayerFailed
@@ -102,8 +101,8 @@ namespace CrawfisSoftware.GameFlow.Events
             // ================================================================================
             (GameFlowEvents.LoadingScreenShowRequested, GameFlowEvents.LoadingScreenShowing),
             (GameFlowEvents.LoadingScreenHideRequested, GameFlowEvents.LoadingScreenHiding),
-            // LoadingScreenShowing -> LoadingScreenShown: Published by LoadingScreenController
-            // LoadingScreenHiding -> LoadingScreenHidden: Published by LoadingScreenController
+            // LoadingScreenShowing -> LoadingScreenShown: Published by GameFlowUIPanelController
+            // LoadingScreenHiding -> LoadingScreenHidden: Published by GameFlowUIPanelController
 
             // ================================================================================
             // MAIN MENU BRIDGES
@@ -125,7 +124,8 @@ namespace CrawfisSoftware.GameFlow.Events
             // GAME SESSION BRIDGES
             // ================================================================================
             (GameFlowEvents.GameStartRequested, GameFlowEvents.GameStarting),
-            // GameEndRequested -> GameEnding: Published by GameOverController (carries score data)
+            // GameEnding: bridged from TempleRunEvents.TempleRunEnded by TempleRunGameFlowBridge
+            //             (GameEndRequested is declared but currently unpublished)
             // GameStarting -> GameStarted: Published after countdown ends
             // GameEnding -> GameEnded: Published after scenes unloaded
 
@@ -134,7 +134,8 @@ namespace CrawfisSoftware.GameFlow.Events
             // ================================================================================
             (GameFlowEvents.GameScenesLoadRequested, GameFlowEvents.GameScenesLoading),
             (GameFlowEvents.GameScenesUnloadRequested, GameFlowEvents.GameScenesUnloading),
-            // GameScenesLoading -> GameScenesLoaded: Published by scene loader
+            // GameScenesLoading -> GameScenesLoaded: Published by FireEventAfterSceneLoads
+            //             (TempleRunGameplay scene) once every gameplay scene has loaded
             // GameScenesUnloading -> GameScenesUnloaded: Published by scene unloader
 
             // ================================================================================
@@ -142,9 +143,10 @@ namespace CrawfisSoftware.GameFlow.Events
             // ================================================================================
             (GameFlowEvents.GameConfigChangeRequested, GameFlowEvents.GameConfigApplying),
             (GameFlowEvents.DifficultyChangeRequested, GameFlowEvents.DifficultyChanging),
-            // GameConfigApplying -> GameConfigApplied: Published by config system
-            // DifficultyChanging -> DifficultyChanged: Published by difficulty system
-            // DifficultySettingsApplied: Published when RemoteConfig updates difficulty
+            // GameConfigApplied / DifficultyChanged: currently unpublished (see GameFlowEvents.cs);
+            //             the live flow is DifficultySettingsApplied, bridged to TempleRun
+            // DifficultySettingsApplied: Published by LevelConfigApplier (the selected level's
+            //             difficulty table)
 
             // ================================================================================
             // PAUSE / RESUME BRIDGES

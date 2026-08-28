@@ -5,8 +5,8 @@ know about them.
 
 ## Unity 6000.5: UIDocument → Panel Renderer migration — RESOLVED (migrated)
 
-**Status: resolved.** All UI is migrated from `UIDocument` to `PanelRenderer` (merged to `main`,
-Unity 6000.5.2f1). The notes below are kept as the record of what bit us, so the pattern is not
+**Status: resolved.** All UI is migrated from `UIDocument` to `PanelRenderer` (merged to `main`
+under Unity 6000.5.2f1; the project is now on 6000.5.7f1). The notes below are kept as the record of what bit us, so the pattern is not
 re-broken when adding panels. Reusable guide:
 [playbooks/uidocument-to-panel-renderer.md](playbooks/uidocument-to-panel-renderer.md);
 per-scene record: [Phase 3 checklist](specs/PANEL_RENDERER_PHASE3_CHECKLIST.md).
