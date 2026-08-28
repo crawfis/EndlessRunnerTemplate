@@ -178,9 +178,12 @@ See [CLAUDE.md](CLAUDE.md) for the full architecture guide and conventions.
 
 ### A good first exercise
 
-`Assets/_Common/Events/AutoEventFlowBase.cs` is an intentional empty placeholder. The
-auto-flow and bridge classes each re-implement the same event-dispatch logic; consolidating it
-into a shared base class is a self-contained refactor that teaches the dispatch mechanism.
+`Assets/TempleRun/Scripts/Track/SpawnerBase.cs` and
+`Assets/TempleRun/Scripts/TrackVisuals/PrefabSpawnerAbstract.cs` are parallel implementations
+of the same algorithm — the first one's docstring even says "Mirrors `PrefabSpawnerAbstract`".
+Consolidating them is a self-contained refactor that teaches the segment lifecycle. It is the
+same exercise `AutoEventFlowBase` used to be, before that one was done (see
+[docs/event-review/](docs/event-review/) for why).
 
 ## Dependencies
 

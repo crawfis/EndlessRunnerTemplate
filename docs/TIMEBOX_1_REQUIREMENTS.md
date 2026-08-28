@@ -481,7 +481,7 @@ too, and they go on the board with estimates.
 | Flavor | You care about | Catalog | Timebox 1 starter picks |
 |---|---|---|---|
 | **Runner-focused** — make *this* game good | feel, pacing, encounter design, progression | A, B, D, E | **A4** dodge roll · **A5** double jump · **A9** near-miss · **A11** checkpoints · **D5** coin choreography · **E6** per-level records |
-| **Tech-focused** — build skills that transfer to *any* game | UI, rendering, audio, tooling, architecture | C, F, G, H, I, J, K, L | **I4** game-over celebration · **F4** dash trails · **F5** screen-space feedback · **L6** event console · **L1** `AutoEventFlowBase` |
+| **Tech-focused** — build skills that transfer to *any* game | UI, rendering, audio, tooling, architecture | C, F, G, H, I, J, K, L | **I4** game-over celebration · **F4** dash trails · **F5** screen-space feedback · **L6** event console · **L1** spawner base classes |
 
 Catalog sections **M–O** (the explorer pivot, multiplayer, live services) are semester-spine
 decisions, not Timebox 1 work. If your team is drawn to one, its spike *is* the deliverable.
@@ -609,7 +609,7 @@ the art direction separates from the deck.
 | 1 | Scrum master | charter, logistics, board, S.M.A.R.T. collection | **A4** dodge roll · **A11** checkpoint milestones | #7's PRs |
 | 2 | Deck owner | deck assembly, menu + game flow charts | **F4** dash & slide trails · **F5** screen-space feedback | #1's |
 | 3 | Demo & video owner | demo script, video, wiki post | **I12** credits & licenses screen · **I4** game-over celebration | #2's |
-| 4 | Integrator | repository setup, branch protection, LFS, freeze and tag | **L1** consolidate `AutoEventFlowBase` · Player Settings, namespace, build | #3's |
+| 4 | Integrator | repository setup, branch protection, LFS, freeze and tag | **L1** consolidate the spawner base classes · Player Settings, namespace, build | #3's |
 | 5 | Presenter · design/PRD owner | PRD, pillars, user stories, gameplay loop | **D5** coin choreography · **E6** per-level records | #4's |
 | 6 | Presenter · tech lead | architecture diagram, standards, AI policy and code audit | **L6** in-game event console · **A9** near-miss detection | #5's |
 | 7 | Art director · art & licensing | brand palette, art direction, license register, icon and splash | **I5** main menu + localization · **A5** double jump | #6's |
