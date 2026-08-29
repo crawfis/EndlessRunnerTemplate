@@ -5,7 +5,7 @@
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "df119295efe3ddc2707453efee36b88ab631e22f"
+      "hash": "bfea2463e60ab9c57519a7d72a3488eefbb758ac"
     },
     "com.gamesthatmoveyou.audiomanager": {
       "version": "https://github.com/crawfis/GTMY.Audio.git",
