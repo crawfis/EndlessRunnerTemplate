@@ -13,8 +13,11 @@ dissecting a game *you* love.)
 
 Tasks that need online services (networked multiplayer, cloud leaderboards, live tuning)
 build on the sibling **[RunnerUGSTemplate](https://github.com/crawfis/RunnerUGSTemplate)**
-(RUGS) — the same runner with Unity Gaming Services integrated as a fourth event domain.
-See sections N and O.
+(RUGS) — the same runner with Unity Gaming Services integrated behind a game/service
+contract. See sections N and O — and RUGS's own
+[Future Task Catalog](https://github.com/crawfis/RunnerUGSTemplate/blob/main/docs/FUTURE_TASKS.md),
+which continues this catalog's lettering with sections Q–X: the full cloud-side entries,
+each with an AI hand-off brief.
 
 **Working through Timebox 1?** [TIMEBOX_1_REQUIREMENTS.md](TIMEBOX_1_REQUIREMENTS.md) is the
 assignment: the five phases, the effort budget, git and AI setup, every deliverable matched
@@ -462,20 +465,28 @@ kind of refactor the event architecture makes tractable.
 4. **Networked multiplayer via RUGS (L).** In the RunnerUGSTemplate sibling: UGS Lobby +
    Relay + Netcode for GameObjects. Keep it honest for a semester: same seeded track on
    every client, replicate only each player's inputs/position/state, render remote players
-   as runners in your world. Start with two players before dreaming bigger.
+   as runners in your world. Start with two players before dreaming bigger. The full
+   entry is RUGS task V3, with V1 (the spike) and V2 (the lobby) leading in.
 5. **Async ghost racing (M/L).** The networked feel without netcode: upload a recorded run
    (L4) to UGS Cloud Save keyed by the leaderboard entry, download a friend's ghost, and
-   race it live. Often *more* fun than real-time for a runner — and it ships.
+   race it live. Often *more* fun than real-time for a runner — and it ships. The full
+   entry is RUGS task U4.
 
 ## O. Live Services with UGS (in the RUGS sibling)
 
 These tasks live in the **[RunnerUGSTemplate](https://github.com/crawfis/RunnerUGSTemplate)**
-— the same runner with **Unity Gaming Services** integrated as a fourth event domain
-(`UGS_EventsEnum`, bridged to GameFlow by `UGSGameFlowBridge`, so cloud services never
-touch gameplay code directly). RUGS already ships working Authentication, Leaderboards,
-Achievements, and Remote Config; these tasks extend them into real live-ops features. Fair
-warning: UGS work has a setup tax (project linking, environments, deployments) — budget
-O1 before anything else.
+— the same runner with **Unity Gaming Services** integrated behind a game/service contract
+(the UGS domain arrives as packages and meets the game at `GameServiceEvents`, so cloud
+services never touch gameplay code directly). RUGS already ships working Authentication,
+Leaderboards, Achievements, Remote Config, Economy, and Cloud Code; these tasks extend
+them into real live-ops features. Fair warning: UGS work has a setup tax (project linking,
+environments, deployments) — budget O1 before anything else.
+
+> Every sketch below has grown into a full entry in RUGS's
+> [Future Task Catalog](https://github.com/crawfis/RunnerUGSTemplate/blob/main/docs/FUTURE_TASKS.md)
+> (the id mapping — O1 → Q1 and so on — is at the top of that file), alongside sections this
+> catalog never sketched: Friends, Lobby, Matchmaker, Relay + Netcode, Vivox, push
+> notifications, and more. Treat this section as the menu and that file as the recipe.
 
 1. **Stand it up (S/M).** Clone RUGS, link your own UGS project, create environments,
    deploy the config, and get the full loop running: sign in → run → score on the
