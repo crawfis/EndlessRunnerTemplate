@@ -1,7 +1,7 @@
 # Known Issues & Unity Caveats
 
 Environment-level quirks that are not bugs in this codebase but will bite you if you don't
-know about them.
+know about them — plus, at the end, the architecture smells that *are* ours.
 
 ## Unity 6000.5: UIDocument → Panel Renderer migration — RESOLVED (migrated)
 
@@ -61,3 +61,47 @@ dropdown, makes renames compile-time-safe, and makes key/field drift impossible.
 The rule still applies to any *remaining* `JsonUtility` use — notably the PlayerPrefs save blob in
 `LevelProgressManager` (which round-trips a matching C# type, so it is safe). If you add a new
 `JsonUtility`-serialized field, keep key and field name identical and never aim a string at an enum.
+
+## Architecture smells: the countdown straddles the GameFlow/TempleRun boundary
+
+Unlike the entries above, these are ours, not Unity's. Three related misplacements, all
+visible on one sequence diagram (the talk deck points at them on the "One run, end to end"
+slide). None of them breaks the game today; each one breaks a promise the architecture makes.
+
+**1. `CountdownEnded → GameStarted` — a gameplay detail decides a session milestone.**
+`TempleRunGameFlowBridge.cs` maps
+`(TempleRunEvents.CountdownEnded, GameFlowEvents.GameStarted)`, and the reverse table maps
+`(GameFlowEvents.GameStarted, TempleRunEvents.TempleRunStartRequested)`. So "the game has
+started" is decided *inside gameplay*, bridged into GameFlow, and bridged straight back:
+
+```
+GameFlow: GameStarting ─► TempleRun: CountdownStartRequested ─► 3… 2… 1…
+          GameStarted  ◄─ TempleRun: CountdownEnded
+          GameStarted  ─► TempleRun: TempleRunStartRequested
+```
+
+This defeats the replaceability claim the domain split exists for. Swap TempleRun for a
+runner with no countdown — the thing [EXERCISE_DRAW_THE_BOUNDARY.md](EXERCISE_DRAW_THE_BOUNDARY.md)
+and the domain-isolation rule promise you can do — and nothing ever publishes
+`GameStarted`, so the session hangs before the first step. GameFlow should own "started";
+gameplay should only report that it is *ready*.
+
+**2. The countdown's domain is arbitrary.** A "3… 2… 1…" before a run is session ceremony,
+the same category as the loading screen and the game-over overlay — both of which live in
+GameFlow. It sits in TempleRun by accident of history, not because a boundary argument put
+it there. Either home is defensible; what is not defensible is that no one chose. This is a
+live question for the *Draw the Boundary* exercise.
+
+**3. The UXML did not follow the code.** `CountdownUIController` is in TempleRun
+(`Assets/TempleRun/Scripts/UI/`), but the assets it drives are still under GameFlow:
+`Assets/GameFlow/UI Toolkit/UI/UXML/Overlays/Countdown.uxml` and
+`Gameplay/HUD.uxml`. The controllers were moved across the boundary; the visual assets were
+not. `GameFlowUIPanelController` even carries the comment recording the move ("countdown UI
+is now managed by TempleRun `CountdownUIController`").
+
+**Why this is worth keeping written down rather than quietly fixing.** The event
+architecture did not prevent any of this — it made it *visible*. The whole cross-domain
+surface is 19 lines in two bridge files, so the flaw is one readable line in a table
+(`TempleRunGameFlowBridge.cs`) rather than a coupling buried in a controller, and the fix is
+an edit to that table plus a folder move. A codebase where systems called each other
+directly would have the same flaw and no place to point at it.

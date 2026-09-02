@@ -39,6 +39,36 @@ Publisher: `GameFlowBus` (`EventsFor<GameFlowEvents>`). Values are grouped by ca
 | Quit | `QuitRequested`(120), `Quitting`(121), `QuitCancelled`(122), `QuitCompleted`(123) |
 | Level Selector | `LevelSelectorShowRequested`(130), `LevelSelectorShowing`(131), `LevelSelectorShown`(132), `LevelSelectorHideRequested`(133), `LevelSelectorHiding`(134), `LevelSelectorHidden`(135), `LevelSelected`(136) *(data: LevelConfig)*, `LevelUnlocked`(137) *(data: LevelConfig)*, `LevelProgressSaved`(138) |
 
+### Scope note: the level selector is one flow, not the flow
+
+The nine Level Selector events cover exactly what this template does — show the screen,
+pick a level, remember what's unlocked. That is deliberately the *shape* of a selector, not
+a finished one. A level-select screen is where game-specific product logic accumulates
+faster than anywhere else in a session, and almost none of it is portable between games:
+stars and medals, best scores and ghosts, previews, world maps, daily challenges, currency
+gates, IAP or DLC downloads, leaderboards, cosmetics.
+
+Two gaps are worth knowing about before you build on it, because both are *silent* today:
+
+- **No browse/highlight event.** `LevelSelected`(136) is a *commit* — it carries a
+  `LevelConfig` and the level starts loading. There is no event for "the highlight moved to
+  level 4," so a preview pane, a star display, or a best-score readout has nothing to
+  subscribe to. Any real selector needs that split (`LevelHighlighted` and friends).
+- **No rejection path.** Tapping a locked level publishes *nothing*.
+  `LevelSelectorController` attaches the click handler only when the level is unlocked and
+  otherwise adds a `level-card--locked` class and a requirement label, so the refusal never
+  leaves the UI script. Nothing can play a denied sound, animate a shake, nudge the player
+  toward the unlock requirement, or count the attempt. (Unlock *state* is read the same
+  way — a direct `LevelProgressManager.Instance.IsLevelUnlocked` call. That is legal, both
+  are GameFlow, but it means progression is queried, never announced.)
+
+These are left open on purpose. Designing the vocabulary — what a selector's real states
+are, which transitions anyone outside the screen could care about, and which names earn
+their keep — is a better exercise than inheriting someone else's answer, so the 130-series
+has room and no opinions. **E13** in [STUDENT_TASKS.md](STUDENT_TASKS.md) is that exercise
+(and a good one to work through with an AI acting as architect); **E9** (locked levels,
+unlock criteria, star ratings) and **E10** (world-map level select) both build on it.
+
 ## TempleRunEvents (gameplay)
 
 Publisher: `TempleRunBus` (`EventsFor<TempleRunEvents>`).

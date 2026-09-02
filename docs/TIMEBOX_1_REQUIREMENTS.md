@@ -19,7 +19,7 @@ design, documentation, and process — not features.
 
 **You have 1.5 weeks.** Task IDs like **A4** or **I12** point into the
 [Student Task Catalog](https://github.com/crawfis/EndlessRunnerTemplate/blob/main/docs/STUDENT_TASKS.md)
-— 127 scoped projects grouped by sub-specialty. This document says how many to take, who
+— 128 scoped projects grouped by sub-specialty. This document says how many to take, who
 takes them, and everything else that is due.
 
 **The five phases:**
@@ -387,6 +387,15 @@ team and write it down:
   domain crossing), described in
   [ARCHITECTURE.md](https://github.com/crawfis/EndlessRunnerTemplate/blob/main/docs/ARCHITECTURE.md).
   Say whether you are adopting that, and why.
+- **Event vocabulary.** If you are adopting the event architecture, prove you can extend it:
+  **E13** in the
+  [Student Task Catalog](https://github.com/crawfis/EndlessRunnerTemplate/blob/main/docs/STUDENT_TASKS.md)
+  (level-select *browse* and *refuse* events) is a vocabulary-design exercise built on gaps
+  the template leaves open on purpose. Run it with the Lead Architect role — feed it the
+  existing events and naming rules, ask for **two or three competing vocabularies**, and make
+  it argue the trade-offs instead of handing you one answer. Then cut it down yourself: it
+  will propose fifteen events where five would do. Hand in the **rationale**, not just the
+  enum.
 - **Data.** What belongs in ScriptableObjects rather than in code? Track segments, level
   rulesets, and per-mechanic configs are already SOs here; your game will have its own.
 - **The diagram.** A systems/UML diagram of the flow, plus the menu flow chart and the game
