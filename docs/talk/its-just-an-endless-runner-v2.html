@@ -1,0 +1,1455 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>It's Just an Endless Runner — talk slides (v2)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<style>
+  :root {
+    --bg: #0E1216;
+    --surface: #151B22;
+    --surface-2: #1C232B;
+    --ink: #E7ECF1;
+    --ink-2: #B7C2CD;
+    --ink-3: #8E9CAA;
+    --rule: #29323C;
+    --gold: #E8B04B;      /* TempleRun / accent */
+    --blue: #6FB4F5;      /* UserInitiated */
+    --teal: #4FC0CA;      /* GameFlow */
+    --red:  #F0796B;      /* spaghetti / pain */
+    --green:#66C995;      /* good / audit pass */
+    --gold-soft: rgba(232,176,75,.12);
+    --red-soft:  rgba(240,121,107,.10);
+    --teal-soft: rgba(79,192,202,.12);
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0; overflow: hidden;
+    background: var(--bg); color: var(--ink);
+    font-family: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    display: flex; align-items: center; justify-content: center;
+  }
+  code, pre, .mono { font-family: "IBM Plex Mono", ui-monospace, "Cascadia Code", Consolas, monospace; }
+
+  #stage { width: 1280px; height: 720px; position: relative; flex: none; transform-origin: center center; }
+
+  .slide {
+    position: absolute; inset: 0; padding: 56px 68px 72px;
+    display: none; flex-direction: column;
+    background:
+      linear-gradient(180deg, rgba(232,176,75,.035), rgba(232,176,75,0) 140px),
+      var(--bg);
+  }
+  .slide.current { display: flex; }
+  .slide .notes { display: none; }
+  /* lane-line footer motif */
+  .slide::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px;
+    background: repeating-linear-gradient(90deg, var(--rule) 0 46px, transparent 46px 78px);
+    opacity: .8;
+  }
+
+  .kicker { font-size: 18px; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); font-weight: 600; margin: 0 0 10px; }
+  h1 { font-size: 68px; line-height: 1.05; margin: 8px 0 12px; font-weight: 700; letter-spacing: -.015em; }
+  h2 { font-size: 44px; line-height: 1.1; margin: 0 0 18px; font-weight: 700; letter-spacing: -.015em; }
+  h2.sm { font-size: 38px; }
+  h2 .dim { color: var(--ink-3); font-weight: 500; }
+  .sub { font-size: 26px; color: var(--ink-2); margin: 0 0 12px; line-height: 1.35; }
+  p, li { font-size: 25px; line-height: 1.4; }
+  ul { margin: 8px 0; padding-left: 30px; }
+  li { margin: 11px 0; }
+  li::marker { color: var(--gold); }
+  b, strong { color: var(--ink); }
+  .gold { color: var(--gold); } .blue { color: var(--blue); } .teal { color: var(--teal); }
+  .red { color: var(--red); } .green { color: var(--green); } .mut { color: var(--ink-3); }
+  .punch {
+    margin-top: auto; padding: 16px 24px; border-left: 5px solid var(--gold);
+    background: var(--gold-soft); font-size: 28px; font-weight: 600; line-height: 1.3; border-radius: 0 10px 10px 0;
+  }
+  .punch.sm { font-size: 24px; }
+  .punch .mut { font-weight: 400; }
+
+  .chip {
+    display: inline-block; align-self: flex-start; font-size: 17px; font-weight: 700; letter-spacing: .22em; text-transform: uppercase;
+    padding: 7px 16px; border-radius: 999px; margin-bottom: 14px;
+    background: var(--gold); color: #16130a;
+  }
+  .chip.tech { background: var(--teal); color: #08191b; }
+  .chip.all  { background: var(--green); color: #07190f; }
+
+  pre {
+    background: var(--surface); border: 1px solid var(--rule); border-radius: 12px;
+    padding: 18px 22px; margin: 10px 0; font-size: 19px; line-height: 1.5; overflow: hidden;
+  }
+  pre.small { font-size: 17.5px; line-height: 1.46; }
+  pre.xs { font-size: 16px; line-height: 1.42; padding: 14px 18px; }
+  code.inline { background: var(--surface-2); border: 1px solid var(--rule); border-radius: 6px; padding: 1px 8px; font-size: .92em; }
+  .c { color: #7f8d9a; font-style: italic; }        /* comment */
+  .k { color: var(--blue); }                         /* keyword */
+  .t { color: var(--teal); }                         /* type */
+  .e { color: var(--gold); }                         /* event / member */
+  .bad { color: var(--red); font-style: italic; }    /* pain comment */
+
+  .cols { display: flex; gap: 32px; align-items: stretch; min-height: 0; }
+  .col { flex: 1; min-width: 0; }
+  .panel { border: 1px solid var(--rule); border-radius: 14px; background: var(--surface); padding: 18px 22px; height: 100%; }
+  .panel h3 { margin: 0 0 12px; font-size: 22px; letter-spacing: .06em; text-transform: uppercase; }
+  .panel.badp  { border-color: rgba(240,121,107,.5); background: linear-gradient(180deg, var(--red-soft),  var(--surface) 90px); }
+  .panel.goodp { border-color: rgba(232,176,75,.55); background: linear-gradient(180deg, var(--gold-soft), var(--surface) 90px); }
+  .panel.badp h3 { color: var(--red); } .panel.goodp h3 { color: var(--gold); }
+  .panel ul { padding-left: 24px; } .panel li { font-size: 21px; margin: 9px 0; line-height: 1.32; }
+  .panel pre { background: rgba(0,0,0,.25); }
+
+  .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 16px 0 8px; }
+  .stat { background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; padding: 14px 17px 12px; }
+  .stat .n { font-size: 40px; font-weight: 700; color: var(--gold); line-height: 1.05; }
+  .stat .l { font-size: 18px; color: var(--ink-2); margin-top: 5px; line-height: 1.25; }
+
+  .verbs { display: flex; gap: 12px; flex-wrap: wrap; margin: 14px 0 6px; }
+  .verbs span { font-size: 27px; font-weight: 600; background: var(--surface-2); border: 1px solid var(--rule); border-radius: 999px; padding: 8px 22px; }
+
+  table.tbl { border-collapse: collapse; width: 100%; margin: 8px 0; }
+  .tbl th { text-align: left; font-size: 18px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); padding: 8px 14px; border-bottom: 2px solid var(--rule); }
+  .tbl td { font-size: 22px; padding: 9px 14px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  .tbl td:first-child { white-space: nowrap; }
+  .tbl.tight th { padding: 6px 12px; }
+  .tbl.tight td { padding: 7px 12px; font-size: 19.5px; }
+
+  .bars { margin: 18px 0 8px; }
+  .bar-row { display: grid; grid-template-columns: 340px 1fr 74px; gap: 16px; align-items: center; margin: 18px 0; }
+  .bar-row .lab { font-size: 23px; text-align: right; color: var(--ink-2); line-height: 1.25; }
+  .bar-row .lab b { color: var(--ink); }
+  .bar-track { background: var(--surface); border-radius: 8px; height: 44px; border: 1px solid var(--rule); overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 7px 0 0 7px; }
+  .bar-row .val { font-size: 29px; font-weight: 700; }
+
+  .warstory {
+    margin-top: 14px; padding: 13px 20px; border-left: 5px solid var(--red);
+    background: var(--red-soft); border-radius: 0 10px 10px 0; font-size: 21px; line-height: 1.38; color: var(--ink-2);
+  }
+  .warstory > b:first-child { color: var(--red); letter-spacing: .06em; text-transform: uppercase; font-size: 17px; display: block; margin-bottom: 4px; }
+  .warstory.good { border-color: var(--green); background: rgba(102,201,149,.09); }
+  .warstory.good > b:first-child { color: var(--green); }
+
+  .quoteline { font-size: 26px; font-style: italic; color: var(--ink-2); border-left: 5px solid var(--teal); padding: 10px 22px; margin: 8px 0 14px; line-height: 1.35; }
+  .quoteline .src { display: block; font-size: 18px; font-style: normal; color: var(--ink-3); margin-top: 8px; }
+
+  /* ---- the running motif: a rubber stamp on every additive feature ---- */
+  .stamp {
+    position: absolute; right: 58px; top: 46px; transform: rotate(-7deg);
+    border: 3px solid var(--green); border-radius: 12px; padding: 9px 18px 8px;
+    text-align: center; background: rgba(102,201,149,.07); z-index: 2;
+  }
+  .stamp b { display: block; font-size: 30px; color: var(--green); line-height: 1; letter-spacing: -.01em; }
+  .stamp i { display: block; font-size: 15.5px; color: var(--green); font-style: normal; letter-spacing: .12em; text-transform: uppercase; margin-top: 5px; opacity: .95; }
+
+  /* ---- the running motif: the replaceability scoreboard ---- */
+  .swaps { display: flex; gap: 11px; margin: 14px 0 6px; }
+  .swap {
+    flex: 1; border: 1.5px solid var(--rule); border-radius: 11px; padding: 11px 12px 10px;
+    background: var(--surface); text-align: center; color: var(--ink-3);
+  }
+  .swap .k { display: block; font-size: 15px; letter-spacing: .16em; color: var(--ink-3); margin-bottom: 5px; }
+  .swap .w { font-size: 22px; font-weight: 600; }
+  .swap.lit { border-color: var(--gold); background: var(--gold-soft); color: var(--ink); }   /* done */
+  .swap.lit .k { color: var(--gold); }
+  .swap.lit .w::after { content: " ✓"; color: var(--green); }
+  .swap.now { border-color: var(--green); background: rgba(102,201,149,.10); color: var(--ink); }  /* up next */
+  .swap.now .k { color: var(--green); }
+  .swap.iou { border-color: rgba(232,176,75,.45); border-style: dashed; background: none; color: var(--ink-2); }
+  .swap.iou .k { color: rgba(232,176,75,.72); }
+  /* A pill that lights on cue: it carries its target state class from the start, but stays
+     dim until its step arrives — so the list fills in as you talk instead of pre-answering. */
+  .swap.frag:not(.on) {
+    border-color: var(--rule); border-style: solid; background: var(--surface); color: var(--ink-3);
+  }
+  .swap.frag:not(.on) .k { color: var(--ink-3); }
+  .swap.frag:not(.on) .w::after { content: none; }
+
+  .frag { opacity: 0; transform: translateY(10px); transition: opacity .26s ease, transform .26s ease; }
+  .frag.on { opacity: 1; transform: none; }
+  /* .hold = takes its turn in the step sequence without appearing: it is on screen the whole
+     time and .on changes how it LOOKS, not whether it exists. Used by the swap-list pills. */
+  .frag.hold { opacity: 1; transform: none; transition: border-color .32s ease, background-color .32s ease, color .32s ease; }
+
+  svg text { font-family: "IBM Plex Sans", system-ui, sans-serif; }
+  svg .mono { font-family: "IBM Plex Mono", ui-monospace, Consolas, monospace; }
+
+  /* chrome */
+  #hud {
+    position: fixed; left: 0; right: 0; bottom: 0; height: 34px; padding: 0 18px;
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 13.5px; color: var(--ink-3); pointer-events: none; z-index: 5;
+  }
+  #hud .warn { color: var(--gold); }
+  #progress { position: fixed; top: 0; left: 0; height: 3px; background: var(--gold); width: 0; z-index: 6; transition: width .2s ease; }
+  #notes {
+    position: fixed; left: 0; right: 0; bottom: 0; max-height: 40vh; overflow: auto; z-index: 9;
+    background: rgba(14,18,22,.97); border-top: 2px solid var(--gold);
+    padding: 14px 26px 20px; font-size: 15.5px; line-height: 1.55; color: var(--ink-2); display: none;
+  }
+  #notes.open { display: block; }
+  #notes h4 { margin: 0 0 6px; color: var(--gold); font-size: 13px; letter-spacing: .18em; text-transform: uppercase; }
+  #blank { position: fixed; inset: 0; background: #000; z-index: 20; display: none; }
+  #blank.on { display: block; }
+  #index {
+    position: fixed; inset: 0; background: rgba(10,13,16,.985); z-index: 15; display: none;
+    padding: 34px 40px; overflow: auto;
+  }
+  #index.open { display: block; }
+  #index h4 { margin: 0 0 16px; color: var(--gold); font-size: 14px; letter-spacing: .2em; text-transform: uppercase; }
+  #index .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px 26px; }
+  #index .row { font-size: 15px; color: var(--ink-2); padding: 4px 8px; border-radius: 6px; cursor: pointer; }
+  #index .row:hover { background: var(--surface-2); }
+  #index .row.here { background: var(--gold-soft); color: var(--ink); }
+  #index .row .no { display: inline-block; width: 30px; color: var(--ink-3); }
+  #index .row.act { color: var(--gold); margin-top: 9px; font-size: 12.5px; letter-spacing: .14em; text-transform: uppercase; cursor: default; }
+  #index .row.act:hover { background: none; }
+
+  @media print {
+    @page { size: 1280px 720px; margin: 0; }
+    body { overflow: visible; display: block; }
+    #stage { transform: none !important; width: 1280px; height: auto; }
+    .slide { position: relative; display: flex !important; width: 1280px; height: 720px; page-break-after: always; break-after: page; }
+    .frag { opacity: 1; transform: none; }
+    #hud, #notes, #progress, #index, #blank { display: none !important; }
+  }
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<div id="stage">
+
+<!-- ==================== ACT I — IT'S JUST A RUNNER ==================== -->
+
+<!-- 1 -->
+<section class="slide" data-act="Act I · It's just a runner" data-title="Cold open: play it" data-mark="0">
+  <span class="chip">Demo</span>
+  <h2>Let's play it first.</h2>
+  <p class="sub">Sixty seconds. Watch for:</p>
+  <div class="verbs">
+    <span>run</span><span>turn</span><span>switch lanes</span><span>jump</span>
+    <span>slide</span><span>dash</span><span>collect</span><span class="mut" style="border-color:var(--red)">die</span>
+  </div>
+  <p style="margin-top:24px" class="sub">Capsule player. Primitive obstacles. Flat track.<br><b class="gold">On purpose</b> — you've played this game in better clothes.</p>
+  <div class="punch">One question while you watch: <span class="gold">how long would this take you to build?</span></div>
+  <aside class="notes">SAY: “Before any slides — here's the thing.” Boot from 0_BootStrap_Game_Only. Play 30–60 s: turn, lanes, jump, slide, dash, coins, a power-up, die.
+
+PREP: verify “CrawfisSoftware ▸ Play Scene 0 Always” is ON — it's a global editor preference, another project may have switched it off. Fallback: pre-recorded capture.
+
+Ask the room for a number out loud. Take two answers. Do NOT respond to them — the whole talk is the answer, and slide 4 pays it off. Temple Run / Subway Surfers is the name-check that makes it land.</aside>
+</section>
+
+<!-- 2 -->
+<section class="slide" data-act="Act I · It's just a runner" data-title="Title" data-mark="2">
+  <p class="kicker">An open-source Unity 6 template</p>
+  <h1>It's <i class="gold">Just</i> an Endless Runner</h1>
+  <p class="sub" style="font-size:31px">What a “simple” game is actually made of</p>
+  <svg viewBox="0 0 1140 128" style="width:980px;margin:14px 0 0" aria-hidden="true">
+    <line x1="0" y1="108" x2="1140" y2="108" stroke="#29323C" stroke-width="3"/>
+    <line x1="0" y1="66"  x2="1140" y2="66"  stroke="#29323C" stroke-width="2" stroke-dasharray="34 22" opacity=".7"/>
+    <line x1="0" y1="24"  x2="1140" y2="24"  stroke="#29323C" stroke-width="3"/>
+    <rect x="160" y="44" width="30" height="50" rx="15" fill="#E8B04B"/>
+    <ellipse cx="175" cy="100" rx="24" ry="5" fill="#000" opacity=".45"/>
+    <rect x="560" y="28" width="26" height="36" rx="4" fill="#3E4854"/>
+    <rect x="800" y="70" width="26" height="36" rx="4" fill="#3E4854"/>
+    <circle cx="700" cy="52" r="9" fill="none" stroke="#E8B04B" stroke-width="3"/>
+    <circle cx="960" cy="94" r="9" fill="none" stroke="#E8B04B" stroke-width="3"/>
+  </svg>
+  <p class="sub" style="margin-top:14px;font-size:23px"><b class="gold">One rule.</b> <b class="teal">Five swaps.</b> <b>Four demos.</b> <span class="mut">Five slides in the middle go deep for programmers — they're marked.</span></p>
+  <p style="margin-top:auto;font-size:23px" class="mut">Roger Crawfis · The Ohio State University<br>
+  <span class="mono" style="font-size:19px">github.com/crawfis/EndlessRunnerTemplate</span></p>
+  <aside class="notes">SAY: “I built this open-source template to teach with. Today I want to show you everything it's actually made of — and the one rule holding it together.”
+
+Set the contract out loud: mostly for everyone, five marked slides go deep, the ending is AI agents and live services. The “five swaps” line is a promise the audience will hold you to — that's the point; it gives them a scoreboard.
+
+DECK KEYS: ←/→ navigate · N notes · O index · T timer · B blank · F fullscreen · print = PDF.</aside>
+</section>
+
+<!-- 3 -->
+<section class="slide" data-act="Act I · It's just a runner" data-title="“Weekend, tops.”" data-mark="3">
+  <h2>“Weekend, tops.”</h2>
+  <ul style="font-size:33px;line-height:1.45;list-style:none;padding-left:6px">
+    <li class="frag" data-step="1">💬 <i>“It's just Flappy Bird.”</i></li>
+    <li class="frag" data-step="1">💬 <i>“It's just Wordle.”</i></li>
+    <li class="frag" data-step="1">💬 <i>“It's just Pong with a twist.”</i></li>
+  </ul>
+  <p class="frag" data-step="2" style="font-size:29px;margin-top:20px">Every developer has said it. <b class="red">Every developer has been wrong.</b></p>
+  <div class="punch frag" data-step="3">The pitch is the <b>mechanic</b>. The build is the <b class="gold">product</b>. This talk is the gap.</div>
+  <aside class="notes">SAY: three clicks, three beats. Ask for a show of hands — “who has said one of these out loud?” Most of the room. That's the bonding moment; the rest of Act I pays it off.
+
+Keep this fast — under 45 seconds. It is the first slide to cut if you are running long.</aside>
+</section>
+
+<!-- 4 -->
+<section class="slide" data-act="Act I · It's just a runner" data-title="The bill: what it took" data-mark="4" style="padding-top:44px">
+  <h2 style="margin-bottom:12px">Seven verbs. Here's the bill.</h2>
+  <div class="verbs" style="margin:8px 0 4px">
+    <span>run</span><span>turn</span><span>switch lanes</span><span>jump</span><span>slide</span><span>dash</span><span>collect</span>
+  </div>
+  <div class="stat-grid" style="margin:16px 0 4px">
+    <div class="stat frag" data-step="1"><div class="n">204</div><div class="l">named events, 3 isolated domains</div></div>
+    <div class="stat frag" data-step="1"><div class="n">145</div><div class="l">C# scripts across 15 scenes</div></div>
+    <div class="stat frag" data-step="1"><div class="n">38 + 19</div><div class="l">chain rules + bridge mappings, as data</div></div>
+    <div class="stat frag" data-step="1"><div class="n">17 + 5</div><div class="l">track segments + level rulesets, zero code</div></div>
+  </div>
+  <div class="stat-grid" style="grid-template-columns:repeat(3,1fr)">
+    <div class="stat frag" data-step="2"><div class="n">7</div><div class="l">UI panels</div></div>
+    <div class="stat frag" data-step="2"><div class="n">7</div><div class="l">AI-agent skills</div></div>
+    <div class="stat frag" data-step="2"><div class="n">128</div><div class="l">tasks still between here and “polished”</div></div>
+  </div>
+  <div class="punch frag" data-step="3">The mechanic is a weekend. <b class="gold">The other 95% is the game</b> — and architecture decides whether that 95% compounds or buries you.</div>
+  <aside class="notes">SAY: pay off slide 1's question here. “Somebody said two weeks. For the seven verbs? Sure. Here's what shipped around them.”
+
+CRITICAL: do not let this read as bloat. These are not features — this is what “done” looks like at tiny scope. The 128-task catalog is what is still MISSING.
+
+The line to land after the punch: “Here's the concrete test. In one architecture, every finished feature makes the next one cheaper — a jump sound is one new file. In the other, every finished feature makes the next one more expensive — five more places to touch. Same 95% of work. Opposite slopes.”
+
+Numbers verified on main: 74 GameFlow + 121 TempleRun + 9 UserInitiated = 204. Re-run the counts in docs/TALK_OUTLINE.md's fact sheet if the repo has moved.</aside>
+</section>
+
+<!-- 5 -->
+<section class="slide" data-act="Act I · It's just a runner" data-title="Most of a game isn't game" data-mark="6">
+  <h2>Most of a game isn't game</h2>
+  <p class="sub" style="margin-bottom:2px">The same 204 events, sorted by what they're <i>for</i>:</p>
+  <div class="bars">
+    <div class="bar-row">
+      <div class="lab"><b class="gold">Playing it</b><br><span style="font-size:20px">verbs, crashes, pickups, dying</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:62%;background:var(--gold)"></div></div>
+      <div class="val gold">67</div>
+    </div>
+    <div class="bar-row">
+      <div class="lab"><b class="blue">Building the world</b><br><span style="font-size:20px">segments, splines, recycling</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:27%;background:var(--blue)"></div></div>
+      <div class="val blue">29</div>
+    </div>
+    <div class="bar-row">
+      <div class="lab"><b class="teal">Running the show</b><br><span style="font-size:20px">menus, loading, countdown, pause, quit</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--teal)"></div></div>
+      <div class="val teal">108</div>
+    </div>
+  </div>
+  <p class="frag" style="font-size:27px;margin-top:6px"><b>The game you play is a third of the game you build.</b>
+  <span class="mut">The rest is ceremony. None of it is in the trailer.</span></p>
+  <div class="punch frag">So how do 145 scripts <i>not</i> turn into spaghetti?</div>
+  <aside class="notes">SAY: “Where does the time actually go?” Same 204 events as the last slide, re-cut by job.
+
+BUCKET MATH if a student counts: Playing = five movement chains (turn 7, slide 6, dash 5, jump 6, lane 8) + hazards 4 + coins 3 + power-ups 9 + fail/death/revive 11 + DistanceUpdated + 7 raw input requests = 67. World = splines 9 + segments 9 + segment lifecycle 4 + geometry 1 + teleport 6 = 29. Show = all 74 GameFlow + countdown 7 + pause 7 + run lifecycle 6 + bridged config/difficulty 12 + input pause/quit 2 = 108.
+
+IF PUSHED — “isn't the ceremony bucket just your menus?” Level select is the answer: nine events cover show / pick / remember-what's-unlocked, which is the SHAPE of a selector, not a finished one. A shipped selector is where product logic piles up fastest — stars, best scores, previews, world maps, daily challenges, currency gates, IAP. Almost none of it ports between games, which is exactly why the template stops where it does.
+
+Leave the spaghetti question hanging. Do not answer it. Advance.</aside>
+</section>
+
+<!-- ==================== ACT II — THE ONE RULE ==================== -->
+
+<!-- 6 -->
+<section class="slide" data-act="Act II · The one rule" data-title="How every tutorial wires it" data-mark="7" style="padding-top:46px">
+  <h2 style="margin-bottom:10px">How every tutorial wires it</h2>
+  <pre class="xs" style="margin:6px 0"><span class="k">public class</span> <span class="t">PlayerController</span> : <span class="t">MonoBehaviour</span>
+{
+    <span class="k">public</span> <span class="t">GameManager</span> gameManager;   <span class="bad">// dragged in the Inspector</span>
+    <span class="k">public</span> <span class="t">ScoreUI</span> scoreUI;             <span class="bad">// dragged in</span>
+    <span class="k">public</span> <span class="t">AudioSource</span> jumpSfx;         <span class="bad">// dragged in — reason #3 this file changed</span>
+
+    <span class="k">void</span> Start() =&gt; _shake = <span class="t">Camera</span>.main.GetComponent&lt;<span class="t">CameraShake</span>&gt;();  <span class="bad">// hope it's there</span>
+
+    <span class="k">void</span> Update()
+    {
+        <span class="k">if</span> (!<span class="t">Input</span>.GetKeyDown(<span class="t">KeyCode</span>.Space) || _isJumping) <span class="k">return</span>;
+        _isJumping = <span class="k">true</span>;
+        jumpSfx.Play();
+        gameManager.OnPlayerJumped();                     <span class="bad">// …analytics lives in here?</span>
+    }
+
+    <span class="k">void</span> OnHitObstacle()
+    {
+        gameManager.GameOver();                           <span class="bad">// calls back into us</span>
+        FindObjectOfType&lt;<span class="t">GameOverScreen</span>&gt;().Show(_score);  <span class="bad">// null after a reload</span>
+    }
+}</pre>
+  <p class="sub" style="margin-top:8px;font-size:23px">Drag it in. Find it in the scene. Call it. <b>Not a strawman — this is the default, and it ships.</b></p>
+  <aside class="notes">SAY: “Show of hands: whose code is this?” Let the room recognize itself. One beat, no clicks — they need reading time.
+
+WALK THE SMELLS (pick three, not all five): Inspector refs are hidden coupling — the player now *requires* a score UI to exist. Camera.main + GetComponent is a prayer about scene contents. gameManager.OnPlayerJumped() means analytics logic is reachable from the jump key. GameOver() calls back into the player — that's a cycle. FindObjectOfType at death returns null after a scene reload.
+
+And every one of those concerns lives in Update(), on one class. This is not bad developers. It's the default gravity of GetComponent and public fields.</aside>
+</section>
+
+<!-- 7 -->
+<section class="slide" data-act="Act II · The one rule" data-title="It works. Then it rots." data-mark="8">
+  <h2>It works. <span class="red">Then it rots.</span></h2>
+  <div class="cols">
+    <div class="col" style="flex:0 0 450px">
+      <svg viewBox="0 0 460 400" style="width:450px" aria-hidden="true">
+        <g stroke="#F0796B" stroke-width="1.6" opacity=".55" fill="none">
+          <line x1="130" y1="90" x2="345" y2="90"/><line x1="130" y1="90" x2="360" y2="215"/>
+          <line x1="130" y1="90" x2="235" y2="330"/><line x1="130" y1="90" x2="120" y2="215"/>
+          <line x1="345" y1="90" x2="120" y2="215"/><line x1="345" y1="90" x2="235" y2="330"/>
+          <line x1="360" y1="215" x2="235" y2="330"/><line x1="120" y1="215" x2="235" y2="330"/>
+          <line x1="345" y1="90" x2="360" y2="215"/><line x1="130" y1="90" x2="235" y2="20"/>
+          <line x1="235" y1="20" x2="345" y2="90"/><line x1="235" y1="20" x2="360" y2="215"/>
+          <line x1="120" y1="215" x2="345" y2="90"/>
+          <line x1="360" y1="215" x2="130" y2="90" stroke-dasharray="6 5"/>
+          <line x1="235" y1="330" x2="130" y2="90" stroke-dasharray="6 5"/>
+        </g>
+        <line x1="130" y1="90" x2="345" y2="90" stroke="#F0796B" stroke-width="4"/>
+        <g font-size="16" text-anchor="middle">
+          <g><rect x="173" y="2" width="124" height="34" rx="9" fill="#1C232B" stroke="#29323C"/><text x="235" y="25" fill="#E7ECF1">SceneLoader</text></g>
+          <g><rect x="68" y="72" width="124" height="34" rx="9" fill="#1C232B" stroke="#F0796B"/><text x="130" y="95" fill="#E7ECF1" font-weight="600">Player</text></g>
+          <g><rect x="283" y="72" width="132" height="34" rx="9" fill="#1C232B" stroke="#F0796B"/><text x="349" y="95" fill="#E7ECF1" font-weight="600">GameManager</text></g>
+          <g><rect x="58" y="198" width="124" height="34" rx="9" fill="#1C232B" stroke="#29323C"/><text x="120" y="221" fill="#E7ECF1">Camera</text></g>
+          <g><rect x="298" y="198" width="124" height="34" rx="9" fill="#1C232B" stroke="#29323C"/><text x="360" y="221" fill="#E7ECF1">Score UI</text></g>
+          <g><rect x="173" y="313" width="124" height="34" rx="9" fill="#1C232B" stroke="#29323C"/><text x="235" y="336" fill="#E7ECF1">Audio</text></g>
+        </g>
+        <text x="237" y="65" font-size="15" fill="#F0796B" text-anchor="middle" font-style="italic">calls back and forth</text>
+        <text x="235" y="382" font-size="17" fill="#8E9CAA" text-anchor="middle">6 systems → up to <tspan fill="#F0796B" font-weight="700">30</tspan> wires</text>
+      </svg>
+    </div>
+    <div class="col">
+      <ul style="font-size:25px;line-height:1.3">
+        <li class="frag" data-step="1"><b>Every new feature edits an old file.</b> Sound? Particles? Analytics? Same file. Meet the 2,000-line God class.</li>
+        <li class="frag" data-step="2"><b>Delete anything, break everything.</b> The score UI is now load-bearing for the player.</li>
+        <li class="frag" data-step="3"><b>Nothing runs alone.</b> You can't test a piece or open one scene by itself.</li>
+      </ul>
+      <p class="frag" data-step="4" style="font-size:25px;margin-top:20px;line-height:1.3">A real runner has <b>~30</b> systems.<br>That's <b class="red" style="font-size:34px">870</b> possible wires — each one hand-tied, and <b>no single place lists them.</b></p>
+    </div>
+  </div>
+  <div class="punch frag" data-step="5" style="font-size:25px">Nobody chose this. It's just <b class="gold">what gravity does</b> when calling is free.</div>
+  <aside class="notes">SAY: this is the “why” slide for the entire talk. It genuinely works at jam scale. The rot arrives with the sixth feature and the second teammate.
+
+SQUARE LAW: n(n−1) directed references. 6 systems → 30, ~30 systems → 870. Say “possible,” not “actual” — the point is that nothing in the direct-reference style pushes back as you approach the ceiling.
+
+DELIBERATE: count *systems* here, not scripts. 145 small scripts is what the CLEAN codebase looks like. Spaghetti trends the other way — a few giant files with the same coupling hidden inside them. If someone objects “but you have 145 files!”, that's the answer.
+
+Hold a beat after the punch, then: “This template takes the opposite discipline to its logical end.”</aside>
+</section>
+
+<!-- 8 -->
+<section class="slide" data-act="Act II · The one rule" data-title="The one rule: nobody calls anybody" data-mark="10">
+  <h2>The one rule: <span class="gold">nobody calls anybody</span></h2>
+  <p class="sub">Want something to happen? <b>Announce it.</b> Care about something? <b>Listen for it.</b><br>Radio broadcast — not phone calls.</p>
+  <pre><span class="c">// The slide input doesn't know a slide controller exists:</span>
+UserInputBus.Publish(<span class="e">UserInitiatedEvents.UserSlideRequested</span>, <span class="k">this</span>, <span class="k">null</span>);
+
+<span class="c">// The slide controller doesn't know what asked for the slide:</span>
+TempleRunBus.Subscribe(<span class="e">TempleRunEvents.SlideStarting</span>, OnSlideStarting);</pre>
+  <div class="cols" style="align-items:center;margin-top:4px">
+    <div class="col">
+      <p style="font-size:24px;line-height:1.3">Neither file mentions the other. Either one can be <b>rewritten, replaced, or deleted</b> without the other noticing.</p>
+    </div>
+    <div class="col" style="flex:0 0 460px">
+      <svg viewBox="0 0 460 190" style="width:460px" aria-hidden="true">
+        <rect x="30" y="82" width="400" height="26" rx="13" fill="#E8B04B" opacity=".92"/>
+        <text x="230" y="101" font-size="16" text-anchor="middle" fill="#16130a" font-weight="700">EVENT BUS</text>
+        <g stroke="#E8B04B" stroke-width="2.5">
+          <line x1="80" y1="42" x2="80" y2="82"/><line x1="180" y1="42" x2="180" y2="82"/>
+          <line x1="280" y1="42" x2="280" y2="82"/><line x1="380" y1="42" x2="380" y2="82"/>
+          <line x1="130" y1="148" x2="130" y2="108"/><line x1="230" y1="148" x2="230" y2="108"/><line x1="330" y1="148" x2="330" y2="108"/>
+        </g>
+        <g font-size="16" text-anchor="middle" fill="#B7C2CD">
+          <text x="80" y="32">Input</text><text x="180" y="32">Player</text><text x="280" y="32">Track</text><text x="380" y="32">GameFlow</text>
+          <text x="130" y="168">UI</text><text x="230" y="168">Audio</text><text x="330" y="168">VFX</text>
+        </g>
+        <text x="230" y="187" font-size="15.5" fill="#8E9CAA" text-anchor="middle" font-style="italic">every system: exactly one wire</text>
+      </svg>
+    </div>
+  </div>
+  <div class="punch">145 scripts. Each one coupled to exactly one thing: <b class="gold">the bus.</b></div>
+  <aside class="notes">SAY: “Radio, not phone calls.” Repeat that metaphor all talk — it is the one non-technical people carry out of the room.
+
+The two code lines are real lines from the repo. Point at the contrast with the hairball: same systems, but the wiring collapses from n² possibilities to n actual.
+
+This is publish/subscribe — the observer pattern — applied with zero exceptions. The “zero exceptions” is the whole story; everyone knows the pattern, almost nobody keeps it.</aside>
+</section>
+
+<!-- 9 -->
+<section class="slide" data-act="Act II · The one rule" data-title="Three promises in a direct call" data-mark="11" style="padding-top:46px">
+  <h2 style="margin-bottom:8px">Every direct call makes three promises</h2>
+  <p class="sub" style="margin-bottom:10px"><code class="inline">scoreUI.SetScore(score);</code> <span class="mut">— none of them written down:</span></p>
+  <ul style="font-size:23px;line-height:1.34;list-style:none;padding-left:4px">
+    <li style="margin:14px 0">
+      <div class="frag" data-step="1"><b class="red">“You're my only audience.”</b> Who needs to know is hard-coded at the call site.</div>
+      <div class="frag gold" data-step="2">An event names <i>what happened</i>, never who cares. Zero to many listeners, decided elsewhere.</div>
+    </li>
+    <li style="margin:14px 0">
+      <div class="frag" data-step="1"><b class="red">“Your crash is my crash.”</b> If <code class="inline">SetScore</code> throws, the lines after the call never run. The jump breaks because a label was null.</div>
+      <div class="frag gold" data-step="2">This bus catches a throwing listener, logs it, keeps delivering. The publisher never notices.</div>
+    </li>
+    <li style="margin:14px 0">
+      <div class="frag" data-step="1"><b class="red">“You exist, right now.”</b> Alive, initialized, findable — or NullReferenceException.</div>
+      <div class="frag gold" data-step="2">Nobody has to be listening at all. <span class="mut">Zero subscribers is legal — and that's this design's sharpest edge. We price it in Act III.</span></div>
+    </li>
+  </ul>
+  <div class="punch frag" data-step="3" style="font-size:26px">A call ties my success to yours. An event says: <b class="gold">“this happened. Do what you like with it.”</b></div>
+  <aside class="notes">SAY: three clicks. Click 1 puts all three red promises up at once — say each in the CALLER'S voice, they're quotes, so perform them. Let the discomfort accumulate. Click 2 answers all three in the same order. Click 3 is the punch.
+
+The gold space is pre-reserved, so nothing shifts on screen when the answers land.
+
+DETAIL if a programmer asks about #2: verified in the package source — Drain() wraps every handler in its own try/catch, logs, and continues to the rest. Fire-and-forget is literal here, not aspirational. Nuance: delivery is still synchronous and ordered — the queue fully drains before Publish returns. Decoupled failure, not deferred timing.
+
+CUT CANDIDATE: this is the most abstract slide in Act II. If you are behind, skip it — slide 11 makes the same case concretely.</aside>
+</section>
+
+<!-- 10 -->
+<section class="slide" data-act="Act II · The one rule" data-title="Anatomy of a jump" data-mark="13">
+  <h2>Anatomy of a jump</h2>
+  <svg viewBox="0 0 1140 330" style="width:1136px;margin-top:4px">
+    <defs>
+      <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#8E9CAA"/></marker>
+      <marker id="arg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#E8B04B"/></marker>
+    </defs>
+    <rect x="10" y="40" width="120" height="52" rx="10" fill="#1C232B" stroke="#29323C"/>
+    <text x="70" y="73" font-size="18" text-anchor="middle" fill="#E7ECF1" class="mono">SPACE ⎵</text>
+    <line x1="130" y1="66" x2="170" y2="66" stroke="#8E9CAA" stroke-width="2" marker-end="url(#ar)"/>
+    <rect x="172" y="40" width="234" height="52" rx="10" fill="rgba(111,180,245,.13)" stroke="#6FB4F5"/>
+    <text x="289" y="73" font-size="17.5" text-anchor="middle" fill="#6FB4F5" class="mono">UserJumpRequested</text>
+    <line x1="406" y1="66" x2="442" y2="66" stroke="#8E9CAA" stroke-width="2" marker-end="url(#ar)"/>
+    <rect x="444" y="26" width="26" height="80" rx="6" fill="#3E4854"/>
+    <text x="457" y="124" font-size="15" text-anchor="middle" fill="#8E9CAA">bridge</text>
+    <line x1="470" y1="66" x2="510" y2="66" stroke="#8E9CAA" stroke-width="2" marker-end="url(#ar)"/>
+    <rect x="512" y="40" width="200" height="52" rx="10" fill="rgba(232,176,75,.10)" stroke="#E8B04B"/>
+    <text x="612" y="73" font-size="17.5" text-anchor="middle" fill="#E8B04B" class="mono">JumpRequested</text>
+    <line x1="712" y1="66" x2="752" y2="66" stroke="#8E9CAA" stroke-width="2" marker-end="url(#ar)"/>
+    <rect x="754" y="24" width="248" height="84" rx="10" fill="#151B22" stroke="#66C995" stroke-width="1.5"/>
+    <text x="878" y="52" font-size="18" text-anchor="middle" fill="#E7ECF1" font-weight="600">JumpController</text>
+    <text x="878" y="76" font-size="16" text-anchor="middle" fill="#66C995">airborne? cooldown?</text>
+    <text x="878" y="97" font-size="16" text-anchor="middle" fill="#66C995">🛂 the gate</text>
+    <path d="M 1002 66 L 1052 66 L 1052 200 L 300 200" fill="none" stroke="#E8B04B" stroke-width="2.5" marker-end="url(#arg)"/>
+    <text x="1060" y="142" font-size="15" fill="#8E9CAA" font-style="italic">publishes,</text>
+    <text x="1060" y="161" font-size="15" fill="#8E9CAA" font-style="italic">only if legal</text>
+    <rect x="90" y="174" width="208" height="52" rx="10" fill="rgba(232,176,75,.10)" stroke="#E8B04B"/>
+    <text x="194" y="207" font-size="17.5" text-anchor="middle" fill="#E8B04B" class="mono">JumpStarting</text>
+    <line x1="194" y1="226" x2="194" y2="262" stroke="#8E9CAA" stroke-width="2" marker-end="url(#ar)"/>
+    <rect x="76" y="264" width="238" height="52" rx="10" fill="#151B22" stroke="#29323C"/>
+    <text x="195" y="286" font-size="17" text-anchor="middle" fill="#E7ECF1" font-weight="600">JumpArcController</text>
+    <text x="195" y="307" font-size="15" text-anchor="middle" fill="#8E9CAA">actually drives the arc</text>
+    <line x1="314" y1="290" x2="380" y2="290" stroke="#8E9CAA" stroke-width="2" marker-end="url(#ar)"/>
+    <rect x="382" y="264" width="190" height="52" rx="10" fill="rgba(232,176,75,.10)" stroke="#E8B04B"/>
+    <text x="477" y="296" font-size="17.5" text-anchor="middle" fill="#E8B04B" class="mono">JumpStarted</text>
+    <line x1="572" y1="290" x2="648" y2="290" stroke="#8E9CAA" stroke-width="2" stroke-dasharray="7 6" marker-end="url(#ar)"/>
+    <rect x="650" y="258" width="340" height="62" rx="10" fill="#151B22" stroke="#66C995" stroke-dasharray="7 5"/>
+    <text x="820" y="284" font-size="17" text-anchor="middle" fill="#66C995">🔊 JumpAudio — added months later</text>
+    <text x="820" y="306" font-size="15.5" text-anchor="middle" fill="#8E9CAA">a new listener; nothing else changed</text>
+    <text x="612" y="152" font-size="16" fill="#66C995" text-anchor="middle" font-style="italic">Requested → Starting is not automatic. It's earned.</text>
+  </svg>
+  <p class="sub" style="margin-top:8px">One key press. Five hops. One gate. <b>Every hop is a named, loggable event.</b></p>
+  <aside class="notes">SAY: walk it hop by hop, slowly. The bridge translates raw human intent into the gameplay vocabulary.
+
+THE GATE is the thing to dwell on: JumpRequested fires whether or not the jump is legal. The controller publishes JumpStarting only after its checks pass. That rung of the ladder is deliberately manual — programmers get the full rule in Act III.
+
+PAYOFF: point at the dashed box. A jump sound is a new subscriber to JumpStarted. Zero edits to either controller. That's the open/closed principle wearing work clothes — and the next slide makes it concrete.</aside>
+</section>
+
+<!-- 11 -->
+<section class="slide" data-act="Act II · The one rule" data-title="The test: add a jump sound" data-mark="14">
+  <div class="stamp"><b>+1 file</b><i>0 edits to gameplay</i></div>
+  <h2>The test: add a jump sound</h2>
+  <div class="cols">
+    <div class="col">
+      <div class="panel badp">
+        <h3>Direct wiring</h3>
+        <ul>
+          <li>Open <code class="inline">PlayerController</code> <i class="mut">(again)</i></li>
+          <li>Add an <code class="inline">AudioSource</code> field</li>
+          <li>Drag the clip in, re-save the prefab</li>
+          <li>Edit <code class="inline">Update()</code>, next to the jump physics</li>
+          <li class="red"><b>The 7th reason this file changed this month</b> — and your audio person just edited the physics</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col" style="flex:1.35">
+      <div class="panel goodp">
+        <h3>Event wiring — one new file</h3>
+        <pre class="xs" style="margin:0"><span class="k">public class</span> <span class="t">JumpAudio</span> : <span class="t">MonoBehaviour</span>    <span class="c">// in the SFX scene</span>
+{
+    [<span class="t">SerializeField</span>] <span class="k">private</span> <span class="t">AudioSource</span> _source;
+
+    <span class="k">private void</span> Awake() =&gt; TempleRunBus
+        .Subscribe(<span class="e">TempleRunEvents.JumpStarted</span>, OnJump);
+    <span class="k">private void</span> OnDestroy() =&gt; TempleRunBus
+        .Unsubscribe(<span class="e">TempleRunEvents.JumpStarted</span>, OnJump);
+
+    <span class="k">private void</span> OnJump(<span class="t">string</span> n, <span class="t">object</span> s, <span class="t">object</span> d)
+        =&gt; _source.Play();
+}</pre>
+        <p style="font-size:20px;margin:12px 0 0">The jump controller never learns that audio exists.</p>
+      </div>
+    </div>
+  </div>
+  <div class="punch">New behavior <b class="gold">without permission from old code.</b></div>
+  <aside class="notes">SAY: this is the concrete before/after for the non-programmers. Left is death by a thousand edits — and a team-process smell: your audio specialist needs write access to the physics file.
+
+THE STAMP (top right) is the motif for the rest of the talk. Say it out loud the first time: “Plus one file. Zero edits to gameplay.” You will stamp four more things before the end — screen shake, an AI player, an artist's feature shipped by an agent, and a cloud leaderboard. Same stamp every time. That repetition IS the argument.
+
+Remember this slide — Act V calls straight back to it.</aside>
+</section>
+
+<!-- 12 -->
+<section class="slide" data-act="Act II · The one rule" data-title="Demo: the game narrates itself" data-mark="16">
+  <span class="chip">Demo</span>
+  <div class="stamp"><b>+1 file</b><i>screen shake, same shape</i></div>
+  <h2>The game narrates itself</h2>
+  <p class="sub mono" style="font-size:21px">CrawfisSoftware ▸ Events ▸ Log Events&nbsp;&nbsp;→&nbsp;&nbsp;Clear Now&nbsp;&nbsp;→&nbsp;&nbsp;play 15 seconds</p>
+  <ul style="font-size:24px">
+    <li>Boot chain, menus, countdown, every jump, every coin — live in the console</li>
+    <li>Debug by <b>reading the story</b>, not stepping through call stacks</li>
+    <li><b>Most of those events have nobody listening.</b> Only <b class="gold">47 of the 204</b> have a listener written for them — and 13 are the <code class="inline">*Failed</code> / <code class="inline">*Cancelled</code> family that never fires on a good day.</li>
+  </ul>
+  <div class="punch sm">That's not a defect list. It's a <b class="gold">menu</b>: <code class="inline">PlayerFailingAtObstacle</code> already fires on every death, so screen shake is one new file in the SFX scene. <span class="mut">Polish, juice and telemetry all arrive as additions.</span></div>
+  <aside class="notes">PREP: enable logging before the talk, Clear Now immediately before playing, bump the console font for the projector, Collapse off. Fallback: a screenshot of a logged run.
+
+BONUS BEAT (10 s): the task catalog has an in-game bug-report key — F2 captures a screenshot plus the last N events. “Press F2 when something feels wrong” beats “remember it and tell us later.” Event architecture is a flight recorder for free.
+
+ANSWER THE SKEPTIC BEFORE THEY ASK: “Isn't 204 events over-engineering?” No — over-DESIGNED, not over-engineered. We paid one enum line each to name the whole vocabulary; we did not build machinery nobody uses. Two flavors of silence, and only one is a hole: (1) never fires — the *Failed/*Cancelled family, which is correct, that's the bad-day branch; (2) fires unheard — a standing offer.
+
+THE NUMBER, precisely: 47 events have a hand-written named C# subscription (grep for Subscribe(...) and Id<T>(...)). More are consumed by the chain tables and by Inspector-wired scene components, which grep can't see — so 47 is a floor, not a census. Say “fewer than a quarter have a listener someone wrote” and you are safe under questioning.</aside>
+</section>
+
+<!-- 13 -->
+<section class="slide" data-act="Act II · The one rule" data-title="Three vocabularies, one door" data-mark="17">
+  <h2>Three vocabularies, one door between them</h2>
+  <svg viewBox="0 0 1140 300" style="width:1136px">
+    <defs><marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#8E9CAA"/></marker></defs>
+    <rect x="10" y="56" width="300" height="152" rx="16" fill="rgba(111,180,245,.08)" stroke="#6FB4F5" stroke-width="1.6"/>
+    <text x="160" y="94" font-size="24" text-anchor="middle" fill="#6FB4F5" font-weight="700">UserInitiated</text>
+    <text x="160" y="124" font-size="17" text-anchor="middle" fill="#B7C2CD">“a human wants to jump”</text>
+    <text x="160" y="152" font-size="17" text-anchor="middle" fill="#8E9CAA">lives: always</text>
+    <text x="160" y="188" font-size="27" text-anchor="middle" fill="#6FB4F5" font-weight="700">9 events</text>
+    <rect x="420" y="56" width="300" height="152" rx="16" fill="rgba(232,176,75,.08)" stroke="#E8B04B" stroke-width="1.6"/>
+    <text x="570" y="94" font-size="24" text-anchor="middle" fill="#E8B04B" font-weight="700">TempleRun</text>
+    <text x="570" y="124" font-size="17" text-anchor="middle" fill="#B7C2CD">player, track, coins, collisions</text>
+    <text x="570" y="152" font-size="17" text-anchor="middle" fill="#8E9CAA">lives: one run</text>
+    <text x="570" y="188" font-size="27" text-anchor="middle" fill="#E8B04B" font-weight="700">121 events</text>
+    <rect x="830" y="56" width="300" height="152" rx="16" fill="rgba(79,192,202,.08)" stroke="#4FC0CA" stroke-width="1.6"/>
+    <text x="980" y="94" font-size="24" text-anchor="middle" fill="#4FC0CA" font-weight="700">GameFlow</text>
+    <text x="980" y="124" font-size="17" text-anchor="middle" fill="#B7C2CD">menus, loading, pause, quit</text>
+    <text x="980" y="152" font-size="17" text-anchor="middle" fill="#8E9CAA">lives: the whole app</text>
+    <text x="980" y="188" font-size="27" text-anchor="middle" fill="#4FC0CA" font-weight="700">74 events</text>
+    <line x1="310" y1="132" x2="416" y2="132" stroke="#8E9CAA" stroke-width="2.5" marker-end="url(#ar2)"/>
+    <text x="363" y="116" font-size="16" text-anchor="middle" fill="#B7C2CD" class="mono">one-way</text>
+    <text x="363" y="244" font-size="15.5" text-anchor="middle" fill="#8E9CAA" class="mono">Input2TempleRunAutoEventBridge</text>
+    <line x1="363" y1="142" x2="363" y2="231" stroke="#3E4854" stroke-width="1" stroke-dasharray="3 4"/>
+    <line x1="720" y1="118" x2="826" y2="118" stroke="#8E9CAA" stroke-width="2.5" marker-end="url(#ar2)"/>
+    <line x1="826" y1="150" x2="720" y2="150" stroke="#8E9CAA" stroke-width="2.5" marker-end="url(#ar2)"/>
+    <text x="773" y="244" font-size="15.5" text-anchor="middle" fill="#8E9CAA" class="mono">TempleRunGameFlowBridge</text>
+    <line x1="773" y1="160" x2="773" y2="231" stroke="#3E4854" stroke-width="1" stroke-dasharray="3 4"/>
+    <text x="570" y="286" font-size="17" text-anchor="middle" fill="#8E9CAA" font-style="italic">crossing anywhere else = an audit finding</text>
+  </svg>
+  <ul style="margin-top:2px;font-size:23px">
+    <li><b>Why split them?</b> Different lifetimes, different owners. Menus outlive runs; input outlives both.</li>
+    <li><b>Why one door?</b> The whole cross-domain surface is <b>two files and 19 lines of data.</b> Readable, greppable, auditable.</li>
+  </ul>
+  <aside class="notes">SAY: three departments that only talk by memo, through one mailroom — and the mailroom's routing table is 19 lines long.
+
+THE ASYMMETRY is the setup for the next two slides: anyone may PUBLISH raw input — keyboard, swipe, tilt, an AI, a replay file, a network peer — but only the bridge SUBSCRIBES to it. No gameplay controller is coupled to “a human pressed a key.” That single asymmetry is why the demo two slides from now works at all.</aside>
+</section>
+
+<!-- 14 -->
+<section class="slide" data-act="Act II · The one rule" data-title="Five swaps (the list)" data-mark="19">
+  <h2>Isolation is for <span class="gold">swapping</span>. Here's the list.</h2>
+  <div class="swaps" style="margin:18px 0 20px">
+    <div class="swap lit frag hold" data-step="1"><span class="k">01</span><span class="w">the look</span></div>
+    <div class="swap now frag hold" data-step="2"><span class="k">02</span><span class="w">the player</span></div>
+    <div class="swap lit frag hold" data-step="3"><span class="k">03</span><span class="w">the game</span></div>
+    <div class="swap iou frag hold" data-step="4"><span class="k">04</span><span class="w">the teammate</span></div>
+    <div class="swap iou frag hold" data-step="4"><span class="k">05</span><span class="w">the machine</span></div>
+  </div>
+  <ul style="font-size:24px;line-height:1.3">
+    <li class="frag" data-step="1"><b class="gold">1 · The look.</b> Art, audio and environment are separate scenes that only listen. Reskin it; the logic never notices.</li>
+    <li class="frag" data-step="2"><b class="green">2 · The player.</b> Keyboard, swipe, tilt, an AI, a replay, a network peer — all publish the same requests.</li>
+    <li class="frag" data-step="3"><b>3 · The game.</b> Level choice crosses the bridge as <i>an integer</i>. The menus never learn what game they're running.</li>
+    <li class="frag" data-step="4"><b>4 · The teammate</b> and <b>5 · the machine</b> — Acts IV and V.</li>
+  </ul>
+  <div class="punch frag" data-step="5">Number two sounds like marketing. <span class="gold">Let's prove it.</span></div>
+  <aside class="notes">SAY: this is the scoreboard for the rest of the talk. Promise all five and the audience will keep score for you — which is exactly what you want, because you are going to deliver every one.
+
+THE STRIP FILLS IN AS YOU TALK. It starts blank; each pill takes its state on the same click as its bullet. Three states, and they stay consistent for the rest of the deck:
+  · GOLD + ✓ = DONE — the talk has shown it
+  · GREEN = NEXT — proved on the very next slide
+  · DASHED = an IOU — promised, later in the talk
+
+So: click 1 lights 01 gold. Click 2 turns 02 GREEN, not gold — the claim is made, the proof is the next slide. Click 3 lights 03 gold. Click 4 puts 04 and 05 in dashed outline as IOUs. Click 5 is the punch.
+
+Each of the five is a real property of shipped code, not aspiration: separate scene files; the UserInitiated funnel you just explained; LevelApplied(int) crossing the bridge.
+
+CALL NUMBER 3 OUT while you light it: “That one I'm showing you in code rather than on stage — level choice crosses the bridge as an integer, so the menus never learn what game they're running.” Saying it here means slide 29's strip doesn't need explaining.
+
+Tease the demo hard, then advance. Don't explain number 2 — show it. On the next slide, 02 goes from green to gold, and if anyone is watching the strip they will see it flip.</aside>
+</section>
+
+<!-- 15 -->
+<section class="slide" data-act="Act II · The one rule" data-title="Demo: fire the player" data-mark="20">
+  <span class="chip">Demo</span>
+  <div class="stamp"><b>+1 file</b><i>a whole new player</i></div>
+  <h2>Fire the player</h2>
+  <p class="sub">Tick one checkbox — <code class="inline">AIController._isEnabled</code> — and take your hands off the keyboard.</p>
+  <ul style="font-size:24px">
+    <li>The AI publishes the <b>same events the space bar does</b></li>
+    <li>No gameplay controller can tell the difference. <i>There is no “bot mode.”</i></li>
+    <li><b>And it never sleeps.</b> Leave it running a week: a million unattended runs of balance data and crash repros. <span class="mut">The endless runner, finally endless.</span></li>
+    <li class="mut">It's a perfect turner and a terrible jumper. <span style="font-size:20px">(Task C8: give it reaction time and make it a rival.)</span></li>
+  </ul>
+  <div class="swaps" style="margin-top:14px">
+    <div class="swap lit"><span class="k">01</span><span class="w">the look</span></div>
+    <div class="swap lit"><span class="k">02</span><span class="w">the player</span></div>
+    <div class="swap lit"><span class="k">03</span><span class="w">the game</span></div>
+    <div class="swap iou"><span class="k">04</span><span class="w">the teammate</span></div>
+    <div class="swap iou"><span class="k">05</span><span class="w">the machine</span></div>
+  </div>
+  <div class="punch sm">The player was replaceable <b class="gold">before anyone wrote an AI.</b> It fell out of the architecture.</div>
+  <aside class="notes">PREP: bookmark the GameObject hosting AIController; pick an obstacle-light level so it survives long enough to impress. It only handles turns, so it will eventually die — use the comic death as your segue. “Perfect turner, terrible jumper” lands every time. Fallback: pre-recorded capture.
+
+BE HONEST about “never sleeps”: it's a standing offer, not a proven result — we have not run the week. But the enabling facts are real. The AI needs no keyboard, no window focus and no human; and every run already narrates itself into the event log. Pair those and you have an automated playtest lab neither half was built for. Task L5 (headless play-mode test suite) is where a team picks it up.
+
+IF ASKED “a million?” — a run is under a minute, headless, timescale cranked, in parallel. It's arithmetic. The real payoff is the questions it answers: which segment kills people, whether level 4 is a wall, which chain regressed overnight.
+
+THE STRIP: 02 has gone green → gold. If you want the beat, tap it on your way past — “that one's done.”</aside>
+</section>
+
+<!-- 16 -->
+<section class="slide" data-act="Act II · The one rule" data-title="That's the whole AI" data-mark="22">
+  <h2 class="sm">That's the whole AI <span class="dim">— 55 lines, comments included</span></h2>
+  <pre class="xs"><span class="k">public class</span> <span class="t">AIController</span> : <span class="t">MonoBehaviour</span>        <span class="c">// the whole file, lightly trimmed</span>
+{
+    [<span class="t">SerializeField</span>] <span class="k">private</span> <span class="t">TurnController</span> _turnController;   <span class="c">// same domain — legal to read</span>
+    [<span class="t">SerializeField</span>] <span class="k">private float</span> _turnDistance = .1f;
+    [<span class="t">SerializeField</span>] <span class="k">private bool</span>  _isEnabled    = <span class="k">true</span>;       <span class="c">// ← the checkbox you ticked</span>
+
+    <span class="k">private void</span> Update()
+    {
+        <span class="k">float</span> distance = <span class="t">Blackboard</span>.Instance.DistanceTracker.DistanceTravelled;
+        <span class="k">if</span> (!_gameStarted || !_isEnabled ||
+            _turnController.TurnFailedDistance - _turnDistance &gt; distance) <span class="k">return</span>;
+
+        UserInputBus.Publish(_turnController.TurnDirection == <span class="t">Direction</span>.Left
+            ? <span class="e">UserInitiatedEvents.UserLeftTurnRequested</span>
+            : <span class="e">UserInitiatedEvents.UserRightTurnRequested</span>, <span class="k">this</span>, distance);
+    }
+}</pre>
+  <div class="punch sm"><b class="gold">Publishes</b> the same two events the arrow keys do. <b>Reads</b> the turn window off <code class="inline">TurnController</code> — same domain, legal, and exactly why it's a <i>perfect</i> turner.</div>
+  <aside class="notes">SAY: “You don't have to read this. Just count it.” The entire AI player — the thing that just took the human out of the loop — is 55 lines including its doc comment, and this is nearly all of them.
+
+POINT AT TWO THINGS:
+1. It PUBLISHES `UserInitiatedEvents` — the same two the arrow keys publish. That one fact is why no gameplay controller can tell the difference, and why the words “bot mode” appear nowhere in the codebase.
+2. It READS `TurnController` and `Blackboard` directly. That is legal: TurnController, Blackboard and AIController all live in the TempleRun domain, and the rule governs cross-DOMAIN traffic, not every method call. Name it yourself — a sharp programmer will spot that SerializeField, and you want to have gotten there first.
+
+AND THAT'S THE JOKE. Reading `TurnController.TurnFailedDistance` is how it knows the exact moment to turn. It isn't watching the world; it has the answer key. Which is precisely why it's a perfect turner and a terrible jumper — nobody handed it an answer key for obstacles. Task C8 is “take the answer key away”: give it a sight distance, reaction time and misjudgment, and it stops being an oracle and becomes a rival.
+
+WHY THIS SLIDE EARNS ITS MINUTE: the previous slide is a claim the audience has to trust. This one is the whole proof on a single screen — and “the entire AI is one screen” is the kind of thing a room remembers. Cut it only if you are cutting the demo too.
+
+IF THE ROOM IS NON-TECHNICAL: read only the two highlighted `UserInitiatedEvents` lines aloud and move on. Twenty seconds.</aside>
+</section>
+
+<!-- 16 -->
+<section class="slide" data-act="Act II · The one rule" data-title="One run, end to end" data-mark="23">
+  <h2 class="sm" style="margin-bottom:4px">One run, end to end</h2>
+  <p class="sub" style="font-size:22px;margin-bottom:4px">Level select to game over. <span class="mut">Find the game in here.</span></p>
+  <svg viewBox="0 0 1140 340" style="width:1136px">
+    <defs><marker id="ar3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#B7C2CD"/></marker></defs>
+    <rect x="40"  y="10" width="330" height="30" rx="8" fill="rgba(79,192,202,.13)"/><text x="205" y="31" font-size="18" text-anchor="middle" fill="#4FC0CA" font-weight="700">GameFlow</text>
+    <rect x="475" y="10" width="190" height="30" rx="8" fill="#1C232B"/><text x="570" y="31" font-size="18" text-anchor="middle" fill="#8E9CAA" font-weight="700">bridge</text>
+    <rect x="770" y="10" width="330" height="30" rx="8" fill="rgba(232,176,75,.13)"/><text x="935" y="31" font-size="18" text-anchor="middle" fill="#E8B04B" font-weight="700">TempleRun</text>
+    <line x1="205" y1="44" x2="205" y2="330" stroke="#29323C" stroke-width="1.5"/>
+    <line x1="570" y1="44" x2="570" y2="330" stroke="#29323C" stroke-width="1.5" stroke-dasharray="4 5"/>
+    <line x1="935" y1="44" x2="935" y2="330" stroke="#29323C" stroke-width="1.5"/>
+    <g font-size="16" class="mono">
+      <text x="56" y="70" fill="#4FC0CA">LevelSelected → scenes load → GameScenesLoaded</text>
+      <line x1="205" y1="92" x2="562" y2="92" stroke="#B7C2CD" stroke-width="2" marker-end="url(#ar3)"/>
+      <text x="222" y="86" fill="#B7C2CD">GameStarting</text>
+      <line x1="578" y1="92" x2="927" y2="92" stroke="#B7C2CD" stroke-width="2" marker-end="url(#ar3)"/>
+      <text x="640" y="86" fill="#E8B04B">CountdownStartRequested</text>
+      <text x="782" y="122" fill="#E8B04B">3… 2… 1… (CountdownTick)</text>
+      <line x1="927" y1="148" x2="578" y2="148" stroke="#B7C2CD" stroke-width="2" marker-end="url(#ar3)"/>
+      <text x="700" y="142" fill="#E8B04B">CountdownEnded</text>
+      <line x1="562" y1="148" x2="213" y2="148" stroke="#B7C2CD" stroke-width="2" marker-end="url(#ar3)"/>
+      <text x="248" y="142" fill="#4FC0CA">GameStarted</text>
+      <line x1="205" y1="180" x2="562" y2="180" stroke="#B7C2CD" stroke-width="2" marker-end="url(#ar3)"/>
+      <line x1="578" y1="180" x2="927" y2="180" stroke="#B7C2CD" stroke-width="2" marker-end="url(#ar3)"/>
+      <text x="616" y="174" fill="#E8B04B">TempleRunStartRequested</text>
+      <rect x="734" y="198" width="302" height="30" rx="7" fill="rgba(232,176,75,.18)" stroke="#E8B04B" stroke-width="1.4"/>
+      <text x="750" y="219" font-size="17" fill="#E8B04B" font-style="italic" font-weight="500">running… turns, jumps, coins</text>
+      <text x="800" y="252" fill="#E8B04B">PlayerDied → TempleRunEnded</text>
+      <line x1="927" y1="272" x2="578" y2="272" stroke="#B7C2CD" stroke-width="2" marker-end="url(#ar3)"/>
+      <line x1="562" y1="272" x2="213" y2="272" stroke="#B7C2CD" stroke-width="2" marker-end="url(#ar3)"/>
+      <text x="262" y="266" fill="#4FC0CA">GameEnding</text>
+      <text x="56" y="302" fill="#4FC0CA">scenes unload → GameEnded → back to the menu</text>
+    </g>
+    <text x="570" y="332" font-size="16.5" text-anchor="middle" fill="#8E9CAA" font-style="italic">“game started” crosses the bridge twice before the first step</text>
+  </svg>
+  <div class="punch sm" style="margin-top:6px">Every arrow is a named event you can <b class="gold">log, reroute, or subscribe to.</b></div>
+  <aside class="notes">SAY: point at the highlighted box FIRST. “That is the game. A character moving forward, turning, picking up coins.” Then sweep the rest with your hand: all of it is ceremony around that one line. This is where the 74 GameFlow events live.
+
+Note the countdown is its own request/tick/ended chain, and “game started” crosses the bridge twice before the first step: GameFlow starts the countdown, and the countdown ending starts the run.
+
+CRITICAL — LEAVE IT CLEAN. Do not editorialize. This exact diagram comes back seven slides from now with our own bug drawn on it in red, and the callback only lands if the room accepts this version as sound.
+
+Close the act: “Every arrow is an event. That's the whole trick. Now — five slides for the programmers.”</aside>
+</section>
+
+<!-- ==================== ACT III — FOR THE PROGRAMMERS ==================== -->
+
+<!-- 17 -->
+<section class="slide" data-act="Act III · For the programmers" data-title="Act III divider" data-mark="25">
+  <p class="kicker">Act III</p>
+  <h1 style="font-size:58px">Four mechanisms,<br>three war stories</h1>
+  <p class="sub" style="font-size:27px;margin-top:14px">Programmers: lean in.<br>
+  Everyone else: this is your stretch break — <span class="teal">Act IV has robots.</span></p>
+  <p class="mono mut" style="font-size:21px;margin-top:auto">the bus · the naming ladder · control flow as data · state vs. moments</p>
+  <aside class="notes">SAY: give the room explicit permission to zone out. It buys enormous goodwill and lets you go genuinely technical for seven minutes without losing the designers.
+
+Each of the four slides is one mechanism plus the war story that motivated it. Lead with the story if you're running behind — the stories are what the non-programmers will still be listening to.</aside>
+</section>
+
+<!-- 18 -->
+<section class="slide" data-act="Act III · For the programmers" data-title="TECH · the bus" data-mark="26">
+  <span class="chip tech">Tech</span>
+  <h2 class="sm">The bus: one static class per domain</h2>
+  <pre class="small"><span class="k">using</span> TempleRunBus = CrawfisSoftware.Events.<span class="t">EventsFor</span>&lt;CrawfisSoftware.TempleRun.<span class="t">TempleRunEvents</span>&gt;;
+
+<span class="k">private void</span> Awake()     =&gt; TempleRunBus.Subscribe(<span class="e">TempleRunEvents.JumpStarting</span>, OnJump);
+<span class="k">private void</span> OnDestroy() =&gt; TempleRunBus.Unsubscribe(<span class="e">TempleRunEvents.JumpStarting</span>, OnJump);</pre>
+  <ul style="font-size:23px">
+    <li>One enum per domain, one <code class="inline">EventsFor&lt;T&gt;</code> per enum, aliased per file</li>
+    <li><b>Static and lazily initialized:</b> no scene object, no singleton, no init race</li>
+    <li>Subscribe in <code class="inline">Awake</code>, unsubscribe in <code class="inline">OnDestroy</code> — <i>always</i></li>
+  </ul>
+  <div class="warstory"><b>War story — why static</b>
+  The old design used per-domain singleton components with <code class="inline">[DefaultExecutionOrder(-10000)]</code>. That attribute only orders <code class="inline">Awake</code> <i>within one scene-load batch</i> — and our scenes load additively, so it was a race anyway. Static + lazy didn't fix the race. It made the failure <b>unrepresentable</b>.</div>
+  <aside class="notes">WHY LEAD WITH THIS: “where does the bus live?” is the first question every Unity developer asks, and the singleton answer is a trap that costs a week.
+
+The war story is real repo history — those per-domain singleton components were deleted for exactly this reason. The lesson to state out loud: the best kind of fix deletes the category of bug, rather than handling it.</aside>
+</section>
+
+<!-- 19 -->
+<section class="slide" data-act="Act III · For the programmers" data-title="TECH · names & gates" data-mark="27">
+  <span class="chip tech">Tech</span>
+  <h2 class="sm">Names are a state machine. <span class="green">Gates are earned.</span></h2>
+  <p class="mono" style="font-size:27px;margin:14px 0">
+    <span class="gold">*Requested</span> <span class="mut">→</span> <span class="gold">*Starting</span> <span class="mut">→</span> <span class="gold">*Started</span>
+    <span class="mut" style="font-size:21px">&nbsp;&nbsp;(+ *Failed, *Cancelled off-ramps)</span></p>
+  <p style="font-size:24px">Every action in all 204 events climbs this ladder. <b>The naming convention <i>is</i> the lifecycle documentation.</b></p>
+  <div class="warstory good"><b>The validation-gate rule</b>
+  For movement, <code class="inline">Requested → Starting</code> is <b>never automatic</b>. <code class="inline">Requested</code> is the bridge's <i>raw</i> translation — it fires whether or not the action is legal. The controller publishes <code class="inline">Starting</code> itself, <i>after</i> its checks pass. Automate that hop and the gate dies silently: every illegal jump “starts.”</div>
+  <p style="font-size:23px;margin-top:14px">The #1 mistake juniors make here — <b>and AI agents make it too.</b> Which is why the rule lives in a file machines read, not in a senior's head.</p>
+  <aside class="notes">THE WHY: the bridge cannot know gameplay legality; only the controller can. So the ladder has exactly one manual rung, on purpose.
+
+This slide foreshadows Act IV directly: agents and juniors fail identically here, and the fix is identical — write the rule down where both will read it (CLAUDE.md, the skills, the comments in the auto-flow file).
+
+If a programmer asks “why not just validate in the bridge?” — because then the bridge knows about cooldowns, airborne state and lane boundaries, and you have re-created the coupling you deleted.</aside>
+</section>
+
+<!-- 20 -->
+<section class="slide" data-act="Act III · For the programmers" data-title="TECH · control flow as data" data-mark="29">
+  <span class="chip tech">Tech</span>
+  <h2 class="sm">Control flow you can read <span class="dim">(and audit)</span></h2>
+  <pre class="small" style="flex:none"><span class="c">// GameFlowAutoEventFlow.cs — 21 entries; TempleRun has 17 more</span>
+<span class="k">private static readonly</span> (<span class="t">GameFlowEvents</span> From, <span class="t">GameFlowEvents</span> To)[] ChainTable =
+{
+    (<span class="e">GameFlowEvents.GameScenesLoaded</span>,   <span class="e">GameFlowEvents.GameStartRequested</span>),
+    (<span class="e">GameFlowEvents.GameStartRequested</span>, <span class="e">GameFlowEvents.GameStarting</span>),
+    (<span class="e">GameFlowEvents.GameEnding</span>,         <span class="e">GameFlowEvents.GameScenesUnloadRequested</span>),
+};</pre>
+  <ul style="font-size:23px">
+    <li><b>Why data, not code:</b> a domain's entire causality is one table you read top to bottom</li>
+    <li>Chains fire synchronously, in declaration order. One source may fan out to several targets.</li>
+  </ul>
+  <div class="warstory"><b>War story — the dictionary ceiling</b>
+  This used to be a dictionary: <i>one</i> successor per event. Developers who found a slot taken published the second consequence by hand, inside a controller — which is how <b>failure logic came to publish pause events</b>. The data structure's ceiling became an architecture violation. Pairs fixed the incentive.</div>
+  <aside class="notes">THE DEEP LESSON, and the best line in Act III: when the sanctioned path has a ceiling, people don't stop — they route around it, and the workaround is exactly where the coupling leaks back in. Design the data structure for the behavior you want to see.
+
+Mention that /audit-events checks these tables for cycles, since chains fire synchronously — a cycle is an infinite loop, not a slow frame.</aside>
+</section>
+
+<!-- 21 -->
+<section class="slide" data-act="Act III · For the programmers" data-title="TECH · state, not moments" data-mark="30">
+  <span class="chip tech">Tech</span>
+  <h2 class="sm">State, not moments</h2>
+  <div class="cols">
+    <div class="col" style="flex:1.15">
+      <pre class="xs" style="margin-top:2px">[<span class="t">EventPayload</span>(<span class="k">typeof</span>(<span class="t">TrackSegmentInfo</span>))]
+<span class="e">ActiveTrackChanging</span> = 261,     <span class="c">// declared on the member</span>
+
+<span class="k">private static readonly</span> <span class="t">EventId</span>&lt;<span class="t">TrackSegmentInfo</span>&gt; TrackChanging
+    = TempleRunBus.Id&lt;<span class="t">TrackSegmentInfo</span>&gt;(
+          <span class="e">TempleRunEvents.ActiveTrackChanging</span>);</pre>
+      <p style="font-size:20.5px;line-height:1.32">Mint the id <b>once</b>; everything downstream is compiler-checked. Two call sites disagreeing on <code class="inline">T</code> are reported at startup.</p>
+    </div>
+    <div class="col">
+      <p style="font-size:22px;line-height:1.32"><b class="gold">Replay a state, never a moment.</b> Default delivery is transient. <b>Sticky</b> — replayed to late subscribers — is only for something <i>still true</i>: “the selected level is 3.”</p>
+      <p style="font-size:22px;line-height:1.32"><b class="red">The trap:</b> <code class="inline">Paused</code> / <code class="inline">Resumed</code> are two moments, not a state. Sticky can't fix that — a latecomer gets whichever fired last. Carry the state in <b>one value-carrying event</b>.</p>
+      <p style="font-size:24px;margin-top:14px"><b>Discipline stat: <span class="gold">2 sticky out of 204.</span></b></p>
+    </div>
+  </div>
+  <div class="punch sm">And upgrades are <b class="gold">measured, not vibed</b> — an in-editor audit reports which events actually had a late subscriber after a play session.</div>
+  <aside class="notes">WHY LATE SUBSCRIBERS EXIST AT ALL: additive scenes load at different times, so “who heard what” is a real, structural problem — not sloppiness.
+
+The two sticky events are TempleRunLevelApplied and TempleRunDifficultySettingsApplied. Both are statements of current state that stay true; TrackManager reads the level at init with TryGetLast rather than subscribing.
+
+The measurement tool is Window ▸ Events ▸ Upgrade Audit. The rule: evidence first, then upgrade. A name is not evidence.</aside>
+</section>
+
+<!-- 22 -->
+<section class="slide" data-act="Act III · For the programmers" data-title="What it costs (honesty)" data-mark="32">
+  <span class="chip tech">Tech</span>
+  <h2 class="sm">What it costs <span class="dim">(the honesty slide)</span></h2>
+  <div class="cols">
+    <div class="col">
+      <div class="panel badp">
+        <h3>The bill</h3>
+        <ul>
+          <li>You can't ctrl-click from cause to effect</li>
+          <li>An event with no listener fails <b>silently</b></li>
+          <li>No assembly definitions — <b>the compiler enforces none of this</b></li>
+        </ul>
+      </div>
+    </div>
+    <div class="col">
+      <div class="panel goodp">
+        <h3>How we pay it</h3>
+        <ul>
+          <li>Strict naming — the ladder <i>is</i> the docs</li>
+          <li>A checked-in event catalog, regenerated by tooling</li>
+          <li>Loggers and event history — the flight recorder</li>
+          <li><code class="inline">/audit-events</code> before every merge</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="punch">Architecture is a <b class="gold">discipline you keep</b>, not a library you install.</div>
+  <aside class="notes">CREDIBILITY SLIDE — own the costs before someone in Q&A does it for you. The indirection is real. The mitigations are process, not framework.
+
+“No asmdefs” is a deliberate simplicity trade for a student codebase: one assembly, fast onboarding. Review plus /audit-events is the enforcement. A good student argument-starter: would you add them?
+
+The punch line is one of the three things to steal at the end — plant it here so the callback works.
+
+Then hand off: “Let me show you what that bill looks like in our own code.” And welcome the whole room back.</aside>
+</section>
+
+<!-- 23 -->
+<section class="slide" data-act="Act III · For the programmers" data-title="We broke our own rule" data-mark="33">
+  <span class="chip all">Everyone back in</span>
+  <h2 class="sm" style="margin-bottom:6px">We broke our own rule. <span class="dim">Here's where.</span></h2>
+  <svg viewBox="0 0 1140 400" style="width:1136px">
+    <defs>
+      <marker id="ar4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#5A6673"/></marker>
+      <marker id="ar4r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#F0796B"/></marker>
+    </defs>
+    <rect x="40"  y="6" width="330" height="28" rx="8" fill="rgba(79,192,202,.10)"/><text x="205" y="26" font-size="17" text-anchor="middle" fill="#4FC0CA" font-weight="700">GameFlow</text>
+    <rect x="475" y="6" width="190" height="28" rx="8" fill="#1C232B"/><text x="570" y="26" font-size="17" text-anchor="middle" fill="#8E9CAA" font-weight="700">bridge</text>
+    <rect x="770" y="6" width="330" height="28" rx="8" fill="rgba(232,176,75,.10)"/><text x="935" y="26" font-size="17" text-anchor="middle" fill="#E8B04B" font-weight="700">TempleRun</text>
+    <line x1="205" y1="38" x2="205" y2="290" stroke="#29323C" stroke-width="1.5"/>
+    <line x1="570" y1="38" x2="570" y2="290" stroke="#29323C" stroke-width="1.5" stroke-dasharray="4 5"/>
+    <line x1="935" y1="38" x2="935" y2="290" stroke="#29323C" stroke-width="1.5"/>
+    <g font-size="16" class="mono">
+      <text x="56" y="62" fill="#5A6673">LevelSelected → scenes load → GameScenesLoaded</text>
+      <line x1="205" y1="84" x2="562" y2="84" stroke="#3E4854" stroke-width="2" marker-end="url(#ar4)"/>
+      <text x="222" y="78" fill="#5A6673">GameStarting</text>
+      <line x1="578" y1="84" x2="927" y2="84" stroke="#3E4854" stroke-width="2" marker-end="url(#ar4)"/>
+      <text x="640" y="78" fill="#5A6673">CountdownStartRequested</text>
+      <text x="782" y="114" fill="#5A6673">3… 2… 1… (CountdownTick)</text>
+      <line x1="927" y1="140" x2="578" y2="140" stroke="#F0796B" stroke-width="2.8" marker-end="url(#ar4r)"/>
+      <text x="700" y="134" fill="#F0796B" font-weight="500">CountdownEnded</text>
+      <line x1="562" y1="140" x2="213" y2="140" stroke="#F0796B" stroke-width="2.8" marker-end="url(#ar4r)"/>
+      <text x="248" y="134" fill="#F0796B" font-weight="500">GameStarted</text>
+      <line x1="205" y1="172" x2="562" y2="172" stroke="#F0796B" stroke-width="2.8" marker-end="url(#ar4r)"/>
+      <line x1="578" y1="172" x2="927" y2="172" stroke="#F0796B" stroke-width="2.8" marker-end="url(#ar4r)"/>
+      <text x="616" y="166" fill="#F0796B" font-weight="500">TempleRunStartRequested</text>
+      <text x="750" y="206" font-size="17" fill="#5A6673" font-style="italic">running… turns, jumps, coins</text>
+      <text x="800" y="238" fill="#5A6673">PlayerDied → TempleRunEnded</text>
+      <line x1="927" y1="258" x2="578" y2="258" stroke="#3E4854" stroke-width="2" marker-end="url(#ar4)"/>
+      <line x1="562" y1="258" x2="213" y2="258" stroke="#3E4854" stroke-width="2" marker-end="url(#ar4)"/>
+      <text x="262" y="252" fill="#5A6673">GameEnding</text>
+      <text x="56" y="286" fill="#5A6673">scenes unload → GameEnded → back to the menu</text>
+    </g>
+    <rect x="40" y="302" width="1060" height="92" rx="10" fill="rgba(240,121,107,.10)" stroke="#F0796B" stroke-width="1.2" stroke-dasharray="5 4"/>
+    <text x="58" y="326" font-size="15" fill="#F0796B" font-weight="700" letter-spacing="1.4">GAMEPLAY DECIDES A SESSION MILESTONE — THEN IT'S BRIDGED STRAIGHT BACK</text>
+    <text x="58" y="352" font-size="16.5" fill="#B7C2CD">Swap in a runner with <tspan fill="#E7ECF1" font-weight="600">no countdown</tspan> and nothing publishes <tspan fill="#E7ECF1" class="mono">GameStarted</tspan>. The session hangs before the first step.</text>
+    <text x="58" y="378" font-size="16.5" fill="#8E9CAA">It defeats the exact claim Act II spent three slides building. <tspan fill="#E8B04B">The fix is one line in a bridge table.</tspan></text>
+  </svg>
+  <div class="punch sm" style="margin-top:8px">The architecture didn't prevent this. It made it <b class="gold">a red arrow you can point at.</b></div>
+  <aside class="notes">SAY “remember this?” and then SHUT UP for three seconds. Let the room recognize the diagram before you explain anything. It's identical, greyed out, with three arrows lit red.
+
+THE BUG: TempleRunGameFlowBridge maps CountdownEnded → GameStarted, and the reverse table maps GameStarted → TempleRunStartRequested. So “the game has started” is decided inside gameplay, bridged into GameFlow, and bridged straight back. GameFlow should own “started”; gameplay should only report that it is READY.
+
+TWO SOFTER SMELLS, same story: (1) the countdown is session ceremony — same category as the loading screen and the game-over overlay, both of which live in GameFlow — and it sits in TempleRun by accident of history, not by argument. (2) Countdown.uxml and HUD.uxml still live under Assets/GameFlow/UI Toolkit/ while CountdownUIController is in TempleRun: the code changed domains and the assets never followed.
+
+THE LINE TO LAND: “The architecture didn't prevent this. It made it a red arrow you can point at.”
+
+DON'T WALLOW. Two closers if you want them: “where does the countdown belong?” is a real Draw the Boundary question with no settled answer, and all three smells are written up in KNOWN_ISSUES.md so nobody has to take my word for it. If asked why it wasn't just fixed before the talk: a template that shows its seams teaches more than one pretending it has none.</aside>
+</section>
+
+<!-- ==================== ACT IV — THE AI-DRIVEN STUDIO ==================== -->
+
+<!-- 24 -->
+<section class="slide" data-act="Act IV · Contributors who don't write code" data-title="The track is data" data-mark="35">
+  <h2 class="sm">Swap #1, deeper: <span class="gold">content without code</span></h2>
+  <svg viewBox="0 0 1140 236" style="width:1136px">
+    <defs><marker id="ar5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#E8B04B"/></marker></defs>
+    <rect x="20" y="30" width="320" height="112" rx="14" fill="#151B22" stroke="#E8B04B"/>
+    <text x="180" y="64" font-size="22" text-anchor="middle" fill="#E7ECF1" font-weight="700">1 · Selection</text>
+    <text x="180" y="92" font-size="17" text-anchor="middle" fill="#B7C2CD">“which segment next?”</text>
+    <text x="180" y="118" font-size="16" text-anchor="middle" fill="#4FC0CA" class="mono">ISegmentSelector — 4 policies</text>
+    <line x1="340" y1="86" x2="396" y2="86" stroke="#E8B04B" stroke-width="2.5" marker-end="url(#ar5)"/>
+    <rect x="400" y="30" width="320" height="112" rx="14" fill="#151B22" stroke="#E8B04B"/>
+    <text x="560" y="64" font-size="22" text-anchor="middle" fill="#E7ECF1" font-weight="700">2 · Geometry</text>
+    <text x="560" y="92" font-size="17" text-anchor="middle" fill="#B7C2CD">Entrance → Pivot → Exit spline</text>
+    <text x="560" y="118" font-size="16" text-anchor="middle" fill="#4FC0CA" class="mono">IPathSegmentBuilder</text>
+    <line x1="720" y1="86" x2="776" y2="86" stroke="#E8B04B" stroke-width="2.5" marker-end="url(#ar5)"/>
+    <rect x="780" y="30" width="340" height="112" rx="14" fill="#151B22" stroke="#E8B04B"/>
+    <text x="950" y="64" font-size="22" text-anchor="middle" fill="#E7ECF1" font-weight="700">3 · Visuals</text>
+    <text x="950" y="92" font-size="17" text-anchor="middle" fill="#B7C2CD">spawn + recycle meshes and props</text>
+    <text x="950" y="118" font-size="16" text-anchor="middle" fill="#4FC0CA" class="mono">PrefabSpawner* — swappable looks</text>
+    <rect x="20" y="176" width="320" height="46" rx="10" fill="rgba(232,176,75,.08)" stroke="#3E4854"/>
+    <text x="180" y="205" font-size="16.5" text-anchor="middle" fill="#E8B04B">17 segments + 5 level rulesets</text>
+    <line x1="180" y1="176" x2="180" y2="148" stroke="#E8B04B" stroke-width="2" marker-end="url(#ar5)"/>
+    <text x="740" y="205" font-size="17" fill="#8E9CAA" font-style="italic" text-anchor="middle">the three stages talk only through events — none references the next</text>
+  </svg>
+  <ul style="margin-top:4px;font-size:23px">
+    <li>A designer adds a segment, or a whole level, <b>in the Inspector. No code, no programmer, no queue.</b></li>
+    <li><b>“Either” junctions:</b> the track refuses to choose until <i>the player commits</i> — only then is the exit spline built</li>
+  </ul>
+  <aside class="notes">KEEP TO 90 SECONDS for a general room. The why: data-driven design means content people don't queue behind programmers. That is the same seam as swap #1, one layer deeper — not just the skin, the level design.
+
+Selection strategies: weighted difficulty (the default), distance ramp, wave, authored sequence — one interface, four policies. That's the strategy pattern earning rent, and it's a two-line change to A/B a pacing policy.
+
+OPTIONAL: drop in an Inspector screenshot of a TrackSegmentSO here if the room is designer-heavy.</aside>
+</section>
+
+<!-- 25 -->
+<section class="slide" data-act="Act IV · Contributors who don't write code" data-title="This repo has AI coworkers" data-mark="36">
+  <h2>This repo has <span class="gold">AI coworkers</span></h2>
+  <ul style="font-size:26px;line-height:1.35">
+    <li><code class="inline">AGENTS.md</code> + <code class="inline">CLAUDE.md</code> — the conventions, written for <i>any</i> tool's agent</li>
+    <li><b>7 skills</b> — procedures as plain markdown: slash commands in one tool, checklists in every other</li>
+    <li>The required loop for every feature:<br>
+      <span class="mono" style="font-size:23px;color:var(--gold)">/list-events → /add-event → implement → /audit-events</span></li>
+    <li><b>Events first, code second.</b> The definitions drive the architecture — for people and machines alike.</li>
+  </ul>
+  <div class="punch">Your onboarding docs <b class="gold">are the agent's context window.</b> Write for the new hire; the model reads over their shoulder.</div>
+  <aside class="notes">COURSE CONTEXT: this is the “AI-driven studio” idea. Students arrive with whatever agent they have, so the skills are deliberately tool-agnostic markdown — no lock-in, and a human can follow them as a checklist.
+
+The loop mirrors Act II's lesson exactly: start from the events, and the architecture stays ahead of the implementation. Skipping /list-events is how you get a fourth event that means the same as three existing ones.
+
+The punch is the single most portable idea in this act — most teams already have onboarding docs and have never thought of them this way.</aside>
+</section>
+
+<!-- 26 -->
+<section class="slide" data-act="Act IV · Contributors who don't write code" data-title="Clean architecture is a prompt" data-mark="37">
+  <h2>Clean architecture is a <span class="gold">prompt</span></h2>
+  <div class="cols">
+    <div class="col">
+      <div class="panel badp">
+        <h3>Agent vs. the God file</h3>
+        <ul>
+          <li>To change <i>anything</i>, it must understand <i>everything</i></li>
+          <li>Blast radius: the whole file, plus whatever secretly depends on it</li>
+          <li>No mechanical way to check it didn't couple something new</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col">
+      <div class="panel goodp">
+        <h3>Agent vs. this codebase</h3>
+        <ul>
+          <li>A closed vocabulary: 204 named events, cataloged</li>
+          <li>New behavior = new listener. Blast radius bounded <i>by construction</i></li>
+          <li><code class="inline">/audit-events</code> catches what the compiler can't</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <p class="frag" data-step="1" style="font-size:24px;margin-top:16px"><b>Honestly:</b> agents fail exactly like fast juniors. Headline case — automating past a validation gate. Same failure, same fix.</p>
+  <div class="punch frag" data-step="2">The properties that onboard a new hire <b class="gold">onboard a model.</b></div>
+  <aside class="notes">DIRECT CALLBACK to the hairball slide — same diagram, new victim. The claim to make carefully: AI is not magic here. Structure is what makes AI usable.
+
+The honesty beat matters: don't oversell. Agents violate the gate rule, they invent events that already exist under another name, and they forget OnDestroy. All three are exactly what a fast junior does in week one — and all three are caught by the same audit.
+
+The reframe: fallible contributors of every species stay on the rails for the same reasons.</aside>
+</section>
+
+<!-- 27 -->
+<section class="slide" data-act="Act IV · Contributors who don't write code" data-title="The artist's back door" data-mark="38">
+  <h2 class="sm">The artist's back door</h2>
+  <p class="quoteline" style="font-size:24px;margin:2px 0 10px;padding:8px 20px">“Art and audio tasks need no engine surgery. Visual and audio scenes subscribe to events.”
+    <span class="src">— docs/STUDENT_TASKS.md, a 128-task catalog</span></p>
+  <table class="tbl tight">
+    <tr><th>Task</th><th>Listens to</th></tr>
+    <tr><td><b>F4</b> · Dash &amp; slide trails <span class="mut">(S)</span></td><td class="mono" style="font-size:18px;color:var(--gold)">DashStarted/Ended · SlideStarted/Ended</td></tr>
+    <tr><td><b>C4</b> · Ragdoll death <span class="mut">(S/M)</span></td><td class="mono" style="font-size:18px;color:var(--gold)">PlayerDied <span class="mut">(“cheap drama”)</span></td></tr>
+    <tr><td><b>F5</b> · Screen feedback <span class="mut">(S)</span></td><td class="mono" style="font-size:18px;color:var(--gold)">ObstacleHit · PowerUpActivated · DistanceUpdated</td></tr>
+    <tr><td><b>F1</b> · Pickup particles <span class="mut">(S/M)</span></td><td class="mono" style="font-size:18px;color:var(--gold)">CoinCollected · PowerUpCollected</td></tr>
+    <tr><td><b>J2</b> · Full SFX pass <span class="mut">(M)</span></td><td class="mono" style="font-size:18px;color:var(--gold)">one listener per sound — none in gameplay code</td></tr>
+    <tr><td><b>H1</b> · Time-of-day over a run <span class="mut">(M)</span></td><td class="mono" style="font-size:18px;color:var(--gold)">DistanceUpdated → sun, ambient, emissives</td></tr>
+  </table>
+  <div class="punch sm"><b>Agent:</b> discovery, wiring, audit.&nbsp;&nbsp;<b class="gold">Artist:</b> curves, materials, timing, mix — the part they're actually expert in.</div>
+  <aside class="notes">THE PITCH TO ARTISTS: the event catalog is the API contract, and every polish task is a new listener. Read F1's own description aloud — “All listeners to existing events, zero gameplay edits, which is the point of the architecture.” The catalog says the quiet part out loud.
+
+DIVISION OF LABOR is the real content here: describe the intent, let the agent find the event and write the subscriber, then iterate on FEEL in the Inspector — which is where an artist's judgment actually lives and where an agent has none.
+
+If you are running this as a workshop instead of a demo, the exercise plan is in TALK_OUTLINE.md.</aside>
+</section>
+
+<!-- 28 -->
+<section class="slide" data-act="Act IV · Contributors who don't write code" data-title="Demo: an agent ships a task" data-mark="39">
+  <span class="chip">Demo</span>
+  <div class="stamp"><b>+1 file</b><i>shipped by a machine</i></div>
+  <h2>An agent ships an artist's task</h2>
+  <p class="sub">Task <b>F4 — dash &amp; slide trails.</b> Live with a six-minute timebox, or time-lapse.</p>
+  <ul style="font-size:24px">
+    <li>It runs <code class="inline">/list-events</code> and finds the four events</li>
+    <li>One new listener script, dropped in the <b>visuals scene</b>, toggling two trail renderers</li>
+    <li><code class="inline">/audit-events</code>: <span class="green">clean</span> — no coupling, no missing unsubscribe</li>
+  </ul>
+  <div class="swaps" style="margin-top:16px">
+    <div class="swap lit"><span class="k">01</span><span class="w">the look</span></div>
+    <div class="swap lit"><span class="k">02</span><span class="w">the player</span></div>
+    <div class="swap lit"><span class="k">03</span><span class="w">the game</span></div>
+    <div class="swap lit"><span class="k">04</span><span class="w">the teammate</span></div>
+    <div class="swap iou"><span class="k">05</span><span class="w">the machine</span></div>
+  </div>
+  <div class="punch sm">The diff: <b class="gold">zero lines changed in any controller.</b> <span class="mut">Back pocket: two pre-baked PRs — C4 ragdoll, F5 vignette.</span></div>
+  <aside class="notes">PREP: canned prompt saved in a text file — “Read AGENTS.md and follow it. Implement task F4 from docs/STUDENT_TASKS.md. Do not modify any controller or gameplay script; new behavior must be new subscribers. Finish with /audit-events and show me the result.”
+
+RIPCORD: a finished branch (git switch talk/f4-trails-done), plus screenshots of the pre-baked C4/F5 diffs. The agent needs network; the time-lapse video doesn't. Default to the video unless the venue's network is proven.
+
+TWO APPLAUSE LINES, two audiences: the audit output is for the programmers, the trail is for everyone else. Show the trail first.
+
+THE STRIP: four gold, one dashed. Point at it for a beat before you advance — “one left, and it isn't on this machine.” That IOU is the whole setup for Act V.</aside>
+</section>
+
+<!-- ==================== ACT V — THE TEASER AND THE CLOSE ==================== -->
+
+<!-- 29 -->
+<section class="slide" data-act="Act V · The teaser and the close" data-title="Four swapped. One to go." data-mark="41">
+  <h2>Four swapped. <span class="gold">One to go.</span></h2>
+  <div class="swaps" style="margin:18px 0 22px">
+    <div class="swap lit"><span class="k">01</span><span class="w">the look</span></div>
+    <div class="swap lit"><span class="k">02</span><span class="w">the player</span></div>
+    <div class="swap lit"><span class="k">03</span><span class="w">the game</span></div>
+    <div class="swap lit"><span class="k">04</span><span class="w">the teammate</span></div>
+    <div class="swap now"><span class="k">05</span><span class="w">the machine</span></div>
+  </div>
+  <ul style="font-size:25px;line-height:1.35">
+    <li>Swapped the <b>look</b> — scenes that only listen</li>
+    <li>Swapped the <b>player</b> — an AI on the same input events</li>
+    <li>Swappable <b>game</b> — menus that only know an integer</li>
+    <li>Swapped the <b>teammate</b> — an agent shipping through the same seams</li>
+  </ul>
+  <div class="punch frag">All of that ran on one machine. There's one more thing the seam can do: <b class="gold">leave it.</b></div>
+  <aside class="notes">Thirty seconds. Read the four ticks fast — the audience has been keeping score since slide 14, so this is confirmation, not new information. Then the pivot line, and advance on the beat.</aside>
+</section>
+
+<!-- 30 -->
+<section class="slide" data-act="Act V · The teaser and the close" data-title="Teaser: the cloud domain" data-mark="42">
+  <p class="kicker">Teaser</p>
+  <div class="stamp"><b>+1 file</b><i>a whole data center</i></div>
+  <h2 class="sm">Same rule, one more domain: <span class="teal">the cloud</span></h2>
+  <p class="sub"><b>RunnerUGSTemplate</b> — the same runner with <b>Unity Gaming Services</b> behind a contract domain. Cloud services never touch gameplay code.</p>
+  <p style="font-size:24px">Already working: <b class="teal">Authentication · Leaderboards · Achievements · Remote Config · Economy · Cloud Code</b></p>
+  <div class="punch" style="font-size:32px">The leaderboard is <b class="gold">just another subscriber.</b><br>
+  <span class="mut" style="font-size:22px;font-weight:400">To the game, a cloud service is the same kind of thing as a sound effect. It reacts to the run ending.</span></div>
+  <aside class="notes">DELIVER THE PUNCHLINE SLOWLY. It is the talk's thesis at maximum scale: the domain pattern went from a keyboard to a data center without changing the rule.
+
+The stamp lands one last time here, and this is the one that should get a reaction — the same “+1 file, 0 edits” you stamped on a jump sound, now on a live-service backend.
+
+RUGS = github.com/crawfis/RunnerUGSTemplate. The UGS domain arrives as packages and meets the game at a GameServiceEvents seam.</aside>
+</section>
+
+<!-- 31 -->
+<section class="slide" data-act="Act V · The teaser and the close" data-title="What live services unlock" data-mark="43">
+  <h2 class="sm">What live services unlock <span class="dim">(a menu, not a meal)</span></h2>
+  <div class="stat-grid" style="grid-template-columns:repeat(2,1fr);gap:18px">
+    <div class="stat"><div class="l" style="font-size:21px;color:var(--ink);line-height:1.35"><b class="teal">Live tuning.</b> Retune difficulty and economy <b>without a rebuild</b> — then a real A/B test: two scoring models, compared on the board.</div></div>
+    <div class="stat"><div class="l" style="font-size:21px;color:var(--ink);line-height:1.35"><b class="teal">Anti-cheat.</b> Cloud Code sanity-checks the run before writing the score. Impossible speed? More coins than were spawned?</div></div>
+    <div class="stat"><div class="l" style="font-size:21px;color:var(--ink);line-height:1.35"><b class="teal">Cloud save.</b> Progress follows the sign-in — plus the classic design question: local versus cloud, <i>who wins?</i></div></div>
+    <div class="stat"><div class="l" style="font-size:21px;color:var(--ink);line-height:1.35"><b class="teal">Seasonal events.</b> A feature flag flips on a themed challenge. Ship it, run it two weeks, retire it.</div></div>
+  </div>
+  <p style="font-size:22px;margin-top:16px">…and beyond: Friends, Lobby, Matchmaker, Relay + Netcode, Vivox. That catalog <b>continues this one's lettering — sections Q–X</b>, each with an AI hand-off brief.</p>
+  <p class="mut" style="font-size:20px;margin-top:6px">Fair warning: UGS has a real setup tax. The first task is standing it up.</p>
+  <aside class="notes">A MENU, NOT A MEAL — one sentence per cell, resist the urge to teach any of them. If you are behind schedule, this is the second slide to cut (after slide 3).
+
+The Q–X continuation is a nice beat: one continuous curriculum from “add a particle” to “run a live game.” The honesty note about the setup tax is what keeps the teaser credible with anyone who has actually used UGS.</aside>
+</section>
+
+<!-- 32 -->
+<section class="slide" data-act="Act V · The teaser and the close" data-title="Three things to steal" data-mark="44">
+  <h2>Three things to steal</h2>
+  <ul style="font-size:27px;line-height:1.35">
+    <li class="frag" data-step="1" style="margin:16px 0"><b>1 · Simple games aren't small.</b> Budget for the iceberg, not the elevator pitch.</li>
+    <li class="frag" data-step="2" style="margin:16px 0"><b>2 · One rule, kept ruthlessly, beats a clever framework.</b> A discipline you keep, not a library you install.</li>
+    <li class="frag" data-step="3" style="margin:16px 0"><b>3 · Good seams pay three times.</b> The same door admits new code, new teammates, and new <i>kinds</i> of teammates — agents and data centers included.</li>
+  </ul>
+  <div style="margin-top:auto">
+    <p class="mono" style="font-size:24px;color:var(--gold);margin-bottom:4px">github.com/crawfis/EndlessRunnerTemplate</p>
+    <p class="mono" style="font-size:24px;color:var(--teal);margin-bottom:10px">github.com/crawfis/RunnerUGSTemplate</p>
+    <p class="mut" style="font-size:21px">Clone it · walk <span class="mono" style="font-size:18px">ADDING_A_MECHANIC</span> · pick one of the 128. <b style="color:var(--ink)">Thank you.</b></p>
+  </div>
+  <aside class="notes">Reveal the three one at a time, ten seconds each. Say number two in the same words you used on the honesty slide — the repetition is what makes it stick.
+
+CTA: both repos are open source. The ADDING_A_MECHANIC walkthrough touches every layer and is the fastest way to actually *get* the architecture — recommend it by name.
+
+OPTIONAL CLOSER, if there's a tutorial/workshop to plug: “The talk is the trailer. If you want to build the good version of this runner with me, that's the tutorial — see docs/TUTORIAL_SERIES.md in the repo.”
+
+Consider a QR code for each repo. Then Q&A — the cheat sheet is in the appendix (press O).</aside>
+</section>
+
+<!-- ==================== APPENDIX ==================== -->
+
+<!-- A1 -->
+<section class="slide" data-act="Appendix · Q&amp;A backup" data-title="Patterns, load-bearing" data-appendix>
+  <h2>Your design course, load-bearing</h2>
+  <table class="tbl">
+    <tr><th>Pattern you learned</th><th>Where it ships here</th></tr>
+    <tr><td><b>Observer</b> (pub/sub)</td><td>the entire event bus — every system boundary</td></tr>
+    <tr><td><b>Bridge</b></td><td>the two domain crossings — the only sanctioned doors</td></tr>
+    <tr><td><b>Strategy</b></td><td>segment selection · path building · power-up effects</td></tr>
+    <tr><td><b>Blackboard</b></td><td>shared run state behind well-known properties</td></tr>
+    <tr><td><b>Object pooling</b></td><td>the endless track: segments recycled, never created</td></tr>
+    <tr><td><b>Model / view</b></td><td>logic scenes vs. visual scenes — views listen, never the reverse</td></tr>
+  </table>
+  <div class="punch">Every row is a lecture slide <b class="gold">with a job.</b></div>
+  <aside class="notes">Pull this up if a student or an academic asks “which patterns?”, or if you finish early and the room is programmer-heavy. It used to be in the main flow; it earns more as an answer than as an assertion.
+
+The point for students: the ideas are standard senior-course material. What's rare is seeing them applied at full scale with zero exceptions.</aside>
+</section>
+
+<!-- A2 -->
+<section class="slide" data-act="Appendix · Q&amp;A backup" data-title="The numbers, and how counted" data-appendix>
+  <h2 class="sm">The numbers, and how they were counted</h2>
+  <table class="tbl tight">
+    <tr><th>Claim</th><th>Value</th><th>How</th></tr>
+    <tr><td>Events total</td><td><b class="gold">204</b></td><td>74 GameFlow + 121 TempleRun + 9 UserInitiated</td></tr>
+    <tr><td>C# scripts</td><td><b class="gold">145</b></td><td><code class="inline">*.cs</code> under <code class="inline">Assets/</code>, excluding ThirdParty (160 with)</td></tr>
+    <tr><td>Scenes</td><td><b class="gold">15</b></td><td><code class="inline">*.unity</code> under <code class="inline">Assets/</code></td></tr>
+    <tr><td>Chain entries</td><td><b class="gold">38</b></td><td>21 GameFlow + 17 TempleRun</td></tr>
+    <tr><td>Bridge mappings</td><td><b class="gold">19</b></td><td>10 TempleRun↔GameFlow + 9 input→gameplay</td></tr>
+    <tr><td>Events with a written listener</td><td><b class="gold">47</b></td><td>distinct <code class="inline">Subscribe(…)</code> / <code class="inline">Id&lt;T&gt;(…)</code> targets — a floor, not a census</td></tr>
+    <tr><td>Never-on-a-good-day events</td><td><b class="gold">13</b></td><td><code class="inline">*Failed</code> / <code class="inline">*Cancelled</code> members</td></tr>
+    <tr><td>Sticky events</td><td><b class="gold">2</b></td><td><code class="inline">[EventDelivery(Sticky)]</code> occurrences</td></tr>
+    <tr><td>Track data · UI · skills</td><td><b class="gold">17+5 · 7 · 7</b></td><td>segment/level assets · <code class="inline">*.uxml</code> · <code class="inline">.claude/skills/*</code></td></tr>
+  </table>
+  <p class="mut" style="font-size:19px;margin-top:10px">Counted on <span class="mono">main</span>. Regeneration commands live in the fact sheet at the bottom of <span class="mono">docs/TALK_OUTLINE.md</span>.</p>
+  <aside class="notes">The defensive slide. If anyone challenges a number, put this up rather than arguing from memory.
+
+The one to be careful about is “47 with a listener.” That counts named C# subscriptions only. The chain dispatchers subscribe to a whole domain at once, and several Inspector-wired components subscribe by string from scene data — neither is greppable. So 47 is a floor. Say “fewer than a quarter have a listener someone wrote by hand” and you're on solid ground.</aside>
+</section>
+
+<!-- A3 -->
+<section class="slide" data-act="Appendix · Q&amp;A backup" data-title="Q&amp;A cheat sheet" data-appendix>
+  <h2 class="sm">Q&amp;A cheat sheet</h2>
+  <table class="tbl tight">
+    <tr><th style="width:33%">If they ask…</th><th>Say</th></tr>
+    <tr><td><b>Why an enum bus, not C# events / UnityEvents / SO-events?</b></td><td>Events-as-data is what buys the tooling: the logger, the flight recorder, the chain tables, the generated catalog, the upgrade audit. You can't enumerate or diff <code class="inline">event Action</code>.</td></tr>
+    <tr><td><b>Isn't this over-engineering for a runner?</b></td><td>The direct version works at small scale, then rots. And the swaps answer it: the AI driver, the artist tasks and the cloud sibling all shipped through seams nobody had to add later.</td></tr>
+    <tr><td><b>Performance of all that indirection?</b></td><td>Events fire on state transitions, not per frame — the hottest is the distance tick. Dispatch is synchronous, no reflection at publish. It has not been a bottleneck; profile before believing anyone, including me.</td></tr>
+    <tr><td><b>Why no assembly definitions?</b></td><td>Deliberate simplicity for a student codebase — one assembly, fast onboarding. The trade is owned on the honesty slide: review and <code class="inline">/audit-events</code> are the enforcement.</td></tr>
+    <tr><td><b>Does the AI break the architecture?</b></td><td>Yes, the same ways juniors do — headline case, automating past a validation gate. That's why the rules live in files the agent must read and why the audit runs before merge.</td></tr>
+  </table>
+  <aside class="notes">Five questions that come up every time. Put the slide up while you answer — it buys you thinking time and it reads as preparation rather than defensiveness.
+
+The full versions, with more detail, are in docs/TALK_OUTLINE.md under “Anticipated Q&A.”</aside>
+</section>
+
+<!-- A4 -->
+<section class="slide" data-act="Appendix · Q&amp;A backup" data-title="The 30-minute cut" data-appendix>
+  <h2 class="sm">The 30-minute cut</h2>
+  <div class="cols">
+    <div class="col">
+      <div class="panel badp">
+        <h3>Cut, in this order</h3>
+        <ul>
+          <li><b>3</b> — “Weekend, tops” (fold one quote into slide 4)</li>
+          <li><b>32</b> — live-services menu (fold one cell into 31)</li>
+          <li><b>9</b> — three promises (11 makes it concretely)</li>
+          <li><b>22</b> — state vs. moments</li>
+          <li><b>25</b> — track is data → 45 seconds, one visual</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col">
+      <div class="panel goodp">
+        <h3>Protect at all costs</h3>
+        <ul>
+          <li><b>1</b> cold open · <b>4</b> the bill · <b>7</b> the rot</li>
+          <li><b>8</b> the one rule · <b>11</b> the jump sound</li>
+          <li><b>14–16</b> the swap list and the AI player</li>
+          <li><b>24</b> our own broken rule</li>
+          <li><b>27–29</b> the agent · <b>31</b> the leaderboard · <b>33</b> the close</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="punch sm">Demo D4 becomes the <b class="gold">90-second time-lapse</b>, never live. Merge Act III into two slides: bus + ladder + chains, then the honesty slide.</div>
+  <aside class="notes">Your own reference. The principle behind the cut list: every protected slide advances a swap or lands a stamp. Everything else is elaboration, and elaboration is what a shorter room trades away.
+
+If you are cutting live rather than in advance, the fastest safe reductions are: skip slide 3, run the D4 video instead of the live agent, and drop slide 32.</aside>
+</section>
+
+</div>
+
+<div id="hud">
+  <span id="hud-act"></span>
+  <span><span class="mono">←/→</span> nav · <span class="mono">N</span> notes · <span class="mono">O</span> index · <span class="mono">T</span> timer · <span class="mono">B</span> blank&nbsp;&nbsp;|&nbsp;&nbsp;<span id="hud-time"></span>&nbsp;&nbsp;<span id="hud-count"></span></span>
+</div>
+<div id="notes"><h4>Speaker notes</h4><div id="notes-body"></div></div>
+<div id="index"><h4>Slide index — click to jump, or type a number</h4><div class="grid" id="index-grid"></div></div>
+<div id="blank"></div>
+
+<script>
+(function () {
+  var stage = document.getElementById('stage');
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var hudAct = document.getElementById('hud-act');
+  var hudCount = document.getElementById('hud-count');
+  var hudTime = document.getElementById('hud-time');
+  var progress = document.getElementById('progress');
+  var notes = document.getElementById('notes');
+  var notesBody = document.getElementById('notes-body');
+  var indexEl = document.getElementById('index');
+  var indexGrid = document.getElementById('index-grid');
+  var blank = document.getElementById('blank');
+  var cur = 0;
+  var qs = location.search;
+  var allMode = /[?&]all/.test(qs);      // ?all reveals every fragment (review / screenshots)
+  var mainCount = slides.filter(function (s) { return !s.hasAttribute('data-appendix'); }).length;
+
+  function fit() {
+    stage.style.transform = 'scale(' + Math.min(window.innerWidth / 1280, window.innerHeight / 720) + ')';
+  }
+
+  /* Fragments reveal in document order, unless they carry data-step. Fragments that share a
+     data-step reveal TOGETHER on one click — which is how a slide can stack up three claims
+     before answering any of them, without costing six clicks. */
+  function groups(slide) {
+    var out = [], byStep = {};
+    Array.prototype.slice.call(slide.querySelectorAll('.frag')).forEach(function (el, i) {
+      var s = el.getAttribute('data-step');
+      if (s === null) { out.push({ order: i, els: [el] }); return; }  // implicit: document order
+      var key = 's' + parseFloat(s);
+      if (!byStep[key]) { byStep[key] = { order: parseFloat(s), els: [] }; out.push(byStep[key]); }
+      byStep[key].els.push(el);
+    });
+    return out.sort(function (a, b) { return a.order - b.order; });
+  }
+
+  function setGroup(g, on) { g.els.forEach(function (el) { el.classList.toggle('on', on); }); }
+  function groupOn(g) { return g.els.every(function (el) { return el.classList.contains('on'); }); }
+
+  function show(i, revealAll) {
+    cur = Math.max(0, Math.min(slides.length - 1, i));
+    slides.forEach(function (s, j) { s.classList.toggle('current', j === cur); });
+    groups(slides[cur]).forEach(function (g) { setGroup(g, !!revealAll || allMode); });
+
+    var s = slides[cur];
+    hudAct.textContent = s.getAttribute('data-act') || '';
+    if (s.hasAttribute('data-appendix')) {
+      var ai = slides.slice(0, cur + 1).filter(function (x) { return x.hasAttribute('data-appendix'); }).length;
+      hudCount.textContent = 'appendix ' + ai + ' / ' + (slides.length - mainCount);
+      progress.style.width = '100%';
+    } else {
+      hudCount.textContent = (cur + 1) + ' / ' + mainCount;
+      progress.style.width = ((cur + 1) / mainCount * 100) + '%';
+    }
+    var n = s.querySelector('.notes');
+    notesBody.textContent = n ? n.textContent.trim() : '(no notes)';
+    paintIndex();
+    tick();
+    if (location.hash !== '#' + (cur + 1)) history.replaceState(null, '', '#' + (cur + 1));
+  }
+
+  function next() {
+    var pending = groups(slides[cur]).filter(function (g) { return !groupOn(g); });
+    if (pending.length) { setGroup(pending[0], true); return; }
+    if (cur < slides.length - 1) show(cur + 1, false);
+  }
+  function prev() {
+    var on = groups(slides[cur]).filter(groupOn);
+    if (on.length) { setGroup(on[on.length - 1], false); return; }
+    if (cur > 0) show(cur - 1, true);
+  }
+
+  /* Presenter clock. T starts/pauses, shift+T resets. When a slide declares data-mark
+     (the minute you should reach it), the HUD turns gold once you are 2+ minutes late. */
+  var t0 = null, elapsed = 0, running = false;
+  function secs() { return elapsed + (running && t0 ? (Date.now() - t0) / 1000 : 0); }
+  function mmss(s) {
+    var m = Math.floor(s / 60), r = Math.floor(s % 60);
+    return m + ':' + (r < 10 ? '0' : '') + r;
+  }
+  function tick() {
+    if (!running && elapsed === 0) { hudTime.textContent = ''; hudTime.className = ''; return; }
+    var mark = slides[cur].getAttribute('data-mark');
+    var txt = (running ? '▶ ' : '❚❚ ') + mmss(secs());
+    if (mark !== null) {
+      txt += ' / ' + mark + ':00';
+      hudTime.className = (secs() / 60 - parseFloat(mark) >= 2) ? 'warn' : '';
+    } else { hudTime.className = ''; }
+    hudTime.textContent = txt;
+  }
+  setInterval(tick, 1000);
+
+  function paintIndex() {
+    if (!indexEl.classList.contains('open')) return;
+    Array.prototype.slice.call(indexGrid.children).forEach(function (row) {
+      row.classList.toggle('here', row.dataset.i === String(cur));
+    });
+  }
+  function buildIndex() {
+    var act = null;
+    slides.forEach(function (s, i) {
+      var a = s.getAttribute('data-act') || '';
+      if (a !== act) {
+        act = a;
+        var h = document.createElement('div');
+        h.className = 'row act'; h.textContent = a;
+        indexGrid.appendChild(h);
+      }
+      var row = document.createElement('div');
+      row.className = 'row'; row.dataset.i = String(i);
+      row.innerHTML = '<span class="no">' + (s.hasAttribute('data-appendix') ? 'A' : (i + 1)) + '</span>' +
+                      (s.getAttribute('data-title') || '');
+      row.addEventListener('click', function () { indexEl.classList.remove('open'); show(i, false); });
+      indexGrid.appendChild(row);
+    });
+  }
+
+  var typed = '';
+  document.addEventListener('keydown', function (e) {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (/^[0-9]$/.test(e.key)) { typed += e.key; return; }
+    if (e.key === 'Enter' && typed) { show(parseInt(typed, 10) - 1, false); typed = ''; return; }
+    typed = '';
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); next(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'PageUp') { e.preventDefault(); prev(); }
+    else if (e.key === 'Home') { show(0, false); }
+    else if (e.key === 'End') { show(slides.length - 1, true); }
+    else if (e.key === 'n' || e.key === 'N') { notes.classList.toggle('open'); }
+    else if (e.key === 'o' || e.key === 'O') { indexEl.classList.toggle('open'); paintIndex(); }
+    else if (e.key === 'Escape') { indexEl.classList.remove('open'); }  // Esc only closes — it also exits fullscreen
+    else if (e.key === 'b' || e.key === 'B') { blank.classList.toggle('on'); }
+    else if (e.key === 'T') { elapsed = 0; t0 = Date.now(); tick(); }
+    else if (e.key === 't') { if (running) { elapsed = secs(); running = false; t0 = null; } else { running = true; t0 = Date.now(); } tick(); }
+    else if (e.key === 'f' || e.key === 'F') {
+      if (document.fullscreenElement) { document.exitFullscreen(); }
+      else { document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); }
+    }
+  });
+
+  window.addEventListener('resize', fit);
+  window.addEventListener('hashchange', function () {
+    var h = parseInt(location.hash.slice(1), 10);
+    if (!isNaN(h) && h - 1 !== cur) show(h - 1, false);
+  });
+
+  fit();
+  buildIndex();
+  if (/[?&]notes/.test(qs)) notes.classList.add('open');
+  var start = parseInt(location.hash.slice(1), 10);
+  show(!isNaN(start) ? start - 1 : 0, false);
+})();
+</script>
+</body>
+</html>

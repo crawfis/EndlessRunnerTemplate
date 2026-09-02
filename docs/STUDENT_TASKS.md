@@ -1,7 +1,7 @@
 # Student Task Catalog: From Plain Runner to Polished Product
 
 The template is deliberately a *plain* runner — capsule player, primitive obstacles, flat
-track. That's the point: everything below is a well-scoped way to make it yours. **127
+track. That's the point: everything below is a well-scoped way to make it yours. **128
 tasks**, grouped by sub-specialty so a team can divide work along interests (gameplay code,
 tech art, audio, UI, systems design…). Effort tags are rough: **S** = a few days, **M** = a
 week or two, **L** = a multi-week centerpiece. Tasks are referenced as section-letter +
@@ -195,9 +195,13 @@ presentation running order. The tasks below are what those plans point at — tw
    unlock criteria (score threshold on the previous level, missions completed, stars
    earned), and honest locked-state UI — padlock, progress toward unlocking, "reach
    2000 m on Level 2 to unlock." Add 1–3 star ratings per level and star-gated content.
+   *Do E13 first, or at least alongside:* the locked-state feedback you are designing has
+   nothing to hang off until the rejection event exists.
 10. **World-map level select (M/L).** Replace the level list with a map screen (in UI
     Toolkit — see section I): a winding path of level nodes showing stars and locks, with
     an animated reveal when a new level unlocks. The map *is* the progression display.
+    *Depends on E13:* a map that shows the highlighted node's stars and best score needs a
+    browse event; today only the commit is published.
 
 11. **Arcade initials & local high scores (S).** A three-letter entry screen and a top-ten
     table per level, persisted. Deliberately old-fashioned, genuinely satisfying, and a
@@ -208,6 +212,48 @@ presentation running order. The tasks below are what those plans point at — tw
     rule-set — win condition, fail condition, starting state, which systems switch off — and
     make the existing loop read it. If adding a fifth mode means editing five files, the
     abstraction is wrong.
+13. **Level-select vocabulary: browse and refuse (S/M).** The nine Level Selector events
+    cover show / pick / remember-what's-unlocked — the *shape* of a selector, not a finished
+    one. Two things the screen does today are invisible to the rest of the game, and both
+    block the tasks above:
+    - **Browsing.** `LevelSelected`(136) is a *commit* — it carries a `LevelConfig` and the
+      level starts loading. Nothing fires when the highlight merely moves, so a preview
+      pane, star row, or best-score readout has nothing to subscribe to.
+    - **Refusing.** Tapping a locked level publishes *nothing*. `LevelSelectorController`
+      attaches the click handler only when the level is unlocked; otherwise it adds a
+      `level-card--locked` class and a requirement label, so the refusal never leaves the UI
+      script. Nothing can play a denied sound, shake the card, nudge the player toward the
+      unlock requirement, or count how often players ask for a level they can't have — which
+      is the single most useful number a progression designer can have.
+
+    **The vocabulary is the assignment; the code is the easy half.** Before naming a single
+    event, name the states a selector really has — browsing, locked, unlockable-now,
+    in-progress, completed — and decide which transitions between them anyone outside the
+    screen could possibly care about. Then answer the questions the naming forces: is
+    "the highlight moved" one event carrying a `LevelConfig`, or a family? Is a locked tap a
+    `*Denied`, a `*Rejected`, or just `LevelLockedTapped`? Which of these are *edges* and
+    which are *levels* (the `[EventDelivery]` rule in [EVENTS.md](EVENTS.md))? Should unlock
+    state stay a direct `LevelProgressManager.Instance.IsLevelUnlocked` query or be
+    announced — it is legal as a call, both are GameFlow, so argue it rather than assume it.
+    Write the rationale down; that document *is* the deliverable, and it is exactly the
+    Lead Architect artifact Timebox 1 asks for.
+
+    **This is a good place to work with an AI — as an architect, not a typist.** Feed it the
+    real material first (`/list-events GameFlow`, the naming ladder, the edge-vs-level rule,
+    the domain-isolation rule), then ask for **two or three competing vocabularies** and make
+    it argue the trade-offs rather than hand you one answer. Two things to watch for, because
+    both will happen: it will cheerfully propose fifteen events where five would do — ask it
+    what it would *cut*, and why the survivors earn their names; and it will invent
+    conventions this repo doesn't use, so check every proposal against
+    [EVENTS.md](EVENTS.md) and finish with `/audit-events`. The judgment about which
+    distinctions are real stays yours, and you should be able to defend every name in code
+    review. An unused event costs one line in an enum — but every name costs a teammate the
+    effort of learning it, which is the trade the exercise is really about.
+
+    Then the code: add the events in the 130-series with `/add-event`, publish them from
+    `LevelSelectorController`, and prove the seam the way the jump sound does — land the
+    feedback as a *new subscriber in another scene*, with zero edits to the selector after
+    the events exist. See the scope note in [EVENTS.md](EVENTS.md).
 
 ## F. VFX
 
