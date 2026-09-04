@@ -65,16 +65,17 @@ namespace CrawfisSoftware.TempleRun.Events
             // ================================================================================
             // TURN AUTO-CHAINS
             // ================================================================================
-            // Turn*Requested -> Turn*Starting is NOT auto-chained: TurnController only turns if
-            // the player is inside the turn window and the segment actually bends that way.
-            // TurnController publishes Starting, then SegmentRequested at an Either junction, then
-            // Ending - that order is load-bearing, see the comment in TurnController.
-            // Both other links are chained. Starting -> Started because a turn has no warm-up, and
-            // Ending -> Ended so a turn settle (a camera swing, a beat before the run resumes) has
-            // somewhere to go that does not involve touching TurnController or its subscribers.
-            (TempleRunEvents.TurnLeftStarting, TempleRunEvents.TurnLeftStarted),
+            // Turn*Requested -> Turn*Starting is NOT auto-chained: TurnController is the gate, and
+            // only publishes Starting if the player is inside the turn window and the segment
+            // actually bends that way.
+            // Turn*Starting -> Turn*Started is NOT auto-chained either, which is the less obvious
+            // one. SegmentCommitController subscribes to Starting, and a chain target and a
+            // subscriber of the same event have no defined order between them - Started could land
+            // after the junction commit, or after Ending. It publishes Started itself so the rung
+            // order is deterministic, then commits an Either junction, then publishes Ending.
+            // The last link is chained, so a turn settle (a camera swing, a beat before the run
+            // resumes) has somewhere to go that touches neither controller nor any subscriber.
             (TempleRunEvents.TurnLeftEnding, TempleRunEvents.TurnLeftEnded),
-            (TempleRunEvents.TurnRightStarting, TempleRunEvents.TurnRightStarted),
             (TempleRunEvents.TurnRightEnding, TempleRunEvents.TurnRightEnded),
 
             // ================================================================================

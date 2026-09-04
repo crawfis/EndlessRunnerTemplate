@@ -52,9 +52,9 @@ namespace CrawfisSoftware.TempleRun
         TempleRunEnded = 43,
 
         // ---------- Player movement: turning ----------
-        // Both directions carry the full ladder. Starting -> Started is auto-chained (a turn has
-        // no warm-up) and so is Ending -> Ended; TurnController publishes only Starting and
-        // Ending, with SegmentRequested in between at an Either junction.
+        // Both directions carry the full ladder, published by two classes: TurnController is the
+        // gate and publishes Starting; SegmentCommitController takes it from there - Started, the
+        // Either-junction commit, then Ending. Only Ending -> Ended is auto-chained.
         // Renumbered from the old 50-56 layout, which had no *Started rungs and left the
         // terminal rungs stranded at 58/59. Safe because no TempleRunEvents member is
         // serialized in a scene or prefab - unlike GameFlowEvents, which is.
@@ -213,8 +213,8 @@ namespace CrawfisSoftware.TempleRun
 
         // ---------- Segment lifecycle ----------
         // Moved here from 56: this is segment vocabulary, not a rung of the turn ladder. It is
-        // published by TurnController between Turn*Starting and Turn*Ending, and that position is
-        // load-bearing - see the comment there.
+        // published by SegmentCommitController between Turn*Started and Turn*Ending, and that
+        // position is load-bearing - see the comment there.
         [EventPayload(typeof(Direction))]
         SegmentRequested = 340,           // Data: Direction (Left or Right). Player commits a direction at an Either junction.
         // TrackSegmentInfo is a struct, so these declarations also make a null payload an error
