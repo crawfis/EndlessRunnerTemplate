@@ -45,11 +45,7 @@ EditorBuildSettings:
     path: Assets/TempleRun/Scenes/Gameplay/TempleRunObstacles.unity
     guid: 2e4399bebcc0efe4a8aa653c6bb99ff5
   m_configObjects:
-    com.unity.addressableassets: {fileID: 11400000, guid: 9dd285d0b329cb5408566176ac04d737,
-      type: 2}
-    com.unity.input.settings: {fileID: 11400000, guid: 927e1e4f9d0247e48811243d9f43a50c,
-      type: 2}
-    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 8de051f95e9d6814aa0777570e80c745,
-      type: 3}
-    com.unity.localization.settings: {fileID: 11400000, guid: c74414454dbb8fc44bde11fca10f5603,
-      type: 2}
+    com.unity.addressableassets: {fileID: 11400000, guid: 9dd285d0b329cb5408566176ac04d737, type: 2}
+    com.unity.input.settings: {fileID: 11400000, guid: 927e1e4f9d0247e48811243d9f43a50c, type: 2}
+    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 8de051f95e9d6814aa0777570e80c745, type: 3}
+    com.unity.localization.settings: {fileID: 11400000, guid: c74414454dbb8fc44bde11fca10f5603, type: 2}

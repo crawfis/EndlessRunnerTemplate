@@ -2,7 +2,8 @@ namespace CrawfisSoftware.TempleRun.GameConfig
 {
     internal static class TempleRunConstants
     {
-        public const float CountdownSeconds = 3f;
+        // CountdownSeconds moved to a serialized field on the Countdown domain's
+        // CountdownController - the ceremony's length is not TempleRun's business.
         public const float DelayAfterFailureBeforeAutoTurning = 0.85f;
         public const float ResumeDelay = 1.5f;
 

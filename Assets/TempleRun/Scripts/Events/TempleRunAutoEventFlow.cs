@@ -16,7 +16,7 @@ namespace CrawfisSoftware.TempleRun.Events
         // input, so they fire whether or not the action is currently legal. An auto-chain here
         // would run before any controller validated, silently defeating cooldowns, airborne
         // checks, and lane boundaries. Each controller publishes its own *Starting once its
-        // checks pass. The lifecycle chains below (pause, countdown, start, end) are different:
+        // checks pass. The lifecycle chains below (pause, activation, start, end) are different:
         // nothing gates them, so chaining is safe.
         private static readonly (TempleRunEvents From, TempleRunEvents To)[] ChainTable =
         {
@@ -40,14 +40,15 @@ namespace CrawfisSoftware.TempleRun.Events
             (TempleRunEvents.PlayerResuming, TempleRunEvents.PlayerResumed),
 
             // ================================================================================
-            // COUNTDOWN BRIDGE (mirror GameFlowAutoEventFlow)
+            // PLAYER ACTIVATION (the release, bridged from the Countdown domain)
             // ================================================================================
-            (TempleRunEvents.CountdownStartRequested, TempleRunEvents.CountdownStarting),
-            // CountdownStarting -> CountdownStarted -> CountdownTick(s) -> CountdownEnding:
-            // published by CountdownController as the clock actually reaches each rung.
-            // The last link is chained, so a "GO!" flash or start-line delay can be inserted
-            // there without CountdownController changing.
-            (TempleRunEvents.CountdownEnding, TempleRunEvents.CountdownEnded),
+            // PlayerActivateRequested arrives from Countdown2TempleRunBridge - gameplay's
+            // translation of "the ceremony is over". Nothing gates it, so both links are chained:
+            // they are seams, not stubs. A spawn-in animation goes in Requested -> Activating, a
+            // grace period before hazards arm goes in Activating -> Activated, and either is added
+            // by breaking that one link - no controller and no subscriber changes.
+            (TempleRunEvents.PlayerActivateRequested, TempleRunEvents.PlayerActivating),
+            (TempleRunEvents.PlayerActivating, TempleRunEvents.PlayerActivated),
 
             // ================================================================================
             // GAME START BRIDGE

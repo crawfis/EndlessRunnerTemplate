@@ -9,6 +9,9 @@ namespace CrawfisSoftware.GameFlow.Events
     /// The single sanctioned crossing between the TempleRun and GameFlow domains. Bidirectional,
     /// so it holds two dispatchers rather than inheriting AutoEventFlowBase, which covers one
     /// direction.
+    ///
+    /// The countdown no longer appears here at all: the ceremony is its own domain, triggered by
+    /// CountdownGameFlowBridge and released into gameplay by Countdown2TempleRunBridge.
     /// </summary>
     internal class TempleRunGameFlowBridge : MonoBehaviour
     {
@@ -23,25 +26,21 @@ namespace CrawfisSoftware.GameFlow.Events
             // stays true forever once the player has paused even once.
             (TempleRunEvents.PlayerResumed, GameFlowEvents.ResumeRequested),
 
-            // Countdown ended -> game officially started (absorbed from GameController)
-            (TempleRunEvents.CountdownEnded, GameFlowEvents.GameStarted),
-
             // Player died -> game ending (absorbed from GameController)
             (TempleRunEvents.TempleRunEnded, GameFlowEvents.GameEnding),
         };
 
         private static readonly (GameFlowEvents From, TempleRunEvents To)[] GameFlowToTempleRun =
         {
-            // Bridge start: when the broader game signals started, fire TempleRun start requested
+            // Bridge start: when the broader game signals started, bring the TempleRun systems up.
+            // This is systems-up only, and it now happens BEFORE the ceremony finishes - the
+            // player is released separately, by Countdown2TempleRunBridge.
             (GameFlowEvents.GameStarted, TempleRunEvents.TempleRunStartRequested),
-
-            // GameFlow starting -> kick off countdown in TempleRun
-            (GameFlowEvents.GameStarting, TempleRunEvents.CountdownStartRequested),
 
             // Config/scenes bridged to TempleRun domain
             (GameFlowEvents.GameConfigApplied, TempleRunEvents.TempleRunConfigApplied),
-            (GameFlowEvents.LevelApplied, TempleRunEvents.TempleRunLevelApplied),
-            (GameFlowEvents.GameScenesLoaded, TempleRunEvents.TempleRunScenesReady),
+            (GameFlowEvents.LevelApplied, TempleRunEvents.TrackLevelApplied),
+            (GameFlowEvents.GameScenesLoaded, TempleRunEvents.RunInitializeRequested),
 
             // The selected level's difficulty table -> the TempleRun difficulty system, which
             // resolves the player's chosen difficulty against it. The level owns the set of

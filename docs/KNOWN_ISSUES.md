@@ -62,7 +62,28 @@ The rule still applies to any *remaining* `JsonUtility` use — notably the Play
 `LevelProgressManager` (which round-trips a matching C# type, so it is safe). If you add a new
 `JsonUtility`-serialized field, keep key and field name identical and never aim a string at an enum.
 
-## Architecture smells: the countdown straddles the GameFlow/TempleRun boundary
+## Architecture smells: the countdown straddles the GameFlow/TempleRun boundary — RESOLVED (Countdown extracted)
+
+**Status: resolved (2026-09-04).** All three misplacements below were fixed structurally, by
+extracting the countdown into its own **Countdown** event domain (`CountdownEvents`,
+`Assets/Countdown/`) rather than by patching the bridge table. Analysis:
+[specs/DOMAIN_DECOMPOSITION.md](specs/DOMAIN_DECOMPOSITION.md) §3–§4; change list:
+[specs/COUNTDOWN_DOMAIN.md](specs/COUNTDOWN_DOMAIN.md). What each smell became:
+
+- **#1** — GameFlow now chains `GameStarting → GameStarted` in its own table, so no gameplay
+  or ceremony event decides a session milestone; the ceremony's end is translated into
+  gameplay's own words instead, `CountdownEnded → PlayerActivateRequested`.
+- **#2** — The home was chosen: neither GameFlow nor TempleRun, but its own session-ceremony
+  domain, recorded in the Domain Registry.
+- **#3** — Controller and UXML now live together: `CountdownController`,
+  `CountdownUIController`, and `Countdown.uxml` are all under `Assets/Countdown/`.
+
+The original writeup is kept below as course material — the smell, why it mattered, and why
+it was worth writing down before it was fixed. Read it as the "before" picture; the "after"
+is [ARCHITECTURE.md](ARCHITECTURE.md#a-run-end-to-end) and
+[EVENTS.md](EVENTS.md#countdownevents-session-ceremony).
+
+---
 
 Unlike the entries above, these are ours, not Unity's. Three related misplacements, all
 visible on one sequence diagram (the talk deck points at them on the "One run, end to end"

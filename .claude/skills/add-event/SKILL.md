@@ -11,7 +11,7 @@ Add new events to the endless runner event-driven architecture. Every action in 
 
 ## Arguments
 
-- `$ARGUMENTS` - Feature name and optionally the domain (GameFlow, TempleRun, UserInitiated)
+- `$ARGUMENTS` - Feature name and optionally the domain (GameFlow, TempleRun, Countdown, UserInitiated)
 
 ## Procedure
 
@@ -22,7 +22,8 @@ Ask the user if not obvious from context:
 | Domain | Enum File | When to use |
 |--------|-----------|-------------|
 | **GameFlow** | `Assets/GameFlow/Scripts/Events/GameFlowEvents.cs` | App lifecycle: loading, menus, pause, quit, scenes, config |
-| **TempleRun** | `Assets/TempleRun/Scripts/Events/TempleRunEvents.cs` | Gameplay: player actions, countdown, turns, track, collisions, coins, power-ups |
+| **TempleRun** | `Assets/TempleRun/Scripts/Events/TempleRunEvents.cs` | Gameplay: player actions, turns, track, collisions, coins, power-ups |
+| **Countdown** | `Assets/Countdown/Scripts/Events/CountdownEvents.cs` | Session ceremony: the pre-run 3…2…1 (start, ticks, end) |
 | **UserInitiated** | `Assets/TempleRun/Scripts/Events/UserInitiatedEvents.cs` | Raw input: new player-triggered actions |
 
 > This table lists the domains that exist today. The authoritative list is every enum

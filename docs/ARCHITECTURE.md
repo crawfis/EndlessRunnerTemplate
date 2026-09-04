@@ -45,9 +45,9 @@ Patterns you will recognize from a software-design course, and where each one li
 
 | Pattern / principle | Where it shows up |
 |---------------------|-------------------|
-| Publish/subscribe (observer) | The entire event bus: static `EventsFor<T>.Publish` / `.Subscribe`, aliased per file as `GameFlowBus` / `TempleRunBus` / `UserInputBus` |
+| Publish/subscribe (observer) | The entire event bus: static `EventsFor<T>.Publish` / `.Subscribe`, aliased per file as `GameFlowBus` / `TempleRunBus` / `CountdownBus` / `UserInputBus` |
 | Singleton | `Blackboard.Instance` — shared gameplay state. The event buses are *not* singletons: `EventsFor<T>` is static and lazily initialized, so there is no scene object and no initialization race |
-| Bridge (between subsystems) | `TempleRunGameFlowBridge` — the *single* sanctioned crossing between the gameplay and app-lifecycle domains |
+| Bridge (between subsystems) | `TempleRunGameFlowBridge` — the *single* sanctioned crossing between the gameplay and app-lifecycle domains; likewise `CountdownGameFlowBridge` and `Countdown2TempleRunBridge` for the ceremony domain |
 | Lifecycle as a naming state machine | Every action is a `Requested → *ing → *ed` event chain, with `*Failed` / `*Cancelled` off-ramps |
 | Declarative control flow | Auto-chains: flat `(From, To)` pair tables — one event may declare several successors — in `*AutoEventFlow.cs`, instead of imperative sequencing code |
 | Data-driven design | Track segments/levels as ScriptableObjects ([TRACKS.md](TRACKS.md)); tuning configs per mechanic |
@@ -72,13 +72,18 @@ flowchart TD
     subgraph GF["GameFlow (app lifecycle)"]
       GFE[GameFlowEvents]
     end
+    subgraph CD["Countdown (session ceremony)"]
+      CDE[CountdownEvents]
+    end
 
     UI -- "Input2TempleRunAutoEventBridge" --> TRE
     TRE -- "TempleRunGameFlowBridge" --> GFE
     GFE -- "TempleRunGameFlowBridge" --> TRE
+    GFE -- "CountdownGameFlowBridge" --> CDE
+    CDE -- "Countdown2TempleRunBridge" --> TRE
 
     classDef d fill:#1f2937,stroke:#64748b,color:#e5e7eb;
-    class UI,TRE,GFE d;
+    class UI,TRE,GFE,CDE d;
 ```
 
 - **Auto-chains** move events *within* a domain (e.g. `PauseRequested → Pausing → Paused`).
@@ -89,6 +94,13 @@ flowchart TD
 - **The bridge** (`TempleRunGameFlowBridge`) is the single sanctioned crossing between
   TempleRun and GameFlow. Domain code translates a foreign event into a local one there,
   then subscribes to the local event. See the [Domain Isolation Rule](../CLAUDE.md#domain-isolation-rule).
+- **The countdown bridges** (`CountdownGameFlowBridge`, `Countdown2TempleRunBridge`) are the
+  worked example of what a bridge mapping should *say*. The countdown is neither app logic
+  nor gameplay, so it is its own domain: GameFlow's `GameStarting` becomes
+  `CountdownStartRequested` (a session milestone → a ceremony trigger), and the ceremony's
+  `CountdownEnded` becomes gameplay's `PlayerActivateRequested` — because "release the
+  player" is what the end of a countdown *means* in gameplay's vocabulary. Neither mapping
+  relays a foreign concept; nothing about the countdown travels back into GameFlow.
 - **The input bridge** (`Input2TempleRunAutoEventBridge`) is the single sanctioned subscriber
   to `UserInitiatedEvents`. Publishing raw input is open to any source — the `Input/` action
   classes, `AIController`, a future replay or netcode driver — but only the bridge listens,
@@ -97,12 +109,13 @@ flowchart TD
 ## A run, end to end
 
 The happy path from boot to a running game, showing which domain each step lives in and where
-the bridge hands off.
+the bridges hand off.
 
 ```mermaid
 sequenceDiagram
     participant GF as GameFlow
     participant BR as Bridge
+    participant CD as Countdown
     participant TR as TempleRun
 
     Note over GF: boot complete
@@ -110,17 +123,29 @@ sequenceDiagram
     Note over GF: player picks a level
     GF->>GF: LevelSelected → GameScenesLoadRequested → GameScenesLoading
     GF->>GF: (scenes load) → GameScenesLoaded → GameStartRequested → GameStarting
-    GF->>BR: GameStarting
-    BR->>TR: CountdownStartRequested → CountdownStarting → CountdownStarted → CountdownTick…
-    TR->>BR: CountdownEnded
-    BR->>GF: GameStarted
+    Note over GF,CD: GameStarting fans out twice — chained to GameStarted, bridged to the ceremony
+    GF->>GF: GameStarting → GameStarted
     GF->>BR: GameStarted
     BR->>TR: TempleRunStartRequested → TempleRunStarting → TempleRunStarted
+    Note over TR: systems up — music, lanes, track — the player is still held
+    GF->>BR: GameStarting
+    BR->>CD: CountdownStartRequested → CountdownStarting → CountdownStarted → CountdownTick… → CountdownEnding → CountdownEnded
+    CD->>BR: CountdownEnded
+    BR->>TR: PlayerActivateRequested → PlayerActivating → PlayerActivated
     Note over TR: running — turns, jumps, coins, obstacles…
     TR->>TR: PlayerDied → TempleRunEndRequested → TempleRunEnding → TempleRunEnded
     TR->>BR: TempleRunEnded
     BR->>GF: GameEnding → GameScenesUnloadRequested → … → GameEnded
 ```
+
+Two details worth reading off the diagram. **GameFlow decides when the game has started** —
+`GameStarting → GameStarted` is one of its own chain entries, so no gameplay or ceremony
+event is asked to announce a session milestone. And **the run has two beginnings**:
+`TempleRunStarted` means the run's systems are up (it lands while the countdown is still on
+screen — music and the track want that), while `PlayerActivated` means the player is
+released. TempleRun cannot tell whether a countdown, a cutscene, or nothing at all sat
+between the two; drop the Countdown domain and map `GameStarting → PlayerActivateRequested`
+instead, and a run still starts.
 
 ## Scene composition
 
@@ -132,7 +157,7 @@ flowchart TD
     B["0_BootStrap_Game_Only<br/><i>(build index 0, persistent)</i>"]
     B --> I["Game_Boot_0_Test_Initialization"]
     I --> UIs["Game_Boot_1_UI<br/><i>menus, level selector, HUD panels</i>"]
-    I --> P["Game_Boot_2_Play<br/><i>bridge, blackboard, difficulty, level scene loader</i>"]
+    I --> P["Game_Boot_2_Play<br/><i>bridges, CountdownDomain, blackboard, difficulty, level scene loader</i>"]
 
     subgraph Gameplay["Loaded on GameScenesLoading (DynamicLevelSceneLoader)"]
       GP["TempleRunGameplay"]
@@ -182,7 +207,8 @@ runtime. Full detail, data model, and geometry math: [TRACKS.md](TRACKS.md).
 ```
 Assets/
 ├── _Common/    shared config (DifficultyConfig), AutoEventFlowBase dispatch, utilities
-├── GameFlow/   app lifecycle: events, bridge, menus/level-select, scene management, progress
+├── Countdown/  session ceremony: events, flow, the countdown controller, its UI + UXML
+├── GameFlow/   app lifecycle: events, bridges, menus/level-select, scene management, progress
 └── TempleRun/  gameplay: events, player mechanics, track generation, input, visuals
 ```
 

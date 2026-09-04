@@ -11,17 +11,32 @@ whole.*
 
 ## The setup
 
-The template's event architecture is three domains and one law:
-`UserInitiatedEvents` → `TempleRunEvents` → `GameFlowEvents`, and no code may touch another
-domain's events except inside a bridge. The whole law fits in a box:
+The template's event architecture is four domains and one law:
+`UserInitiatedEvents` → `TempleRunEvents` ↔ `GameFlowEvents`, with `CountdownEvents` sitting
+between the last two, and no code may touch another domain's events except inside a bridge.
+The whole law fits in a box:
 
 ```
 TempleRun code  may reference only  TempleRunEvents.
 GameFlow code   may reference only  GameFlowEvents.
+Countdown code  may reference only  CountdownEvents.
 Raw input is published by anyone, but subscribed to ONLY by the input bridge.
-Every crossing lives in a bridge — TempleRunGameFlowBridge.cs, ten mappings;
-                                   Input2TempleRunAutoEventBridge.cs, nine.
+Every crossing lives in a bridge — TempleRunGameFlowBridge.cs, eight mappings;
+                                   Input2TempleRunAutoEventBridge.cs, nine;
+                                   CountdownGameFlowBridge.cs and
+                                   Countdown2TempleRunBridge.cs, one each.
 ```
+
+> **Instructor note (not for the room before they argue).** One boundary question this
+> exercise used to leave open — *where does the countdown belong?* — now has a recorded
+> answer: it was extracted into its own domain, making `Countdown` the repo's worked example
+> of `add-event-domain`. The reasoning is in
+> [specs/DOMAIN_DECOMPOSITION.md](specs/DOMAIN_DECOMPOSITION.md) §4 and the change list in
+> [specs/COUNTDOWN_DOMAIN.md](specs/COUNTDOWN_DOMAIN.md). Let teams reach their own verdict
+> first; a two-mapping bridge surface and a *translated* seam (`CountdownEnded →
+> PlayerActivateRequested`, not a relayed `CountdownEnded → GameStarted`) make a good model
+> answer to hold up afterwards — including the honest weakness, that the new domain is
+> unlikely ever to grow past six events.
 
 `TempleRunEvents` has grown to **121 events** in one enum, and every feature your studio
 ships this term will touch that file. Should it be split into subdomains — `TrackEvents`,
@@ -176,4 +191,5 @@ replace, and by carrying a stream worth recording.
 ---
 
 *A convincing proposal may still be implemented later through the `add-event-domain`
-skill, whose decision gate is this exercise in miniature.*
+skill, whose decision gate is this exercise in miniature. The `Countdown` domain is the one
+that has been through it.*

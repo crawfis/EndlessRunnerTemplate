@@ -1,5 +1,4 @@
 ﻿using CrawfisSoftware.Config;
-using CrawfisSoftware.Events;
 using CrawfisSoftware.TempleRun.GameConfig;
 using CrawfisSoftware.Utility;
 
@@ -26,11 +25,6 @@ namespace CrawfisSoftware.TempleRun
         [SerializeField] private CoinConfig _coinConfig;
 
         private LaneChangeController _laneChangeController;
-
-        private static readonly EventId<DifficultyConfig> DifficultyChanging =
-            TempleRunBus.Id<DifficultyConfig>(TempleRunEvents.TempleRunDifficultyChanging);
-        private static readonly EventId<DifficultyConfig> DifficultyChanged =
-            TempleRunBus.Id<DifficultyConfig>(TempleRunEvents.TempleRunDifficultyChanged);
 
         public static Blackboard Instance { get; private set; }
         public System.Random MasterRandom { get { return _randomProvider.RandomGenerator; } }
@@ -114,11 +108,12 @@ namespace CrawfisSoftware.TempleRun
         // The single writer of GameConfig. The difficulty system resolves the player's chosen
         // difficulty against the selected level's variants and publishes the winner here, so the
         // level's tuning and the preference compose rather than overwrite each other.
-        private void OnDifficultyChanging(string eventName, object sender, DifficultyConfig difficulty)
+        private void OnDifficultyChanging(string eventName, object sender, object data)
         {
+            var difficulty = (DifficultyConfig)data;
             GameConfig = difficulty;
             Debug.Log($"Blackboard: GameConfig set to '{difficulty.DifficultyName}'");
-            DifficultyChanged.Publish(this, difficulty);
+            TempleRunBus.Publish(TempleRunEvents.TempleRunDifficultyChanged, this, difficulty);
         }
 
         private void OnGameEnded(string eventName, object sender, object data)
@@ -129,13 +124,13 @@ namespace CrawfisSoftware.TempleRun
         private void SubscribeToEvents()
         {
             TempleRunBus.Subscribe(TempleRunEvents.TempleRunEnded, OnGameEnded);
-            DifficultyChanging.Subscribe(OnDifficultyChanging);
+            TempleRunBus.Subscribe(TempleRunEvents.TempleRunDifficultyChanging, OnDifficultyChanging);
         }
 
         private void UnsubscribeToEvents()
         {
             TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunEnded, OnGameEnded);
-            DifficultyChanging.Unsubscribe(OnDifficultyChanging);
+            TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunDifficultyChanging, OnDifficultyChanging);
         }
 
 #if UNITY_EDITOR

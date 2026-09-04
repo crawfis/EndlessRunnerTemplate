@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 
-using CrawfisSoftware.Events;
-
 using UnityEngine;
 
 using CrawfisSoftware.TempleRun.Track.Geometry;
@@ -46,27 +44,23 @@ namespace CrawfisSoftware.TempleRun
         private int _pendingEitherSequenceIndex;
         private PathPose _pendingEitherPivotPose;
 
-        private static readonly EventId<TrackSegmentInfo> TrackSegmentCreated =
-            TempleRunBus.Id<TrackSegmentInfo>(TempleRunEvents.TrackSegmentCreated);
-        private static readonly EventId<Direction> SegmentRequested =
-            TempleRunBus.Id<Direction>(TempleRunEvents.SegmentRequested);
-
         private void Awake()
         {
             _pose = new PathPose(_anchorPoint, new Vector3(0, 0, 1), new Vector3(0, 1, 0));
 
-            TrackSegmentCreated.Subscribe(OnTrackCreated);
-            SegmentRequested.Subscribe(OnSegmentRequested);
+            TempleRunBus.Subscribe(TempleRunEvents.TrackSegmentCreated, OnTrackCreated);
+            TempleRunBus.Subscribe(TempleRunEvents.SegmentRequested, OnSegmentRequested);
         }
 
         private void OnDestroy()
         {
-            TrackSegmentCreated.Unsubscribe(OnTrackCreated);
-            SegmentRequested.Unsubscribe(OnSegmentRequested);
+            TempleRunBus.Unsubscribe(TempleRunEvents.TrackSegmentCreated, OnTrackCreated);
+            TempleRunBus.Unsubscribe(TempleRunEvents.SegmentRequested, OnSegmentRequested);
         }
 
-        private void OnTrackCreated(string eventName, object sender, TrackSegmentInfo segment)
+        private void OnTrackCreated(string eventName, object sender, object data)
         {
+            var segment = (TrackSegmentInfo)data;
             var definition = segment.Definition;
             int seqIdx = _sequenceIndex++;
 
@@ -92,8 +86,9 @@ namespace CrawfisSoftware.TempleRun
         /// Fires when the player commits a turn direction at an Either junction.
         /// Completes the exit geometry and publishes the exit SplineSegmentCreated.
         /// </summary>
-        private void OnSegmentRequested(string eventName, object sender, Direction chosen)
+        private void OnSegmentRequested(string eventName, object sender, object data)
         {
+            var chosen = (Direction)data;
             if (_pendingEitherDefinition == null)
             {
                 return;

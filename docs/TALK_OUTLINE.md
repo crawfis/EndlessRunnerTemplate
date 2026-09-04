@@ -151,7 +151,7 @@ Reveal progressively — start with what the player sees, then what it took:
   room on every single run.**
 - Two flavors of silence, and only one is a hole:
   - **Never fires** — the `*Failed` / `*Cancelled` family (`SaveFailed`, `QuitCancelled`,
-    `CountdownCancelled`). Correct behavior; that's the bad-day branch.
+    `GameScenesLoadFailed`). Correct behavior; that's the bad-day branch.
   - **Fires unheard** — a standing offer. Every auto-chain hop and every
     Requested→Starting→Started pair is a slot where juice, polish, analytics or
     accessibility can be *added*: collision ⇒ stop, plus rumble, on
@@ -210,6 +210,13 @@ Reveal progressively — start with what the player sees, then what it took:
 - **Leave that clean.** Do not editorialize here — this exact diagram returns after the
   honesty slide with our own bug drawn on it, and the callback only lands if the room takes
   it as sound now.
+- **[Update 2026-09-04 — this is now the "before" diagram.]** The smell has since been
+  fixed: the countdown was extracted into its own `Countdown` domain, so GameFlow chains
+  `GameStarting → GameStarted` itself and the ceremony's end publishes
+  `PlayerActivateRequested` into gameplay. Draw *this* slide from the repo's history (or
+  from KNOWN_ISSUES, which keeps the old diagram) and keep the callback exactly as
+  written — slide 18b now has an after-picture to land on. The current diagram lives in
+  [ARCHITECTURE.md](ARCHITECTURE.md#a-run-end-to-end).
 - Close the act: "Every arrow on this slide is a named event you can log, reroute, or
   subscribe to. That's the whole trick. Now — five slides for the programmers."
 
@@ -266,9 +273,12 @@ stretch break — Act IV has ScriptableObjects and Act V has robots."
 
 ### Slide 17 — [TECH] Typed payloads and the sticky question
 - Payload types are declared on the enum member (`[EventPayload(typeof(TrackSegmentInfo))]`);
-  call sites mint an `EventId<T>` once into a `static readonly` field, and everything
-  downstream is compiler-checked — no casts to get wrong. Mismatched type args across two
-  call sites are reported at startup.
+  call sites subscribe through the bus alias and cast the payload on the handler's first
+  line — the declaration is the contract, and StrictMode validates it.
+  > **[UPDATE 2026-09]** The `EventId<T>` static-field mint this slide originally showed
+  > was removed by owner ruling — it made call sites hard to read. The slide's point
+  > survives with the attribute alone; show a bare cast and say the enum declaration is
+  > what makes it safe.
 - Delivery policy: default `Transient`. An event is made `Sticky` (replayed to late
   subscribers) **only if it states something still true** — current state a latecomer can
   act on, like "the selected level is 3." Replaying an event that marks a *moment*
@@ -309,6 +319,17 @@ stretch break — Act IV has ScriptableObjects and Act V has robots."
   *Draw the Boundary* question with no settled answer, and all three smells are written up
   in [KNOWN_ISSUES.md](KNOWN_ISSUES.md). If asked why it wasn't just fixed before the talk:
   a template that shows its seams teaches more than one pretending it has none.
+- **[Update 2026-09-04 — the smell is fixed; the slide gets an after-picture.]** All three
+  were resolved by extracting the countdown into its own `Countdown` domain: GameFlow chains
+  `GameStarting → GameStarted` itself (nothing in gameplay decides a session milestone), the
+  ceremony's end is *translated* into gameplay's words as `CountdownEnded →
+  PlayerActivateRequested`, and controller plus UXML now sit together under
+  `Assets/Countdown/`. Show the red-arrow diagram, then the new one from
+  [ARCHITECTURE.md](ARCHITECTURE.md#a-run-end-to-end) — the fix was three bridge/chain
+  lines and a folder move, which is the point of the whole act. The "no settled answer"
+  closer is now stale; replace it with the better one: the boundary question was decided and
+  written down ([specs/DOMAIN_DECOMPOSITION.md](specs/DOMAIN_DECOMPOSITION.md) §4), and the
+  fix stayed small *because* the architecture had already made the flaw one readable line.
 
 ### Slide 19 — [TECH-lite] Patterns you already know, load-bearing
 - Quick table (from ARCHITECTURE.md "Design vocabulary"): observer = the entire bus;
@@ -521,7 +542,7 @@ works at a meetup if attendees bring laptops):
 - Diagrams to lift from [ARCHITECTURE.md](ARCHITECTURE.md): domain flowchart, run
   sequence diagram, scene-composition tree.
 - Code excerpts: the two-line publish/subscribe pair (slide 6), five rows of a chain
-  table (slide 16), one `[EventPayload]` + `EventId<T>` mint (slide 17), five rows of the
+  table (slide 16), one `[EventPayload]` declaration + handler cast (slide 17), five rows of the
   bridge mapping table (slide 10).
 - Tables to lift: the design-vocabulary table (slide 19), the artist-task menu
   (slide 23) from [STUDENT_TASKS.md](STUDENT_TASKS.md).
@@ -539,7 +560,7 @@ regenerates the event catalog.
 | Auto-chain entries | **38** | 21 in `GameFlowAutoEventFlow` + 17 in `TempleRunAutoEventFlow` |
 | Bridge mappings | **19** | 10 in `TempleRunGameFlowBridge` (4 TR→GF + 6 GF→TR) + 9 in `Input2TempleRunAutoEventBridge` |
 | Track data | **17 segments, 5 levels** | assets in `Assets/TempleRun/Scriptables/Track/` |
-| Sticky events | **2 of 204** | `TempleRunLevelApplied`, `TempleRunDifficultySettingsApplied` |
+| Sticky events | **2 of 204** | `TrackLevelApplied` (née `TempleRunLevelApplied`), `TempleRunDifficultySettingsApplied` |
 | UI panels | **7 UXML** | `*.uxml` under `Assets/` |
 | AI skills | **7** | `.claude/skills/*/SKILL.md` |
 | Student tasks | **128** (sections A–P; RUGS continues Q–X) | [STUDENT_TASKS.md](STUDENT_TASKS.md) |

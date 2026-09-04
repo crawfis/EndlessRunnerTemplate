@@ -7,9 +7,13 @@ argument-hint: <DomainName> [purpose]
 
 # Add Event Domain
 
-Stand up a new event domain alongside `GameFlowEvents`, `TempleRunEvents`, and
-`UserInitiatedEvents`. This is rare and structural — most features are a new *category*
-inside an existing enum, not a new domain.
+Stand up a new event domain alongside `GameFlowEvents`, `TempleRunEvents`,
+`UserInitiatedEvents`, and `CountdownEvents`. This is rare and structural — most features
+are a new *category* inside an existing enum, not a new domain. The Countdown domain
+(2026-09, [docs/specs/COUNTDOWN_DOMAIN.md](../../../docs/specs/COUNTDOWN_DOMAIN.md)) is
+this skill's in-repo worked example: a session-ceremony bounded context whose bridges
+translate rather than relay (`GameStarting → CountdownStartRequested` in,
+`CountdownEnded → PlayerActivateRequested` out).
 
 ## Arguments
 
@@ -126,6 +130,7 @@ Verified current placements — follow the pattern:
 |-----------|-----------|----------|
 | `GameFlowAutoEventFlow` | `0_BootStrap_Game_Only` | whole app |
 | `TempleRunGameFlowBridge` | `Game_Boot_2_Play` | menus + game session |
+| `CountdownAutoEventFlow`, `CountdownGameFlowBridge`, `Countdown2TempleRunBridge` | `Game_Boot_2_Play` (one `CountdownDomain` object) | menus + game session |
 | `TempleRunAutoEventFlow`, `Input2TempleRunAutoEventBridge` | `TempleRunGameplay` | one run |
 
 An app-lifetime domain (e.g. analytics) hosts its flow/bridge in `0_BootStrap_Game_Only`;

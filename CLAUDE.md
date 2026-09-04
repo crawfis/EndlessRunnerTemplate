@@ -34,9 +34,10 @@ Track Authoring:    Edit the TrackSegmentSO / TrackSegmentRegistrySO / TrackLeve
 | Entry Scene | `Assets/GameFlow/Scenes/Boot/0_BootStrap_Game_Only` |
 | GameFlow Events | `Assets/GameFlow/Scripts/Events/GameFlowEvents.cs` |
 | TempleRun Events | `Assets/TempleRun/Scripts/Events/TempleRunEvents.cs`, `UserInitiatedEvents.cs` |
+| Countdown Events | `Assets/Countdown/Scripts/Events/CountdownEvents.cs` |
 | Event Bus | `EventsFor<T>` from the `com.crawfissoftware.eventspublisher` package (no per-domain publisher files) |
-| Auto-Event Flow | `Assets/GameFlow/Scripts/Events/GameFlowAutoEventFlow.cs`, `Assets/TempleRun/Scripts/Events/TempleRunAutoEventFlow.cs`, `Assets/_Common/Events/AutoEventFlowBase.cs` |
-| Cross-Domain Bridge | `Assets/GameFlow/Scripts/TempleRunSpecific/TempleRunGameFlowBridge.cs` |
+| Auto-Event Flow | `Assets/GameFlow/Scripts/Events/GameFlowAutoEventFlow.cs`, `Assets/TempleRun/Scripts/Events/TempleRunAutoEventFlow.cs`, `Assets/Countdown/Scripts/Events/CountdownAutoEventFlow.cs`, `Assets/_Common/Events/AutoEventFlowBase.cs` |
+| Cross-Domain Bridge | `Assets/GameFlow/Scripts/TempleRunSpecific/TempleRunGameFlowBridge.cs`, `Assets/GameFlow/Scripts/CountdownSpecific/CountdownGameFlowBridge.cs`, `Assets/Countdown/Scripts/TempleRunSpecific/Countdown2TempleRunBridge.cs` |
 | Game State | `Assets/GameFlow/Scripts/Config/GameState.cs`, `Assets/TempleRun/Scripts/Config/Blackboard.cs` |
 
 ## MANDATORY: Event System Enforcement
@@ -66,8 +67,11 @@ this concrete: replacing a domain is loading a different scene that speaks the s
 |---------------|---------------|
 | `Assets/TempleRun/**/*.cs` (non-bridge) | `TempleRunEvents` only |
 | `Assets/GameFlow/**/*.cs` (non-bridge) | `GameFlowEvents` only |
+| `Assets/Countdown/**/*.cs` (non-bridge) | `CountdownEvents` only |
 | `TempleRunGameFlowBridge.cs` | `TempleRunEvents` + `GameFlowEvents` (bridge duty) |
 | `Input2TempleRunAutoEventBridge.cs` | `UserInitiatedEvents` + `TempleRunEvents` (bridge duty) |
+| `CountdownGameFlowBridge.cs` | `GameFlowEvents` + `CountdownEvents` (bridge duty) |
+| `Countdown2TempleRunBridge.cs` | `CountdownEvents` + `TempleRunEvents` (bridge duty) |
 
 **`UserInitiatedEvents` is a one-way funnel, not a shared vocabulary.** It has a
 publish/subscribe asymmetry the other domains don't:
@@ -84,7 +88,8 @@ source that speaks `TempleRunEvents` directly, without a controller caring.
 
 **Violations — what NOT to do:**
 - TempleRun scripts subscribing to or publishing `GameFlowEvents` (e.g., `GameFlowBus.Subscribe(GameFlowEvents.GameStarted, ...)` in a TempleRun file)
-- GameFlow scripts subscribing to or publishing `TempleRunEvents` (e.g., `TempleRunBus.Publish(TempleRunEvents.CountdownTick, ...)` in a GameFlow file)
+- GameFlow scripts subscribing to or publishing `TempleRunEvents` (e.g., `TempleRunBus.Publish(TempleRunEvents.PlayerActivateRequested, ...)` in a GameFlow file)
+- Gameplay or UI scripts outside `Assets/Countdown/` referencing `CountdownEvents` (e.g., `CountdownBus.Subscribe(CountdownEvents.CountdownTick, ...)` in a TempleRun file) — only the two Countdown bridges may
 - A gameplay controller subscribing to `UserInitiatedEvents` (e.g., `UserInputBus.Subscribe(UserInitiatedEvents.UserJumpRequested, ...)` in `JumpController`). Add a bridge mapping and subscribe to the TempleRun event instead.
 
 > **Validation gates and auto-chains.** A ladder (`*Requested → *Starting → *Started →
@@ -154,8 +159,9 @@ Unity 6.5 endless runner demonstrating **event-driven architecture**.
 
 | Domain | Enum (bus alias) | Purpose | Flow / bridge hosting (lifetime) | Bridges |
 |--------|------------------|---------|----------------------------------|---------|
-| **GameFlow** | `GameFlowEvents` (`GameFlowBus`) | App/session lifecycle: loading, menus, level select, pause, config/difficulty, quit | `GameFlowAutoEventFlow` in `0_BootStrap_Game_Only` (whole app) | ↔ TempleRun via `TempleRunGameFlowBridge` (hosted in `Game_Boot_2_Play`) |
-| **TempleRun** | `TempleRunEvents` (`TempleRunBus`) | Gameplay: player lifecycle, countdown, movement, collisions, coins/power-ups, track/spline generation, teleportation | `TempleRunAutoEventFlow` in `TempleRunGameplay` (one run) | ↔ GameFlow via `TempleRunGameFlowBridge`; ← UserInitiated via `Input2TempleRunAutoEventBridge` |
+| **GameFlow** | `GameFlowEvents` (`GameFlowBus`) | App/session lifecycle: loading, menus, level select, pause, config/difficulty, quit | `GameFlowAutoEventFlow` in `0_BootStrap_Game_Only` (whole app) | ↔ TempleRun via `TempleRunGameFlowBridge` (hosted in `Game_Boot_2_Play`); → Countdown via `CountdownGameFlowBridge` |
+| **TempleRun** | `TempleRunEvents` (`TempleRunBus`) | Gameplay: player lifecycle, movement, collisions, coins/power-ups, track/spline generation, teleportation | `TempleRunAutoEventFlow` in `TempleRunGameplay` (one run) | ↔ GameFlow via `TempleRunGameFlowBridge`; ← UserInitiated via `Input2TempleRunAutoEventBridge`; ← Countdown via `Countdown2TempleRunBridge` |
+| **Countdown** | `CountdownEvents` (`CountdownBus`) | Session ceremony: the pre-run 3…2…1 (start, ticks, end) and its overlay | `CountdownAutoEventFlow` in `Game_Boot_2_Play`, on the `CountdownDomain` object with both bridges (session) | ← GameFlow via `CountdownGameFlowBridge` (`GameStarting → CountdownStartRequested`); → TempleRun via `Countdown2TempleRunBridge` (`CountdownEnded → PlayerActivateRequested`) |
 | **UserInitiated** | `UserInitiatedEvents` (`UserInputBus`) | Raw input requests: turns, lanes, jump, slide, dash, pause toggle, quit | none (input never auto-chains) | → TempleRun via `Input2TempleRunAutoEventBridge` (hosted in `TempleRunGameplay`) |
 
 Two invariants keep this registry trustworthy:
@@ -173,6 +179,7 @@ per file:
 ```csharp
 using GameFlowBus   = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.GameFlow.Events.GameFlowEvents>;
 using TempleRunBus  = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
+using CountdownBus  = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.Countdown.Events.CountdownEvents>;
 using UserInputBus  = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.Events.UserInitiatedEvents>;
 ```
 
@@ -219,27 +226,30 @@ TempleRunBus.Publish(TempleRunEvents.PlayerDied, this, score);
 
 ### Typed Payloads
 
-An event that carries data declares its type on the enum member, and call sites resolve an
-`EventId<T>` **once** into a `static readonly` field. Everything downstream of that line is
-compiler-checked, so there is no cast to get wrong:
+An event that carries data declares its type on the enum member with `[EventPayload]` —
+that declaration is the contract (and what StrictMode validates). Call sites do NOT mint
+`EventId<T>` fields: the `static readonly EventId<T> X = Bus.Id<T>(...)` pattern was
+removed by owner ruling (2026-09, "it makes the code hard to read"). Subscribe and publish
+through the bus alias directly, and cast the payload on the first line of the handler:
 
 ```csharp
 [EventPayload(typeof(TrackSegmentInfo))]
 ActiveTrackChanging = 261,
 
-private static readonly EventId<TrackSegmentInfo> TrackChanging =
-    TempleRunBus.Id<TrackSegmentInfo>(TempleRunEvents.ActiveTrackChanging);
+private void Awake()     => TempleRunBus.Subscribe(TempleRunEvents.ActiveTrackChanging, OnTrackChanging);
+private void OnDestroy() => TempleRunBus.Unsubscribe(TempleRunEvents.ActiveTrackChanging, OnTrackChanging);
 
-private void Awake()   => TrackChanging.Subscribe(OnTrackChanging);
-private void OnDestroy() => TrackChanging.Unsubscribe(OnTrackChanging);
-
-private void OnTrackChanging(string eventName, object sender, TrackSegmentInfo segment) { }
+private void OnTrackChanging(string eventName, object sender, object data)
+{
+    var segment = (TrackSegmentInfo)data;
+}
 ```
 
-Two call sites writing different type arguments for the same event is the one mistake no
-compiler catches; it is reported at startup when the second one is minted. Events with no
+The cast is deliberately bare — no `is` guard, no null check (see the no-defensive-guards
+rule): a wrong payload should throw at the cast, and the `[EventPayload]` declaration on
+the enum is what tells every call site (and StrictMode) which cast is right. Events with no
 payload, or a genuinely variable one, stay undeclared - no declaration means no checking,
-which is the intended default.
+which is the intended default. Do not reintroduce `EventId<T>` fields in new code.
 
 ### Delivery Policy - edge or level
 
@@ -248,7 +258,7 @@ event `[EventDelivery(EventDelivery.Sticky)]` **only** if it is a *level*.
 
 - **Edge** - a transition (`MainMenuHiding`, `DifficultyChangeRequested`). Only meaningful in
   sequence. Replaying it to a late subscriber is actively wrong. Leave it `Transient`.
-- **Level** - a state (`TempleRunLevelApplied`, `TempleRunDifficultySettingsApplied` —
+- **Level** - a state (`TrackLevelApplied`, `TempleRunDifficultySettingsApplied` —
   currently the only two Sticky events in the codebase). Self-describing on its own, so
   replay is safe. An event that already carries a payload is usually a level.
 
@@ -259,8 +269,8 @@ as one event carrying the value instead, and keep the edges `Transient` for anim
 Use **Window > Events > Upgrade Audit** after a play session to see which events actually had
 a late subscriber. That measurement, not the name, is the evidence for making one Sticky.
 
-Read a retained value without subscribing with `EventsFor<T>.TryGetLast` (or the
-`EventId<T>` overload), which is how `TrackManager` gets the selected level at init.
+Read a retained value without subscribing with `EventsFor<T>.TryGetLast(eventEnum, out
+sender, out data)` (cast `data`), which is how `TrackManager` gets the selected level at init.
 
 ### Auto-Event Flow Pattern
 
@@ -282,8 +292,9 @@ protected override IReadOnlyList<(GameFlowEvents From, GameFlowEvents To)> Chain
 
 When `GameScenesLoaded` fires, it automatically triggers `GameStartRequested` -> `GameStarting`.
 
-> **Chains are declared as a flat list of pairs, not a dictionary.** All four dispatch
-> classes share one implementation in `Assets/_Common/Events/AutoEventFlowBase.cs`:
+> **Chains are declared as a flat list of pairs, not a dictionary.** All seven dispatch
+> classes (three auto-flows, four bridges) share one implementation in
+> `Assets/_Common/Events/AutoEventFlowBase.cs`:
 > `EventChainDispatcher<TSource, TDest>` does subscribe-to-all, lookup and publish;
 > `AutoEventFlowBase<TSource, TDest>` is the MonoBehaviour wrapper for a single direction.
 > A bidirectional bridge cannot inherit twice, so `TempleRunGameFlowBridge` holds two
@@ -301,7 +312,8 @@ When `GameScenesLoaded` fires, it automatically triggers `GameStartRequested` ->
 
 **Step 1: Determine the correct domain**
 - `GameFlowEvents` - For app/session lifecycle (loading, menus, level select, pause, config, quit)
-- `TempleRunEvents` - For gameplay mechanics (player actions, countdown, track, collisions)
+- `TempleRunEvents` - For gameplay mechanics (player actions, track, collisions)
+- `CountdownEvents` - For the pre-run ceremony (start, ticks, end)
 - `UserInitiatedEvents` - For raw input events
 
 **Step 2: Add to appropriate enum with a unique value** (values grouped by category, gaps of ~10 between categories).
@@ -327,9 +339,12 @@ CrawfisSoftware.TempleRun         - Gameplay logic (TempleRunEvents enum, Blackb
                                     most of Track/ and all of TrackVisuals/, GUIController)
 CrawfisSoftware.TempleRun.Events  - TempleRun auto-event flow + Input2TempleRunAutoEventBridge
 CrawfisSoftware.TempleRun.Track   - Segment-selection seam only (Track/Selection/); .Track.Geometry holds the spline builders
-CrawfisSoftware.TempleRun.*       - Per-area: .Input, .UI (CountdownUIController only), .Audio, .PowerUps, .GameConfig, .Editor
+CrawfisSoftware.TempleRun.*       - Per-area: .Input, .Audio, .PowerUps, .GameConfig, .Editor
+CrawfisSoftware.Countdown         - Ceremony logic (CountdownController)
+CrawfisSoftware.Countdown.Events  - CountdownEvents, CountdownAutoEventFlow, Countdown2TempleRunBridge
+CrawfisSoftware.Countdown.UI      - CountdownUIController
 CrawfisSoftware.GameFlow          - Application lifecycle (incl. QuitController, LoadSceneAdditively)
-CrawfisSoftware.GameFlow.Events   - GameFlowEvents, GameFlowAutoEventFlow, TempleRunGameFlowBridge
+CrawfisSoftware.GameFlow.Events   - GameFlowEvents, GameFlowAutoEventFlow, TempleRunGameFlowBridge, CountdownGameFlowBridge
 CrawfisSoftware.GameFlow.UI       - UI controllers
 CrawfisSoftware.GameFlow.*        - Per-area: .Config, .GameConfig, .GameControl (UnloadNonActiveScenes only), .SceneManagement
 CrawfisSoftware.Config            - Shared, domain-neutral config (DifficultyConfig)
@@ -348,7 +363,6 @@ declared namespace when referencing them.
 public float TurnAvailableDistance { get; }      // Properties: PascalCase
 private readonly Dictionary<...> _mapping = ...; // readonly: underscore prefix
 private static readonly (X From, X To)[] ChainTable = ...; // static readonly: PascalCase
-                                                 // (also EventId<T> fields, e.g. TrackChanging)
 ```
 
 ### Transform Conventions
@@ -369,10 +383,10 @@ private static readonly (X From, X To)[] ChainTable = ...; // static readonly: P
 | Event Enums | `Assets/GameFlow/Scripts/Events/GameFlowEvents.cs` |
 | Event Bus | `EventsFor<GameFlowEvents>`, aliased as `GameFlowBus` |
 | Auto-Event Flow | `Assets/GameFlow/Scripts/Events/GameFlowAutoEventFlow.cs` |
-| Bridge | `Assets/GameFlow/Scripts/TempleRunSpecific/TempleRunGameFlowBridge.cs` |
+| Bridge | `Assets/GameFlow/Scripts/TempleRunSpecific/TempleRunGameFlowBridge.cs`, `Assets/GameFlow/Scripts/CountdownSpecific/CountdownGameFlowBridge.cs` |
 | Game State / Config | `Assets/GameFlow/Scripts/Config/GameState.cs`, `GameConstants.cs`, `PlayerPrefKeys.cs`, `LevelConfig.cs`, `LevelConfigApplier.cs`, `LevelRegistry.cs`, `LevelProgressManager.cs`, `LevelProgressData.cs` |
-| UI Controllers | `Assets/GameFlow/Scripts/UI/MainMenuController.cs`, `MainMenuPanelController.cs`, `LevelSelectorController.cs`, `LevelSelectorPanelController.cs`, `GameFlowUIPanelController.cs` (loading screen + game-over overlay; countdown/HUD live in TempleRun's `CountdownUIController`) |
-| UI Toolkit Assets | `Assets/GameFlow/UI Toolkit/UI/UXML/` (MainMenu, LevelSelector, LoadingScreen, HUD, Countdown/GameOver overlays) + USS; `Assets/TempleRun/UI Toolkit/TempleRunDistances.uxml` |
+| UI Controllers | `Assets/GameFlow/Scripts/UI/MainMenuController.cs`, `MainMenuPanelController.cs`, `LevelSelectorController.cs`, `LevelSelectorPanelController.cs`, `GameFlowUIPanelController.cs` (loading screen + game-over overlay; the countdown overlay lives in the Countdown domain) |
+| UI Toolkit Assets | `Assets/GameFlow/UI Toolkit/UI/UXML/` (MainMenu, LevelSelector, LoadingScreen, HUD, GameOver overlay) + USS; `Assets/TempleRun/UI Toolkit/TempleRunDistances.uxml`; `Assets/Countdown/UI Toolkit/Countdown.uxml` |
 | Game Control | `Assets/GameFlow/Scripts/GameControl/QuitController.cs`, `UnloadNonActiveScenes.cs`, `LoadSceneAdditively.cs` |
 | Scene Management | `Assets/GameFlow/Scripts/SceneManagement/DynamicLevelSceneLoader.cs`, `FireEventAfterSceneLoads.cs`, `FireEventWhenSceneCloses.cs`, `CloseSceneOnEvent.cs`, `LoadSceneAfterGameControlEvent.cs` |
 | **TempleRun Domain** | |
@@ -380,7 +394,7 @@ private static readonly (X From, X To)[] ChainTable = ...; // static readonly: P
 | Event Bus | `EventsFor<TempleRunEvents>` / `EventsFor<UserInitiatedEvents>`, aliased as `TempleRunBus` / `UserInputBus` |
 | Auto-Event Flow | `Assets/TempleRun/Scripts/Events/TempleRunAutoEventFlow.cs`, `Input2TempleRunAutoEventBridge.cs` |
 | Config | `Assets/TempleRun/Scripts/Config/Blackboard.cs`, `TempleRunGameConfig.cs`, `GameDifficultyManager.cs`, `DifficultySettings.cs`, `SetGameDifficulty.cs`, `LoadDefaultGameConfigs.cs`, `SpawnPrefabRegistry.cs`, `TempleRunConstants.cs`, per-mechanic configs (`CoinConfig.cs`, `DashConfig.cs`, `JumpConfig.cs`, `LaneConfig.cs`, `SlideConfig.cs`, `PowerUpDefinition.cs`, `PowerUpType.cs`) |
-| Player Controllers | `Assets/TempleRun/Scripts/Player/TurnController.cs` (the turn gate only), `JumpController.cs`, `SlideController.cs`, `DashController.cs`, `LaneChangeController.cs`, `PlayerLifeController.cs`, `PowerUpBuffController.cs`, `CountdownController.cs`, `DistanceController.cs`, `MoveCharacterByDistance.cs`, `PauseController.cs`, `PlayerPauseController.cs`, `AIController.cs` |
+| Player Controllers | `Assets/TempleRun/Scripts/Player/TurnController.cs` (the turn gate only), `JumpController.cs`, `SlideController.cs`, `DashController.cs`, `LaneChangeController.cs`, `PlayerLifeController.cs`, `PowerUpBuffController.cs`, `DistanceController.cs`, `MoveCharacterByDistance.cs`, `PauseController.cs`, `PlayerPauseController.cs`, `AIController.cs` |
 | Player Support | `Assets/TempleRun/Scripts/Player/` — collision detectors (`ObstacleCollisionDetector.cs`, `CollectableCollisionDetector.cs`, `TurnCollisionDetector.cs`), `CoinCollectionController.cs`, motion shaping (`JumpArcController.cs`, `SlideArcController.cs`, `DashSpeedController.cs`, `LaneOffsetController.cs`), failure/teleport (`PlayerFailedController.cs`, `PlayerFailureAutoTurnController.cs`, `TeleportController.cs`, `CharacterTeleporter.cs`); `Assets/TempleRun/Scripts/GameTime.cs` (pausable gameplay clock) |
 | Power-Up Effects | `Assets/TempleRun/Scripts/PowerUps/IPowerUpEffect.cs`, `PowerUpEffectBase.cs`, `SpeedBoostEffect.cs`, `ScoreMultiplierEffect.cs`, `CoinMagnetEffect.cs`, `CoinDoublerEffect.cs`, `ShieldEffect.cs` |
 | Track Generation | `Assets/TempleRun/Scripts/Track/TurnCommitController.cs` (takes a turn from Starting through the Either-junction commit to Ending), `TrackManager.cs` (+ `TrackManagerAbstract.cs`, `TrackManagerForTiles.cs`, `TrackManagerList.cs` variants), `PathProvider.cs`, `SegmentTransitionController.cs`, `SegmentAdvanceTrigger.cs`, `TrackSegmentLibrary.cs`, `TrackLibraryLoader.cs`, `TrackSegmentInfo.cs`, `Direction.cs`, `DistanceTracker.cs`, `DistanceInterestService.cs`, `SegmentGeometryData.cs`; SO classes `TrackSegmentSO.cs`, `TrackSegmentRegistrySO.cs`, `TrackLevelSO.cs`, `TrackLevelRegistrySO.cs` |
@@ -388,13 +402,19 @@ private static readonly (X From, X To)[] ChainTable = ...; // static readonly: P
 | Track Geometry | `Assets/TempleRun/Scripts/Track/Geometry/` — `IPathSegmentBuilder.cs`, `AxisAligned90Builder.cs`, `ArcTurnBuilder.cs`, `PathPose.cs`, `PathSpan.cs`, `PathSegmentResult.cs`, `CardinalDirections.cs` |
 | Spawners | `Assets/TempleRun/Scripts/Track/SpawnerBase.cs`, `CoinSpawner.cs`, `ObstacleSpawner.cs`, `PowerUpSpawner.cs`, `PowerUpIdentifier.cs` |
 | Track Visuals | `Assets/TempleRun/Scripts/TrackVisuals/PrefabSpawnerAbstract.cs`, `SimplePlane/SplinePrefabSpawner.cs`, `SimplePlane/TextureScaler.cs`, `Voxels/VoxelPrefabSpawner.cs`, `Voxels/VoxelLaneTrackSpawner.cs` (lane-stretched voxels; the only visual that draws both T-junction arms) |
-| Gameplay UI | `Assets/TempleRun/Scripts/UI/GUIController.cs` (distance HUD via UXML), `CountdownUIController.cs` |
+| Gameplay UI | `Assets/TempleRun/Scripts/UI/GUIController.cs` (distance HUD via UXML) |
 | Audio / Animation | `Assets/TempleRun/Scripts/Audio/Metronome.cs`, `TurnAudioFeedback.cs`, `SetMusicPlayer.cs`, `CleanupAudioSingletons.cs` (uses the `com.gamesthatmoveyou.audiomanager` package); `Assets/TempleRun/Scripts/Animation/CapsuleAnimationLink.cs` |
 | Track Data | `Assets/TempleRun/Scriptables/Track/` — `Segments/*.asset` (one `TrackSegmentSO` per segment), `TrackSegmentRegistry.asset` (the pool), `TrackLevel_01..05_*.asset` (`TrackLevelSO` per level), `TrackLevelRegistry.asset` |
 | Input | `Assets/TempleRun/Scripts/Input/MovementInputActions.cs`, `SwipeDetectorActions.cs`, `DashInputActions.cs`, `AccelerometerInputActions.cs`, `PauseQuitInputActions.cs`; `GameControls.cs` + `LeftRightJumpSlide.cs` are **source-generated** from the `.inputactions` assets — regenerate, don't hand-edit |
 | Editor Tools | `Assets/TempleRun/Editor/TrackDataImporter.cs` (one-shot JSON -> SO importer; menu `CrawfisSoftware > Track > Import JSON -> ScriptableObjects`) |
+| **Countdown Domain** | |
+| Event Enum | `Assets/Countdown/Scripts/Events/CountdownEvents.cs` (`CountdownStartRequested` 0 … `CountdownEnded` 5) |
+| Event Bus | `EventsFor<CountdownEvents>`, aliased as `CountdownBus` |
+| Auto-Event Flow | `Assets/Countdown/Scripts/Events/CountdownAutoEventFlow.cs` (`StartRequested -> Starting`, `Ending -> Ended`) |
+| Bridges | `Assets/GameFlow/Scripts/CountdownSpecific/CountdownGameFlowBridge.cs` (GameFlow -> Countdown), `Assets/Countdown/Scripts/TempleRunSpecific/Countdown2TempleRunBridge.cs` (Countdown -> TempleRun) |
+| Ceremony / UI | `Assets/Countdown/Scripts/CountdownController.cs`, `Assets/Countdown/Scripts/UI/CountdownUIController.cs`, `Assets/Countdown/UI Toolkit/Countdown.uxml` |
 | **Shared/Common** | |
-| Auto-Event Base | `Assets/_Common/Events/AutoEventFlowBase.cs` — `EventChainDispatcher<TSource, TDest>` + `AutoEventFlowBase<TSource, TDest>`; the one dispatch implementation, shared by all four flow/bridge classes |
+| Auto-Event Base | `Assets/_Common/Events/AutoEventFlowBase.cs` — `EventChainDispatcher<TSource, TDest>` + `AutoEventFlowBase<TSource, TDest>`; the one dispatch implementation, shared by all seven flow/bridge classes |
 | Shared Config | `Assets/_Common/Config/DifficultyConfig.cs` |
 | Utilities | `Assets/_Common/Utility/Logger.cs`, `EventLoggerDump.cs`, `DebugEventFileLogger.cs`, `DebugLog.cs`, `TimedEvent.cs`, `TextureExtensions.cs`; `Assets/_Common/Events/EventHistory.cs`; test helpers in `Assets/_Common/Test/` |
 | Vendored | `Assets/ThirdParty/CrawfisSoftware/` — Random providers, AssetManagement helpers, editor tools (screenshots, play-first-scene, dev-build toggle), `Spawners/GridSpawner.cs`, `ScriptableInt.cs` |
@@ -484,12 +504,12 @@ the UI and gameplay scenes additively.
   until the player commits — `TrackManager` pauses lookahead (`_awaitingEitherDirection`)
   and `PathProvider` builds the exit spline only when the direction resolves. Only
   `VoxelLaneTrackSpawner` draws both arms before the commit.
-- Seam: GameFlow publishes `LevelApplied(int)` (its `LevelConfig.LevelNumber`); it never references a track type. The int is bridged to `TempleRunLevelApplied`, which is `Sticky`, so `TrackManager` reads it at init with `TryGetLast` rather than it being mirrored into a field — the SOs are read only by `TrackLibraryLoader`.
+- Seam: GameFlow publishes `LevelApplied(int)` (its `LevelConfig.LevelNumber`); it never references a track type. The int is bridged to `TrackLevelApplied`, which is `Sticky`, so `TrackManager` reads it at init with `TryGetLast` rather than it being mirrored into a field — the SOs are read only by `TrackLibraryLoader`.
 - See [docs/TRACKS.md](docs/TRACKS.md#the-data-model).
 
 ## Folder Structure
 
-Three primary domains with clear separation of concerns:
+Four primary domains with clear separation of concerns:
 
 ```
 Assets/
@@ -499,29 +519,38 @@ Assets/
 │   ├── Test/                         # Test_AutoFireEvent, Test_AutoFireEventOnStart
 │   └── Utility/                      # Logger, EventLoggerDump, DebugEventFileLogger, DebugLog, TimedEvent, TextureExtensions
 │
+├── Countdown/                        # Session-ceremony domain (the pre-run 3...2...1)
+│   ├── Scripts/
+│   │   ├── Events/                   # CountdownEvents, CountdownAutoEventFlow
+│   │   ├── TempleRunSpecific/        # Countdown2TempleRunBridge (CountdownEnded -> PlayerActivateRequested)
+│   │   ├── UI/                       # CountdownUIController
+│   │   └── CountdownController.cs    # Runs the ceremony: Starting, Started, Tick, Ending
+│   └── UI Toolkit/                   # Countdown.uxml (the overlay)
+│
 ├── GameFlow/                         # Application lifecycle domain
 │   ├── Scripts/
 │   │   ├── Events/                   # GameFlowEvents, GameFlowAutoEventFlow
 │   │   ├── TempleRunSpecific/        # TempleRunGameFlowBridge (bridges TempleRun <-> GameFlow)
+│   │   ├── CountdownSpecific/        # CountdownGameFlowBridge (GameStarting -> CountdownStartRequested)
 │   │   ├── Config/                   # GameState, GameConstants, PlayerPrefKeys, LevelConfig(+Applier), LevelRegistry, LevelProgressManager/Data
 │   │   ├── GameControl/              # QuitController, UnloadNonActiveScenes, LoadSceneAdditively
 │   │   ├── UI/                       # MainMenu + LevelSelector controllers and panel controllers, GameFlowUIPanelController
 │   │   └── SceneManagement/          # DynamicLevelSceneLoader, FireEventAfterSceneLoads/WhenSceneCloses, CloseSceneOnEvent, LoadSceneAfterGameControlEvent
 │   ├── Scenes/Boot/                  # 0_BootStrap_Game_Only -> Game_Boot_0_Test_Initialization -> Game_Boot_1_UI -> Game_Boot_2_Play
-│   └── UI Toolkit/                   # UXML/USS: MainMenu, LevelSelector, LoadingScreen, HUD, Countdown/GameOver overlays
+│   └── UI Toolkit/                   # UXML/USS: MainMenu, LevelSelector, LoadingScreen, HUD, GameOver overlay
 │
 ├── TempleRun/                        # Gameplay domain
 │   ├── Scripts/
 │   │   ├── Events/                   # TempleRunEvents, UserInitiatedEvents, TempleRunAutoEventFlow, Input2TempleRunAutoEventBridge
 │   │   ├── Config/                   # Blackboard, TempleRunGameConfig, GameDifficultyManager, per-mechanic configs, SpawnPrefabRegistry
-│   │   ├── Player/                   # Turn/Jump/Slide/Dash/Lane/Life controllers, collision detectors, countdown, distance, pause, teleport, AI
+│   │   ├── Player/                   # Turn/Jump/Slide/Dash/Lane/Life controllers, collision detectors, distance, pause, teleport, AI
 │   │   ├── PowerUps/                 # IPowerUpEffect strategy: PowerUpEffectBase + five concrete effects
 │   │   ├── Track/                    # TrackManager (+variants), PathProvider, SegmentTransitionController, spawners, SO classes, TrackLibraryLoader
 │   │   │   ├── Geometry/             # IPathSegmentBuilder, AxisAligned90Builder, ArcTurnBuilder, PathPose, PathSpan, PathSegmentResult, CardinalDirections
 │   │   │   └── Selection/            # ISegmentSelector/ISegmentPool + Weighted/DistanceRamp/Wave/AuthoredSequence selectors
 │   │   ├── TrackVisuals/             # PrefabSpawnerAbstract; SimplePlane/ (spline plane) and Voxels/ (incl. VoxelLaneTrackSpawner)
 │   │   ├── Input/                    # Movement/Swipe/Dash/Accelerometer/PauseQuit actions; generated GameControls + LeftRightJumpSlide
-│   │   ├── UI/                       # GUIController (distance HUD), CountdownUIController
+│   │   ├── UI/                       # GUIController (distance HUD)
 │   │   ├── Audio/                    # Metronome, TurnAudioFeedback, SetMusicPlayer, CleanupAudioSingletons
 │   │   ├── Animation/                # CapsuleAnimationLink
 │   │   └── GameTime.cs               # Pausable gameplay clock (singleton)
@@ -544,4 +573,8 @@ USER INPUT (UserInitiatedEvents in TempleRun)
 TEMPLERUN GAMEPLAY (TempleRunEvents)
     ↓ (via TempleRunGameFlowBridge in GameFlow)
 GAMEFLOW SESSION (GameFlowEvents)
+    ↓ (via CountdownGameFlowBridge — GameStarting)
+COUNTDOWN CEREMONY (CountdownEvents)
+    ↓ (via Countdown2TempleRunBridge — CountdownEnded)
+TEMPLERUN PLAYER RELEASE (PlayerActivateRequested)
 ```

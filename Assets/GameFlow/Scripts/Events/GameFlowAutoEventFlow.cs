@@ -49,14 +49,15 @@ namespace CrawfisSoftware.GameFlow.Events
     /// [Published] GameScenesLoaded
     /// [AUTO] GameScenesLoaded -> GameStartRequested
     /// [AUTO] GameStartRequested -> GameStarting
-    /// [AUTO] GameStarting -> CountdownStartRequested
-    /// [AUTO] CountdownStartRequested -> CountdownStarting
+    /// [AUTO] GameStarting -> GameStarted            (the session's own milestone)
+    /// [BRIDGE: GameFlow->TempleRun] GameStarted -> TempleRunStartRequested (systems up)
     ///
-    /// --- COUNTDOWN ---
-    /// [Published] CountdownTick (repeats)
-    /// [Published] CountdownEnding
-    /// [Published] CountdownEnded
-    /// [Published] GameStarted
+    /// --- COUNTDOWN (its own domain; see CountdownAutoEventFlow) ---
+    /// [BRIDGE: GameFlow->Countdown] GameStarting -> CountdownStartRequested
+    /// [Countdown] CountdownStartRequested -> CountdownStarting -> CountdownStarted
+    /// [Countdown] CountdownTick (repeats) -> CountdownEnding -> CountdownEnded
+    /// [BRIDGE: Countdown->TempleRun] CountdownEnded -> PlayerActivateRequested (player go)
+    /// [TempleRun] PlayerActivateRequested -> PlayerActivating -> PlayerActivated
     ///
     /// --- GAMEPLAY LOOP (see TempleRunAutoEventFlow for gameplay events) ---
     /// [TempleRun] TurnLeftRequested/TurnRightRequested -> TurnLeftEnding/TurnRightEnding
@@ -124,9 +125,15 @@ namespace CrawfisSoftware.GameFlow.Events
             // GAME SESSION BRIDGES
             // ================================================================================
             (GameFlowEvents.GameStartRequested, GameFlowEvents.GameStarting),
+            // GameFlow owns its own milestone. GameStarted used to be bridged back from the
+            // countdown's end in the TempleRun enum, which made a gameplay-domain ceremony decide
+            // when the SESSION had started (KNOWN_ISSUES countdown smell #1). The ceremony
+            // now runs in parallel off GameStarting - CountdownGameFlowBridge triggers it - and
+            // releases the player through the Countdown -> TempleRun bridge. No gameplay or
+            // ceremony event decides GameStarted any more.
+            (GameFlowEvents.GameStarting, GameFlowEvents.GameStarted),
             // GameEnding: bridged from TempleRunEvents.TempleRunEnded by TempleRunGameFlowBridge
             //             (GameEndRequested is declared but currently unpublished)
-            // GameStarting -> GameStarted: Published after countdown ends
             // GameEnding -> GameEnded: Published after scenes unloaded
 
             // ================================================================================
@@ -186,7 +193,8 @@ namespace CrawfisSoftware.GameFlow.Events
             (GameFlowEvents.LevelSelected, GameFlowEvents.GameScenesLoadRequested),
 
             // --- Scenes Loaded -> Game Start ---
-            // After scenes finish loading, start the game (TempleRun countdown lives in TempleRun domain)
+            // After scenes finish loading, start the game (the countdown ceremony hangs off
+            // GameStarting in its own domain - see CountdownGameFlowBridge)
             (GameFlowEvents.GameScenesLoaded, GameFlowEvents.GameStartRequested),
 
             // --- Player Death -> Game End ---

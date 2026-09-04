@@ -11,7 +11,7 @@ namespace CrawfisSoftware.TempleRun
     /// application.
     ///    Subscribes: TempleRunEvents.PlayerPaused / PlayerResumed  (the user's pause)
     ///    Subscribes: TempleRunEvents.PlayerFailing / PlayerFailed  (the post-failure hitch)
-    ///    Subscribes: TempleRunEvents.TempleRunStarted              (a run starts unfrozen)
+    ///    Subscribes: TempleRunEvents.PlayerActivated               (a run starts unfrozen)
     /// </summary>
     public class GameTime : MonoBehaviour
     {
@@ -48,7 +48,7 @@ namespace CrawfisSoftware.TempleRun
             TempleRunBus.Subscribe(TempleRunEvents.PlayerResumed, OnPlayerResume);
             TempleRunBus.Subscribe(TempleRunEvents.PlayerFailing, OnPlayerFailing);
             TempleRunBus.Subscribe(TempleRunEvents.PlayerFailed, OnPlayerFailed);
-            TempleRunBus.Subscribe(TempleRunEvents.TempleRunStarted, OnRunStarted);
+            TempleRunBus.Subscribe(TempleRunEvents.PlayerActivated, OnPlayerActivated);
         }
 
         private void OnDestroy()
@@ -57,7 +57,7 @@ namespace CrawfisSoftware.TempleRun
             TempleRunBus.Unsubscribe(TempleRunEvents.PlayerResumed, OnPlayerResume);
             TempleRunBus.Unsubscribe(TempleRunEvents.PlayerFailing, OnPlayerFailing);
             TempleRunBus.Unsubscribe(TempleRunEvents.PlayerFailed, OnPlayerFailed);
-            TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunStarted, OnRunStarted);
+            TempleRunBus.Unsubscribe(TempleRunEvents.PlayerActivated, OnPlayerActivated);
         }
 
         private void OnPlayerPause(string eventName, object sender, object data)
@@ -80,8 +80,10 @@ namespace CrawfisSoftware.TempleRun
             Release(FreezeReason.Failure);
         }
 
-        private void OnRunStarted(string eventName, object sender, object data)
+        private void OnPlayerActivated(string eventName, object sender, object data)
         {
+            // The clock starts when the PLAYER is released, not when the run's systems come up -
+            // otherwise gameplay time advances all through the countdown ceremony.
             // A fresh run always starts moving, whatever state the previous one ended in.
             _freezes.Clear();
             Apply();

@@ -1,15 +1,17 @@
+using CrawfisSoftware.Countdown.Events;
+
 using UnityEngine;
 using UnityEngine.UIElements;
-using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
+using CountdownBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.Countdown.Events.CountdownEvents>;
 
-namespace CrawfisSoftware.TempleRun.UI
+namespace CrawfisSoftware.Countdown.UI
 {
     /// <summary>
-    /// Manages countdown UI display in the TempleRun domain.
+    /// Manages countdown UI display in the Countdown domain.
     ///    Dependencies: PanelRenderer (countdown panel)
-    ///    Subscribes: TempleRunEvents.CountdownStarting
-    ///    Subscribes: TempleRunEvents.CountdownTick
-    ///    Subscribes: TempleRunEvents.CountdownEnded
+    ///    Subscribes: CountdownEvents.CountdownStarting
+    ///    Subscribes: CountdownEvents.CountdownTick
+    ///    Subscribes: CountdownEvents.CountdownEnded
     /// </summary>
     internal class CountdownUIController : MonoBehaviour
     {
@@ -21,12 +23,12 @@ namespace CrawfisSoftware.TempleRun.UI
 
         private void Awake()
         {
-            TempleRunBus.Subscribe(
-                TempleRunEvents.CountdownStarting, OnCountdownStarting);
-            TempleRunBus.Subscribe(
-                TempleRunEvents.CountdownTick, OnCountdownTick);
-            TempleRunBus.Subscribe(
-                TempleRunEvents.CountdownEnded, OnCountdownEnded);
+            CountdownBus.Subscribe(
+                CountdownEvents.CountdownStarting, OnCountdownStarting);
+            CountdownBus.Subscribe(
+                CountdownEvents.CountdownTick, OnCountdownTick);
+            CountdownBus.Subscribe(
+                CountdownEvents.CountdownEnded, OnCountdownEnded);
         }
 
         private void OnEnable()
@@ -41,12 +43,12 @@ namespace CrawfisSoftware.TempleRun.UI
 
         private void OnDestroy()
         {
-            TempleRunBus.Unsubscribe(
-                TempleRunEvents.CountdownStarting, OnCountdownStarting);
-            TempleRunBus.Unsubscribe(
-                TempleRunEvents.CountdownTick, OnCountdownTick);
-            TempleRunBus.Unsubscribe(
-                TempleRunEvents.CountdownEnded, OnCountdownEnded);
+            CountdownBus.Unsubscribe(
+                CountdownEvents.CountdownStarting, OnCountdownStarting);
+            CountdownBus.Unsubscribe(
+                CountdownEvents.CountdownTick, OnCountdownTick);
+            CountdownBus.Unsubscribe(
+                CountdownEvents.CountdownEnded, OnCountdownEnded);
         }
 
         // Show/hide via the root's style.display; the PanelRenderer stays enabled at all times so

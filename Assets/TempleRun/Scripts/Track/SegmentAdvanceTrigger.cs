@@ -1,4 +1,3 @@
-using CrawfisSoftware.Events;
 using CrawfisSoftware.TempleRun.GameConfig;
 
 using UnityEngine;
@@ -34,29 +33,25 @@ namespace CrawfisSoftware.TempleRun
         private bool _exitingFired = false;
         private TrackSegmentInfo _currentSegment;
 
-        private static readonly EventId<TrackSegmentInfo> TrackChanging =
-            TempleRunBus.Id<TrackSegmentInfo>(TempleRunEvents.ActiveTrackChanging);
-        private static readonly EventId<float> DistanceUpdated =
-            TempleRunBus.Id<float>(TempleRunEvents.DistanceUpdated);
-
         private void Awake()
         {
-            TrackChanging.Subscribe(OnTrackChanging);
-            DistanceUpdated.Subscribe(OnDistanceUpdated);
+            TempleRunBus.Subscribe(TempleRunEvents.ActiveTrackChanging, OnTrackChanging);
+            TempleRunBus.Subscribe(TempleRunEvents.DistanceUpdated, OnDistanceUpdated);
             TempleRunBus.Subscribe(TempleRunEvents.TempleRunStarted, OnGameStarted);
             TempleRunBus.Subscribe(TempleRunEvents.TempleRunEnded, OnGameEnding);
         }
 
         private void OnDestroy()
         {
-            TrackChanging.Unsubscribe(OnTrackChanging);
-            DistanceUpdated.Unsubscribe(OnDistanceUpdated);
+            TempleRunBus.Unsubscribe(TempleRunEvents.ActiveTrackChanging, OnTrackChanging);
+            TempleRunBus.Unsubscribe(TempleRunEvents.DistanceUpdated, OnDistanceUpdated);
             TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunStarted, OnGameStarted);
             TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunEnded, OnGameEnding);
         }
 
-        private void OnDistanceUpdated(string eventName, object sender, float distance)
+        private void OnDistanceUpdated(string eventName, object sender, object data)
         {
+            var distance = (float)data;
             if (!_isRunning || !_gameStarted) return;
 
             // Fire SegmentExiting once when the player approaches the exit.
@@ -74,8 +69,9 @@ namespace CrawfisSoftware.TempleRun
             }
         }
 
-        private void OnTrackChanging(string eventName, object sender, TrackSegmentInfo segment)
+        private void OnTrackChanging(string eventName, object sender, object data)
         {
+            var segment = (TrackSegmentInfo)data;
             _currentSegment = segment;
             _isRunning = true;
             _exitingFired = false;

@@ -1,5 +1,3 @@
-using CrawfisSoftware.Events;
-
 using UnityEngine;
 using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
 
@@ -40,9 +38,6 @@ namespace CrawfisSoftware.TempleRun
         // Possible Bug: If Direction is changed to a Flag, then _nextTrackDirection needs to be masked.
         private Direction _nextTrackDirection;
 
-        private static readonly EventId<TrackSegmentInfo> TrackChanging =
-            TempleRunBus.Id<TrackSegmentInfo>(TempleRunEvents.ActiveTrackChanging);
-
         /// <summary>
         /// Turns without waiting for a request — the auto-turn after the player has already failed
         /// a turn. The direction comes from the segment rather than from input, but the window check
@@ -60,7 +55,7 @@ namespace CrawfisSoftware.TempleRun
             // The bridge translates UserInitiated.UserLeftTurnRequested -> TempleRunEvents.TurnLeftRequested
             TempleRunBus.Subscribe(TempleRunEvents.TurnLeftRequested, OnLeftTurnRequested);
             TempleRunBus.Subscribe(TempleRunEvents.TurnRightRequested, OnRightTurnRequested);
-            TrackChanging.Subscribe(OnTrackChanging);
+            TempleRunBus.Subscribe(TempleRunEvents.ActiveTrackChanging, OnTrackChanging);
             _safeTurnDistance = Blackboard.Instance.GameConfig.SafePreTurnDistance;
         }
 
@@ -68,7 +63,7 @@ namespace CrawfisSoftware.TempleRun
         {
             TempleRunBus.Unsubscribe(TempleRunEvents.TurnLeftRequested, OnLeftTurnRequested);
             TempleRunBus.Unsubscribe(TempleRunEvents.TurnRightRequested, OnRightTurnRequested);
-            TrackChanging.Unsubscribe(OnTrackChanging);
+            TempleRunBus.Unsubscribe(TempleRunEvents.ActiveTrackChanging, OnTrackChanging);
         }
 
         private void OnLeftTurnRequested(string eventName, object sender, object data)
@@ -96,8 +91,9 @@ namespace CrawfisSoftware.TempleRun
                 this, distance);
         }
 
-        private void OnTrackChanging(string eventName, object sender, TrackSegmentInfo trackSegment)
+        private void OnTrackChanging(string eventName, object sender, object data)
         {
+            var trackSegment = (TrackSegmentInfo)data;
             _nextTrackDirection = trackSegment.Direction;
             // Anchor to this segment's start, not to the running sum of turn points. Summing
             // TurnPointDistance loses (Length - TurnPointDistance) per segment, which walked the

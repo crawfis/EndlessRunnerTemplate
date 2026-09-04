@@ -25,8 +25,10 @@ After adding a bridge mapping, remind the user that any existing code that direc
 |-------------|------|----------|
 | **TempleRunGameFlowBridge** | `Assets/GameFlow/Scripts/TempleRunSpecific/TempleRunGameFlowBridge.cs` | TempleRun <-> GameFlow (bidirectional) |
 | **Input2TempleRunAutoEventBridge** | `Assets/TempleRun/Scripts/Events/Input2TempleRunAutoEventBridge.cs` | UserInitiated -> TempleRun (one-way; the only permitted subscriber to raw input) |
+| **CountdownGameFlowBridge** | `Assets/GameFlow/Scripts/CountdownSpecific/CountdownGameFlowBridge.cs` | GameFlow -> Countdown (one-way; session milestone starts the ceremony) |
+| **Countdown2TempleRunBridge** | `Assets/Countdown/Scripts/TempleRunSpecific/Countdown2TempleRunBridge.cs` | Countdown -> TempleRun (one-way; the ceremony's end releases the player) |
 
-These are the only two bridges in the template. If you add another integration domain
+These are the only four bridges in the template. If you add another integration domain
 (analytics, backend services, etc.), create a new bridge class for it following
 the same pattern rather than referencing that domain's events from gameplay code —
 `/add-event-domain` walks through creating the domain, its bridge class, and which scene
@@ -63,6 +65,11 @@ Add the new entry to the correct direction table. Include a comment explaining w
 **TempleRunGameFlowBridge has two direction tables (each driving its own `EventChainDispatcher` — a bidirectional bridge cannot inherit `AutoEventFlowBase` twice):**
 - `TempleRunToGameFlow` — TempleRun fires, GameFlow receives
 - `GameFlowToTempleRun` — GameFlow fires, TempleRun receives
+
+The other three bridges are one-directional: they inherit `AutoEventFlowBase<TSource, TDest>`
+and have a single chain table. A mapping in the opposite direction does not belong there —
+either it belongs in the bridge for that direction, or the domain genuinely needs a second
+bridge class.
 
 ### Step 5: Check for circular paths
 
