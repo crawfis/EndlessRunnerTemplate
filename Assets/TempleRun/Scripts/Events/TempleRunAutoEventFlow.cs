@@ -69,7 +69,7 @@ namespace CrawfisSoftware.TempleRun.Events
             // only publishes Starting if the player is inside the turn window and the segment
             // actually bends that way.
             // Turn*Starting -> Turn*Started is NOT auto-chained either, which is the less obvious
-            // one. SegmentCommitController subscribes to Starting, and a chain target and a
+            // one. TurnCommitController subscribes to Starting, and a chain target and a
             // subscriber of the same event have no defined order between them - Started could land
             // after the junction commit, or after Ending. It publishes Started itself so the rung
             // order is deterministic, then commits an Either junction, then publishes Ending.

@@ -53,7 +53,7 @@ namespace CrawfisSoftware.TempleRun
 
         // ---------- Player movement: turning ----------
         // Both directions carry the full ladder, published by two classes: TurnController is the
-        // gate and publishes Starting; SegmentCommitController takes it from there - Started, the
+        // gate and publishes Starting; TurnCommitController takes it from there - Started, the
         // Either-junction commit, then Ending. Only Ending -> Ended is auto-chained.
         // Renumbered from the old 50-56 layout, which had no *Started rungs and left the
         // terminal rungs stranded at 58/59. Safe because no TempleRunEvents member is
@@ -213,7 +213,7 @@ namespace CrawfisSoftware.TempleRun
 
         // ---------- Segment lifecycle ----------
         // Moved here from 56: this is segment vocabulary, not a rung of the turn ladder. It is
-        // published by SegmentCommitController between Turn*Started and Turn*Ending, and that
+        // published by TurnCommitController between Turn*Started and Turn*Ending, and that
         // position is load-bearing - see the comment there.
         [EventPayload(typeof(Direction))]
         SegmentRequested = 340,           // Data: Direction (Left or Right). Player commits a direction at an Either junction.

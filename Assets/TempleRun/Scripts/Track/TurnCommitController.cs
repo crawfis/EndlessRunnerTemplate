@@ -30,7 +30,7 @@ namespace CrawfisSoftware.TempleRun
     ///    Publishes: TempleRunEvents.SegmentRequested (data: Direction) — only at an Either junction
     ///    Publishes: TempleRunEvents.TurnLeftEnding, TurnRightEnding (Ended follows by auto-chain)
     /// </summary>
-    internal class SegmentCommitController : MonoBehaviour
+    internal class TurnCommitController : MonoBehaviour
     {
         private static readonly EventId<TrackSegmentInfo> TrackChanging =
             TempleRunBus.Id<TrackSegmentInfo>(TempleRunEvents.ActiveTrackChanging);

@@ -13,7 +13,7 @@ namespace CrawfisSoftware.TempleRun
     /// junction, which accepts both) and the player has reached the turn window. Everything that
     /// happens *because* a turn started — committing an Either junction to a direction, and
     /// announcing the turn's progress up the rest of the ladder — belongs to
-    /// <see cref="SegmentCommitController"/>. This class publishes one rung and stops.
+    /// <see cref="TurnCommitController"/>. This class publishes one rung and stops.
     ///
     /// It owns the turn window because it is the thing that tests against it; AIController reads
     /// <see cref="TurnFailedDistance"/> and <see cref="TurnDirection"/> to decide when to ask.

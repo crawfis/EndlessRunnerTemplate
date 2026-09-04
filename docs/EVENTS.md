@@ -95,7 +95,7 @@ Publisher: `TempleRunBus` (`EventsFor<TempleRunEvents>`).
 | Difficulty (bridged) | `TempleRunDifficultySettingsApplied`(310) *(data: IList&lt;DifficultyConfig&gt;; **sticky**)*, `TempleRunDifficultyChanging`(312) *(data: DifficultyConfig)*, `TempleRunDifficultyChanged`(314) *(data: DifficultyConfig)*, `TempleRunDifficultyChangeFailed`(316), `TempleRunDifficultyChangeRequested`(318) *(data: string difficulty name)* |
 | Difficulty (direct) | `DifficultySettingsApplied`(320), `DifficultyChanging`(321), `DifficultyChanged`(322), `DifficultyChangeFailed`(323) *(data: DifficultyConfig)* |
 | Distance | `DistanceUpdated`(330) *(data: float distance travelled)* |
-| Segment lifecycle | `SegmentRequested`(340) *(data: Direction — the direction committed at an Either junction; published by `SegmentCommitController`)*, `SegmentEntering`(342), `SegmentEntered`(343), `SegmentExiting`(344), `SegmentExited`(345) *(all data: TrackSegmentInfo)* |
+| Segment lifecycle | `SegmentRequested`(340) *(data: Direction — the direction committed at an Either junction; published by `TurnCommitController`)*, `SegmentEntering`(342), `SegmentEntered`(343), `SegmentExiting`(344), `SegmentExited`(345) *(all data: TrackSegmentInfo)* |
 | Segment geometry | `SegmentGeometryReady`(350) *(data: SegmentGeometryData)* |
 
 ## UserInitiatedEvents (raw input)
@@ -163,7 +163,7 @@ publishes its own `*Starting` once its checks pass:
 | `LaneChangingLeft` / `Right` | lane boundary, none in flight | `LaneChangeController` |
 | `TurnLeftStarting` / `TurnRightStarting` | direction matches, inside turn window | `TurnController` |
 
-`Turn*Starting → Turn*Started` is unchained for a different reason: `SegmentCommitController`
+`Turn*Starting → Turn*Started` is unchained for a different reason: `TurnCommitController`
 subscribes to `Turn*Starting`, and a chain target and a subscriber of the same event have no
 defined order between them. It publishes `Turn*Started` itself, then commits an Either junction
 with `SegmentRequested`, then publishes `Turn*Ending` — an order the geometry depends on.
