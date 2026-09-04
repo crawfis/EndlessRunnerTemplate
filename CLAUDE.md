@@ -91,7 +91,15 @@ source that speaks `TempleRunEvents` directly, without a controller caring.
 > *Ending → *Ended`) is meant to start **fully auto-chained**: that alone gives a working
 > mechanic with no controller, and each link you later break out of the `ChainTable` is
 > where code goes — `Requested → Starting` is the gate (may this happen?), `Starting →
-> Started` is warm-up (often nothing), `Started → Ending` is the action's duration.
+> Started` is warm-up (often nothing), `Started → Ending` is the action's duration,
+> `Ending → Ended` is the recovery window.
+>
+> **Leave every link you have no code for chained.** A link still in the `ChainTable` is a
+> seam a teammate can open — they insert a hook or a delay by breaking that one link, and no
+> controller or subscriber changes. Two adjacent `Publish` calls for consecutive rungs of the
+> same ladder destroy that seam and are always the anti-pattern; the second call belongs in
+> the `ChainTable`. Because a chained event fires synchronously inside its source's publish,
+> do teardown *before* publishing the `*Ending` rung, not between the two.
 >
 > **The rule is that a gate and a chain cannot share a link.** Once input arrives via the
 > bridge, the domain's `*Requested` event is the bridge's *raw* translation — it fires

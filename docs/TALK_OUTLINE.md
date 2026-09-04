@@ -233,13 +233,25 @@ stretch break — Act IV has ScriptableObjects and Act V has robots."
 ### Slide 15 — [TECH] Names are a state machine; gates are earned
 - Every action follows `*Requested → *Starting/*ing → *Started/*ed`, with `*Failed` /
   `*Cancelled` off-ramps. The naming convention *is* the lifecycle documentation.
-- The **validation-gate rule**: `*Requested → *Starting` is never auto-chained for
-  movement. `Requested` is the bridge's *raw* translation — it fires whether or not the
-  action is legal. The controller publishes `*Starting` itself once cooldown/airborne/
-  lane-boundary checks pass. Auto-chaining it would fire before validation and silently
-  defeat the gate.
-- This is the #1 mistake juniors — and, foreshadowing Act V, AI agents — make in this
-  codebase. That's why the rule is written into the machine-readable docs.
+- **The ladder starts fully auto-chained.** Four table entries and the mechanic runs end to
+  end with *no controller at all* — animation, SFX and HUD can be built and tested against
+  real events before any gameplay logic exists. Demo beat: press the key, watch the log
+  walk the ladder, with an empty scripts folder on screen.
+- **Then you break a link, and that is where code goes.** `Requested → Starting` is the
+  gate (may this happen?). `Starting → Started` is warm-up — usually nothing. `Started →
+  Ending` is the action's own duration. `Ending → Ended` is the recovery window.
+- **The links you leave chained are the extension points.** Someone who wants a landing
+  recovery between `JumpEnding` and `JumpLanded` breaks that one link and adds their code.
+  The jump controller does not change. No `JumpLanded` subscriber changes. Nobody reads a
+  coroutine to find where to insert a beat. **That is the payoff for the whole ceremony** —
+  and it is why two adjacent `Publish` calls for consecutive rungs is the anti-pattern: it
+  fires the same events today and welds the seam shut for everyone tomorrow.
+- **The one rule: a gate and a chain cannot share a link.** `DashRequested → DashStarting`
+  sat in the table while `DashController` checked the cooldown — so the cooldown did
+  nothing at all. Break the link in the same edit that adds the validation.
+- That last one is the #1 mistake juniors — and, foreshadowing Act V, AI agents — make in
+  this codebase. Which is why it is written into the machine-readable docs, in the narrow
+  form that is actually true rather than as "never auto-chain".
 
 ### Slide 16 — [TECH] Control flow as data: auto-chains
 - Within a domain, event progressions are declared in a flat table of `(From, To)` pairs
