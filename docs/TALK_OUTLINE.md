@@ -241,8 +241,8 @@ stretch break — Act IV has ScriptableObjects and Act V has robots."
   gate (may this happen?). `Starting → Started` is warm-up — usually nothing. `Started →
   Ending` is the action's own duration. `Ending → Ended` is the recovery window.
 - **The links you leave chained are the extension points.** Someone who wants a landing
-  recovery between `JumpEnding` and `JumpLanded` breaks that one link and adds their code.
-  The jump controller does not change. No `JumpLanded` subscriber changes. Nobody reads a
+  recovery between `JumpEnding` and `JumpEnded` breaks that one link and adds their code.
+  The jump controller does not change. No `JumpEnded` subscriber changes. Nobody reads a
   coroutine to find where to insert a beat. **That is the payoff for the whole ceremony** —
   and it is why two adjacent `Publish` calls for consecutive rungs is the anti-pattern: it
   fires the same events today and welds the seam shut for everyone tomorrow.
