@@ -37,6 +37,13 @@ namespace CrawfisSoftware.TempleRun
             _currentDirection = (point2 - point1).normalized;
             _lastAnchorPoint = point1;
             _lastAnchorDistance = Blackboard.Instance.DistanceTracker.DistanceTravelled;
+            // Re-anchor always; only place the player when nobody else is going to.
+            // A non-Straight spline change is a turn's exit, and TeleportController starts a
+            // teleport for exactly those - CharacterTeleporter then lerps the player onto this
+            // spline over the teleport duration. Snapping here first made that lerp run from the
+            // destination to the destination, so the move was real but took zero frames.
+            if (direction != Direction.Straight) return;
+
             float yPos = _yPosition + Blackboard.Instance.JumpHeightOffset + Blackboard.Instance.SlideHeightOffset;
             Vector3 basePos = new Vector3(point1.x, yPos, point1.z);
             basePos += GetLateralOffset();
