@@ -11,6 +11,9 @@ namespace CrawfisSoftware.TempleRun
     /// distances gets within a user-specified value of the end of the currently discovered track.
     ///    Dependency: TurnController, EventsFor<TempleRunEvents>, EventsFor<UserInitiatedEvents>
     ///    Subscribes: TempleRunEvents.TempleRunStarted
+    ///    Subscribes: TempleRunEvents.TurnLeftStarting, TurnRightStarting — a turn is under way,
+    ///                stop asking for it
+    ///    Subscribes: TempleRunEvents.ActiveTrackChanging — a new segment, so a new turn to ask for
     ///    Publishes: UserInitiatedEvents.UserLeftTurnRequested
     ///    Publishes: UserInitiatedEvents.UserRightTurnRequested
     /// </summary>
@@ -23,9 +26,19 @@ namespace CrawfisSoftware.TempleRun
 
         private bool _gameStarted = false;
 
+        // Set when the gate accepts a turn, cleared when the track moves on. Update() has no other
+        // memory: it re-tests a distance window every frame, so without this it re-asks on every
+        // frame of a turn it already got - and a turn lasts as long as the teleport, with distance
+        // frozen throughout, so the window cannot close on its own. Latching on Starting rather
+        // than on the request means a turn the gate rejects is retried next frame, as before.
+        private bool _turnUnderway = false;
+
         private void Awake()
         {
             TempleRunBus.Subscribe(TempleRunEvents.TempleRunStarted, OnTempleRunStarted);
+            TempleRunBus.Subscribe(TempleRunEvents.TurnLeftStarting, OnTurnStarting);
+            TempleRunBus.Subscribe(TempleRunEvents.TurnRightStarting, OnTurnStarting);
+            TempleRunBus.Subscribe(TempleRunEvents.ActiveTrackChanging, OnTrackChanging);
         }
 
         private void OnTempleRunStarted(string eventName, object sender, object data)
@@ -33,10 +46,21 @@ namespace CrawfisSoftware.TempleRun
             _gameStarted = true;
         }
 
+        private void OnTurnStarting(string eventName, object sender, object data)
+        {
+            _turnUnderway = true;
+        }
+
+        private void OnTrackChanging(string eventName, object sender, object data)
+        {
+            _turnUnderway = false;
+        }
+
         private void Update()
         {
             float distance = Blackboard.Instance.DistanceTracker.DistanceTravelled;
-            if (!_gameStarted || !_isEnabled || _turnController.TurnFailedDistance - _turnDistance > distance) return;
+            if (!_gameStarted || !_isEnabled || _turnUnderway) return;
+            if (_turnController.TurnFailedDistance - _turnDistance > distance) return;
             switch (_turnController.TurnDirection)
             {
                 case Direction.Left:
@@ -50,6 +74,9 @@ namespace CrawfisSoftware.TempleRun
         private void OnDestroy()
         {
             TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunStarted, OnTempleRunStarted);
+            TempleRunBus.Unsubscribe(TempleRunEvents.TurnLeftStarting, OnTurnStarting);
+            TempleRunBus.Unsubscribe(TempleRunEvents.TurnRightStarting, OnTurnStarting);
+            TempleRunBus.Unsubscribe(TempleRunEvents.ActiveTrackChanging, OnTrackChanging);
         }
     }
 }

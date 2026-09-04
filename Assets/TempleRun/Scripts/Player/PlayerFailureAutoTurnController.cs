@@ -12,7 +12,8 @@ namespace CrawfisSoftware.TempleRun
     ///    Dependencies: TurnController, EventsFor<TempleRunEvents>
     ///    Subscribes: PlayerFailingAtTurn — deliberately the SPECIFIC failure, not the generic
     ///                PlayerFailing: only a failed turn should auto-advance the track.
-    ///    Publishes: Turn completed events via TurnController
+    ///    Calls: TurnController.ForceTurn() — a direct call rather than an event; see the
+    ///           seam audit in docs/event-review/
     /// </summary>
     internal class PlayerFailureAutoTurnController : MonoBehaviour
     {
