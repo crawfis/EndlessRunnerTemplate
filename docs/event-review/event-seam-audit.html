@@ -438,7 +438,7 @@ player presses pause → TogglePauseResume() sees true → <s>PlayerResumeReques
     <div class="finding coupling">
       <div class="fhead"><span class="chip coupling">Form 4</span><h3>A direct cross-system method call</h3></div>
       <p><span class="ref">PlayerFailureAutoTurnController</span> holds a serialized <span class="ref">TurnController</span> reference and calls <span class="ref">ForceTurn()</span> on it — the one place in <span class="ref">Player/</span> that commands another controller by C# reference rather than through the bus. This is a literal violation of the first rule in CLAUDE.md. The failure system's decision then surfaces in the event log wearing <span class="ref">TurnController</span>'s identity.</p>
-      <div class="fix"><strong>Fix</strong> — add <span class="ref">TurnForceRequested</span> (value 57 is free, marked as a removed slot) and let <span class="ref">TurnController</span> subscribe. Not expressible as an auto-chain: the deliberate delay before the auto-turn requires a coroutine, and auto-chains publish synchronously.</div>
+      <div class="fix"><strong>Fix</strong> — add <span class="ref">TurnForceRequested</span> (44&ndash;49 is the free range adjacent to the turning block; 57 was free when this was written but is now <span class="ref">TurnRightStarted</span>, and 50&ndash;59 is full) and let <span class="ref">TurnController</span> subscribe &mdash; it still owns <span class="ref">ForceTurn()</span> after the gate/commit split. Not expressible as an auto-chain: the deliberate delay before the auto-turn requires a coroutine, and auto-chains publish synchronously.</div>
     </div>
 
     <div class="finding coupling">
