@@ -59,7 +59,7 @@ namespace CrawfisSoftware.GameFlow.Events
     /// [Published] GameStarted
     ///
     /// --- GAMEPLAY LOOP (see TempleRunAutoEventFlow for gameplay events) ---
-    /// [TempleRun] TurnLeftRequested/TurnRightRequested -> TurnLeftCompleted/TurnRightCompleted
+    /// [TempleRun] TurnLeftRequested/TurnRightRequested -> TurnLeftEnding/TurnRightEnding
     /// [TempleRun] TrackSegmentCreated, SplineSegmentCreated
     /// [TempleRun] ActiveTrackChanging -> CurrentSplineChanging -> TeleportStarted -> TeleportEnded -> CurrentSplineChanged
     /// [TempleRun] PlayerFailingAtTurn/AtObstacle -> PlayerFailing ... PlayerFailed

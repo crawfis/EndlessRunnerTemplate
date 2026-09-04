@@ -63,6 +63,18 @@ namespace CrawfisSoftware.TempleRun.Events
             (TempleRunEvents.TempleRunEnding, TempleRunEvents.TempleRunEnded),
 
             // ================================================================================
+            // TURN AUTO-CHAINS
+            // ================================================================================
+            // Turn*Requested -> Turn*Starting is NOT auto-chained: TurnController only turns if
+            // the player is inside the turn window and the segment actually bends that way.
+            // TurnController publishes Starting, then SegmentRequested at an Either junction, then
+            // Ending - that order is load-bearing, see the comment in TurnController.
+            // The last link is chained, so a turn settle (a camera swing, a beat before the run
+            // resumes) can be inserted there without touching TurnController or its subscribers.
+            (TempleRunEvents.TurnLeftEnding, TempleRunEvents.TurnLeftEnded),
+            (TempleRunEvents.TurnRightEnding, TempleRunEvents.TurnRightEnded),
+
+            // ================================================================================
             // LANE CHANGE AUTO-CHAINS
             // ================================================================================
             // LaneChange*Requested -> LaneChanging* is NOT auto-chained. See the validation-gate

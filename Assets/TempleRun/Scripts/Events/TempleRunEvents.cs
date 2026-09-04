@@ -54,15 +54,18 @@ namespace CrawfisSoftware.TempleRun
         // ---------- Player movement: turning ----------
         TurnLeftRequested = 50,
         TurnLeftStarting = 51,
-        TurnLeftCompleted = 52,
+        TurnLeftEnding = 52,
         TurnRightRequested = 53,
         TurnRightStarting = 54,
-        TurnRightCompleted = 55,
+        TurnRightEnding = 55,
         [EventPayload(typeof(Direction))]
         SegmentRequested = 56,  // Data: Direction (Left or Right). Fires when player commits direction at an Either junction.
         // 57: removed (was StraightSegmentCompleted, replaced by SegmentExited)
-        //LeftTurnSucceeded = TurnLeftCompleted, // Legacy naming
-        //RightTurnSucceeded = TurnRightCompleted, // Legacy naming
+        // The terminal rungs sit outside the 50-55 block because enum values are visible in the
+        // Inspector and cannot be renumbered safely; 52/55 keep the values the old *Completed
+        // members had. TurnLeft/RightEnding -> TurnLeft/RightEnded is auto-chained.
+        TurnLeftEnded = 58,
+        TurnRightEnded = 59,
 
         // ---------- Player movement: slide ----------
         SlideRequested = 60,

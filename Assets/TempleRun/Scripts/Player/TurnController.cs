@@ -12,7 +12,8 @@ namespace CrawfisSoftware.TempleRun
     ///    Subscribes: TempleRunEvents.TurnLeftRequested, TurnRightRequested (from bridge
     ///                translating UserInitiated). If it is a valid turn publishes corresponding turn events.
     ///    Subscribes: ActiveTrackChanged - adjusts the next valid turn distance.
-    ///    Publishes: TurnLeftStarting, TurnLeftCompleted, TurnRightStarting, TurnRightCompleted
+    ///    Publishes: TurnLeftStarting, TurnLeftEnding, TurnRightStarting, TurnRightEnding
+    ///               (TurnLeft/RightEnded follow by auto-chain)
     ///    Publishes: SegmentRequested (data: Direction) when direction is committed at an Either junction
     /// </summary>
     public class TurnController : MonoBehaviour
@@ -36,24 +37,24 @@ namespace CrawfisSoftware.TempleRun
         {
             Direction chosenDirection;
             TempleRunEvents startingEvent;
-            TempleRunEvents completedEvent;
+            TempleRunEvents endingEvent;
 
             switch (_nextTrackDirection)
             {
                 case Direction.Right:
                     chosenDirection = Direction.Right;
                     startingEvent   = TempleRunEvents.TurnRightStarting;
-                    completedEvent  = TempleRunEvents.TurnRightCompleted;
+                    endingEvent  = TempleRunEvents.TurnRightEnding;
                     break;
                 case Direction.Either:
                 case Direction.Left:
                 default:
                     chosenDirection = Direction.Left;
                     startingEvent   = TempleRunEvents.TurnLeftStarting;
-                    completedEvent  = TempleRunEvents.TurnLeftCompleted;
+                    endingEvent  = TempleRunEvents.TurnLeftEnding;
                     break;
             }
-            OnTurnRequested(this, null, chosenDirection, startingEvent, completedEvent);
+            OnTurnRequested(this, null, chosenDirection, startingEvent, endingEvent);
         }
 
         private static readonly EventId<TrackSegmentInfo> TrackChanging =
@@ -73,7 +74,7 @@ namespace CrawfisSoftware.TempleRun
         }
 
         private void OnTurnRequested(object sender, object data, Direction chosenDirection,
-                                     TempleRunEvents startingEvent, TempleRunEvents completedEvent)
+                                     TempleRunEvents startingEvent, TempleRunEvents endingEvent)
         {
             float distance = Blackboard.Instance.DistanceTracker.DistanceTravelled;
             if (distance > _turnAvailableDistance)
@@ -87,14 +88,14 @@ namespace CrawfisSoftware.TempleRun
                 // its direction, while PathProvider would resolve that junction's exit using the
                 // direction of an unrelated turn somewhere else on the track.
                 //
-                // Position between starting and completed is load-bearing: PathProvider resolves the
+                // Position between starting and ending is load-bearing: PathProvider resolves the
                 // junction's exit geometry from this, and SegmentTransitionController consumes that
-                // geometry when it sees the completed event. Publishing returns only once the event
-                // has been delivered, so the geometry is in place by the time completed is published.
+                // geometry when it sees the ending event. Publishing returns only once the event
+                // has been delivered, so the geometry is in place by the time ending is published.
                 if (_nextTrackDirection == Direction.Either)
                     SegmentRequested.Publish(this, chosenDirection);
 
-                TempleRunBus.Publish(completedEvent, this, distance);
+                TempleRunBus.Publish(endingEvent, this, distance);
             }
         }
 
@@ -103,7 +104,7 @@ namespace CrawfisSoftware.TempleRun
             if (_nextTrackDirection == Direction.Left || _nextTrackDirection == Direction.Either)
             {
                 OnTurnRequested(sender, data, Direction.Left,
-                                TempleRunEvents.TurnLeftStarting, TempleRunEvents.TurnLeftCompleted);
+                                TempleRunEvents.TurnLeftStarting, TempleRunEvents.TurnLeftEnding);
             }
         }
 
@@ -112,7 +113,7 @@ namespace CrawfisSoftware.TempleRun
             if (_nextTrackDirection == Direction.Right || _nextTrackDirection == Direction.Either)
             {
                 OnTurnRequested(sender, data, Direction.Right,
-                                TempleRunEvents.TurnRightStarting, TempleRunEvents.TurnRightCompleted);
+                                TempleRunEvents.TurnRightStarting, TempleRunEvents.TurnRightEnding);
             }
         }
 

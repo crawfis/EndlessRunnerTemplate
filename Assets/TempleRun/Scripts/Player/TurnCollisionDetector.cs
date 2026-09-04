@@ -42,8 +42,8 @@ namespace CrawfisSoftware.TempleRun
         private void Awake()
         {
             TrackChanging.Subscribe(OnTrackChanging);
-            TempleRunBus.Subscribe(TempleRunEvents.TurnLeftCompleted, OnSuccessfullTurn);
-            TempleRunBus.Subscribe(TempleRunEvents.TurnRightCompleted, OnSuccessfullTurn);
+            TempleRunBus.Subscribe(TempleRunEvents.TurnLeftEnding, OnSuccessfullTurn);
+            TempleRunBus.Subscribe(TempleRunEvents.TurnRightEnding, OnSuccessfullTurn);
             TempleRunBus.Subscribe(TempleRunEvents.TempleRunStarted, OnGameStarted);
             TempleRunBus.Subscribe(TempleRunEvents.TempleRunEnded, OnGameEnding);
         }
@@ -65,8 +65,8 @@ namespace CrawfisSoftware.TempleRun
         private void OnDestroy()
         {
             TrackChanging.Unsubscribe(OnTrackChanging);
-            TempleRunBus.Unsubscribe(TempleRunEvents.TurnLeftCompleted, OnSuccessfullTurn);
-            TempleRunBus.Unsubscribe(TempleRunEvents.TurnRightCompleted, OnSuccessfullTurn);
+            TempleRunBus.Unsubscribe(TempleRunEvents.TurnLeftEnding, OnSuccessfullTurn);
+            TempleRunBus.Unsubscribe(TempleRunEvents.TurnRightEnding, OnSuccessfullTurn);
             TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunStarted, OnGameStarted);
             TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunEnded, OnGameEnding);
         }
