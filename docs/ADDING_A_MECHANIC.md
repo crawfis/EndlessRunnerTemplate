@@ -37,24 +37,47 @@ And a raw-input event to `UserInitiatedEvents.cs`:
 UserRollRequested,
 ```
 
-## 2. Do NOT auto-chain the request → starting
+## 2. Chain the whole ladder, then break the links you need
 
-`RollRequested` is the bridge's *raw* translation of input — it fires whether or not a roll
-is currently legal. The controller is the validation gate: it publishes `RollStarting` itself
-once its checks pass (see §5). Auto-chaining `RollRequested → RollStarting` would fire before
-any validation runs and silently defeat the gate — that exact mapping was once live for Dash
-and defeated the dash cooldown outright (see the comments in `TempleRunAutoEventFlow.cs`).
-
-Use `/add-auto-chain` only for progressions that really are unconditional (e.g.
-`PlayerDied → TempleRunEndRequested`). A chain is one `(From, To)` entry in the flow class's
-`ChainTable` array:
+**Start with every link auto-chained.** A chain is one `(From, To)` entry in the flow class's
+`ChainTable` array, so a five-rung ladder is four lines:
 ```csharp
-(TempleRunEvents.PlayerDied, TempleRunEvents.TempleRunEndRequested),
+(TempleRunEvents.RollRequested, TempleRunEvents.RollStarting),
+(TempleRunEvents.RollStarting,  TempleRunEvents.RollStarted),
+(TempleRunEvents.RollStarted,   TempleRunEvents.RollEnding),
+(TempleRunEvents.RollEnding,    TempleRunEvents.RollEnded),
 ```
 One source may declare several targets; they fire synchronously in declaration order.
-Every other rung — `*Starting`, `*Started`, `*Ending`, `*Ended` — is published by the
-controller when the animation/coroutine actually reaches that point, never auto-chained.
-Chaining them would announce a stage the mechanic hasn't reached yet.
+
+At this point you have a working mechanic and **no controller at all**. Press the key, and
+the ladder runs end to end: the animation, the SFX and the HUD can all be written and tested
+against real events before any gameplay logic exists. If your roll doesn't care whether one
+is already in progress, you can honestly stop here, playtest it, and move on.
+
+Then each link you **break** out of the `ChainTable` is a place to insert code. That is what
+the links are *for*:
+
+| Link | What goes here when you break it | How often |
+|------|----------------------------------|-----------|
+| `Requested → Starting` | **The gate.** Should this request be allowed at all? Cooldown, already-airborne, lane boundary, not enough currency. Break it, and the controller publishes `RollStarting` only once its checks pass. | Whenever the action can be refused |
+| `Starting → Started` | **Warm-up.** Anything that must complete before the action truly begins — a wind-up animation, reserving a resource, loading an asset. Break it, and the controller publishes `RollStarted` when the warm-up finishes. | Often nothing; leave it chained |
+| `Started → Ending` | **The action itself** — its duration. This is the animation or timer, so the controller publishes `RollEnding` when it actually completes. | Almost always broken |
+| `Ending → Ended` | **Teardown.** Clearing state, restoring a collider or hitbox. | Usually adjacent |
+
+### The one rule: a gate and a chain cannot share a link
+
+The moment a controller validates a request, that link **must** leave the `ChainTable` — in
+the same edit. Otherwise `RollStarting` fires from the chain regardless of what the controller
+decided, and the gate is silently dead code: it runs, it returns early, and the mechanic
+happens anyway.
+
+This is not hypothetical. `DashRequested → DashStarting` sat in the `ChainTable` while
+`DashController` was checking the cooldown, and the cooldown did nothing at all — see the
+comments in `TempleRunAutoEventFlow.cs`, which record each link that is deliberately absent
+and why. A link that is broken but undocumented reads exactly like one somebody forgot.
+
+So: chain everything, then break a link and add its code together, never one without the
+other. `/add-auto-chain` checks this for you.
 
 ## 3. Turn input into an intent
 
@@ -84,6 +107,11 @@ Translate the raw intent into a gameplay request. Every input intent does this i
 `UserInitiatedEvents`; gameplay controllers subscribe to the TempleRun event it produces.)
 
 ## 5. Write the controller
+
+You only need one once you break a link. The controller below breaks two: `Requested →
+Starting`, because a roll can be refused while one is already running, and `Started →
+Ending`, because the roll has a duration. Both entries must be **absent** from the
+`ChainTable` — the gate is dead code otherwise (§2).
 
 Subscribe to the gameplay event, validate, mutate state, and **announce** the result — one
 publish per rung you declared in §1. Model the structure on `DashController` /
@@ -185,8 +213,10 @@ unused events, no accidental cycle.
 ## Checklist
 
 - [ ] Events added to the right enum(s) with consistent numbering
-- [ ] Request consumed by the controller, which publishes `*Starting` only after validation
-      — never auto-chain `*Requested → *Starting`
+- [ ] The ladder runs end to end — start fully auto-chained, then break only the links that
+      need code
+- [ ] **No link is both chained and gated.** Every link a controller publishes by hand is
+      absent from the `ChainTable`, with a comment there saying why
 - [ ] **Every rung declared in §1 is actually published** — `*Starting`, `*Started`,
       `*Ending`, `*Ended` all come from the controller. A declared rung nothing publishes is
       a dead event; drop it from the enum instead

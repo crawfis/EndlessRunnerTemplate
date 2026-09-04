@@ -87,12 +87,19 @@ source that speaks `TempleRunEvents` directly, without a controller caring.
 - GameFlow scripts subscribing to or publishing `TempleRunEvents` (e.g., `TempleRunBus.Publish(TempleRunEvents.CountdownTick, ...)` in a GameFlow file)
 - A gameplay controller subscribing to `UserInitiatedEvents` (e.g., `UserInputBus.Subscribe(UserInitiatedEvents.UserJumpRequested, ...)` in `JumpController`). Add a bridge mapping and subscribe to the TempleRun event instead.
 
-> **Validation gates and auto-chains.** Once input arrives via the bridge, the domain's
-> `*Requested` event is the bridge's *raw* translation — it fires whether or not the action is
-> legal. So a controller that validates (cooldown, already-airborne, lane boundary) must
-> **publish `*Starting` itself** once its checks pass; it must NOT be auto-chained
-> `*Requested → *Starting`, because an auto-chain fires before any validation runs and
-> silently defeats the gate. See the comments in `TempleRunAutoEventFlow.cs`.
+> **Validation gates and auto-chains.** A ladder (`*Requested → *Starting → *Started →
+> *Ending → *Ended`) is meant to start **fully auto-chained**: that alone gives a working
+> mechanic with no controller, and each link you later break out of the `ChainTable` is
+> where code goes — `Requested → Starting` is the gate (may this happen?), `Starting →
+> Started` is warm-up (often nothing), `Started → Ending` is the action's duration.
+>
+> **The rule is that a gate and a chain cannot share a link.** Once input arrives via the
+> bridge, the domain's `*Requested` event is the bridge's *raw* translation — it fires
+> whether or not the action is legal. So a controller that validates (cooldown,
+> already-airborne, lane boundary) must **publish `*Starting` itself** once its checks pass,
+> and that link must be removed from the `ChainTable` in the same edit — an auto-chain fires
+> before any validation runs and silently defeats the gate. See the comments in
+> `TempleRunAutoEventFlow.cs`, and [docs/ADDING_A_MECHANIC.md](docs/ADDING_A_MECHANIC.md#2-chain-the-whole-ladder-then-break-the-links-you-need).
 
 **How to fix a violation:** If TempleRun code needs to react to a GameFlow event, add a bridge mapping in `TempleRunGameFlowBridge.cs` that translates the GameFlow event into a TempleRun event, then subscribe to the TempleRun event in your TempleRun code.
 

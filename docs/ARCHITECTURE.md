@@ -82,8 +82,10 @@ flowchart TD
 ```
 
 - **Auto-chains** move events *within* a domain (e.g. `PauseRequested → Pausing → Paused`).
-  A movement `*Requested → *Starting` is never auto-chained — see
-  [validation gates](EVENTS.md#templerun--templerun-templerunautoeventflowcs).
+  A ladder starts fully chained; each link a controller takes over — every movement
+  `*Requested → *Starting`, because each of those is gated — is removed from the table and
+  documented there. See [validation gates](EVENTS.md#templerun--templerun-templerunautoeventflowcs)
+  and [ADDING_A_MECHANIC.md](ADDING_A_MECHANIC.md#2-chain-the-whole-ladder-then-break-the-links-you-need).
 - **The bridge** (`TempleRunGameFlowBridge`) is the single sanctioned crossing between
   TempleRun and GameFlow. Domain code translates a foreign event into a local one there,
   then subscribes to the local event. See the [Domain Isolation Rule](../CLAUDE.md#domain-isolation-rule).
