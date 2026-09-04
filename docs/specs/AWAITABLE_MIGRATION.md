@@ -209,11 +209,18 @@ appears, never pre-emptively.
 
 ### `docs/ADDING_A_MECHANIC.md`
 
-Two changes, both in the worked dodge-roll example — this is the file every student copies
-from, so it is the highest-leverage edit in the migration:
+Three changes, all in the worked dodge-roll example — this is the file every student copies
+from, so it is the highest-leverage edit in the migration.
+
+> **Baseline:** this assumes the full-event-ladder sweep has already landed on `main` — that
+> is what put `RollEnding` into the sample and pointed the end rungs at
+> `CountdownController`. Both edits touch the same twelve lines, so land that first and
+> rebase, rather than resolving them against each other.
 
 - **§5, the `RollController` sample.** Replace the last two methods verbatim — the rest of
-  the class (the `Awake`/`OnDestroy` subscribe pair, the `_isRolling` gate) is unchanged:
+  the class (the `Awake`/`OnDestroy` subscribe pair, the `_isRolling` gate) is unchanged.
+  Note that only the *wait* changes: all four publish rungs and the `RollEnding`-before-
+  `_isRolling` ordering survive the port exactly as the ladder sweep left them.
 
   ```csharp
       private void OnRollRequested(string e, object sender, object data)
@@ -229,7 +236,9 @@ from, so it is the highest-leverage edit in the migration:
           TempleRunBus.Publish(TempleRunEvents.RollStarted, this, null);
           // ...animate / adjust Blackboard offsets over time...
           await Awaitable.WaitForSecondsAsync(rollDuration, destroyCancellationToken);
-          _isRolling = false;
+
+          TempleRunBus.Publish(TempleRunEvents.RollEnding, this, null);
+          _isRolling = false;                 // state clears between the two rungs
           TempleRunBus.Publish(TempleRunEvents.RollEnded, this, null);
       }
   ```
@@ -239,12 +248,12 @@ from, so it is the highest-leverage edit in the migration:
   die with its MonoBehaviour, which is what `destroyCancellationToken` is for; and the
   method returns `Awaitable` rather than `void` so a cancellation is absorbed instead of
   logged as an unhandled exception.
-- **§2, "The `*Started` / `*Ended` events are published by the controller when the
-  animation/coroutine actually finishes"**: reword `coroutine` → `async method`.
-- **§5 lead-in, "Model it on `DashController` / `SlideController`"**: still correct, but only
-  after phase 3 — those two are converted in phases 1 and 2. Land this doc edit in phase 4,
-  not earlier, so the walkthrough never teaches a pattern the siblings it points at don't
-  use yet.
+- **§2, "…is published by the controller when the animation/coroutine actually reaches that
+  point"**: reword `coroutine` → `async method`.
+- **§5 lead-in**, which points at `DashController` / `SlideController` for structure and
+  `CountdownController` for the end rungs: all three are converted by the end of phase 3, so
+  land this doc edit in phase 4 and not earlier — otherwise the walkthrough teaches a pattern
+  the very files it names don't use yet.
 
 ### `docs/STUDENT_TASKS.md`
 
