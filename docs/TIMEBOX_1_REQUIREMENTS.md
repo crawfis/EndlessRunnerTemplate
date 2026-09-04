@@ -73,7 +73,7 @@ than one.
 
 | Hat | Owns | Rotates |
 |---|---|---|
-| **Scrum master** | standups, the board, the deadline calendar, unblocking, the retro. The process owner, not the decision maker | every timebox |
+| **Scrum master** | standups, the board, the deadline calendar, unblocking (clearing whatever is stopping someone from finishing — a missing decision, a stalled review, whoever has the asset — by routing it, not ruling on it), the retro (the end-of-timebox look back, which from Timebox 2 on produces three actions with owners and dates). The process owner, not the decision maker | every timebox |
 | **Deck owner** | assembles the deck from everyone's artifacts, owns the menu and game flow charts, prints the 4-up copy, uploads it after class | every timebox |
 | **Presenter ×2** | carry the deck after the whole-team intros; able to answer on any slide, not just their own | every timebox |
 | **Demo & video owner** | cuts the build, records the run, owns the fallback video and the machine it plays from | every timebox |
