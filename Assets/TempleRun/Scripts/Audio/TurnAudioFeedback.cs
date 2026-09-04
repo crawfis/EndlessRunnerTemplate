@@ -18,19 +18,19 @@ namespace CrawfisSoftware.TempleRun.Audio
             var leftFactory = new AudioFactoryPooled(this, this.gameObject);
             //AudioFactoryRegistry.Instance.RegisterAudioFactory("TurnLeftPooledAudio", leftFactory);
             ISfxAudioPlayer sfxAudioPlayer = SfxAudioPlayerFactory.Instance.CreateSfxAudioPlayer("leftTurnFeedback", leftFactory, leftClipProvider);
-            TempleRunBus.Subscribe(TempleRunEvents.TurnLeftEnding, PlayLeftTurnSound);
+            TempleRunBus.Subscribe(TempleRunEvents.TurnLeftStarted, PlayLeftTurnSound);
 
             var rightClipProvider = new AudioClipProvider(new System.Random());
             rightClipProvider.AddClip(_turnRightAudioClips);
             var rightFactory = new AudioFactoryPooled(this, this.gameObject);
             //AudioFactoryRegistry.Instance.RegisterAudioFactory("TurnRightPooledAudio", rightFactory);
             ISfxAudioPlayer sfxRightAudioPlayer = SfxAudioPlayerFactory.Instance.CreateSfxAudioPlayer("rightTurnFeedback", rightFactory, rightClipProvider);
-            TempleRunBus.Subscribe(TempleRunEvents.TurnRightEnding, PlayRightTurnSound);
+            TempleRunBus.Subscribe(TempleRunEvents.TurnRightStarted, PlayRightTurnSound);
         }
         private void OnDestroy()
         {
-            TempleRunBus.Unsubscribe(TempleRunEvents.TurnLeftEnding, PlayLeftTurnSound);
-            TempleRunBus.Unsubscribe(TempleRunEvents.TurnRightEnding, PlayRightTurnSound);
+            TempleRunBus.Unsubscribe(TempleRunEvents.TurnLeftStarted, PlayLeftTurnSound);
+            TempleRunBus.Unsubscribe(TempleRunEvents.TurnRightStarted, PlayRightTurnSound);
         }
 
         private static void PlayLeftTurnSound(string eventName, object sender, object data)

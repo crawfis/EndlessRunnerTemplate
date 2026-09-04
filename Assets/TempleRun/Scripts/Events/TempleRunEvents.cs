@@ -53,8 +53,9 @@ namespace CrawfisSoftware.TempleRun
 
         // ---------- Player movement: turning ----------
         // Both directions carry the full ladder, published by two classes: TurnController is the
-        // gate and publishes Starting; TurnCommitController takes it from there - Started, the
-        // Either-junction commit, then Ending. Only Ending -> Ended is auto-chained.
+        // gate and publishes Starting. TurnCommitController commits an Either junction and
+        // publishes Started; the teleport onto the new spline is the turn's duration, and
+        // TeleportController publishes Ending when it lands. Only Ending -> Ended is chained.
         // Renumbered from the old 50-56 layout, which had no *Started rungs and left the
         // terminal rungs stranded at 58/59. Safe because no TempleRunEvents member is
         // serialized in a scene or prefab - unlike GameFlowEvents, which is.

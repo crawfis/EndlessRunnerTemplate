@@ -13,7 +13,8 @@ namespace CrawfisSoftware.TempleRun
     ///    Dependencies: EventsFor<TempleRunEvents>
     ///    Subscribes: SegmentGeometryReady — caches geometry by sequence index
     ///    Subscribes: ActiveTrackChanging — publishes CurrentSplineChanging (approach sub-spline)
-    ///    Subscribes: TurnLeftEnding, TurnRightEnding — publishes CurrentSplineChanging (exit sub-spline)
+    ///    Subscribes: TurnLeftStarted, TurnRightStarted — publishes CurrentSplineChanging (exit sub-spline);
+    ///                the teleport onto it is the turn's duration, and ends with Turn*Ending
     ///    Subscribes: SegmentExited — publishes CurrentSplineChanged
     ///    Publishes: CurrentSplineChanging (data: (Vector3, Vector3, Direction, float landingDistance))
     ///    Publishes: CurrentSplineChanged (data: (Vector3, Vector3, Direction, float landingDistance))
@@ -47,8 +48,8 @@ namespace CrawfisSoftware.TempleRun
         {
             GeometryReady.Subscribe(OnGeometryReady);
             TrackChanging.Subscribe(OnTrackChanging);
-            TempleRunBus.Subscribe(TempleRunEvents.TurnLeftEnding, OnTurnEnding);
-            TempleRunBus.Subscribe(TempleRunEvents.TurnRightEnding, OnTurnEnding);
+            TempleRunBus.Subscribe(TempleRunEvents.TurnLeftStarted, OnTurnStarted);
+            TempleRunBus.Subscribe(TempleRunEvents.TurnRightStarted, OnTurnStarted);
             SegmentExited.Subscribe(OnSegmentExited);
         }
 
@@ -56,8 +57,8 @@ namespace CrawfisSoftware.TempleRun
         {
             GeometryReady.Unsubscribe(OnGeometryReady);
             TrackChanging.Unsubscribe(OnTrackChanging);
-            TempleRunBus.Unsubscribe(TempleRunEvents.TurnLeftEnding, OnTurnEnding);
-            TempleRunBus.Unsubscribe(TempleRunEvents.TurnRightEnding, OnTurnEnding);
+            TempleRunBus.Unsubscribe(TempleRunEvents.TurnLeftStarted, OnTurnStarted);
+            TempleRunBus.Unsubscribe(TempleRunEvents.TurnRightStarted, OnTurnStarted);
             SegmentExited.Unsubscribe(OnSegmentExited);
         }
 
@@ -102,7 +103,7 @@ namespace CrawfisSoftware.TempleRun
         /// Fires when a turn completes. Publishes CurrentSplineChanging with the exit
         /// sub-spline truncated to TeleportDistance.
         /// </summary>
-        private void OnTurnEnding(string eventName, object sender, object data)
+        private void OnTurnStarted(string eventName, object sender, object data)
         {
             _isOnExitSection = true;
             // _activeGeometry is always current: Either junction updates are handled directly

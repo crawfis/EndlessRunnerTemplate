@@ -10,25 +10,27 @@ namespace CrawfisSoftware.TempleRun
     /// track to it. <see cref="TurnController"/> decides only whether a turn may happen; this
     /// class is what makes it happen on the track.
     ///
-    /// Once <c>Turn*Starting</c> says the turn is legal it publishes <c>Turn*Started</c>, commits
-    /// an Either junction to the chosen direction if the active segment is one, and then publishes
-    /// <c>Turn*Ending</c>. <c>Turn*Ended</c> follows by auto-chain.
+    /// Once <c>Turn*Starting</c> says the turn is legal it commits an Either junction to the
+    /// chosen direction, if the active segment is one, and publishes <c>Turn*Started</c>. It does
+    /// not end the turn: the exit spline is published from <c>Turn*Started</c> and the teleport
+    /// onto it is the turn's duration, so <c>TeleportController</c> publishes <c>Turn*Ending</c>
+    /// when that motion lands.
     ///
     /// <para><b>The order is load-bearing.</b> <c>SegmentRequested</c> must be delivered before
-    /// <c>Turn*Ending</c>: PathProvider resolves the junction's exit geometry from it, and
-    /// SegmentTransitionController consumes that geometry when it sees the ending rung. Publishing
-    /// returns only once the event has been delivered, so the geometry is in place in time.</para>
+    /// <c>Turn*Started</c>: PathProvider resolves the junction's exit geometry from it, and
+    /// SegmentTransitionController publishes that geometry as the exit spline when it sees
+    /// Started. Publishing returns only once the event has been delivered, so the geometry is in
+    /// place in time.</para>
     ///
     /// <para>This is also why <c>Turn*Starting → Turn*Started</c> is not auto-chained. A chain
     /// target and this subscriber both hang off <c>Turn*Starting</c>, and their relative order is
-    /// not defined — the Started rung could land after the commit, or after Ending. Publishing it
-    /// here makes the ladder's order deterministic.</para>
+    /// not defined — Started could land before the junction had been committed. Publishing it here
+    /// makes the order deterministic.</para>
     ///    Dependencies: EventsFor&lt;TempleRunEvents&gt;
     ///    Subscribes: TempleRunEvents.TurnLeftStarting, TurnRightStarting
     ///    Subscribes: TempleRunEvents.ActiveTrackChanging — is the active segment an Either junction?
     ///    Publishes: TempleRunEvents.TurnLeftStarted, TurnRightStarted
     ///    Publishes: TempleRunEvents.SegmentRequested (data: Direction) — only at an Either junction
-    ///    Publishes: TempleRunEvents.TurnLeftEnding, TurnRightEnding (Ended follows by auto-chain)
     /// </summary>
     internal class TurnCommitController : MonoBehaviour
     {
@@ -59,27 +61,31 @@ namespace CrawfisSoftware.TempleRun
         }
 
         private void OnTurnLeftStarting(string eventName, object sender, object data)
-            => TakeTurn(Direction.Left, TempleRunEvents.TurnLeftStarted, TempleRunEvents.TurnLeftEnding, data);
+            => TakeTurn(Direction.Left, TempleRunEvents.TurnLeftStarted, data);
 
         private void OnTurnRightStarting(string eventName, object sender, object data)
-            => TakeTurn(Direction.Right, TempleRunEvents.TurnRightStarted, TempleRunEvents.TurnRightEnding, data);
+            => TakeTurn(Direction.Right, TempleRunEvents.TurnRightStarted, data);
 
         /// <summary>
         /// The distance carried by the Starting rung is forwarded unchanged to Started and Ending,
         /// so every subscriber along the ladder sees the same value for one turn.
         /// </summary>
-        private void TakeTurn(Direction direction, TempleRunEvents startedEvent,
-                              TempleRunEvents endingEvent, object distance)
+        private void TakeTurn(Direction direction, TempleRunEvents startedEvent, object distance)
         {
-            TempleRunBus.Publish(startedEvent, this, distance);
-
+            // Commit before announcing. PathProvider builds the junction's exit geometry from
+            // SegmentRequested, and SegmentTransitionController publishes that exit spline when it
+            // sees Started - so the geometry has to exist by then. Publish returns only once the
+            // queue has drained, so it does.
             if (_awaitingCommit)
             {
                 _awaitingCommit = false;
                 SegmentRequested.Publish(this, direction);
             }
 
-            TempleRunBus.Publish(endingEvent, this, distance);
+            // Started is where the turn becomes visible: the exit spline is published from it, and
+            // the teleport onto that spline is the turn's duration. TeleportController publishes
+            // Turn*Ending when that motion finishes - this class does not end the turn.
+            TempleRunBus.Publish(startedEvent, this, distance);
         }
 
         private void OnTrackChanging(string eventName, object sender, TrackSegmentInfo trackSegment)

@@ -68,13 +68,16 @@ namespace CrawfisSoftware.TempleRun.Events
             // Turn*Requested -> Turn*Starting is NOT auto-chained: TurnController is the gate, and
             // only publishes Starting if the player is inside the turn window and the segment
             // actually bends that way.
-            // Turn*Starting -> Turn*Started is NOT auto-chained either, which is the less obvious
-            // one. TurnCommitController subscribes to Starting, and a chain target and a
-            // subscriber of the same event have no defined order between them - Started could land
-            // after the junction commit, or after Ending. It publishes Started itself so the rung
-            // order is deterministic, then commits an Either junction, then publishes Ending.
-            // The last link is chained, so a turn settle (a camera swing, a beat before the run
-            // resumes) has somewhere to go that touches neither controller nor any subscriber.
+            // Turn*Starting -> Turn*Started is NOT auto-chained either. TurnCommitController
+            // subscribes to Starting, and a chain target and a subscriber of the same event have
+            // no defined order between them - Started could land before the Either junction had
+            // been committed. It commits first, then publishes Started itself.
+            //
+            // Started -> Ending is the turn's DURATION, and it is filled: Started publishes the
+            // exit spline, the player teleports onto it, and TeleportController publishes
+            // Turn*Ending when that motion finishes. The teleport used to hang off Ending instead,
+            // which declared the turn over before the player had moved.
+            // Ending -> Ended stays chained - a turn settle goes there.
             (TempleRunEvents.TurnLeftEnding, TempleRunEvents.TurnLeftEnded),
             (TempleRunEvents.TurnRightEnding, TempleRunEvents.TurnRightEnded),
 

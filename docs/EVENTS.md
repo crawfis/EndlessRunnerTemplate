@@ -165,8 +165,13 @@ publishes its own `*Starting` once its checks pass:
 
 `Turn*Starting → Turn*Started` is unchained for a different reason: `TurnCommitController`
 subscribes to `Turn*Starting`, and a chain target and a subscriber of the same event have no
-defined order between them. It publishes `Turn*Started` itself, then commits an Either junction
-with `SegmentRequested`, then publishes `Turn*Ending` — an order the geometry depends on.
+defined order between them. It commits an Either junction with `SegmentRequested` first, then
+publishes `Turn*Started` itself.
+
+`Turn*Started → Turn*Ending` is the turn's **duration**, and the teleport fills it:
+`SegmentTransitionController` publishes the exit spline on `Turn*Started`,
+`TeleportController` moves the player onto it and publishes `Turn*Ending` when that motion
+lands. Only `Turn*Ending → Turn*Ended` is chained.
 
 `ObstacleHit → PlayerFailingAtObstacle` is also deliberately unchained, gated by
 `PowerUpBuffController` so a Shield can absorb the hit instead of failing.
