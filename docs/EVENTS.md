@@ -82,7 +82,7 @@ Publisher: `TempleRunBus` (`EventsFor<TempleRunEvents>`).
 | Turning | `TurnLeftRequested`(50), `TurnLeftStarting`(51), `TurnLeftCompleted`(52), `TurnRightRequested`(53), `TurnRightStarting`(54), `TurnRightCompleted`(55), `SegmentRequested`(56) *(data: Direction — chosen at an Either junction)* |
 | Slide | `SlideRequested`(60), `SlideStarting`(61), `SlideStarted`(62), `SlideEndRequested`(63), `SlideEnding`(64), `SlideEnded`(65) |
 | Dash | `DashRequested`(70), `DashStarting`(71), `DashStarted`(72), `DashEnding`(73), `DashEnded`(74) |
-| Jump | `JumpRequested`(80), `JumpStarting`(81), `JumpStarted`(82), `JumpEndRequested`(83), `JumpEnding`(84), `JumpLanded`(85) |
+| Jump | `JumpRequested`(80), `JumpStarting`(81), `JumpStarted`(82), `JumpEndRequested`(83), `JumpEnding`(84), `JumpEnded`(85) |
 | Lane change | `LaneChangeLeftRequested`(100), `LaneChangingLeft`(101), `LaneChangedLeft`(102), `LaneChangeRightRequested`(103), `LaneChangingRight`(104), `LaneChangedRight`(105), `LaneChangeLeftFailed`(106), `LaneChangeRightFailed`(107) |
 | Hazards | `ObstacleHit`(120), `ObstacleRecoveryRequested`(121), `ObstacleRecovering`(122), `ObstacleRecovered`(123) |
 | Coins | `CoinCollectRequested`(140), `CoinCollecting`(141), `CoinCollected`(142) |

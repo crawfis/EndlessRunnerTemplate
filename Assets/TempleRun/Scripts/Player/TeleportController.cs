@@ -10,8 +10,8 @@ namespace CrawfisSoftware.TempleRun
     /// teleportation or a smoother teleportation and rotation.
     ///    Dependency: EventsFor<TempleRunEvents>
     ///    Subscribes: TempleRunEvents.CurrentSplineChanging
-    ///    Publishes: TeleportStarted — DistanceController halts movement
-    ///    Publishes: TeleportEnded — DistanceController resumes and snaps to LandingDistance
+    ///    Publishes: TeleportStarting — TeleportStarted follows by auto-chain (DistanceController halts movement)
+    ///    Publishes: TeleportEnding — TeleportEnded follows by auto-chain (DistanceController resumes)
     /// </summary>
     public class TeleportController : MonoBehaviour
     {
@@ -37,9 +37,13 @@ namespace CrawfisSoftware.TempleRun
 
         private IEnumerator TeleportWithDelay(object data)
         {
-            TempleRunBus.Publish(TempleRunEvents.TeleportStarted, this, (_teleportDuration, data));
+            // This teleport has no warm-up and no wind-down of its own, so it publishes only the
+            // *ing rungs and lets the chain carry each to its *ed. Both links stay open: a VFX
+            // wind-up belongs in Starting -> Started, an arrival sting in Ending -> Ended, and
+            // either can be added without this controller or its subscribers changing.
+            TempleRunBus.Publish(TempleRunEvents.TeleportStarting, this, (_teleportDuration, data));
             yield return new WaitForSecondsRealtime(_teleportDuration);
-            TempleRunBus.Publish(TempleRunEvents.TeleportEnded, this, data);
+            TempleRunBus.Publish(TempleRunEvents.TeleportEnding, this, data);
             // No resume published here. A teleport never paused: the freeze during a teleport
             // is DistanceController._isMoving, toggled by TeleportStarted/TeleportEnded above.
             // Publishing a resume released a pause this class never took - and if the player

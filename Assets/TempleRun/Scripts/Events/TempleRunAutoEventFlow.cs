@@ -43,7 +43,11 @@ namespace CrawfisSoftware.TempleRun.Events
             // COUNTDOWN BRIDGE (mirror GameFlowAutoEventFlow)
             // ================================================================================
             (TempleRunEvents.CountdownStartRequested, TempleRunEvents.CountdownStarting),
-            // CountdownStarting -> CountdownTick(s) -> CountdownEnding -> CountdownEnded: published elsewhere
+            // CountdownStarting -> CountdownStarted -> CountdownTick(s) -> CountdownEnding:
+            // published by CountdownController as the clock actually reaches each rung.
+            // The last link is chained, so a "GO!" flash or start-line delay can be inserted
+            // there without CountdownController changing.
+            (TempleRunEvents.CountdownEnding, TempleRunEvents.CountdownEnded),
 
             // ================================================================================
             // GAME START BRIDGE
@@ -76,7 +80,10 @@ namespace CrawfisSoftware.TempleRun.Events
             // SlideController rejects the request (already sliding, or still on cooldown).
             // SlideController publishes SlideStarting once its checks pass.
             // SlideStarting -> SlideStarted: Published by SlideArcController (at animation start)
-            // SlideStarted -> SlideEnded: Published by SlideArcController (when animation completes)
+            // SlideStarting -> SlideStarted -> SlideEnding: published by SlideArcController as the
+            // animation reaches each rung. The last link is chained and left open: a stand-up
+            // animation or recovery window goes there, with no controller edit.
+            (TempleRunEvents.SlideEnding, TempleRunEvents.SlideEnded),
 
             // ================================================================================
             // DASH AUTO-CHAINS
@@ -86,7 +93,10 @@ namespace CrawfisSoftware.TempleRun.Events
             // translation of UserDashRequested, so DashStarting fired even when DashController had
             // rejected the request. DashController publishes DashStarting once its checks pass.
             // DashStarting -> DashStarted: Published by DashSpeedController (at animation start)
-            // DashEnding -> DashEnded: Published by DashSpeedController (when dash completes)
+            // DashStarting -> DashStarted -> DashEnding: published by DashSpeedController as the
+            // animation reaches each rung. The last link is chained and left open: a trail fade or
+            // camera FOV ease-out goes there, with no controller edit.
+            (TempleRunEvents.DashEnding, TempleRunEvents.DashEnded),
 
             // ================================================================================
             // JUMP AUTO-CHAINS
@@ -95,7 +105,20 @@ namespace CrawfisSoftware.TempleRun.Events
             // the top of this dictionary: chaining it would launch a second jump while one is
             // already in the air. JumpController publishes JumpStarting once its checks pass.
             // JumpStarting -> JumpStarted: Published by JumpArcController (at arc apex)
-            // JumpStarted -> JumpLanded: Published by JumpArcController (when arc completes)
+            // JumpStarting -> JumpStarted -> JumpEnding: published by JumpArcController as the arc
+            // reaches each rung. The last link is chained and left open: a landing recovery - a
+            // hook, or a delay before control returns - goes there, with no controller edit.
+            (TempleRunEvents.JumpEnding, TempleRunEvents.JumpEnded),
+
+            // ================================================================================
+            // TELEPORT AUTO-CHAINS
+            // ================================================================================
+            // TeleportController publishes only the *ing rungs; both links below are chained
+            // because the teleport has no warm-up or wind-down of its own today. They exist so
+            // one can be added later - a VFX wind-up before the move, an arrival sting after -
+            // by breaking the link, with no change to TeleportController or its subscribers.
+            (TempleRunEvents.TeleportStarting, TempleRunEvents.TeleportStarted),
+            (TempleRunEvents.TeleportEnding, TempleRunEvents.TeleportEnded),
 
             // ================================================================================
             // OBSTACLE AUTO-CHAINS

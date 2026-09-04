@@ -12,9 +12,9 @@ namespace CrawfisSoftware.TempleRun
     /// Extracted from UIPanelController so countdown logic lives in TempleRun domain.
     ///    Dependencies: TempleRunConstants
     ///    Subscribes: TempleRunEvents.CountdownStarting
+    ///    Publishes: TempleRunEvents.CountdownStarted
     ///    Publishes: TempleRunEvents.CountdownTick
-    ///    Publishes: TempleRunEvents.CountdownEnding
-    ///    Publishes: TempleRunEvents.CountdownEnded
+    ///    Publishes: TempleRunEvents.CountdownEnding (CountdownEnded follows by auto-chain)
     /// </summary>
     internal class CountdownController : MonoBehaviour
     {
@@ -42,6 +42,12 @@ namespace CrawfisSoftware.TempleRun
 
         private IEnumerator CountdownRoutine(float seconds)
         {
+            // CountdownStarting says the countdown was asked for; CountdownStarted says the
+            // clock is actually running. Anything that must not fire on a cancelled start
+            // (music, the first tick's SFX) hangs off this rung, not the one above it.
+            TempleRunBus.Publish(
+                TempleRunEvents.CountdownStarted, this, seconds);
+
             float t = seconds;
             int lastReportedSecond = Mathf.FloorToInt(t);
 
@@ -58,13 +64,13 @@ namespace CrawfisSoftware.TempleRun
                 }
             }
 
-            TempleRunBus.Publish(
-                TempleRunEvents.CountdownEnding, this, null);
-
             _countdownCoroutine = null;
 
+            // Only CountdownEnding is published here - CountdownEnding -> CountdownEnded is
+            // auto-chained. That link is where a "GO!" flash or a start-line delay goes, and
+            // adding one must not require touching this controller.
             TempleRunBus.Publish(
-                TempleRunEvents.CountdownEnded, this, null);
+                TempleRunEvents.CountdownEnding, this, null);
         }
     }
 }

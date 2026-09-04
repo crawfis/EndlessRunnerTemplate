@@ -8,7 +8,7 @@ namespace CrawfisSoftware.TempleRun
     /// Blocks jumps while already airborne.
     ///    Dependencies: Blackboard
     ///    Subscribes: TempleRunEvents.JumpRequested (from bridge translating UserInitiated)
-    ///    Subscribes: TempleRunEvents.JumpLanded (clear _isJumping)
+    ///    Subscribes: TempleRunEvents.JumpEnded (clear _isJumping)
     ///    Publishes: TempleRunEvents.JumpStarting (only once validation passes)
     /// </summary>
     internal class JumpController : MonoBehaviour
@@ -23,7 +23,7 @@ namespace CrawfisSoftware.TempleRun
             TempleRunBus.Subscribe(
                 TempleRunEvents.JumpRequested, OnJumpRequested);
             TempleRunBus.Subscribe(
-                TempleRunEvents.JumpLanded, OnJumpLanded);
+                TempleRunEvents.JumpEnded, OnJumpEnded);
         }
 
         private void OnDestroy()
@@ -31,7 +31,7 @@ namespace CrawfisSoftware.TempleRun
             TempleRunBus.Unsubscribe(
                 TempleRunEvents.JumpRequested, OnJumpRequested);
             TempleRunBus.Unsubscribe(
-                TempleRunEvents.JumpLanded, OnJumpLanded);
+                TempleRunEvents.JumpEnded, OnJumpEnded);
         }
 
         private void OnJumpRequested(string eventName, object sender, object data)
@@ -47,7 +47,7 @@ namespace CrawfisSoftware.TempleRun
                 TempleRunEvents.JumpStarting, this, null);
         }
 
-        private void OnJumpLanded(string eventName, object sender, object data)
+        private void OnJumpEnded(string eventName, object sender, object data)
         {
             _isJumping = false;
         }
