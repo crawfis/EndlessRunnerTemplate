@@ -1,7 +1,7 @@
 # Timebox 1 — Studio Setup & Greenlight
 
 > CSE 5912 Capstone. The complete Timebox 1 assignment, assembled from the course
-> pages on 2026-08-27. Hand this file to your AI assistant as context before asking it to
+> pages on 2026-09-04. Hand this file to your AI assistant as context before asking it to
 > help you plan, estimate, or draft anything the assignment asks for.
 
 ## Overview and Objective
@@ -13,9 +13,9 @@ a group of students into a game studio: define your identity, stand up your DevO
 and deliver a **Greenlight pitch** that proves you are ready to build a complex software
 product.
 
-You will use generative AI not to do the work for you, but to play four roles for your studio
-— **Agile Coach**, **Lead Architect**, **Creative Director**, and **Technical Auditor**. Prompts for each are in the
-phase that needs them.
+You will use generative AI not to do the work for you, but to play four roles for your studio —
+**Agile Coach**, **Lead Architect**, **Creative Director**, and **Technical Auditor**. Prompts
+for each are in the phase that needs them.
 
 The endless-runner template is your **playground**: it is where you prove the team can code,
 review, merge, and build before any of that matters. The bulk of this timebox is therefore
@@ -76,7 +76,7 @@ one.
 
 | Hat | Owns | Rotates |
 |----|----|----|
-| **Scrum master** | standups, the board, the deadline calendar, unblocking, the retro. The process owner, not the decision maker | every timebox |
+| **Scrum master** | standups, the board, the deadline calendar, unblocking (clearing whatever is stopping someone from finishing — a missing decision, a stalled review, whoever has the asset — by routing it, not ruling on it), the retro (the end-of-timebox look back, which from Timebox 2 on produces three actions with owners and dates). The process owner, not the decision maker | every timebox |
 | **Deck owner** | assembles the deck from everyone's artifacts, owns the menu and game flow charts, prints the 4-up copy, uploads it after class | every timebox |
 | **Presenter ×2** | carry the deck after the whole-team intros; able to answer on any slide, not just their own | every timebox |
 | **Demo & video owner** | cuts the build, records the run, owns the fallback video and the machine it plays from | every timebox |
@@ -267,10 +267,10 @@ muscle memory. Get *those* right here.
 
 - **One owner per scene, per timebox.** Even with SmartMerge, two people editing the same
   `.unity` file is the most common way a game team loses a day. The template is already split
-  into additive scenes — `TempleRunTrackPCG`, `TempleRunTrackVisuals`, `TempleRunPlayerVisuals`,
-  `TempleRunObstacles`, `TempleRunCollectables`, `TempleRunSfx`, `TempleRunEnvironment`,
-  `TempleRunGuiOverlay` — so assign them, and put new work in a
-  new scene or a prefab rather than in someone else's.
+  into additive scenes — `TempleRunTrackPCG`, `TempleRunTrackVisuals`,
+  `TempleRunPlayerVisuals`, `TempleRunObstacles`, `TempleRunCollectables`, `TempleRunSfx`,
+  `TempleRunEnvironment`, `TempleRunGuiOverlay` — so assign them, and put new work in a new
+  scene or a prefab rather than in someone else's.
 
 - **Track the template upstream** so you can pull fixes as the semester goes:
 
@@ -389,19 +389,18 @@ and write it down:
 ### Systems architecture
 
 - **Decoupling.** Where does the Observer pattern — an event bus — separate UI from gameplay?
-  The template answers this one way (three event domains, auto-chaining, one bridge per
-  domain crossing), described in
+  The template answers this one way (three event domains, auto-chaining, one bridge per domain
+  crossing), described in
   [ARCHITECTURE.md](https://github.com/crawfis/EndlessRunnerTemplate/blob/main/docs/ARCHITECTURE.md).
   Say whether you are adopting that, and why.
 - **Event vocabulary.** If you are adopting the event architecture, prove you can extend it:
-  **E13** in the
-  [Student Task Catalog](https://github.com/crawfis/EndlessRunnerTemplate/blob/main/docs/STUDENT_TASKS.md)
-  (level-select *browse* and *refuse* events) is a vocabulary-design exercise built on gaps
-  the template leaves open on purpose. Run it with the Lead Architect role — feed it the
-  existing events and naming rules, ask for **two or three competing vocabularies**, and make
-  it argue the trade-offs instead of handing you one answer. Then cut it down yourself: it
-  will propose fifteen events where five would do. Hand in the **rationale**, not just the
-  enum.
+  **E13** in the [Student Task
+  Catalog](https://github.com/crawfis/EndlessRunnerTemplate/blob/main/docs/STUDENT_TASKS.md)
+  (level-select *browse* and *refuse* events) is a vocabulary-design exercise built on gaps the
+  template leaves open on purpose. Run it with the Lead Architect role — feed it the existing
+  events and naming rules, ask for **two or three competing vocabularies**, and make it argue
+  the trade-offs instead of handing you one answer. Then cut it down yourself: it will propose
+  fifteen events where five would do. Hand in the **rationale**, not just the enum.
 - **Data.** What belongs in ScriptableObjects rather than in code? Track segments, level
   rulesets, and per-mechanic configs are already SOs here; your game will have its own.
 - **The diagram.** A systems/UML diagram of the flow, plus the menu flow chart and the game
