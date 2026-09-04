@@ -273,9 +273,12 @@ stretch break — Act IV has ScriptableObjects and Act V has robots."
 
 ### Slide 17 — [TECH] Typed payloads and the sticky question
 - Payload types are declared on the enum member (`[EventPayload(typeof(TrackSegmentInfo))]`);
-  call sites mint an `EventId<T>` once into a `static readonly` field, and everything
-  downstream is compiler-checked — no casts to get wrong. Mismatched type args across two
-  call sites are reported at startup.
+  call sites subscribe through the bus alias and cast the payload on the handler's first
+  line — the declaration is the contract, and StrictMode validates it.
+  > **[UPDATE 2026-09]** The `EventId<T>` static-field mint this slide originally showed
+  > was removed by owner ruling — it made call sites hard to read. The slide's point
+  > survives with the attribute alone; show a bare cast and say the enum declaration is
+  > what makes it safe.
 - Delivery policy: default `Transient`. An event is made `Sticky` (replayed to late
   subscribers) **only if it states something still true** — current state a latecomer can
   act on, like "the selected level is 3." Replaying an event that marks a *moment*
@@ -539,7 +542,7 @@ works at a meetup if attendees bring laptops):
 - Diagrams to lift from [ARCHITECTURE.md](ARCHITECTURE.md): domain flowchart, run
   sequence diagram, scene-composition tree.
 - Code excerpts: the two-line publish/subscribe pair (slide 6), five rows of a chain
-  table (slide 16), one `[EventPayload]` + `EventId<T>` mint (slide 17), five rows of the
+  table (slide 16), one `[EventPayload]` declaration + handler cast (slide 17), five rows of the
   bridge mapping table (slide 10).
 - Tables to lift: the design-vocabulary table (slide 19), the artist-task menu
   (slide 23) from [STUDENT_TASKS.md](STUDENT_TASKS.md).

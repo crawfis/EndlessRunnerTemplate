@@ -1,5 +1,3 @@
-using CrawfisSoftware.Events;
-
 using UnityEngine;
 using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
 
@@ -34,11 +32,6 @@ namespace CrawfisSoftware.TempleRun
     /// </summary>
     internal class TurnCommitController : MonoBehaviour
     {
-        private static readonly EventId<TrackSegmentInfo> TrackChanging =
-            TempleRunBus.Id<TrackSegmentInfo>(TempleRunEvents.ActiveTrackChanging);
-        private static readonly EventId<Direction> SegmentRequested =
-            TempleRunBus.Id<Direction>(TempleRunEvents.SegmentRequested);
-
         // Only an Either junction has an uncommitted exit. A Left or Right segment's single exit
         // was built when the segment was created, so there is nothing to commit — and committing
         // one anyway is destructive: TrackManager would clear _awaitingEitherDirection and generate
@@ -50,14 +43,14 @@ namespace CrawfisSoftware.TempleRun
         {
             TempleRunBus.Subscribe(TempleRunEvents.TurnLeftStarting, OnTurnLeftStarting);
             TempleRunBus.Subscribe(TempleRunEvents.TurnRightStarting, OnTurnRightStarting);
-            TrackChanging.Subscribe(OnTrackChanging);
+            TempleRunBus.Subscribe(TempleRunEvents.ActiveTrackChanging, OnTrackChanging);
         }
 
         private void OnDestroy()
         {
             TempleRunBus.Unsubscribe(TempleRunEvents.TurnLeftStarting, OnTurnLeftStarting);
             TempleRunBus.Unsubscribe(TempleRunEvents.TurnRightStarting, OnTurnRightStarting);
-            TrackChanging.Unsubscribe(OnTrackChanging);
+            TempleRunBus.Unsubscribe(TempleRunEvents.ActiveTrackChanging, OnTrackChanging);
         }
 
         private void OnTurnLeftStarting(string eventName, object sender, object data)
@@ -79,7 +72,7 @@ namespace CrawfisSoftware.TempleRun
             if (_awaitingCommit)
             {
                 _awaitingCommit = false;
-                SegmentRequested.Publish(this, direction);
+                TempleRunBus.Publish(TempleRunEvents.SegmentRequested, this, direction);
             }
 
             // Started is where the turn becomes visible: the exit spline is published from it, and
@@ -88,8 +81,9 @@ namespace CrawfisSoftware.TempleRun
             TempleRunBus.Publish(startedEvent, this, distance);
         }
 
-        private void OnTrackChanging(string eventName, object sender, TrackSegmentInfo trackSegment)
+        private void OnTrackChanging(string eventName, object sender, object data)
         {
+            var trackSegment = (TrackSegmentInfo)data;
             _awaitingCommit = trackSegment.Direction == Direction.Either;
         }
     }

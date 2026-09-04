@@ -226,27 +226,30 @@ TempleRunBus.Publish(TempleRunEvents.PlayerDied, this, score);
 
 ### Typed Payloads
 
-An event that carries data declares its type on the enum member, and call sites resolve an
-`EventId<T>` **once** into a `static readonly` field. Everything downstream of that line is
-compiler-checked, so there is no cast to get wrong:
+An event that carries data declares its type on the enum member with `[EventPayload]` —
+that declaration is the contract (and what StrictMode validates). Call sites do NOT mint
+`EventId<T>` fields: the `static readonly EventId<T> X = Bus.Id<T>(...)` pattern was
+removed by owner ruling (2026-09, "it makes the code hard to read"). Subscribe and publish
+through the bus alias directly, and cast the payload on the first line of the handler:
 
 ```csharp
 [EventPayload(typeof(TrackSegmentInfo))]
 ActiveTrackChanging = 261,
 
-private static readonly EventId<TrackSegmentInfo> TrackChanging =
-    TempleRunBus.Id<TrackSegmentInfo>(TempleRunEvents.ActiveTrackChanging);
+private void Awake()     => TempleRunBus.Subscribe(TempleRunEvents.ActiveTrackChanging, OnTrackChanging);
+private void OnDestroy() => TempleRunBus.Unsubscribe(TempleRunEvents.ActiveTrackChanging, OnTrackChanging);
 
-private void Awake()   => TrackChanging.Subscribe(OnTrackChanging);
-private void OnDestroy() => TrackChanging.Unsubscribe(OnTrackChanging);
-
-private void OnTrackChanging(string eventName, object sender, TrackSegmentInfo segment) { }
+private void OnTrackChanging(string eventName, object sender, object data)
+{
+    var segment = (TrackSegmentInfo)data;
+}
 ```
 
-Two call sites writing different type arguments for the same event is the one mistake no
-compiler catches; it is reported at startup when the second one is minted. Events with no
+The cast is deliberately bare — no `is` guard, no null check (see the no-defensive-guards
+rule): a wrong payload should throw at the cast, and the `[EventPayload]` declaration on
+the enum is what tells every call site (and StrictMode) which cast is right. Events with no
 payload, or a genuinely variable one, stay undeclared - no declaration means no checking,
-which is the intended default.
+which is the intended default. Do not reintroduce `EventId<T>` fields in new code.
 
 ### Delivery Policy - edge or level
 
@@ -266,8 +269,8 @@ as one event carrying the value instead, and keep the edges `Transient` for anim
 Use **Window > Events > Upgrade Audit** after a play session to see which events actually had
 a late subscriber. That measurement, not the name, is the evidence for making one Sticky.
 
-Read a retained value without subscribing with `EventsFor<T>.TryGetLast` (or the
-`EventId<T>` overload), which is how `TrackManager` gets the selected level at init.
+Read a retained value without subscribing with `EventsFor<T>.TryGetLast(eventEnum, out
+sender, out data)` (cast `data`), which is how `TrackManager` gets the selected level at init.
 
 ### Auto-Event Flow Pattern
 
@@ -360,7 +363,6 @@ declared namespace when referencing them.
 public float TurnAvailableDistance { get; }      // Properties: PascalCase
 private readonly Dictionary<...> _mapping = ...; // readonly: underscore prefix
 private static readonly (X From, X To)[] ChainTable = ...; // static readonly: PascalCase
-                                                 // (also EventId<T> fields, e.g. TrackChanging)
 ```
 
 ### Transform Conventions

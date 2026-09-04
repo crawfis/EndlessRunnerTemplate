@@ -1,5 +1,4 @@
 using CrawfisSoftware.Config;
-using CrawfisSoftware.Events;
 using CrawfisSoftware.TempleRun.Events;
 
 using System.Collections.Generic;
@@ -40,25 +39,16 @@ namespace CrawfisSoftware.TempleRun.GameConfig
 
         private readonly Dictionary<string, DifficultyConfig> _difficultyConfigs = new Dictionary<string, DifficultyConfig>();
 
-        private static readonly EventId<string> DifficultyChangeRequested =
-            TempleRunBus.Id<string>(TempleRunEvents.TempleRunDifficultyChangeRequested);
-        private static readonly EventId<IList<DifficultyConfig>> DifficultySettingsApplied =
-            TempleRunBus.Id<IList<DifficultyConfig>>(TempleRunEvents.TempleRunDifficultySettingsApplied);
-        private static readonly EventId<DifficultyConfig> DifficultyChanging =
-            TempleRunBus.Id<DifficultyConfig>(TempleRunEvents.TempleRunDifficultyChanging);
-        private static readonly EventId<DifficultyConfig> DifficultyChangeFailed =
-            TempleRunBus.Id<DifficultyConfig>(TempleRunEvents.DifficultyChangeFailed);
-
         public void Awake()
         {
-            DifficultyChangeRequested.Subscribe(OnDifficultyChangeRequested);
-            DifficultySettingsApplied.Subscribe(OnDifficultySettingsChanged);
+            TempleRunBus.Subscribe(TempleRunEvents.TempleRunDifficultyChangeRequested, OnDifficultyChangeRequested);
+            TempleRunBus.Subscribe(TempleRunEvents.TempleRunDifficultySettingsApplied, OnDifficultySettingsChanged);
         }
 
         private void OnDestroy()
         {
-            DifficultyChangeRequested.Unsubscribe(OnDifficultyChangeRequested);
-            DifficultySettingsApplied.Unsubscribe(OnDifficultySettingsChanged);
+            TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunDifficultyChangeRequested, OnDifficultyChangeRequested);
+            TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunDifficultySettingsApplied, OnDifficultySettingsChanged);
         }
 
         // The table is the selected level's difficulty variants, so a level decides which
@@ -80,7 +70,7 @@ namespace CrawfisSoftware.TempleRun.GameConfig
                 difficultyName = fallback;
             }
             CurrentDifficulty = difficultyName;
-            DifficultyChanging.Publish(this, _difficultyConfigs[CurrentDifficulty]);
+            TempleRunBus.Publish(TempleRunEvents.TempleRunDifficultyChanging, this, _difficultyConfigs[CurrentDifficulty]);
         }
 
         public void PopulateDifficulties(IList<DifficultyConfig> difficulties)
@@ -102,20 +92,22 @@ namespace CrawfisSoftware.TempleRun.GameConfig
             _difficultyConfigs[difficultyConfig.DifficultyName] = difficultyConfig;
         }
 
-        // An empty name is still worth reporting: the payload type is now guaranteed, but a
-        // caller can legitimately publish "" and there is no difficulty by that name.
-        public void OnDifficultyChangeRequested(string eventName, object sender, string newDifficulty)
+        // An empty name is still worth reporting: a payload of the wrong type throws on the cast,
+        // but a caller can legitimately publish "" and there is no difficulty by that name.
+        public void OnDifficultyChangeRequested(string eventName, object sender, object data)
         {
+            var newDifficulty = (string)data;
             if (string.IsNullOrEmpty(newDifficulty))
             {
-                DifficultyChangeFailed.Publish(this, CurrentDifficultyConfig);
+                TempleRunBus.Publish(TempleRunEvents.DifficultyChangeFailed, this, CurrentDifficultyConfig);
                 return;
             }
             SetDifficulty(newDifficulty);
         }
 
-        public void OnDifficultySettingsChanged(string eventName, object sender, IList<DifficultyConfig> difficultyConfigs)
+        public void OnDifficultySettingsChanged(string eventName, object sender, object data)
         {
+            var difficultyConfigs = (IList<DifficultyConfig>)data;
             PopulateDifficulties(difficultyConfigs);
         }
     }

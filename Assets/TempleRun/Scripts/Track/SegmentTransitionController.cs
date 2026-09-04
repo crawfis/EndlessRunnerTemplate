@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 
-using CrawfisSoftware.Events;
-
 using UnityEngine;
 using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
 
@@ -37,33 +35,27 @@ namespace CrawfisSoftware.TempleRun
         private float _segmentStartDistance = 0f;
         private float _previousSegmentLength = 0f;
 
-        private static readonly EventId<SegmentGeometryData> GeometryReady =
-            TempleRunBus.Id<SegmentGeometryData>(TempleRunEvents.SegmentGeometryReady);
-        private static readonly EventId<TrackSegmentInfo> TrackChanging =
-            TempleRunBus.Id<TrackSegmentInfo>(TempleRunEvents.ActiveTrackChanging);
-        private static readonly EventId<TrackSegmentInfo> SegmentExited =
-            TempleRunBus.Id<TrackSegmentInfo>(TempleRunEvents.SegmentExited);
-
         private void Awake()
         {
-            GeometryReady.Subscribe(OnGeometryReady);
-            TrackChanging.Subscribe(OnTrackChanging);
+            TempleRunBus.Subscribe(TempleRunEvents.SegmentGeometryReady, OnGeometryReady);
+            TempleRunBus.Subscribe(TempleRunEvents.ActiveTrackChanging, OnTrackChanging);
             TempleRunBus.Subscribe(TempleRunEvents.TurnLeftStarted, OnTurnStarted);
             TempleRunBus.Subscribe(TempleRunEvents.TurnRightStarted, OnTurnStarted);
-            SegmentExited.Subscribe(OnSegmentExited);
+            TempleRunBus.Subscribe(TempleRunEvents.SegmentExited, OnSegmentExited);
         }
 
         private void OnDestroy()
         {
-            GeometryReady.Unsubscribe(OnGeometryReady);
-            TrackChanging.Unsubscribe(OnTrackChanging);
+            TempleRunBus.Unsubscribe(TempleRunEvents.SegmentGeometryReady, OnGeometryReady);
+            TempleRunBus.Unsubscribe(TempleRunEvents.ActiveTrackChanging, OnTrackChanging);
             TempleRunBus.Unsubscribe(TempleRunEvents.TurnLeftStarted, OnTurnStarted);
             TempleRunBus.Unsubscribe(TempleRunEvents.TurnRightStarted, OnTurnStarted);
-            SegmentExited.Unsubscribe(OnSegmentExited);
+            TempleRunBus.Unsubscribe(TempleRunEvents.SegmentExited, OnSegmentExited);
         }
 
-        private void OnGeometryReady(string eventName, object sender, SegmentGeometryData geometry)
+        private void OnGeometryReady(string eventName, object sender, object data)
         {
+            var geometry = (SegmentGeometryData)data;
             // If this is an update to the currently active segment (Either junction resolution),
             // update _activeGeometry in-place rather than storing in the cache.
             // Guard with _hasActiveGeometry to avoid the startup false-positive where the default
@@ -76,8 +68,9 @@ namespace CrawfisSoftware.TempleRun
             _geometryCache[geometry.SequenceIndex] = geometry;
         }
 
-        private void OnTrackChanging(string eventName, object sender, TrackSegmentInfo segmentInfo)
+        private void OnTrackChanging(string eventName, object sender, object data)
         {
+            var segmentInfo = (TrackSegmentInfo)data;
             _segmentStartDistance += _previousSegmentLength;
             _previousSegmentLength = segmentInfo.Length;
             _isOnExitSection = false;
@@ -125,7 +118,7 @@ namespace CrawfisSoftware.TempleRun
                 TempleRunEvents.CurrentSplineChanging, this, exitSpline);
         }
 
-        private void OnSegmentExited(string eventName, object sender, TrackSegmentInfo segment)
+        private void OnSegmentExited(string eventName, object sender, object data)
         {
             // Publish the current sub-spline as "changed" (transition complete).
             float landingDistance = _segmentStartDistance + _previousSegmentLength;

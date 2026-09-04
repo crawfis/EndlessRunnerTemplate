@@ -17,7 +17,7 @@ Scan the codebase for violations of the event-driven architecture. This skill ch
 
 ### Check 1: Missing OnDestroy Unsubscriptions
 
-Search for classes that call `Subscribe` or `SubscribeToAll` but do NOT have a corresponding `Unsubscribe` or `UnsubscribeFromAll` in `OnDestroy()`. This includes typed subscriptions made through an `EventId<T>` field (`SomeEvent.Subscribe(...)`), which need the matching `SomeEvent.Unsubscribe(...)`.
+Search for classes that call `Subscribe` or `SubscribeToAll` but do NOT have a corresponding `Unsubscribe` or `UnsubscribeFromAll` in `OnDestroy()`. Also flag any `EventId<T>` static field (`Bus.Id<T>(...)`) as a finding in itself — that pattern was removed by owner ruling (2026-09); call sites go through the bus alias directly.
 
 **Pattern to find:**
 ```
@@ -55,8 +55,10 @@ DIRECT COUPLING:
 ### Check 3: Unused Events
 
 For each event in all four enums, search if it is:
-- Published anywhere (`Publish([EnumName].[EventName]`, or `<Field>.Publish(` for a typed `EventId<T>`)
-- Subscribed to anywhere (`Subscribe([EnumName].[EventName]`, or `<Field>.Subscribe(` for a typed `EventId<T>`)
+- Published anywhere (`Publish([EnumName].[EventName]`; also count publishes through a
+  variable, e.g. `endingEvent` in `TurnController` — count references to the member, not
+  just call sites)
+- Subscribed to anywhere (`Subscribe([EnumName].[EventName]`)
 - Referenced in an auto-chain or bridge mapping
 
 **Report format:**

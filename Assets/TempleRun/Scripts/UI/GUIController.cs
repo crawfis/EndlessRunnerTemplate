@@ -1,6 +1,4 @@
-﻿using CrawfisSoftware.Events;
-
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UIElements;
 using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
 
@@ -23,12 +21,9 @@ namespace CrawfisSoftware.TempleRun
         private Label _totalDistanceLabel;
         private Direction _nextTrackDirection;
 
-        private static readonly EventId<TrackSegmentInfo> TrackChanging =
-            TempleRunBus.Id<TrackSegmentInfo>(TempleRunEvents.ActiveTrackChanging);
-
         private void Awake()
         {
-            TrackChanging.Subscribe(OnTrackChanging);
+            TempleRunBus.Subscribe(TempleRunEvents.ActiveTrackChanging, OnTrackChanging);
         }
 
         private void OnEnable()
@@ -65,15 +60,16 @@ namespace CrawfisSoftware.TempleRun
             _rightDeathDistanceLabel.text = (_nextTrackDirection == Direction.Left) ? "" : _distanceUntilDeath.ToString();
         }
 
-        private void OnTrackChanging(string EventName, object sender, TrackSegmentInfo trackSegment)
+        private void OnTrackChanging(string EventName, object sender, object data)
         {
+            var trackSegment = (TrackSegmentInfo)data;
             _nextTrackDirection = trackSegment.Direction;
             _trackDistance += trackSegment.Length;
         }
 
         private void OnDestroy()
         {
-            TrackChanging.Unsubscribe(OnTrackChanging);
+            TempleRunBus.Unsubscribe(TempleRunEvents.ActiveTrackChanging, OnTrackChanging);
 
         }
     }

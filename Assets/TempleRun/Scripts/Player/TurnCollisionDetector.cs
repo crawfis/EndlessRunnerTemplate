@@ -1,5 +1,3 @@
-using CrawfisSoftware.Events;
-
 using UnityEngine;
 using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
 
@@ -37,12 +35,9 @@ namespace CrawfisSoftware.TempleRun
         private bool _gameStarted = false;
         private bool _isCurrentSegmentStraight = false;
 
-        private static readonly EventId<TrackSegmentInfo> TrackChanging =
-            TempleRunBus.Id<TrackSegmentInfo>(TempleRunEvents.ActiveTrackChanging);
-
         private void Awake()
         {
-            TrackChanging.Subscribe(OnTrackChanging);
+            TempleRunBus.Subscribe(TempleRunEvents.ActiveTrackChanging, OnTrackChanging);
             TempleRunBus.Subscribe(TempleRunEvents.TurnLeftStarted, OnSuccessfullTurn);
             TempleRunBus.Subscribe(TempleRunEvents.TurnRightStarted, OnSuccessfullTurn);
             TempleRunBus.Subscribe(TempleRunEvents.PlayerActivated, OnPlayerActivated);
@@ -65,15 +60,16 @@ namespace CrawfisSoftware.TempleRun
 
         private void OnDestroy()
         {
-            TrackChanging.Unsubscribe(OnTrackChanging);
+            TempleRunBus.Unsubscribe(TempleRunEvents.ActiveTrackChanging, OnTrackChanging);
             TempleRunBus.Unsubscribe(TempleRunEvents.TurnLeftStarted, OnSuccessfullTurn);
             TempleRunBus.Unsubscribe(TempleRunEvents.TurnRightStarted, OnSuccessfullTurn);
             TempleRunBus.Unsubscribe(TempleRunEvents.PlayerActivated, OnPlayerActivated);
             TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunEnded, OnGameEnding);
         }
 
-        private void OnTrackChanging(string eventName, object sender, TrackSegmentInfo trackSegmentInfo)
+        private void OnTrackChanging(string eventName, object sender, object data)
         {
+            var trackSegmentInfo = (TrackSegmentInfo)data;
             _isCurrentSegmentStraight = trackSegmentInfo.Direction == Direction.Straight;
             _isRunning = true;
             _currentSegmentInitialDistance += _previousSegmentLength;
