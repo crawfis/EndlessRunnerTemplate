@@ -12,6 +12,7 @@ namespace CrawfisSoftware.TempleRun
     ///    Dependencies: Blackboard, DashConfig
     ///    Subscribes: TempleRunEvents.DashStarting
     ///    Publishes: TempleRunEvents.DashStarted (at animation start)
+    ///    Publishes: TempleRunEvents.DashEnding (animation over, multiplier not yet reset)
     ///    Publishes: TempleRunEvents.DashEnded (when animation completes)
     /// </summary>
     internal class DashSpeedController : MonoBehaviour
@@ -85,6 +86,11 @@ namespace CrawfisSoftware.TempleRun
 
                 yield return null;
             }
+
+            // DashEnding fires while the speed multiplier is still applied, so a subscriber can
+            // react to the dash it is ending (trail fade, camera FOV ease-out) before it clears.
+            TempleRunBus.Publish(
+                TempleRunEvents.DashEnding, this, null);
 
             // Snap to normal state
             Blackboard.Instance.CurrentDashMultiplier = 1.0f;

@@ -14,6 +14,7 @@ namespace CrawfisSoftware.TempleRun
     ///    Dependencies: Blackboard, SlideConfig
     ///    Subscribes: TempleRunEvents.SlideStarting
     ///    Publishes: TempleRunEvents.SlideStarted (at animation start)
+    ///    Publishes: TempleRunEvents.SlideEnding (animation over, offsets not yet reset)
     ///    Publishes: TempleRunEvents.SlideEnded (when animation completes)
     /// </summary>
     internal class SlideArcController : MonoBehaviour
@@ -90,6 +91,11 @@ namespace CrawfisSoftware.TempleRun
 
                 yield return null;
             }
+
+            // SlideEnding fires while the crouch offset and speed multiplier are still applied,
+            // so a subscriber can react to the slide it is ending before the state clears.
+            TempleRunBus.Publish(
+                TempleRunEvents.SlideEnding, this, null);
 
             // Snap to normal state
             Blackboard.Instance.SlideHeightOffset = 0f;

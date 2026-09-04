@@ -13,6 +13,7 @@ namespace CrawfisSoftware.TempleRun
     ///    Dependencies: Blackboard, JumpConfig
     ///    Subscribes: TempleRunEvents.JumpStarting
     ///    Publishes: TempleRunEvents.JumpStarted (at arc apex)
+    ///    Publishes: TempleRunEvents.JumpEnding (arc over, still airborne in Blackboard)
     ///    Publishes: TempleRunEvents.JumpLanded (when arc completes)
     /// </summary>
     internal class JumpArcController : MonoBehaviour
@@ -75,6 +76,11 @@ namespace CrawfisSoftware.TempleRun
 
                 yield return null;
             }
+
+            // JumpEnding fires while the offset is still non-zero, so a subscriber can react
+            // to the jump it is ending (blend-out, landing SFX) before the state clears.
+            TempleRunBus.Publish(
+                TempleRunEvents.JumpEnding, this, null);
 
             // Snap to ground
             Blackboard.Instance.JumpHeightOffset = 0f;

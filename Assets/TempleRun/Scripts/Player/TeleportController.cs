@@ -10,7 +10,9 @@ namespace CrawfisSoftware.TempleRun
     /// teleportation or a smoother teleportation and rotation.
     ///    Dependency: EventsFor<TempleRunEvents>
     ///    Subscribes: TempleRunEvents.CurrentSplineChanging
+    ///    Publishes: TeleportStarting — the teleport is about to begin (VFX wind-up)
     ///    Publishes: TeleportStarted — DistanceController halts movement
+    ///    Publishes: TeleportEnding — the last frame of the teleport, before movement resumes
     ///    Publishes: TeleportEnded — DistanceController resumes and snaps to LandingDistance
     /// </summary>
     public class TeleportController : MonoBehaviour
@@ -37,8 +39,13 @@ namespace CrawfisSoftware.TempleRun
 
         private IEnumerator TeleportWithDelay(object data)
         {
+            // Starting and Started are adjacent because this teleport has no warm-up to do.
+            // The rung still exists so a wind-up (VFX, a camera pull-back, an audio sting) can
+            // be inserted between them later without every subscriber having to move.
+            TempleRunBus.Publish(TempleRunEvents.TeleportStarting, this, (_teleportDuration, data));
             TempleRunBus.Publish(TempleRunEvents.TeleportStarted, this, (_teleportDuration, data));
             yield return new WaitForSecondsRealtime(_teleportDuration);
+            TempleRunBus.Publish(TempleRunEvents.TeleportEnding, this, data);
             TempleRunBus.Publish(TempleRunEvents.TeleportEnded, this, data);
             // No resume published here. A teleport never paused: the freeze during a teleport
             // is DistanceController._isMoving, toggled by TeleportStarted/TeleportEnded above.

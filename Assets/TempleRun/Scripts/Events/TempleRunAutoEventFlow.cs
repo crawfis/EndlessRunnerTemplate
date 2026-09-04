@@ -43,7 +43,8 @@ namespace CrawfisSoftware.TempleRun.Events
             // COUNTDOWN BRIDGE (mirror GameFlowAutoEventFlow)
             // ================================================================================
             (TempleRunEvents.CountdownStartRequested, TempleRunEvents.CountdownStarting),
-            // CountdownStarting -> CountdownTick(s) -> CountdownEnding -> CountdownEnded: published elsewhere
+            // CountdownStarting -> CountdownStarted -> CountdownTick(s) -> CountdownEnding -> CountdownEnded:
+            // all published by CountdownController as the clock actually reaches each rung.
 
             // ================================================================================
             // GAME START BRIDGE
@@ -76,7 +77,8 @@ namespace CrawfisSoftware.TempleRun.Events
             // SlideController rejects the request (already sliding, or still on cooldown).
             // SlideController publishes SlideStarting once its checks pass.
             // SlideStarting -> SlideStarted: Published by SlideArcController (at animation start)
-            // SlideStarted -> SlideEnded: Published by SlideArcController (when animation completes)
+            // SlideStarted -> SlideEnding -> SlideEnded: Published by SlideArcController (Ending fires
+            // while the crouch offset is still applied; Ended after it clears)
 
             // ================================================================================
             // DASH AUTO-CHAINS
@@ -86,7 +88,8 @@ namespace CrawfisSoftware.TempleRun.Events
             // translation of UserDashRequested, so DashStarting fired even when DashController had
             // rejected the request. DashController publishes DashStarting once its checks pass.
             // DashStarting -> DashStarted: Published by DashSpeedController (at animation start)
-            // DashEnding -> DashEnded: Published by DashSpeedController (when dash completes)
+            // DashStarted -> DashEnding -> DashEnded: Published by DashSpeedController (Ending fires
+            // while the speed multiplier is still applied; Ended after it clears)
 
             // ================================================================================
             // JUMP AUTO-CHAINS
@@ -95,7 +98,8 @@ namespace CrawfisSoftware.TempleRun.Events
             // the top of this dictionary: chaining it would launch a second jump while one is
             // already in the air. JumpController publishes JumpStarting once its checks pass.
             // JumpStarting -> JumpStarted: Published by JumpArcController (at arc apex)
-            // JumpStarted -> JumpLanded: Published by JumpArcController (when arc completes)
+            // JumpStarted -> JumpEnding -> JumpLanded: Published by JumpArcController (Ending fires
+            // while the height offset is still applied; Landed after it clears)
 
             // ================================================================================
             // OBSTACLE AUTO-CHAINS
