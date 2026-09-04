@@ -18,7 +18,10 @@ Read both before changing code. The non-negotiable core:
   `GetComponent`.
 - **Domain isolation:** code under `Assets/TempleRun/**` may reference only
   `TempleRunEvents` / `UserInitiatedEvents`; code under `Assets/GameFlow/**` only
-  `GameFlowEvents`. Cross-domain event references live ONLY in `TempleRunGameFlowBridge.cs`.
+  `GameFlowEvents`; code under `Assets/Countdown/**` only `CountdownEvents`. Cross-domain
+  event references live ONLY in the four bridges: `TempleRunGameFlowBridge.cs`,
+  `Input2TempleRunAutoEventBridge.cs`, `CountdownGameFlowBridge.cs`,
+  `Countdown2TempleRunBridge.cs`.
 - **Every `Subscribe` (usually in `Awake()`) has a matching `Unsubscribe` in `OnDestroy()`.**
 - **Events come first.** Add or change events by following the step-by-step procedures in
   `.claude/skills/<name>/SKILL.md` (plain markdown, tool-agnostic): `list-events`,

@@ -23,7 +23,10 @@ namespace CrawfisSoftware.TempleRun.Audio
             //AudioFactoryRegistry.Instance.RegisterAudioFactory("TurnLeftPooledAudio", leftFactory);
             ISfxAudioPlayer sfxAudioPlayer = SfxAudioPlayerFactory.Instance.CreateSfxAudioPlayer("Metronome", leftFactory, leftClipProvider);
 
-            TempleRunBus.Subscribe(TempleRunEvents.TempleRunStarted, StartMetronome);
+            // PlayerActivated, not TempleRunStarted: the beat belongs to the run, not the
+            // ceremony - and pre-activation CurrentSpeed is 0, so a tick scheduled off
+            // TempleRunStarted divides by it and waits forever after the first click.
+            TempleRunBus.Subscribe(TempleRunEvents.PlayerActivated, StartMetronome);
             // The run can end without a death - quitting reaches TempleRunEnded without ever
             // publishing PlayerDied - so listen for the state, not one particular cause of it.
             TempleRunBus.Subscribe(TempleRunEvents.TempleRunEnded, StopMetronome);
@@ -31,7 +34,7 @@ namespace CrawfisSoftware.TempleRun.Audio
 
         private void OnDestroy()
         {
-            TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunStarted, StartMetronome);
+            TempleRunBus.Unsubscribe(TempleRunEvents.PlayerActivated, StartMetronome);
             TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunEnded, StopMetronome);
         }
 

@@ -11,7 +11,8 @@ namespace CrawfisSoftware.TempleRun
     /// Straight segments are handled by SegmentAdvanceTrigger (SegmentExiting / SegmentExited).
     ///    Dependencies: Blackboard, DistanceTracker, EventsFor<TempleRunEvents>
     ///    Subscribes: TempleRunEvents.ActiveTrackChanging — increases the active track length
-    ///    Subscribes: TempleRunEvents.TempleRunStarted — begins distance checking
+    ///    Subscribes: TempleRunEvents.PlayerActivated — begins distance checking; failure detection
+    ///                arms when the player is released, not while the countdown ceremony runs
     ///    Subscribes: TempleRunEvents.TempleRunEnded — stops distance checking, however the run ended
     ///    Publishes: TempleRunEvents.PlayerFailingAtTurn — Data is the current player distance (float). Turn segments only.
     /// </summary>
@@ -44,7 +45,7 @@ namespace CrawfisSoftware.TempleRun
             TrackChanging.Subscribe(OnTrackChanging);
             TempleRunBus.Subscribe(TempleRunEvents.TurnLeftStarted, OnSuccessfullTurn);
             TempleRunBus.Subscribe(TempleRunEvents.TurnRightStarted, OnSuccessfullTurn);
-            TempleRunBus.Subscribe(TempleRunEvents.TempleRunStarted, OnGameStarted);
+            TempleRunBus.Subscribe(TempleRunEvents.PlayerActivated, OnPlayerActivated);
             TempleRunBus.Subscribe(TempleRunEvents.TempleRunEnded, OnGameEnding);
         }
 
@@ -67,7 +68,7 @@ namespace CrawfisSoftware.TempleRun
             TrackChanging.Unsubscribe(OnTrackChanging);
             TempleRunBus.Unsubscribe(TempleRunEvents.TurnLeftStarted, OnSuccessfullTurn);
             TempleRunBus.Unsubscribe(TempleRunEvents.TurnRightStarted, OnSuccessfullTurn);
-            TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunStarted, OnGameStarted);
+            TempleRunBus.Unsubscribe(TempleRunEvents.PlayerActivated, OnPlayerActivated);
             TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunEnded, OnGameEnding);
         }
 
@@ -82,7 +83,7 @@ namespace CrawfisSoftware.TempleRun
             _turnFailureDistance = _currentSegmentInitialDistance + trackSegmentInfo.TurnPointDistance;
         }
 
-        private void OnGameStarted(string eventName, object sender, object data)
+        private void OnPlayerActivated(string eventName, object sender, object data)
         {
             _gameStarted = true;
         }

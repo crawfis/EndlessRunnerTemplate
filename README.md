@@ -16,7 +16,7 @@ subscribing to named events.
 **Suggested reading order:**
 
 1. This README — what the game is and the shape of the architecture.
-2. [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — the big idea, the three event domains,
+2. [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — the big idea, the four event domains,
    and how a run flows from boot to game over (with diagrams).
 3. [docs/EVENTS.md](docs/EVENTS.md) — the full event catalog; skim it to see the naming
    pattern, then use it as a reference.
@@ -26,9 +26,10 @@ subscribing to named events.
 
 ## Highlights
 
-- **Event-driven core.** No cross-system method calls. Three event domains
-  (`GameFlow`, `TempleRun`, `UserInitiated`) communicate through a static typed event bus
-  (`EventsFor<T>`), with declarative auto-chaining and exactly one bridge per domain crossing.
+- **Event-driven core.** No cross-system method calls. Four event domains
+  (`GameFlow`, `Countdown`, `TempleRun`, `UserInitiated`) communicate through a static typed
+  event bus (`EventsFor<T>`), with declarative auto-chaining and exactly one bridge per
+  domain crossing.
 - **Additive scene composition.** A persistent bootstrap scene loads UI and gameplay scenes
   additively; gameplay is split from visuals, audio, and environment.
 - **Data-driven track generation.** Track segments and per-level rulesets are authored as
@@ -101,13 +102,15 @@ deleted without touching the others.
 ### Event domains
 
 All communication between systems goes through the static, typed `EventsFor<T>` event bus.
-Events are grouped into three **domains** — separate enums, each on its own bus instance —
-so that input, gameplay, and application lifecycle stay independent of one another:
+Events are grouped into four **domains** — separate enums, each on its own bus instance —
+so that input, gameplay, session ceremony, and application lifecycle stay independent of one
+another:
 
 | Domain | Enum | Responsibility |
 |--------|------|----------------|
 | **GameFlow** | `GameFlowEvents` | App/session lifecycle: loading, menus, level select, pause, config, quit |
-| **TempleRun** | `TempleRunEvents` | Gameplay: player actions, countdown, track/spline generation, collisions, coins, power-ups |
+| **Countdown** | `CountdownEvents` | Session ceremony: the pre-run 3… 2… 1… and its overlay |
+| **TempleRun** | `TempleRunEvents` | Gameplay: player actions, track/spline generation, collisions, coins, power-ups |
 | **UserInitiated** | `UserInitiatedEvents` | Raw input: turn/lane/jump/slide/dash/pause/quit requests |
 
 Events auto-chain within a domain via a flat list of `(From, To)` pairs (`*AutoEventFlow.cs`),
@@ -122,14 +125,21 @@ rule and how to fix a violation.
 
 ```
 UserInitiatedEvents ──▶ TempleRunEvents ◀──▶ GameFlowEvents
+                        ▲                    │
+                        └── CountdownEvents ◀┘
 ```
 
-Two flows, not one pipeline. `UserInitiated` feeds into `TempleRun` one-way through
+Several flows, not one pipeline. `UserInitiated` feeds into `TempleRun` one-way through
 `Input2TempleRunAutoEventBridge`, the only subscriber to raw input in the codebase — so no
 gameplay controller is coupled to "a human pressed a key," and an AI, a replay, or a network
 peer can drive the same mechanic. `TempleRun` and `GameFlow` exchange in both directions
-through `TempleRunGameFlowBridge`: `GameStarting` flows GameFlow → TempleRun to kick off the
-countdown, while `TempleRunEnded` flows TempleRun → GameFlow to end the session.
+through `TempleRunGameFlowBridge`: `GameStarted` flows GameFlow → TempleRun to spin the run's
+systems up, while `TempleRunEnded` flows TempleRun → GameFlow to end the session. And the
+countdown — session ceremony that is neither app logic nor gameplay — sits in its own domain
+between them: `GameStarting` flows GameFlow → Countdown to start the 3… 2… 1…, and when it
+finishes, `CountdownEnded` flows Countdown → TempleRun as `PlayerActivateRequested`, because
+"release the player" is what the end of a countdown means in gameplay's vocabulary. Gameplay
+cannot tell whether a countdown, a cutscene, or nothing at all sat in that gap.
 
 ---
 
@@ -138,8 +148,8 @@ countdown, while `TempleRunEnded` flows TempleRun → GameFlow to end the sessio
 Scenes load additively from `0_BootStrap_Game_Only`:
 
 - **Boot chain:** `0_BootStrap_Game_Only` → `Game_Boot_0_Test_Initialization` →
-  `Game_Boot_1_UI` (menus, level selector, HUD panels) → `Game_Boot_2_Play` (bridge,
-  blackboard, difficulty, level scene loader).
+  `Game_Boot_1_UI` (menus, level selector, HUD panels) → `Game_Boot_2_Play` (bridges, the
+  countdown domain, blackboard, difficulty, level scene loader).
 - **Gameplay:** `TempleRunGameplay` (which in turn loads the visuals, player, obstacles,
   collectables, environment, SFX, and GUI overlay scenes) plus the shared `TempleRunTrackPCG`.
 

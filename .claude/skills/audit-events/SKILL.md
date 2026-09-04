@@ -41,7 +41,7 @@ Search for direct method calls or references that should go through the event sy
 - `SendMessage()` or `BroadcastMessage()` calls
 
 **Exclude from this check:**
-- `EventsFor<T>` bus references and their per-file aliases (`GameFlowBus`, `TempleRunBus`, `UserInputBus`) — these ARE the event system
+- `EventsFor<T>` bus references and their per-file aliases (`GameFlowBus`, `TempleRunBus`, `CountdownBus`, `UserInputBus`) — these ARE the event system
 - `Blackboard.Instance` (legitimate shared state)
 - References within the same class or same scene
 
@@ -54,7 +54,7 @@ DIRECT COUPLING:
 
 ### Check 3: Unused Events
 
-For each event in all three enums, search if it is:
+For each event in all four enums, search if it is:
 - Published anywhere (`Publish([EnumName].[EventName]`, or `<Field>.Publish(` for a typed `EventId<T>`)
 - Subscribed to anywhere (`Subscribe([EnumName].[EventName]`, or `<Field>.Subscribe(` for a typed `EventId<T>`)
 - Referenced in an auto-chain or bridge mapping
@@ -75,8 +75,11 @@ Trace all auto-chain and bridge mappings to detect cycles:
 1. Build a directed graph of all mappings from:
    - `GameFlowAutoEventFlow.cs`
    - `TempleRunAutoEventFlow.cs`
+   - `CountdownAutoEventFlow.cs`
    - `TempleRunGameFlowBridge.cs`
    - `Input2TempleRunAutoEventBridge.cs`
+   - `CountdownGameFlowBridge.cs`
+   - `Countdown2TempleRunBridge.cs`
 2. Run cycle detection on the graph
 3. Report any cycles found
 
@@ -102,7 +105,7 @@ NEVER PUBLISHED (subscribed but never fires):
 
 ### Check 6: Domain Isolation Violations (Cross-Domain Event References)
 
-Each domain's code may ONLY reference events from its own domain. Cross-domain event references are ONLY permitted inside a bridge file (`TempleRunGameFlowBridge.cs`, `Input2TempleRunAutoEventBridge.cs`).
+Each domain's code may ONLY reference events from its own domain. Cross-domain event references are ONLY permitted inside a bridge file (`TempleRunGameFlowBridge.cs`, `Input2TempleRunAutoEventBridge.cs`, `CountdownGameFlowBridge.cs`, `Countdown2TempleRunBridge.cs`).
 
 **Scan for these violations:**
 
@@ -115,14 +118,22 @@ Each domain's code may ONLY reference events from its own domain. Cross-domain e
    - Exclude `TempleRunGameFlowBridge.cs` — that file is allowed
    - Any other match is a violation
 
-3. **Gameplay code subscribing to raw input:**
+3. **Countdown crossings (outside its two bridges):**
+   - Grep for `CountdownEvents\.` outside `Assets/Countdown/**/*.cs` — only
+     `CountdownGameFlowBridge.cs` (which lives GameFlow-side) may match
+   - Grep for `GameFlowEvents\.` and `TempleRunEvents\.` in `Assets/Countdown/**/*.cs` —
+     only `Countdown2TempleRunBridge.cs` may match, and only on `TempleRunEvents`
+   - The Countdown domain is one-directional both ways: nothing bridges back into it from
+     TempleRun, and it never publishes GameFlow events
+
+4. **Gameplay code subscribing to raw input:**
    - Grep for `UserInputBus.Subscribe` and `Subscribe(UserInitiatedEvents.` in `Assets/**/*.cs`
    - Exclude `Input2TempleRunAutoEventBridge.cs` — the ONLY permitted subscriber
    - Any other match is a violation (publishing `UserInitiatedEvents` is open to input
      sources — the `Scripts/Input/` action classes, `AIController`, replay/netcode drivers —
      but subscribing is closed; controllers subscribe to the TempleRun event the bridge produces)
 
-4. **Additional domains** (added via `/add-event-domain`): run the same check for each —
+5. **Additional domains** (added via `/add-event-domain`): run the same check for each —
    the domain's enum name may appear outside its own `Assets/<Domain>/` folder ONLY in
    bridge files. The authoritative domain list is every enum marked `[EventEnum]` under
    `Assets/`.
@@ -172,8 +183,8 @@ Event System Audit Results:
 
 ## Files to Scan
 
-- Event enums: `Assets/GameFlow/Scripts/Events/GameFlowEvents.cs`, `Assets/TempleRun/Scripts/Events/TempleRunEvents.cs`, `Assets/TempleRun/Scripts/Events/UserInitiatedEvents.cs`
-- Auto-flows: `Assets/GameFlow/Scripts/Events/GameFlowAutoEventFlow.cs`, `Assets/TempleRun/Scripts/Events/TempleRunAutoEventFlow.cs`
-- Bridges: `Assets/GameFlow/Scripts/TempleRunSpecific/TempleRunGameFlowBridge.cs`, `Assets/TempleRun/Scripts/Events/Input2TempleRunAutoEventBridge.cs`
+- Event enums: `Assets/GameFlow/Scripts/Events/GameFlowEvents.cs`, `Assets/TempleRun/Scripts/Events/TempleRunEvents.cs`, `Assets/TempleRun/Scripts/Events/UserInitiatedEvents.cs`, `Assets/Countdown/Scripts/Events/CountdownEvents.cs`
+- Auto-flows: `Assets/GameFlow/Scripts/Events/GameFlowAutoEventFlow.cs`, `Assets/TempleRun/Scripts/Events/TempleRunAutoEventFlow.cs`, `Assets/Countdown/Scripts/Events/CountdownAutoEventFlow.cs`
+- Bridges: `Assets/GameFlow/Scripts/TempleRunSpecific/TempleRunGameFlowBridge.cs`, `Assets/TempleRun/Scripts/Events/Input2TempleRunAutoEventBridge.cs`, `Assets/GameFlow/Scripts/CountdownSpecific/CountdownGameFlowBridge.cs`, `Assets/Countdown/Scripts/TempleRunSpecific/Countdown2TempleRunBridge.cs`
 - Any additional `[EventEnum]` enums, `*AutoEventFlow` classes, and `*Bridge` classes from domains added later
 - All C# scripts: `Assets/**/*.cs`

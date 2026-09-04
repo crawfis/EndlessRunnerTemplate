@@ -19,6 +19,7 @@ Add an auto-event chain mapping within a single event domain. Auto-chains fire a
 |--------|------|
 | **GameFlow** | `Assets/GameFlow/Scripts/Events/GameFlowAutoEventFlow.cs` |
 | **TempleRun** | `Assets/TempleRun/Scripts/Events/TempleRunAutoEventFlow.cs` |
+| **Countdown** | `Assets/Countdown/Scripts/Events/CountdownAutoEventFlow.cs` |
 
 Note: `UserInitiatedEvents` does NOT have a same-domain auto-flow — raw input crosses into
 gameplay only via `Input2TempleRunAutoEventBridge`, the one permitted subscriber to raw input.

@@ -14,7 +14,7 @@ namespace CrawfisSoftware.TempleRun
     /// Provides new track distance for each turn. It publishes a new track segment
     ///       when needed (either to create visuals or to determine the currently active track).
     ///    Dependencies: EventsFor<TempleRunEvents>, Blackboard.GameConfig, Blackboard.MasterRandom,
-    ///                  TempleRunLevelApplied (Sticky; read at init via TryGetLast), _trackLevels registry
+    ///                  TrackLevelApplied (Sticky; read at init via TryGetLast), _trackLevels registry
     ///    Subscribes to SegmentExited for all segment types (single advancement path)
     ///    Subscribes to SegmentRequested to resume lookahead after an Either (T-junction) segment
     ///    Publishes: TrackSegmentCreated. Useful for creating prefabs. Several of these will be created at the start. Data is a TrackSegmentInfo
@@ -46,7 +46,7 @@ namespace CrawfisSoftware.TempleRun
         private int _segmentIndex;
 
         private static readonly EventId<int> LevelApplied =
-            TempleRunBus.Id<int>(TempleRunEvents.TempleRunLevelApplied);
+            TempleRunBus.Id<int>(TempleRunEvents.TrackLevelApplied);
         private static readonly EventId<TrackSegmentInfo> TrackSegmentCreated =
             TempleRunBus.Id<TrackSegmentInfo>(TempleRunEvents.TrackSegmentCreated);
         private static readonly EventId<TrackSegmentInfo> ActiveTrackChanging =
@@ -64,13 +64,13 @@ namespace CrawfisSoftware.TempleRun
 
         protected virtual void Awake()
         {
-            TempleRunBus.Subscribe(TempleRunEvents.TempleRunScenesReady, OnGameStarting);
+            TempleRunBus.Subscribe(TempleRunEvents.RunInitializeRequested, OnGameStarting);
             TempleRunBus.Subscribe(TempleRunEvents.SegmentRequested, OnSegmentRequested);
         }
 
         protected virtual void OnDestroy()
         {
-            TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunScenesReady, OnGameStarting);
+            TempleRunBus.Unsubscribe(TempleRunEvents.RunInitializeRequested, OnGameStarting);
             TempleRunBus.Unsubscribe(TempleRunEvents.SegmentExited, OnSegmentCompleted);
             TempleRunBus.Unsubscribe(TempleRunEvents.SegmentRequested, OnSegmentRequested);
         }
@@ -109,7 +109,7 @@ namespace CrawfisSoftware.TempleRun
             _random = random;
             _awaitingEitherDirection = false;
 
-            // Resolve the selected level's track. TempleRunLevelApplied is published (bridged from
+            // Resolve the selected level's track. TrackLevelApplied is published (bridged from
             // GameFlow) before this scene and TrackManager exist, so it is Sticky and read here
             // rather than mirrored into a field. Never published means no level was selected, which
             // is level 0. TrackLibraryLoader reads the authoring SOs and builds the runtime library;

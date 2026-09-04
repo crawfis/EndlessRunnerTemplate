@@ -11,7 +11,7 @@ Display a comprehensive view of all events in the event system.
 
 ## Arguments
 
-- `$ARGUMENTS` - Optional domain filter: `GameFlow`, `TempleRun`, `UserInitiated`, or `all` (default)
+- `$ARGUMENTS` - Optional domain filter: `GameFlow`, `TempleRun`, `Countdown`, `UserInitiated`, or `all` (default)
 
 ## Procedure
 
@@ -21,10 +21,11 @@ Display a comprehensive view of all events in the event system.
 |--------|------|
 | GameFlow | `Assets/GameFlow/Scripts/Events/GameFlowEvents.cs` |
 | TempleRun | `Assets/TempleRun/Scripts/Events/TempleRunEvents.cs` |
+| Countdown | `Assets/Countdown/Scripts/Events/CountdownEvents.cs` |
 | UserInitiated | `Assets/TempleRun/Scripts/Events/UserInitiatedEvents.cs` |
 
 > The authoritative domain list is every enum marked `[EventEnum]` under `Assets/`. If a
-> grep for `\[EventEnum\]` turns up enums beyond these three (a domain added via
+> grep for `\[EventEnum\]` turns up enums beyond these four (a domain added via
 > `/add-event-domain`), include them in the listing and update this table.
 
 ### Step 2: Read auto-chain mappings
@@ -36,12 +37,15 @@ Read the relevant auto-flow file(s) and extract every `(From, To)` entry from th
 |--------|------|
 | GameFlow | `Assets/GameFlow/Scripts/Events/GameFlowAutoEventFlow.cs` |
 | TempleRun | `Assets/TempleRun/Scripts/Events/TempleRunAutoEventFlow.cs` |
+| Countdown | `Assets/Countdown/Scripts/Events/CountdownAutoEventFlow.cs` |
 
 ### Step 3: Read bridge mappings
 
 Read bridge files and extract cross-domain mappings:
 - `Assets/GameFlow/Scripts/TempleRunSpecific/TempleRunGameFlowBridge.cs`
 - `Assets/TempleRun/Scripts/Events/Input2TempleRunAutoEventBridge.cs`
+- `Assets/GameFlow/Scripts/CountdownSpecific/CountdownGameFlowBridge.cs`
+- `Assets/Countdown/Scripts/TempleRunSpecific/Countdown2TempleRunBridge.cs`
 
 ### Step 4: Format output
 
@@ -79,6 +83,7 @@ At the end, show the next available value ranges for adding new events:
 |--------|-----------|---------------------|
 | GameFlow | 138 (LevelProgressSaved) | 140+ |
 | TempleRun | 350 (SegmentGeometryReady) | 360+ |
+| Countdown | 5 (CountdownEnded) | 10+ |
 | UserInitiated | 8 (UserDashRequested) | 9+ |
 ```
 
@@ -100,4 +105,10 @@ TempleRun -> GameFlow (via TempleRunGameFlowBridge):
 
 GameFlow -> TempleRun (via TempleRunGameFlowBridge):
   [list all GameFlow -> TempleRun mappings]
+
+GameFlow -> Countdown (via CountdownGameFlowBridge):
+  [list all GameFlow -> Countdown mappings]
+
+Countdown -> TempleRun (via Countdown2TempleRunBridge):
+  [list all Countdown -> TempleRun mappings]
 ```

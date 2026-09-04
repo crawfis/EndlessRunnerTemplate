@@ -8,7 +8,8 @@ namespace CrawfisSoftware.TempleRun
     /// <summary>
     /// Speed controller that updates a DistanceTracker.
     ///    Dependencies: Blackboard, DistanceTracker and GameConfig (from Blackboard)
-    ///    Subscribes: TempleRunStarted
+    ///    Subscribes: PlayerActivated — distance starts when the player is released, not when the
+    ///                run's systems come up (the countdown ceremony sits between the two)
     ///    Subscribes: PlayerFailing — resets speed to initial after a non-fatal failure
     ///    Subscribes: TempleRunEnded — stops the run, however the run ended
     ///    Subscribes: TeleportStarted — pauses movement during cinematic teleport
@@ -29,7 +30,7 @@ namespace CrawfisSoftware.TempleRun
         private void Awake()
         {
             TempleRunBus.Subscribe(TempleRunEvents.PlayerFailing, OnResetSpeed);
-            TempleRunBus.Subscribe(TempleRunEvents.TempleRunStarted, OnGameStarted);
+            TempleRunBus.Subscribe(TempleRunEvents.PlayerActivated, OnPlayerActivated);
             TempleRunBus.Subscribe(TempleRunEvents.TempleRunEnded, OnGameOver);
             TempleRunBus.Subscribe(TempleRunEvents.TeleportStarted, OnTeleportStarted);
             TempleRunBus.Subscribe(TempleRunEvents.TeleportEnded, OnTeleportEnded);
@@ -38,7 +39,7 @@ namespace CrawfisSoftware.TempleRun
         private void OnDestroy()
         {
             TempleRunBus.Unsubscribe(TempleRunEvents.PlayerFailing, OnResetSpeed);
-            TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunStarted, OnGameStarted);
+            TempleRunBus.Unsubscribe(TempleRunEvents.PlayerActivated, OnPlayerActivated);
             TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunEnded, OnGameOver);
             TempleRunBus.Unsubscribe(TempleRunEvents.TeleportStarted, OnTeleportStarted);
             TempleRunBus.Unsubscribe(TempleRunEvents.TeleportEnded, OnTeleportEnded);
@@ -50,7 +51,7 @@ namespace CrawfisSoftware.TempleRun
             _speed = _initialSpeed;
         }
 
-        private void OnGameStarted(string eventName, object sender, object data)
+        private void OnPlayerActivated(string eventName, object sender, object data)
         {
             _initialSpeed = Blackboard.Instance.GameConfig.InitialSpeed;
             _maxSpeed = Blackboard.Instance.GameConfig.MaxSpeed;

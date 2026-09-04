@@ -20,6 +20,12 @@ namespace CrawfisSoftware.TempleRun
         PlayerRevived = 8,
         PlayerFailingAtTurn = 12,
         PlayerFailingAtObstacle = 13,
+        // Bridged from the Countdown domain: the ceremony's end, translated into player terms.
+        // Both links below are chained in TempleRunAutoEventFlow; a spawn-in animation or grace
+        // period later breaks one, with no controller edit.
+        PlayerActivateRequested = 14,
+        PlayerActivating = 15,
+        PlayerActivated = 16,
 
         // ---------- Player pause / resume ----------
         PlayerPauseRequested = 20,
@@ -34,14 +40,9 @@ namespace CrawfisSoftware.TempleRun
         //PlayerPause = PlayerPaused, // Legacy naming
         //PlayerResume = PlayerResumed, // Legacy naming
 
-        // ---------- Countdown ----------
-        CountdownStartRequested = 30,
-        CountdownStarting = 31,
-        CountdownStarted = 32,
-        CountdownTick = 33,
-        CountdownEnding = 34,
-        CountdownEnded = 35,
-        CountdownCancelled = 36,
+        // (30-36 previously held the countdown ladder. The countdown is a ceremony the session
+        // runs, not a gameplay mechanic, so it moved to its own domain - CrawfisSoftware.Countdown
+        // - and reaches gameplay only as PlayerActivateRequested via Countdown2TempleRunBridge.)
 
         // ---------- Game lifecycle (TempleRun domain) ----------
         TempleRunStartRequested = 38,
@@ -174,13 +175,15 @@ namespace CrawfisSoftware.TempleRun
         // below is what tells it, and StrictMode, what the payload must be.
         [EventPayload(typeof(DifficultyConfig))]
         TempleRunConfigApplied = 300,
-        TempleRunScenesReady = 302,
-        // A level: the selected level number is state, self-describing, and published once - before
+        // Begin the run's initialization: the gameplay scenes exist, so the track can be built.
+        // Named for what the domain does with it, not for the GameFlow event that triggers it.
+        RunInitializeRequested = 302,
+        // A level: the selected track level is state, self-describing, and published once - before
         // the gameplay scene (and TrackManager) exists. Retained so TrackManager can read it at init
         // with TryGetLast instead of it being parked in a Blackboard field.
         [EventPayload(typeof(int))]
         [EventDelivery(EventDelivery.Sticky)]
-        TempleRunLevelApplied = 304,          // data: int (selected level number, bridged from GameFlow)
+        TrackLevelApplied = 304,              // data: int (the selected track level number, bridged from GameFlow)
 
         // ---------- Difficulty (bridged to/from GameFlow) ----------
         // A level: this IS the difficulty table, not a transition into one. GameDifficultyManager

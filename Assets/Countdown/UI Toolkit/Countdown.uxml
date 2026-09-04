@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi:noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<ui:Style src="project://database/Assets/GameFlow/UI%20Toolkit/UI/USS/Overlay.uss?fileID=7433441132597879392&amp;guid=22da348aa5a54da49ac52d7ebadb002f&amp;type=3#Overlay" />
+<ui:VisualElement name="OverlayRoot" class="screen fill dim">
+  <ui:Label name="Countdown" text="3" class="countdown" />
+</ui:VisualElement>
+</ui:UXML>

@@ -1,20 +1,21 @@
+using CrawfisSoftware.Countdown.Events;
 using CrawfisSoftware.TempleRun.GameConfig;
 
 using System.Collections;
 
 using UnityEngine;
-using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
+using CountdownBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.Countdown.Events.CountdownEvents>;
 
-namespace CrawfisSoftware.TempleRun
+namespace CrawfisSoftware.Countdown
 {
     /// <summary>
     /// Runs the countdown timer and publishes tick/end events.
-    /// Extracted from UIPanelController so countdown logic lives in TempleRun domain.
+    /// The ceremony is its own domain: nothing here knows what the countdown is counting down to.
     ///    Dependencies: TempleRunConstants
-    ///    Subscribes: TempleRunEvents.CountdownStarting
-    ///    Publishes: TempleRunEvents.CountdownStarted
-    ///    Publishes: TempleRunEvents.CountdownTick
-    ///    Publishes: TempleRunEvents.CountdownEnding (CountdownEnded follows by auto-chain)
+    ///    Subscribes: CountdownEvents.CountdownStarting
+    ///    Publishes: CountdownEvents.CountdownStarted
+    ///    Publishes: CountdownEvents.CountdownTick
+    ///    Publishes: CountdownEvents.CountdownEnding (CountdownEnded follows by auto-chain)
     /// </summary>
     internal class CountdownController : MonoBehaviour
     {
@@ -22,14 +23,14 @@ namespace CrawfisSoftware.TempleRun
 
         private void Awake()
         {
-            TempleRunBus.Subscribe(
-                TempleRunEvents.CountdownStarting, OnCountdownStarting);
+            CountdownBus.Subscribe(
+                CountdownEvents.CountdownStarting, OnCountdownStarting);
         }
 
         private void OnDestroy()
         {
-            TempleRunBus.Unsubscribe(
-                TempleRunEvents.CountdownStarting, OnCountdownStarting);
+            CountdownBus.Unsubscribe(
+                CountdownEvents.CountdownStarting, OnCountdownStarting);
         }
 
         private void OnCountdownStarting(string eventName, object sender, object data)
@@ -45,8 +46,8 @@ namespace CrawfisSoftware.TempleRun
             // CountdownStarting says the countdown was asked for; CountdownStarted says the
             // clock is actually running. Anything that must not fire on a cancelled start
             // (music, the first tick's SFX) hangs off this rung, not the one above it.
-            TempleRunBus.Publish(
-                TempleRunEvents.CountdownStarted, this, seconds);
+            CountdownBus.Publish(
+                CountdownEvents.CountdownStarted, this, seconds);
 
             float t = seconds;
             int lastReportedSecond = Mathf.FloorToInt(t);
@@ -59,8 +60,8 @@ namespace CrawfisSoftware.TempleRun
                 if (currentSecond != lastReportedSecond)
                 {
                     lastReportedSecond = currentSecond;
-                    TempleRunBus.Publish(
-                        TempleRunEvents.CountdownTick, this, currentSecond);
+                    CountdownBus.Publish(
+                        CountdownEvents.CountdownTick, this, currentSecond);
                 }
             }
 
@@ -69,8 +70,8 @@ namespace CrawfisSoftware.TempleRun
             // Only CountdownEnding is published here - CountdownEnding -> CountdownEnded is
             // auto-chained. That link is where a "GO!" flash or a start-line delay goes, and
             // adding one must not require touching this controller.
-            TempleRunBus.Publish(
-                TempleRunEvents.CountdownEnding, this, null);
+            CountdownBus.Publish(
+                CountdownEvents.CountdownEnding, this, null);
         }
     }
 }
