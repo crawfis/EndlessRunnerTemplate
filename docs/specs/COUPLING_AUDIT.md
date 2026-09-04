@@ -44,7 +44,7 @@ which are the same underlying problem.
 |---|----------|-------|
 | 1 | `AIController` holds a serialized `TurnController` and reads two live values off it every frame (`TurnFailedDistance`, `TurnDirection`), then subscribes to `ActiveTrackChanging` — a **track-generation** event published by `TrackManager` — as a stand-in for "there is a new turn to consider". | `Player/AIController.cs:22,63,64` |
 | 2 | `TrackSegmentInfo` exposes **segment-relative** distances (`TurnPointDistance => Definition.TurnFailureDistance`), but every consumer needs **absolute** ones. The accumulation that converts them lives privately in `TurnController`, which is why anything needing an absolute turn point must go through that component. | `Track/TrackSegmentInfo.cs:19`, `Player/TurnController.cs:106` |
-| 3 | `PlayerFailureAutoTurnController` calls `TurnController.ForceTurn()` by C# reference — the one place in `Player/` that commands another controller directly. Already written up in `docs/event-review/event-seam-audit.html`; note that write-up proposes enum value 57, which the PR #27 renumbering has since taken. | `Player/PlayerFailureAutoTurnController.cs:41` |
+| 3 | `PlayerFailureAutoTurnController` calls `TurnController.ForceTurn()` by C# reference — the one place in `Player/` that commands another controller directly. Already written up in `docs/event-review/event-seam-audit.html`, whose proposed fix is a `TurnForceRequested` event. | `Player/PlayerFailureAutoTurnController.cs:41` |
 
 ### Track components owning player flow
 
