@@ -69,9 +69,12 @@ namespace CrawfisSoftware.TempleRun.Events
             // the player is inside the turn window and the segment actually bends that way.
             // TurnController publishes Starting, then SegmentRequested at an Either junction, then
             // Ending - that order is load-bearing, see the comment in TurnController.
-            // The last link is chained, so a turn settle (a camera swing, a beat before the run
-            // resumes) can be inserted there without touching TurnController or its subscribers.
+            // Both other links are chained. Starting -> Started because a turn has no warm-up, and
+            // Ending -> Ended so a turn settle (a camera swing, a beat before the run resumes) has
+            // somewhere to go that does not involve touching TurnController or its subscribers.
+            (TempleRunEvents.TurnLeftStarting, TempleRunEvents.TurnLeftStarted),
             (TempleRunEvents.TurnLeftEnding, TempleRunEvents.TurnLeftEnded),
+            (TempleRunEvents.TurnRightStarting, TempleRunEvents.TurnRightStarted),
             (TempleRunEvents.TurnRightEnding, TempleRunEvents.TurnRightEnded),
 
             // ================================================================================

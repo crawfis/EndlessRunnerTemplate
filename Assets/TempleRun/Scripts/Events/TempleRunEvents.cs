@@ -52,19 +52,24 @@ namespace CrawfisSoftware.TempleRun
         TempleRunEnded = 43,
 
         // ---------- Player movement: turning ----------
+        // Both directions carry the full ladder. Starting -> Started is auto-chained (a turn has
+        // no warm-up) and so is Ending -> Ended; TurnController publishes only Starting and
+        // Ending, with SegmentRequested in between at an Either junction.
+        // Renumbered from the old 50-56 layout, which had no *Started rungs and left the
+        // terminal rungs stranded at 58/59. Safe because no TempleRunEvents member is
+        // serialized in a scene or prefab - unlike GameFlowEvents, which is.
+        // (52-55 previously held TurnLeftEnding/TurnRightRequested/Starting/Ending; 56 held
+        // SegmentRequested, now 340 with the rest of the segment vocabulary; 57 was a removed
+        // StraightSegmentCompleted.)
         TurnLeftRequested = 50,
         TurnLeftStarting = 51,
-        TurnLeftEnding = 52,
-        TurnRightRequested = 53,
-        TurnRightStarting = 54,
-        TurnRightEnding = 55,
-        [EventPayload(typeof(Direction))]
-        SegmentRequested = 56,  // Data: Direction (Left or Right). Fires when player commits direction at an Either junction.
-        // 57: removed (was StraightSegmentCompleted, replaced by SegmentExited)
-        // The terminal rungs sit outside the 50-55 block because enum values are visible in the
-        // Inspector and cannot be renumbered safely; 52/55 keep the values the old *Completed
-        // members had. TurnLeft/RightEnding -> TurnLeft/RightEnded is auto-chained.
-        TurnLeftEnded = 58,
+        TurnLeftStarted = 52,
+        TurnLeftEnding = 53,
+        TurnLeftEnded = 54,
+        TurnRightRequested = 55,
+        TurnRightStarting = 56,
+        TurnRightStarted = 57,
+        TurnRightEnding = 58,
         TurnRightEnded = 59,
 
         // ---------- Player movement: slide ----------
@@ -207,6 +212,11 @@ namespace CrawfisSoftware.TempleRun
         DistanceUpdated = 330,
 
         // ---------- Segment lifecycle ----------
+        // Moved here from 56: this is segment vocabulary, not a rung of the turn ladder. It is
+        // published by TurnController between Turn*Starting and Turn*Ending, and that position is
+        // load-bearing - see the comment there.
+        [EventPayload(typeof(Direction))]
+        SegmentRequested = 340,           // Data: Direction (Left or Right). Player commits a direction at an Either junction.
         // TrackSegmentInfo is a struct, so these declarations also make a null payload an error
         // rather than a default-valued segment silently reaching a handler.
         [EventPayload(typeof(TrackSegmentInfo))]

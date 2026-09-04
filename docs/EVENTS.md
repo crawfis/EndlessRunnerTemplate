@@ -79,7 +79,7 @@ Publisher: `TempleRunBus` (`EventsFor<TempleRunEvents>`).
 | Pause / Resume | `PlayerPauseRequested`(20), `PlayerPausing`(21), `PlayerPaused`(22), `PlayerResumeRequested`(23), `PlayerResuming`(24), `PlayerResumed`(25), `PlayerPauseToggleRequested`(26) *(bridged from `UserPauseToggle`; `PauseController` resolves it against current state)* |
 | Countdown | `CountdownStartRequested`(30), `CountdownStarting`(31), `CountdownStarted`(32), `CountdownTick`(33), `CountdownEnding`(34), `CountdownEnded`(35), `CountdownCancelled`(36) |
 | Game lifecycle | `TempleRunStartRequested`(38), `TempleRunStarting`(39), `TempleRunStarted`(40), `TempleRunEndRequested`(41), `TempleRunEnding`(42), `TempleRunEnded`(43) |
-| Turning | `TurnLeftRequested`(50), `TurnLeftStarting`(51), `TurnLeftEnding`(52), `TurnRightRequested`(53), `TurnRightStarting`(54), `TurnRightEnding`(55), `SegmentRequested`(56) *(data: Direction — chosen at an Either junction)*, `TurnLeftEnded`(58), `TurnRightEnded`(59) |
+| Turning | `TurnLeftRequested`(50), `TurnLeftStarting`(51), `TurnLeftStarted`(52), `TurnLeftEnding`(53), `TurnLeftEnded`(54), `TurnRightRequested`(55), `TurnRightStarting`(56), `TurnRightStarted`(57), `TurnRightEnding`(58), `TurnRightEnded`(59) |
 | Slide | `SlideRequested`(60), `SlideStarting`(61), `SlideStarted`(62), `SlideEndRequested`(63), `SlideEnding`(64), `SlideEnded`(65) |
 | Dash | `DashRequested`(70), `DashStarting`(71), `DashStarted`(72), `DashEnding`(73), `DashEnded`(74) |
 | Jump | `JumpRequested`(80), `JumpStarting`(81), `JumpStarted`(82), `JumpEndRequested`(83), `JumpEnding`(84), `JumpEnded`(85) |
@@ -95,7 +95,7 @@ Publisher: `TempleRunBus` (`EventsFor<TempleRunEvents>`).
 | Difficulty (bridged) | `TempleRunDifficultySettingsApplied`(310) *(data: IList&lt;DifficultyConfig&gt;; **sticky**)*, `TempleRunDifficultyChanging`(312) *(data: DifficultyConfig)*, `TempleRunDifficultyChanged`(314) *(data: DifficultyConfig)*, `TempleRunDifficultyChangeFailed`(316), `TempleRunDifficultyChangeRequested`(318) *(data: string difficulty name)* |
 | Difficulty (direct) | `DifficultySettingsApplied`(320), `DifficultyChanging`(321), `DifficultyChanged`(322), `DifficultyChangeFailed`(323) *(data: DifficultyConfig)* |
 | Distance | `DistanceUpdated`(330) *(data: float distance travelled)* |
-| Segment lifecycle | `SegmentEntering`(342), `SegmentEntered`(343), `SegmentExiting`(344), `SegmentExited`(345) *(all data: TrackSegmentInfo)* |
+| Segment lifecycle | `SegmentRequested`(340) *(data: Direction — the direction committed at an Either junction; published by `TurnController`)*, `SegmentEntering`(342), `SegmentEntered`(343), `SegmentExiting`(344), `SegmentExited`(345) *(all data: TrackSegmentInfo)* |
 | Segment geometry | `SegmentGeometryReady`(350) *(data: SegmentGeometryData)* |
 
 ## UserInitiatedEvents (raw input)
