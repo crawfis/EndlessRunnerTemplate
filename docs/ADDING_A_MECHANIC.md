@@ -14,7 +14,8 @@ gameplay reacts, and state changes are announced as events.
 /list-events TempleRun
 ```
 Look at the Jump/Slide/Dash groups and their value ranges so your new events are consistent
-and don't collide. (See also [EVENTS.md](EVENTS.md).)
+and don't collide. Read the *publisher* column too, not just the names: those three groups
+each declare a rung nothing publishes (see §5). (See also [EVENTS.md](EVENTS.md).)
 
 ## 1. Add the events
 
@@ -51,8 +52,9 @@ Use `/add-auto-chain` only for progressions that really are unconditional (e.g.
 (TempleRunEvents.PlayerDied, TempleRunEvents.TempleRunEndRequested),
 ```
 One source may declare several targets; they fire synchronously in declaration order.
-The `*Started` / `*Ended` events are published by the controller when the
-animation/coroutine actually finishes — never auto-chained.
+Every other rung — `*Starting`, `*Started`, `*Ending`, `*Ended` — is published by the
+controller when the animation/coroutine actually reaches that point, never auto-chained.
+Chaining them would announce a stage the mechanic hasn't reached yet.
 
 ## 3. Turn input into an intent
 
@@ -83,8 +85,10 @@ Translate the raw intent into a gameplay request. Every input intent does this i
 
 ## 5. Write the controller
 
-Subscribe to the gameplay event, validate, mutate state, and **announce** the result. Model it
-on `DashController` / `SlideController`:
+Subscribe to the gameplay event, validate, mutate state, and **announce** the result — one
+publish per rung you declared in §1. Model the structure on `DashController` /
+`SlideController`, and the end-of-action rungs on `CountdownController`, which is the one
+controller in the codebase that publishes a complete `*Ending` → `*Ended` pair:
 ```csharp
 internal class RollController : MonoBehaviour
 {
@@ -115,13 +119,53 @@ internal class RollController : MonoBehaviour
         TempleRunBus.Publish(TempleRunEvents.RollStarted, this, null);
         // ...animate / adjust Blackboard offsets over time...
         yield return new WaitForSeconds(rollDuration);
-        _isRolling = false;
+
+        TempleRunBus.Publish(TempleRunEvents.RollEnding, this, null);
+        _isRolling = false;                 // state clears between the two rungs
         TempleRunBus.Publish(TempleRunEvents.RollEnded, this, null);
     }
 }
 ```
 Keep visuals/audio out of here — other components subscribe to `RollStarted` / `RollEnded` to
 play effects. That separation is the whole point.
+
+### Publish every rung you declared
+
+Five events instead of two is not ceremony; each rung answers a different question, and each
+is the only honest place for some other system to hook in:
+
+| Rung | Means | Who hooks in |
+|------|-------|--------------|
+| `RollRequested` | Someone asked. May well be illegal. | The controller, as its gate |
+| `RollStarting` | The gate said yes; the roll is about to begin. | SFX, animation trigger, analytics |
+| `RollStarted` | The roll is genuinely underway. | Anything that must not fire on a rejected request |
+| `RollEnding` | About to finish — the last moment the player is still rolling. | Animation blend-out, restoring a collider or hitbox |
+| `RollEnded` | Over; state is back to normal. | Anything that must wait for the mechanic to be done |
+
+Note the order in `RollRoutine`: `RollEnding` fires **before** `_isRolling` clears, `RollEnded`
+after. A subscriber to `RollEnding` can therefore still see the rolling state it is reacting
+to. `CountdownController` does exactly this with `CountdownEnding` / `CountdownEnded`.
+
+**A rung you declare and never publish is a dead event.** It reads as wired — it is right
+there in the enum, next to four rungs that do fire — and it silently does nothing; the
+[event-review retrospective](event-review/the-half-wired-chain.html) is about a whole chain
+that failed this way. Three of these are live in the codebase right now: `DashEnding`,
+`SlideEnding` and `JumpEnding` are declared, and nothing publishes any of them (the comment
+beside Dash in `TempleRunAutoEventFlow.cs` claims otherwise and is stale). That is why the
+sample above models its end rungs on `CountdownController` and not on `DashSpeedController`
+— and it is
+task L13 in [STUDENT_TASKS.md](STUDENT_TASKS.md), if you would rather fix it than route
+around it.
+
+So: publish every rung you declared, or don't declare it. Two more rungs are optional, and
+the rule is the same — take them only if something needs them:
+
+- `RollEndRequested` — something else asks to cut the roll short (landing, a collision, a
+  power-up). `SlideEndRequested` and `JumpEndRequested` are declared for this; `Dash` has no
+  such rung, because nothing interrupts a dash.
+- `RollFailed` — the gate said no and something needs to react (a "can't do that" sound, a
+  tutorial hint). Without it, a rejected request is silent, which is usually fine and
+  occasionally the bug.
 
 ## 6. Wire it into a scene
 
@@ -142,7 +186,10 @@ unused events, no accidental cycle.
 
 - [ ] Events added to the right enum(s) with consistent numbering
 - [ ] Request consumed by the controller, which publishes `*Starting` only after validation
-      — never auto-chain `*Requested → *Starting`; Started/Ended also published by the controller
+      — never auto-chain `*Requested → *Starting`
+- [ ] **Every rung declared in §1 is actually published** — `*Starting`, `*Started`,
+      `*Ending`, `*Ended` all come from the controller. A declared rung nothing publishes is
+      a dead event; drop it from the enum instead
 - [ ] Input publishes only `UserInitiatedEvents`, and unsubscribes its handlers
 - [ ] Bridge maps the intent into a gameplay request (the bridge is the only `UserInitiatedEvents` subscriber)
 - [ ] Controller subscribes in `Awake`, **unsubscribes in `OnDestroy`**, publishes results
