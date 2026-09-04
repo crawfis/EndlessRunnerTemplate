@@ -14,8 +14,7 @@ namespace CrawfisSoftware.TempleRun
     ///    Subscribes: TempleRunEvents.CountdownStarting
     ///    Publishes: TempleRunEvents.CountdownStarted
     ///    Publishes: TempleRunEvents.CountdownTick
-    ///    Publishes: TempleRunEvents.CountdownEnding
-    ///    Publishes: TempleRunEvents.CountdownEnded
+    ///    Publishes: TempleRunEvents.CountdownEnding (CountdownEnded follows by auto-chain)
     /// </summary>
     internal class CountdownController : MonoBehaviour
     {
@@ -65,13 +64,13 @@ namespace CrawfisSoftware.TempleRun
                 }
             }
 
-            TempleRunBus.Publish(
-                TempleRunEvents.CountdownEnding, this, null);
-
             _countdownCoroutine = null;
 
+            // Only CountdownEnding is published here - CountdownEnding -> CountdownEnded is
+            // auto-chained. That link is where a "GO!" flash or a start-line delay goes, and
+            // adding one must not require touching this controller.
             TempleRunBus.Publish(
-                TempleRunEvents.CountdownEnded, this, null);
+                TempleRunEvents.CountdownEnding, this, null);
         }
     }
 }

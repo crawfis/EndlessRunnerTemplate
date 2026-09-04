@@ -13,8 +13,7 @@ namespace CrawfisSoftware.TempleRun
     ///    Dependencies: Blackboard, JumpConfig
     ///    Subscribes: TempleRunEvents.JumpStarting
     ///    Publishes: TempleRunEvents.JumpStarted (at arc apex)
-    ///    Publishes: TempleRunEvents.JumpEnding (arc over, still airborne in Blackboard)
-    ///    Publishes: TempleRunEvents.JumpLanded (when arc completes)
+    ///    Publishes: TempleRunEvents.JumpEnding (arc complete; JumpLanded follows by auto-chain)
     /// </summary>
     internal class JumpArcController : MonoBehaviour
     {
@@ -77,17 +76,16 @@ namespace CrawfisSoftware.TempleRun
                 yield return null;
             }
 
-            // JumpEnding fires while the offset is still non-zero, so a subscriber can react
-            // to the jump it is ending (blend-out, landing SFX) before the state clears.
-            TempleRunBus.Publish(
-                TempleRunEvents.JumpEnding, this, null);
-
             // Snap to ground
             Blackboard.Instance.JumpHeightOffset = 0f;
             _jumpCoroutine = null;
 
+            // Only JumpEnding is published here - JumpEnding -> JumpLanded is auto-chained.
+            // That link is deliberately left in the ChainTable so a landing recovery (a hook,
+            // or a delay before control returns) can be inserted there later without this
+            // controller or any JumpLanded subscriber changing.
             TempleRunBus.Publish(
-                TempleRunEvents.JumpLanded, this, null);
+                TempleRunEvents.JumpEnding, this, null);
         }
     }
 }
