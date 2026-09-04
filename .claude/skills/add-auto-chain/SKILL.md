@@ -59,10 +59,16 @@ Read the appropriate `*AutoEventFlow.cs` to understand:
 - Check both auto-chains AND bridge mappings that could create a loop
 - If a cycle is detected, STOP and warn the user
 
-**Also check for a validation gate**: never chain a `*Requested` event that arrives raw from
-input to its `*Starting` — the controller that validates (cooldown, airborne, lane boundary)
-publishes `*Starting` itself, and an auto-chain would fire before the check runs. See the
-comments atop `TempleRunAutoEventFlow.cs`.
+**Also check for a validation gate**: a gate and a chain cannot share a link. Before adding
+`X → Y`, grep for a controller that already publishes `Y` itself. If one does, adding the
+chain makes its checks dead code — `Y` will fire regardless of what the controller decided.
+This is the live-then-defeated `DashRequested → DashStarting` case; see the comments atop
+`TempleRunAutoEventFlow.cs`.
+
+A ladder is *meant* to start fully chained, including `*Requested → *Starting` — that is a
+working mechanic with no controller. The chain comes out when, and only when, a controller
+takes that link over. So the question is never "is this link allowed to be chained?" but
+"does anything already publish the target?"
 
 ### Step 5: Add the mapping
 

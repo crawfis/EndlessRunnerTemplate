@@ -14,8 +14,9 @@ gameplay reacts, and state changes are announced as events.
 /list-events TempleRun
 ```
 Look at the Jump/Slide/Dash groups and their value ranges so your new events are consistent
-and don't collide. Read the *publisher* column too, not just the names: those three groups
-each declare a rung nothing publishes (see §5). (See also [EVENTS.md](EVENTS.md).)
+and don't collide. Read how each rung is *reached* too, not just its name — some are
+published by a controller, some arrive by auto-chain, and §2 is about choosing which.
+(See also [EVENTS.md](EVENTS.md).)
 
 ## 1. Add the events
 
@@ -37,24 +38,78 @@ And a raw-input event to `UserInitiatedEvents.cs`:
 UserRollRequested,
 ```
 
-## 2. Do NOT auto-chain the request → starting
+## 2. Chain the whole ladder, then break the links you need
 
-`RollRequested` is the bridge's *raw* translation of input — it fires whether or not a roll
-is currently legal. The controller is the validation gate: it publishes `RollStarting` itself
-once its checks pass (see §5). Auto-chaining `RollRequested → RollStarting` would fire before
-any validation runs and silently defeat the gate — that exact mapping was once live for Dash
-and defeated the dash cooldown outright (see the comments in `TempleRunAutoEventFlow.cs`).
-
-Use `/add-auto-chain` only for progressions that really are unconditional (e.g.
-`PlayerDied → TempleRunEndRequested`). A chain is one `(From, To)` entry in the flow class's
-`ChainTable` array:
+**Start with every link auto-chained.** A chain is one `(From, To)` entry in the flow class's
+`ChainTable` array, so a five-rung ladder is four lines:
 ```csharp
-(TempleRunEvents.PlayerDied, TempleRunEvents.TempleRunEndRequested),
+(TempleRunEvents.RollRequested, TempleRunEvents.RollStarting),
+(TempleRunEvents.RollStarting,  TempleRunEvents.RollStarted),
+(TempleRunEvents.RollStarted,   TempleRunEvents.RollEnding),
+(TempleRunEvents.RollEnding,    TempleRunEvents.RollEnded),
 ```
 One source may declare several targets; they fire synchronously in declaration order.
-Every other rung — `*Starting`, `*Started`, `*Ending`, `*Ended` — is published by the
-controller when the animation/coroutine actually reaches that point, never auto-chained.
-Chaining them would announce a stage the mechanic hasn't reached yet.
+
+At this point you have a working mechanic and **no controller at all**. Press the key, and
+the ladder runs end to end: the animation, the SFX and the HUD can all be written and tested
+against real events before any gameplay logic exists. If your roll doesn't care whether one
+is already in progress, you can honestly stop here, playtest it, and move on.
+
+Then each link you **break** out of the `ChainTable` is a place to insert code. That is what
+the links are *for*:
+
+| Link | What goes here when you break it | How often |
+|------|----------------------------------|-----------|
+| `Requested → Starting` | **The gate.** Should this request be allowed at all? Cooldown, already-airborne, lane boundary, not enough currency. Break it, and the controller publishes `RollStarting` only once its checks pass. | Whenever the action can be refused |
+| `Starting → Started` | **Warm-up.** Anything that must complete before the action truly begins — a wind-up animation, reserving a resource, loading an asset. Break it, and the controller publishes `RollStarted` when the warm-up finishes. | Often nothing; leave it chained |
+| `Started → Ending` | **The action itself** — its duration. This is the animation or timer, so the controller publishes `RollEnding` when it actually completes. | Almost always broken |
+| `Ending → Ended` | **The recovery window.** A landing recovery, a stand-up animation, a "GO!" flash, a beat before control returns. | Usually nothing yet; **leave it chained** |
+
+### Leave every link you have no code for chained
+
+This is the point of the whole design, so it is worth being blunt about: **a link you leave
+in the `ChainTable` is a seam somebody else can open.** A teammate who wants a beat between
+`RollEnding` and `RollEnded` — a recovery window, a hook, a delay — adds their entry by
+breaking that one link. Your controller does not change. The `RollEnded` subscribers do not
+change. Nobody has to find, understand or re-time your coroutine.
+
+Publishing both rungs yourself, back to back, takes that away:
+
+```csharp
+// DON'T: the link between these two is now unreachable
+TempleRunBus.Publish(TempleRunEvents.RollEnding, this, null);
+TempleRunBus.Publish(TempleRunEvents.RollEnded, this, null);
+```
+
+```csharp
+// DO: publish the rung you actually reached, and let the chain carry it
+TempleRunBus.Publish(TempleRunEvents.RollEnding, this, null);
+// (TempleRunEvents.RollEnding, TempleRunEvents.RollEnded) lives in the ChainTable
+```
+
+Both versions fire the same two events in the same order this afternoon. Only the second one
+can absorb a change next week without an edit to `RollController`. Two adjacent
+`Publish` calls for consecutive rungs of the same ladder are always the anti-pattern — if you
+find yourself writing them, the second one belongs in the `ChainTable`.
+
+One consequence to keep straight: a chained event fires **synchronously inside** the publish
+of the link's source. So do your teardown *before* publishing `RollEnding`, not between the
+two rungs — by the time `RollEnded` reaches a subscriber, the state should already be clean.
+
+### The one rule: a gate and a chain cannot share a link
+
+The moment a controller validates a request, that link **must** leave the `ChainTable` — in
+the same edit. Otherwise `RollStarting` fires from the chain regardless of what the controller
+decided, and the gate is silently dead code: it runs, it returns early, and the mechanic
+happens anyway.
+
+This is not hypothetical. `DashRequested → DashStarting` sat in the `ChainTable` while
+`DashController` was checking the cooldown, and the cooldown did nothing at all — see the
+comments in `TempleRunAutoEventFlow.cs`, which record each link that is deliberately absent
+and why. A link that is broken but undocumented reads exactly like one somebody forgot.
+
+So: chain everything, then break a link and add its code together, never one without the
+other. `/add-auto-chain` checks this for you.
 
 ## 3. Turn input into an intent
 
@@ -85,10 +140,17 @@ Translate the raw intent into a gameplay request. Every input intent does this i
 
 ## 5. Write the controller
 
-Subscribe to the gameplay event, validate, mutate state, and **announce** the result — one
-publish per rung you declared in §1. Model the structure on `DashController` /
-`SlideController`, and the end-of-action rungs on `CountdownController`, which is the one
-controller in the codebase that publishes a complete `*Ending` → `*Ended` pair:
+You only need one once you break a link. The controller below breaks exactly two:
+`Requested → Starting`, because a roll can be refused while one is already running, and
+`Started → Ending`, because the roll takes time. Those two entries must be **absent** from
+the `ChainTable` — the gate is dead code otherwise (§2).
+
+The other two links stay chained, and notice what that does to the code: the controller
+never publishes `RollStarted` or `RollEnded` at all. It has no warm-up and no recovery
+window, so it says nothing about them — and both links stay open for whoever needs one.
+
+Subscribe to the gameplay event, validate, mutate state, and **announce** each rung you
+reach — and only those. Model it on `DashController` / `SlideController`:
 ```csharp
 internal class RollController : MonoBehaviour
 {
@@ -111,18 +173,18 @@ internal class RollController : MonoBehaviour
         if (_isRolling) return;             // the validation gate
         _isRolling = true;
         TempleRunBus.Publish(TempleRunEvents.RollStarting, this, null);
-        StartCoroutine(RollRoutine());
+        StartCoroutine(RollRoutine());          // RollStarted arrives by chain
     }
 
     private System.Collections.IEnumerator RollRoutine()
     {
-        TempleRunBus.Publish(TempleRunEvents.RollStarted, this, null);
         // ...animate / adjust Blackboard offsets over time...
         yield return new WaitForSeconds(rollDuration);
 
+        _isRolling = false;                 // teardown first - see below
         TempleRunBus.Publish(TempleRunEvents.RollEnding, this, null);
-        _isRolling = false;                 // state clears between the two rungs
-        TempleRunBus.Publish(TempleRunEvents.RollEnded, this, null);
+        // RollEnded is not published here. (RollEnding, RollEnded) is in the ChainTable,
+        // so the link stays open for a recovery window someone adds later.
     }
 }
 ```
@@ -139,23 +201,24 @@ is the only honest place for some other system to hook in:
 | `RollRequested` | Someone asked. May well be illegal. | The controller, as its gate |
 | `RollStarting` | The gate said yes; the roll is about to begin. | SFX, animation trigger, analytics |
 | `RollStarted` | The roll is genuinely underway. | Anything that must not fire on a rejected request |
-| `RollEnding` | About to finish — the last moment the player is still rolling. | Animation blend-out, restoring a collider or hitbox |
-| `RollEnded` | Over; state is back to normal. | Anything that must wait for the mechanic to be done |
+| `RollEnding` | The roll's own work is done and the controller is handing off. | A recovery window, a stand-up animation — inserted by breaking the link below |
+| `RollEnded` | Over, including anything hooked into the link above. | Anything that must wait for the mechanic to be completely done |
 
-Note the order in `RollRoutine`: `RollEnding` fires **before** `_isRolling` clears, `RollEnded`
-after. A subscriber to `RollEnding` can therefore still see the rolling state it is reacting
-to. `CountdownController` does exactly this with `CountdownEnding` / `CountdownEnded`.
+Note what `RollRoutine` does *not* do: it never publishes `RollEnded`. It clears its state,
+publishes the rung it actually reached, and the chain carries the ladder the rest of the way
+— which is what keeps that last link available to everyone else.
 
-**A rung you declare and never publish is a dead event.** It reads as wired — it is right
-there in the enum, next to four rungs that do fire — and it silently does nothing; the
+**A rung that nothing reaches — not published, not chained — is a dead event.** It reads as
+wired, sitting in the enum beside four rungs that do fire, and it silently does nothing; the
 [event-review retrospective](event-review/the-half-wired-chain.html) is about a whole chain
-that failed this way. Three of these are live in the codebase right now: `DashEnding`,
-`SlideEnding` and `JumpEnding` are declared, and nothing publishes any of them (the comment
-beside Dash in `TempleRunAutoEventFlow.cs` claims otherwise and is stale). That is why the
-sample above models its end rungs on `CountdownController` and not on `DashSpeedController`
-— and it is
-task L13 in [STUDENT_TASKS.md](STUDENT_TASKS.md), if you would rather fix it than route
-around it.
+that failed this way. `DashEnding`, `SlideEnding` and `JumpEnding` were exactly this until
+recently: declared, and published by nobody. Reaching a rung *via the ChainTable* counts —
+that is the whole point of the previous section. Never publishing it and never chaining it
+does not.
+
+If a rung has no use at all, delete it rather than leaving it as scenery; sorting the
+reserved from the rotten across the rest of the enum is task L13 in
+[STUDENT_TASKS.md](STUDENT_TASKS.md).
 
 So: publish every rung you declared, or don't declare it. Two more rungs are optional, and
 the rule is the same — take them only if something needs them:
@@ -185,8 +248,10 @@ unused events, no accidental cycle.
 ## Checklist
 
 - [ ] Events added to the right enum(s) with consistent numbering
-- [ ] Request consumed by the controller, which publishes `*Starting` only after validation
-      — never auto-chain `*Requested → *Starting`
+- [ ] The ladder runs end to end — start fully auto-chained, then break only the links that
+      need code
+- [ ] **No link is both chained and gated.** Every link a controller publishes by hand is
+      absent from the `ChainTable`, with a comment there saying why
 - [ ] **Every rung declared in §1 is actually published** — `*Starting`, `*Started`,
       `*Ending`, `*Ended` all come from the controller. A declared rung nothing publishes is
       a dead event; drop it from the enum instead
