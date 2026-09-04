@@ -1,5 +1,4 @@
 using CrawfisSoftware.Countdown.Events;
-using CrawfisSoftware.TempleRun.GameConfig;
 
 using System.Collections;
 
@@ -11,7 +10,6 @@ namespace CrawfisSoftware.Countdown
     /// <summary>
     /// Runs the countdown timer and publishes tick/end events.
     /// The ceremony is its own domain: nothing here knows what the countdown is counting down to.
-    ///    Dependencies: TempleRunConstants
     ///    Subscribes: CountdownEvents.CountdownStarting
     ///    Publishes: CountdownEvents.CountdownStarted
     ///    Publishes: CountdownEvents.CountdownTick
@@ -19,6 +17,10 @@ namespace CrawfisSoftware.Countdown
     /// </summary>
     internal class CountdownController : MonoBehaviour
     {
+        // Was TempleRunConstants.CountdownSeconds; the ceremony's length belongs to the
+        // ceremony, and a cross-assembly internal is unreachable under RUGS's asmdefs anyway.
+        [SerializeField] private float _countdownSeconds = 3f;
+
         private Coroutine _countdownCoroutine;
 
         private void Awake()
@@ -38,7 +40,7 @@ namespace CrawfisSoftware.Countdown
             if (_countdownCoroutine != null)
                 StopCoroutine(_countdownCoroutine);
 
-            _countdownCoroutine = StartCoroutine(CountdownRoutine(TempleRunConstants.CountdownSeconds));
+            _countdownCoroutine = StartCoroutine(CountdownRoutine(_countdownSeconds));
         }
 
         private IEnumerator CountdownRoutine(float seconds)
