@@ -58,7 +58,7 @@ namespace CrawfisSoftware.TempleRun
             {
                 Debug.LogError("SlideArcController: SlideConfig is null! Animation cannot proceed.");
                 _slideCoroutine = null;
-                TempleRunBus.Publish(TempleRunEvents.SlideEnded, this, null);
+                TempleRunBus.Publish(TempleRunEvents.SlideEnding, this, null);
                 yield break;
             }
 

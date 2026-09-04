@@ -108,7 +108,7 @@ namespace CrawfisSoftware.TempleRun.Events
             // JumpStarting -> JumpStarted -> JumpEnding: published by JumpArcController as the arc
             // reaches each rung. The last link is chained and left open: a landing recovery - a
             // hook, or a delay before control returns - goes there, with no controller edit.
-            (TempleRunEvents.JumpEnding, TempleRunEvents.JumpLanded),
+            (TempleRunEvents.JumpEnding, TempleRunEvents.JumpEnded),
 
             // ================================================================================
             // TELEPORT AUTO-CHAINS

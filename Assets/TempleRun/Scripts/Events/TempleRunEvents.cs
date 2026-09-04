@@ -85,7 +85,7 @@ namespace CrawfisSoftware.TempleRun
         JumpStarted = 82,
         JumpEndRequested = 83,
         JumpEnding = 84,
-        JumpLanded = 85,
+        JumpEnded = 85,
 
         // ---------- Player movement: lane change ----------
         LaneChangeLeftRequested = 100,
