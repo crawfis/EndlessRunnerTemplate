@@ -13,20 +13,28 @@ the serialized event references in scenes, the `/add-event-domain` decision gate
 countdown writeup in [KNOWN_ISSUES.md](../KNOWN_ISSUES.md). Verified at tag
 `pre-coupling-audit` (= `main` @ c921670).
 
+> **Freshness (reconciled at `main` @ a9ae5a2, 2026-09-04).** Phase A shipped, so this is
+> no longer pure analysis: **§4 and §8's Phase A now record what was built**, not what was
+> proposed, and §3's table carries each rename's outcome. §5, §6 and §7 were re-checked
+> against `a9ae5a2` and are **unchanged** — in particular all ten of §5's straddling files
+> still straddle, so the TrackPCG argument stands as written. Where a claim below is dated
+> to the original analysis rather than re-verified, it says so.
+
 ## TL;DR of the verdicts
 
 | Candidate | Verdict | Why (one line) |
 |---|---|---|
-| **Countdown → its own domain** | **Yes — do it first** | Zero straddling files, ~7 events, resolves all three KNOWN_ISSUES countdown smells structurally — with a *translated* seam (`CountdownEnded → PlayerActivateRequested`), not a relayed one — and gives the course its missing `/add-event-domain` worked example |
+| **Countdown → its own domain** | **Yes — ✅ done** (PR #30, `main` @ a9ae5a2) | Zero straddling files, ~7 events, resolves all three KNOWN_ISSUES countdown smells structurally — with a *translated* seam (`CountdownEnded → PlayerActivateRequested`), not a relayed one — and gives the course its missing `/add-event-domain` worked example |
 | **TrackPCG → its own domain** | **Yes — but only *after* the coupling audit** | It is the right end state and the audit's best acceptance test; splitting now would freeze today's turn/track tangle into a bridge |
 | **Movement → its own domain(s)** | No | Movement *is* the gameplay; the replaceability seam already exists at `UserInitiatedEvents`; jump/slide/dash/lane are healthy categories |
 | **GameFlow → UI / Session / Scenes domains** | No | The categories are one choreography, not separate contexts — 8 of ~12 files would become multi-domain actors, and `GameState` observes five of the candidate domains |
 | **Level selection / progression → its own domain** | Not now; plausible later as "Meta" | Defensible stub test, but it drags session and menu choreography with it today; in RUGS this concern belongs with the UGS domain |
 
-Recommended order: **(A)** extract Countdown, introducing the `PlayerActivate*` ladder in
-TempleRun → **(B)** execute the coupling audit with the future TrackPCG bridge table as
-its target design, folding in the §3 vocabulary renames → **(C)** extract TrackPCG (or
-leave C as a capstone student task). Details in [Phasing](#8-phasing).
+Recommended order: ~~**(A)** extract Countdown, introducing the `PlayerActivate*` ladder in
+TempleRun~~ **— done** → **(B) ← next:** execute the coupling audit with the future TrackPCG
+bridge table as its target design, folding in what remains of the §3 vocabulary renames →
+**(C)** extract TrackPCG (or leave C as a capstone student task). Details in
+[Phasing](#8-phasing).
 
 ## 1. What we actually have (correcting the framing)
 
@@ -107,18 +115,20 @@ Two smells identify relays in the current tables:
   no scene concept; what its one subscriber (`TrackManager`) actually treats it as is
   "begin the run's initialization".
 
-Audit of the existing crossings (renames are cheap on the TempleRun side — §2):
+Audit of the existing crossings (renames are cheap on the TempleRun side — §2). The
+**Status** column is the reconciliation: three of the four relays were fixed in Phase A,
+one was not.
 
-| Current mapping | Verdict | Better target vocabulary |
-|---|---|---|
-| `CountdownEnded → GameStarted` (then `GameStarted → TempleRunStartRequested` back) | **Relay, and the worst one** — a ceremony detail decides a session milestone (KNOWN_ISSUES #1) | See §4: countdown's end *means*, in gameplay terms, "release the player" → `PlayerActivateRequested` |
-| `GameScenesLoaded → TempleRunScenesReady` | Relay (foreign noun) | `RunInitializeRequested` — what TrackManager actually does with it |
-| `LevelApplied → TempleRunLevelApplied` | Relay (self-prefix), though the Sticky-mirror *mechanism* is right | `TrackLevelApplied` — its consumer resolves the int through `TrackLevelRegistrySO`; "track level" is native vocabulary |
-| `GameConfigApplied → TempleRunConfigApplied`, `DifficultySettingsApplied → TempleRunDifficultySettingsApplied` (+ the `TempleRunDifficulty*` family) | Relays mid-migration — the enum already contains the unprefixed, native replacements (`DifficultySettingsApplied` 320, `DifficultyChanging/Changed/ChangeFailed` 321–323, commented "direct, non-legacy") | Finish that migration: retarget the five `TempleRunDifficulty*` / `TempleRunConfig*` members onto the 320-block and retire the prefixed ones |
-| `PlayerPaused → PauseRequested`, `PlayerResumed → ResumeRequested` | **Translation** — gameplay states a fact, session requests its own transition | keep as the model |
-| `TempleRunEnded → GameEnding` | **Translation** — the run genuinely ends inside gameplay; the session reacts in its own words | keep |
-| `UserJumpRequested → JumpRequested` (whole input bridge) | **Translation** — raw intent → domain request | keep; already the exemplar |
-| `GameStarting → CountdownStartRequested` | **Translation** — session milestone → ceremony trigger, each named natively | keep |
+| Current mapping | Verdict | Better target vocabulary | Status @ a9ae5a2 |
+|---|---|---|---|
+| `CountdownEnded → GameStarted` (then `GameStarted → TempleRunStartRequested` back) | **Relay, and the worst one** — a ceremony detail decides a session milestone (KNOWN_ISSUES #1) | See §4: countdown's end *means*, in gameplay terms, "release the player" → `PlayerActivateRequested` | ✅ **gone** — the mapping no longer exists; `Countdown2TempleRunBridge` carries `CountdownEnded → PlayerActivateRequested`, and GameFlow chains its own `GameStarting → GameStarted` |
+| `GameScenesLoaded → TempleRunScenesReady` | Relay (foreign noun) | `RunInitializeRequested` — what TrackManager actually does with it | ✅ **renamed** (`TempleRunEvents.RunInitializeRequested` = 302) |
+| `LevelApplied → TempleRunLevelApplied` | Relay (self-prefix), though the Sticky-mirror *mechanism* is right | `TrackLevelApplied` — its consumer resolves the int through `TrackLevelRegistrySO`; "track level" is native vocabulary | ✅ **renamed** (`TempleRunEvents.TrackLevelApplied` = 304, still Sticky) |
+| `GameConfigApplied → TempleRunConfigApplied`, `DifficultySettingsApplied → TempleRunDifficultySettingsApplied` (+ the `TempleRunDifficulty*` family) | Relays mid-migration — the enum already contains the unprefixed, native replacements (`DifficultySettingsApplied` 320, `DifficultyChanging/Changed/ChangeFailed` 321–323, commented "direct, non-legacy") | Finish that migration: retarget the five `TempleRunDifficulty*` / `TempleRunConfig*` members onto the 320-block and retire the prefixed ones | ⬜ **open — the last surviving relay.** `TempleRunConfigApplied` (300) and `TempleRunDifficultySettingsApplied`/`Changing`/`Changed`/`ChangeFailed`/`ChangeRequested` (310–318) still sit beside the native 320–323 block. Carried into Phase B |
+| `PlayerPaused → PauseRequested`, `PlayerResumed → ResumeRequested` | **Translation** — gameplay states a fact, session requests its own transition | keep as the model | — kept |
+| `TempleRunEnded → GameEnding` | **Translation** — the run genuinely ends inside gameplay; the session reacts in its own words | keep | — kept |
+| `UserJumpRequested → JumpRequested` (whole input bridge) | **Translation** — raw intent → domain request | keep; already the exemplar | — kept |
+| `GameStarting → CountdownStartRequested` | **Translation** — session milestone → ceremony trigger, each named natively | keep | — kept, now spanning GameFlow → **Countdown** rather than GameFlow → TempleRun |
 
 Note the asymmetry the good rows share: the *source* publishes a fact in its own past/
 present tense; the *target* receives a request or an application in its own terms. When
@@ -129,9 +139,17 @@ mechanism and only the *name* needs nativizing) or a milestone one domain is out
 
 These renames are safe (nothing serializes TempleRun member names except
 `SplineSegmentCreated`, untouched) but each touches its subscribers and EVENTS.md; they
-are batched into Phase B rather than done piecemeal.
+were batched rather than done piecemeal — the two cheap ones rode along with Phase A
+(they were already in the files it was editing), and the difficulty-prefix retirement,
+which touches a wider set of subscribers, remains for Phase B.
 
-## 4. Candidate: Countdown — extract to its own domain (recommended)
+## 4. Candidate: Countdown — extract to its own domain (✅ done, PR #30)
+
+> **Reconciled.** This section was the argument *for* the extraction; it now doubles as the
+> record of it. The evidence and seam design below are unchanged (they were the input to
+> [COUNTDOWN_DOMAIN.md](COUNTDOWN_DOMAIN.md), the implementation spec); what was the
+> forward-looking "Sketch" at the end is now [**As built**](#as-built) and states where
+> reality differed from the prediction.
 
 ### The evidence
 
@@ -172,20 +190,20 @@ This has a consequence that is really the point: **`TempleRunStarted` today conf
 Once activation is its own event, `TempleRunStartRequested` can be bridged from an
 *earlier* session milestone (systems spin up during the ceremony — track already does,
 via its Sticky level mirror), and each of the ~9 `TempleRunStart*` subscribers must
-declare which of the two it meant. First-pass classification, to be confirmed by play
-test in the implementation spec:
+declare which of the two it meant. First-pass classification — **shipped whole, all nine
+rows as predicted**; the "As built" column is the state at `a9ae5a2`:
 
-| Subscriber | Means | Retarget to |
-|---|---|---|
-| `GameTime` (run clock) | player go — the clock must not run under the countdown | `PlayerActivated` |
-| `DistanceController` | player go | `PlayerActivated` |
-| `AIController` (arms the autopilot) | player go | `PlayerActivated` |
-| `TurnCollisionDetector` (arms failure) | player go | `PlayerActivated` |
-| `SegmentAdvanceTrigger` | systems up (inert until distance moves) | keep `TempleRunStarted` |
-| `PlayerLifeController` | systems up (failure impossible before motion) | keep |
-| `Metronome` | player go — the beat paces the run; and pre-activation `CurrentSpeed` is 0, so its tick interval divides by zero (play-test verdict 2026-09-04) | `PlayerActivated` |
-| `SetMusicPlayer` | systems up — music under the countdown is a feature (play-test confirmed) | keep |
-| `LaneChangeController` (`TempleRunStarting`, lane init) | systems up | keep |
+| Subscriber | Means | Retarget to | As built |
+|---|---|---|---|
+| `GameTime` (run clock) | player go — the clock must not run under the countdown | `PlayerActivated` | ✅ `PlayerActivated` |
+| `DistanceController` | player go | `PlayerActivated` | ✅ `PlayerActivated` |
+| `AIController` (arms the autopilot) | player go | `PlayerActivated` | ✅ `PlayerActivated` |
+| `TurnCollisionDetector` (arms failure) | player go | `PlayerActivated` | ✅ `PlayerActivated` |
+| `SegmentAdvanceTrigger` | systems up (inert until distance moves) | keep `TempleRunStarted` | ✅ `TempleRunStarted` |
+| `PlayerLifeController` | systems up (failure impossible before motion) | keep | ✅ `TempleRunStarted` |
+| `Metronome` | player go — the beat paces the run; and pre-activation `CurrentSpeed` is 0, so its tick interval divides by zero (play-test verdict 2026-09-04) | `PlayerActivated` | ✅ `PlayerActivated` |
+| `SetMusicPlayer` | systems up — music under the countdown is a feature (play-test confirmed) | keep | ✅ kept — though on `TempleRunStartRequested`, not `TempleRunStarted`; the analysis lumped it in with the `*Started` subscribers. Same side of the cut, so the verdict held |
+| `LaneChangeController` (`TempleRunStarting`, lane init) | systems up | keep | ✅ `TempleRunStarting` |
 
 And GameFlow's side of the old handshake: `GameStarted` becomes GameFlow-owned — chained
 from `GameStarting` in its own table (its consumers, `GameState`'s flag and
@@ -198,6 +216,10 @@ churn is judged too large for one phase, the fallback is the minimal seam —
 semantics in one translated hop instead of three — with the `PlayerActivate*` split
 deferred to its own task. The fallback still removes the round-trip; it just leaves the
 conflation in place.
+
+> **Outcome:** the full version shipped, not the fallback (§9 Q2). `GameFlowAutoEventFlow`
+> now carries `(GameStarting, GameStarted)`, and the HUD-under-the-countdown-overlay
+> consequence was play-tested and accepted.
 
 ### Why "own domain" beats the two alternatives
 
@@ -224,34 +246,56 @@ conflation in place.
     than enum purity. If that argument is rejected, fall back to "move to GameFlow", not
     to the status quo.
 
-### Sketch (for the eventual implementation spec, not for execution now)
+### As built
 
-- `Assets/Countdown/Scripts/Events/CountdownEvents.cs` — `[EventEnum]`, members
-  `CountdownStartRequested/Starting/Started/Tick/Ending/Ended` (drop `Cancelled` unless a
-  publisher is added). Bus alias `CountdownBus`. No self-prefixing (§3): the members are
-  already native.
-- `CountdownAutoEventFlow` (2 chains, as today — the `Ending → Ended` open link keeps its
+The sketch below was written as a forward proposal and became
+[COUNTDOWN_DOMAIN.md](COUNTDOWN_DOMAIN.md); every bullet shipped as written unless marked.
+Verified against `main` @ a9ae5a2.
+
+- ✅ `Assets/Countdown/Scripts/Events/CountdownEvents.cs` — `[EventEnum]`, members
+  `CountdownStartRequested/Starting/Started/Tick/Ending/Ended` (values 0–5). `Cancelled`
+  **dropped**, with the reason recorded in the enum's own doc comment so a future reader
+  doesn't restore it blind. Bus alias `CountdownBus`. No self-prefixing (§3): the members
+  are already native.
+- ✅ `CountdownAutoEventFlow` (2 chains, as today — the `Ending → Ended` open link keeps its
   "GO! flash goes here" seam). Two bridges: `CountdownGameFlowBridge`
   (GameFlow→Countdown: `GameStarting → CountdownStartRequested`) under
   `Assets/GameFlow/Scripts/CountdownSpecific/`, and `Countdown2TempleRunBridge`
   (Countdown→TempleRun: `CountdownEnded → PlayerActivateRequested`) — one-directional,
   hosted under the Countdown domain (the more application-level of that pair), mirroring
   how `Input2TempleRunAutoEventBridge` sits at the input seam.
-- New in TempleRun: `PlayerActivateRequested/PlayerActivating/PlayerActivated` (14–16) +
+- ✅ New in TempleRun: `PlayerActivateRequested/PlayerActivating/PlayerActivated` (14–16) +
   2 chain entries; the retarget table above.
-- GameFlow edits: remove the two countdown mappings from `TempleRunGameFlowBridge`; add
+- ✅ GameFlow edits: remove the two countdown mappings from `TempleRunGameFlowBridge`; add
   `(GameStarting, GameStarted)` to its own chain table.
-- Moves: `CountdownController`, `CountdownUIController`, `Countdown.uxml` into
+- ✅ Moves: `CountdownController`, `CountdownUIController`, `Countdown.uxml` into
   `Assets/Countdown/`. Deletes: TempleRun's countdown category (values 30–36 — safe, no
-  serialized refs) and its 2 chain entries.
-- Hosting: flow + both bridges belong in `Game_Boot_2_Play` (session lifetime — the
+  serialized refs) and its 2 chain entries. Each `.cs` moved **with its `.meta`**, so the
+  GUIDs — and therefore the existing scene wiring — survived.
+- ✅ Hosting: flow + both bridges belong in `Game_Boot_2_Play` (session lifetime — the
   countdown must exist before the gameplay scene finishes loading, since `GameStarting`
-  fires during the load handshake). **Three manual Inspector steps**, all in that scene.
-  `CountdownUIController` stays component-on-object in whichever scene hosts the overlay
-  UIDocument today (verify during implementation).
-- TempleRun's remaining contract: it receives `TempleRunStartRequested` (systems up) and
+  fires during the load handshake). **Three manual Inspector steps**, all in that scene —
+  landed as three components on one `CountdownDomain` GameObject.
+- ✅ TempleRun's remaining contract: it receives `TempleRunStartRequested` (systems up) and
   `PlayerActivateRequested` (go), and cannot tell whether a countdown, a cutscene, or
   nothing at all sat between them. That sentence is the one that goes in the talk.
+
+**Two things the sketch left open, and how they resolved:**
+
+- **`CountdownUIController`'s scene stayed put.** "Verify during implementation" resolved
+  to: it is still a component in `TempleRunGameplay.unity`, because that is the scene
+  owning the overlay's `UIDocument`. So the *code* changed domains while the *scene
+  hosting* did not — which is correct and worth stating plainly, because it looks like a
+  violation and is not. Domain isolation is a rule about **event references**, not about
+  which scene a component sits in; `CountdownUIController` references only
+  `CountdownEvents`. The alternative — moving the UIDocument too — would buy nothing and
+  cost a scene-load ordering dependency.
+- **The countdown grew a duration of its own.** Not anticipated by the sketch: the
+  ceremony's length used to be `TempleRunConstants.CountdownSeconds`, a gameplay constant.
+  A domain that owns its own ceremony must own its own timing, so it became a serialized
+  field on `CountdownController` and the constant was deleted. This is the small,
+  generalizable tell that an extraction is real — **the seam is not only events; it is also
+  the configuration each side reads.** Phase C should expect the same for track tuning.
 
 ## 5. Candidate: TrackPCG — right split, wrong moment
 
@@ -363,40 +407,47 @@ Revisit when persistence actually grows; don't split ahead of the need.
 Each phase ends compile-clean (`dotnet build Assembly-CSharp.csproj`), play-tested from
 `0_BootStrap_Game_Only` with event logging on, and `/audit-events`-clean.
 
-**Phase A — Countdown extraction + the `PlayerActivate*` seam** (independent of the
-audit; do first)
-> **Status 2026-09-04: implemented** (see [COUNTDOWN_DOMAIN.md](COUNTDOWN_DOMAIN.md)),
-> including the full retarget table (not the fallback) and the §3 renames
-> `RunInitializeRequested` / `TrackLevelApplied` pulled forward from Phase B. Compile-clean
-> and grep-audited; **awaiting the owner's play test** per the checklist in the spec. The
-> difficulty-prefix retirement and everything else in Phase B remain open.
-1. Write the short implementation spec from §4's sketch (this doc is analysis, not the
-   spec). Decide `CountdownCancelled`'s fate and confirm the retarget table's
-   classifications in it; if the retarget churn is too large, adopt the documented
-   fallback seam and split the activation work out.
-2. `/add-event-domain Countdown` — the skill's checklist covers enum, flow, bridges, and
-   the 12-place registration. `/add-event` for the `PlayerActivate*` ladder.
-3. Manual Inspector steps: host `CountdownAutoEventFlow`, `CountdownGameFlowBridge`, and
-   `Countdown2TempleRunBridge` in `Game_Boot_2_Play` (named loudly in the PR; a missed one
-   silently breaks game start).
-4. Verify: full run trace shows `GameStarting → CountdownStartRequested … CountdownEnded
-   → PlayerActivateRequested → PlayerActivated`, with `GameStarted` and
-   `TempleRunStartRequested` landing *before* the first tick and the run clock not
-   advancing until activation; then the stub test for real — disable the countdown
-   objects, map `GameStarting → PlayerActivateRequested`, confirm a run still starts.
-5. Fallout: KNOWN_ISSUES countdown section becomes "resolved — see Domain Registry";
-   the talk's "One run, end to end" slide gains its ending; EXERCISE_DRAW_THE_BOUNDARY
-   gets the recorded answer. **RUGS:** the bridge/flow additions must be checked against
-   the RUGS auto-event-flow freeze before porting; if frozen, this phase may be ERT-only —
-   flag it in the PR either way.
+**Phase A — Countdown extraction + the `PlayerActivate*` seam** — ✅ **complete.**
+Merged 2026-09-04 as PR #30, `main` @ a9ae5a2. Implementation spec:
+[COUNTDOWN_DOMAIN.md](COUNTDOWN_DOMAIN.md). Shipped the full retarget table (not the
+fallback) and the §3 renames `RunInitializeRequested` / `TrackLevelApplied` pulled forward
+from Phase B. The same branch also carried an unrelated owner ruling — the removal of the
+`EventId<T>` static-field mint pattern across 13 files (no overlap with the countdown
+files; it is in this PR only because it was ready). The checklist as executed:
 
-**Phase B — COUPLING_AUDIT execution**, per its own brief, with two additions: the
-vocabulary map is drawn as the would-be TrackPCG bridge table with every row passing §3's
-translation test, and the §3 rename batch (`TempleRunScenesReady → RunInitializeRequested`,
-`TempleRunLevelApplied → TrackLevelApplied`, retiring the legacy `TempleRunDifficulty*`/
-`TempleRunConfig*` members onto the 320-block) rides along, since the audit is already
-touching those files and EVENTS.md. Verify the cross-bus timing semantics (a small test
-publishing across buses from inside a drain) before any turn-flow change relies on them.
+1. ✅ Implementation spec written ([COUNTDOWN_DOMAIN.md](COUNTDOWN_DOMAIN.md));
+   `CountdownCancelled` dropped; the retarget table confirmed rather than reduced to the
+   fallback.
+2. ✅ Enum, flow, both bridges, the `PlayerActivate*` ladder, and the 12-place registration
+   (CLAUDE.md's four tables, the skills, ARCHITECTURE / EVENTS / TRACKS / README).
+3. ✅ Manual Inspector step done: `CountdownAutoEventFlow`, `CountdownGameFlowBridge`, and
+   `Countdown2TempleRunBridge` all sit on one `CountdownDomain` object in
+   `Game_Boot_2_Play`.
+4. **Partly done — one item outstanding.** The run trace was play-tested and confirmed:
+   countdown shows and ticks, the player is frozen until GO, pause holds the countdown,
+   music-under-countdown is intended, the metronome starts at GO. `dotnet build` clean and
+   the `/audit-events` isolation greps clean. **Not recorded as done: the stub test** —
+   disable the countdown objects, map `GameStarting → PlayerActivateRequested`, confirm a
+   run still starts. That is the experiment that actually *demonstrates* the replaceability
+   this phase was for, and it is a five-minute check; it is also the ready-made classroom
+   demo for [EXERCISE_DRAW_THE_BOUNDARY.md](../EXERCISE_DRAW_THE_BOUNDARY.md). Worth doing
+   before the talk, whether or not anything else in Phase B moves.
+5. ✅ Fallout landed in the same PR: KNOWN_ISSUES' countdown section now reads "RESOLVED";
+   TALK_OUTLINE, EXERCISE_DRAW_THE_BOUNDARY, ARCHITECTURE, EVENTS and TRACKS updated.
+   **RUGS:** the freeze turned out not to block a reviewed domain addition — the port
+   landed in its own RunnerUGSTemplate PR (§9 Q4).
+
+**Phase B — COUPLING_AUDIT execution** ← **next; not started** (its brief still reads "the
+analysis has not been done"). Run it per its own brief, with two additions: the vocabulary
+map is drawn as the would-be TrackPCG bridge table with every row passing §3's translation
+test, and what remains of the §3 rename batch rides along, since the audit is already
+touching those files and EVENTS.md. **That batch is now one item, not three** — the two
+cheap renames (`TempleRunScenesReady → RunInitializeRequested`, `TempleRunLevelApplied →
+TrackLevelApplied`) went with Phase A; what is left is retiring the legacy
+`TempleRunConfigApplied` (300) and `TempleRunDifficulty*` (310–318) members onto the native
+320-block. Verify the cross-bus timing semantics (a small test publishing across buses from
+inside a drain) before any turn-flow change relies on them — and note that Phase A did not
+answer this question, since the countdown split cut no synchronous choreography.
 
 **Phase C — TrackPCG extraction, or the deliberate decision not to.** Gate: Phase B's
 bridge table is short and contract-shaped; the timing question is answered; owner decides
@@ -406,17 +457,48 @@ Not scheduled here.
 **Explicitly not planned:** movement domains, GameFlow UI/session/scene domains,
 Meta/Progression (parked with a revisit trigger: persistence growth or RUGS convergence).
 
-## 9. Open questions for the owner
+## 9. Questions for the owner
 
-1. Countdown: accept the "own domain despite weak criterion 3" trade (teaching value)?
+*Original numbering is preserved through the regrouping, so "§9 Q2" cited elsewhere in this
+doc and in the PR history still points at the same question.*
+
+### Answered by Phase A
+
+1. **Countdown: accept the "own domain despite weak criterion 3" trade (teaching value)?**
    The fallback if not is GameFlow, not the status quo — the status quo cannot satisfy
    "GameFlow owns started".
-2. The `PlayerActivate*` seam moves `TempleRunStartRequested`/`GameStarted` to
+   → **Yes.** Extracted, and it is now the repo's `/add-event-domain` worked example. The
+   weak criterion 3 (won't grow) held true and did not hurt: six members, one screen of
+   code, and the domain reads as complete rather than stunted.
+2. **The `PlayerActivate*` seam moves `TempleRunStartRequested`/`GameStarted` to
    *pre-countdown* and retargets four subscribers (the retarget table in §4). Ship that
-   inside Phase A, or take the documented fallback (`CountdownEnded →
-   TempleRunStartRequested`, one translated hop, semantics unchanged) and do the
-   activation split as its own task?
-3. Should Phase C (TrackPCG extraction) be reserved as a student capstone task rather
-   than done in-repo? The audit's bridge-table deliverable is worth having either way.
-4. RUGS: is the auto-event-flow freeze there absolute (Phase A becomes ERT-only), or may
-   a reviewed domain addition touch it?
+   inside Phase A, or take the documented fallback?**
+   → **Shipped in full, not the fallback.** All nine classifications survived play test;
+   the one surprise was a *bug the split exposed* rather than caused — `Metronome` had been
+   dividing by a `CurrentSpeed` of 0 during the countdown. Conflated events hide arithmetic
+   like that, which is the argument for the split stated better than the analysis stated it.
+4. **RUGS: is the auto-event-flow freeze there absolute (Phase A becomes ERT-only), or may
+   a reviewed domain addition touch it?**
+   → **Not absolute.** The port landed in its own RunnerUGSTemplate PR. Read the freeze as
+   "no unreviewed edits", not "no edits" — future phases can plan on porting.
+
+### Still open
+
+3. **Should Phase C (TrackPCG extraction) be reserved as a student capstone task rather
+   than done in-repo?** The audit's bridge-table deliverable is worth having either way.
+   Phase A does not settle this, but it does make the question cheaper to answer: the
+   extraction cost is now measured rather than estimated — one enum, one flow, two bridges,
+   one Inspector step per hosted component, and a 12-place registration, all of which a
+   student can follow from a worked example that did not exist when this was first asked.
+   The open half is the *risk*: TrackPCG cuts a synchronous choreography (the turn commit)
+   where the Countdown split cut none, so the cross-bus timing question in §2 is a real
+   precondition for a student attempt, not paperwork.
+
+### New, raised by Phase A
+
+5. **Does the "own configuration" tell generalize?** The countdown could not be a real
+   domain while its duration lived in `TempleRunConstants`. If that is a rule and not a
+   coincidence, TrackPCG's extraction implies moving track tuning out of the shared
+   difficulty table too — which would touch `DifficultySettings`, and therefore collides
+   with the difficulty-prefix retirement now scheduled in Phase B. Worth deciding before
+   Phase B starts, since the two want to edit the same fields.
