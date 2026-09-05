@@ -120,6 +120,21 @@ Publisher: `TempleRunBus` (`EventsFor<TempleRunEvents>`).
 | Segment lifecycle | `SegmentRequested`(340) *(data: Direction — the direction committed at an Either junction; published by `TurnCommitController`)*, `SegmentEntering`(342), `SegmentEntered`(343), `SegmentExiting`(344), `SegmentExited`(345) *(all data: TrackSegmentInfo)* |
 | Segment geometry | `SegmentGeometryReady`(350) *(data: SegmentGeometryData)* |
 
+> **`TrackSegmentInfo` carries run-absolute distances.** The struct behind every
+> `TrackSegment*`, `ActiveTrack*` and `Segment*` payload holds the segment's
+> `Definition` (whose distances are measured from the segment's own entrance), its resolved
+> `Direction`, and `StartDistance` — the distance from the start of the run at which the
+> segment begins, stamped once by `TrackManager` when the segment is created. `PivotDistance`,
+> `TurnFailureDistance` and `EndDistance` are the definition's distances with that origin
+> already added, so a subscriber compares them against `DistanceTracker.DistanceTravelled`
+> directly. `Length` and `TeleportDistance` stay relative because they are lengths, not
+> positions.
+>
+> This is the payload-carries-the-derived-value rule in
+> [ADDING_A_MECHANIC](ADDING_A_MECHANIC.md#shared-derived-data-goes-on-the-payload-shared-decisions-get-one-owner):
+> the conversion arrives on the message, so no subscriber performs it — and five that used to
+> keep private running sums no longer can drift apart.
+
 ### Two starts: "systems up" and "player go"
 
 The run has two distinct beginnings, and subscribing to the wrong one is the easiest

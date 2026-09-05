@@ -13,8 +13,11 @@ namespace CrawfisSoftware.TempleRun
     /// announcing the turn's progress up the rest of the ladder — belongs to
     /// <see cref="TurnCommitController"/>. This class publishes one rung and stops.
     ///
-    /// It owns the turn window because it is the thing that tests against it; AIController reads
-    /// <see cref="TurnFailedDistance"/> and <see cref="TurnDirection"/> to decide when to ask.
+    /// It owns the turn window because it is the thing that tests against it - but only the
+    /// *decision*: the window's far edge is the run-absolute
+    /// <see cref="TrackSegmentInfo.TurnFailureDistance"/> carried by the segment message, and
+    /// anything else that needs it (AIController, TurnCollisionDetector) reads it off that same
+    /// message rather than off this class.
     ///    Dependencies: Blackboard, DistanceTracker
     ///    Subscribes: TempleRunEvents.TurnLeftRequested, TurnRightRequested — from the input
     ///                bridge, AIController, or any future replay/netcode source
@@ -24,17 +27,9 @@ namespace CrawfisSoftware.TempleRun
     public class TurnController : MonoBehaviour
     {
         public float TurnAvailableDistance { get { return _turnAvailableDistance; } }
-        public float TurnFailedDistance { get { return _trackDistance; } }
-        public Direction TurnDirection { get { return _nextTrackDirection; } }
 
         private float _safeTurnDistance = 1f;
-        private float _trackDistance = 0;
         private float _turnAvailableDistance;
-        // Cumulative distance at the START of the current segment, accumulated from segment
-        // lengths so it matches the boundaries used by SegmentAdvanceTrigger and
-        // TurnCollisionDetector.
-        private float _segmentStartDistance = 0f;
-        private float _previousSegmentLength = 0f;
         // Possible Bug: If Direction is changed to a Flag, then _nextTrackDirection needs to be masked.
         private Direction _nextTrackDirection;
 
@@ -95,14 +90,13 @@ namespace CrawfisSoftware.TempleRun
         {
             var trackSegment = (TrackSegmentInfo)data;
             _nextTrackDirection = trackSegment.Direction;
-            // Anchor to this segment's start, not to the running sum of turn points. Summing
-            // TurnPointDistance loses (Length - TurnPointDistance) per segment, which walked the
-            // turn window earlier and earlier; for a Straight (TurnPointDistance == float.MaxValue)
-            // it saturated _trackDistance to Infinity and disabled every later turn.
-            _segmentStartDistance += _previousSegmentLength;
-            _previousSegmentLength = trackSegment.Length;
-            _trackDistance = _segmentStartDistance + trackSegment.TurnPointDistance;
-            _turnAvailableDistance = _trackDistance - _safeTurnDistance;
+            // The window's far edge arrives run-absolute on the message. This used to be a private
+            // running sum of segment lengths, and the sum had to be anchored to the segment's start
+            // rather than to the turn points: summing turn points lost (Length - turn point) per
+            // segment, walking the window earlier and earlier, and a Straight's float.MaxValue
+            // saturated the total and disabled every later turn. TrackManager now owns that
+            // arithmetic once, so neither trap can be re-entered here.
+            _turnAvailableDistance = trackSegment.TurnFailureDistance - _safeTurnDistance;
         }
     }
 }

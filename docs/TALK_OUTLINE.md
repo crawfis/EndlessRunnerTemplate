@@ -331,6 +331,37 @@ stretch break — Act IV has ScriptableObjects and Act V has robots."
   written down ([specs/DOMAIN_DECOMPOSITION.md](specs/DOMAIN_DECOMPOSITION.md) §4), and the
   fix stayed small *because* the architecture had already made the flaw one readable line.
 
+- **[Update 2026-09-05 — a second smell, and a better one.]** If you want one story here
+  rather than two, prefer this one: it is shorter, it needs no diagram, and its fix is a
+  *field*. The track measures distances from each segment's own entrance; every consumer
+  measures from the start of the run. Converting between the two needs one number — where
+  the segment began — and the message that reached all of them did not carry it. So **five
+  components each kept their own private running sum of it**: both turn components, the
+  segment-advance trigger, the transition controller, and the HUD. They agreed only because
+  someone kept them agreeing by hand, and one comment in the code existed solely to record a
+  bug from the time one of them drifted. Worse, the AI autopilot — the slide-12 proof that
+  *the player is replaceable* — held a `[SerializeField] TurnController` so it could read two
+  of those numbers off another controller.
+  - The line to land: **this is what a missing field looks like when it has nowhere to
+    live — it becomes five copies of an accumulator and one reference that shouldn't
+    exist.** The fix added one field to the message, `TrackSegmentInfo.StartDistance`,
+    stamped once by the component that already knew the answer. Five accumulators became
+    zero, the autopilot's reference to another controller disappeared, and **no event was
+    added, removed, or renamed.**
+  - Why it is the better story: slide 18b's bridge smell was a *wiring* mistake, which
+    audiences expect from an event system. This one is the failure mode of the *idea* —
+    shared derived data with no home gets recomputed by whoever needs it, silently and
+    consistently, until it doesn't. Written up as
+    [specs/TRACK_PLAYER_DECOUPLING.md](specs/TRACK_PLAYER_DECOUPLING.md) §1, and the rule it
+    produced is now in
+    [ADDING_A_MECHANIC.md](ADDING_A_MECHANIC.md#shared-derived-data-goes-on-the-payload-shared-decisions-get-one-owner):
+    *shared derived data goes on the payload; shared decisions get one owner.*
+  - Note for whoever presents next: the AI-autopilot code quoted on the deck's
+    "answer key" slide (`docs/talk/its-just-an-endless-runner-v2.html`) no longer compiles as
+    written — `AIController` reads its two values off the segment message now. **The joke
+    survives intact** (it still has the answer key; it just gets it in the post), but the
+    two lines of code on the slide need re-quoting.
+
 ### Slide 19 — [TECH-lite] Patterns you already know, load-bearing
 - Quick table (from ARCHITECTURE.md "Design vocabulary"): observer = the entire bus;
   bridge = the domain crossings; strategy = segment selection, path building, power-up

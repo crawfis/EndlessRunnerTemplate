@@ -64,7 +64,10 @@ namespace CrawfisSoftware.TempleRun
         {
             var trackSegment = (TrackSegmentInfo)data;
             _nextTrackDirection = trackSegment.Direction;
-            _trackDistance += trackSegment.Length;
+            // The HUD counts down to the segment's end, which is where a straight hands over rather
+            // than where a turn is failed - EndDistance, not TurnFailureDistance. Both are on the
+            // message now; this used to be a private running sum of segment lengths.
+            _trackDistance = trackSegment.EndDistance;
         }
 
         private void OnDestroy()

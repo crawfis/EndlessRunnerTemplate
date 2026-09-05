@@ -19,6 +19,15 @@ namespace CrawfisSoftware.TempleRun
     ///    Publishes: TrackSegmentCreated. Useful for creating prefabs. Several of these will be created at the start. Data is a TrackSegmentInfo
     ///    Publishes: ActiveTrackChanging. The track that we are transitioning to. Data is a TrackSegmentInfo
     ///    Publishes: ActiveTrackChanged. The track segment that was just fully exited. Data is a TrackSegmentInfo. Fires before ActiveTrackChanging.
+    ///
+    /// <para><b>It owns the segment-relative to run-absolute conversion.</b> A segment definition
+    /// measures from its own entrance; every consumer measures from the start of the run. The one
+    /// number that converts between them is the distance at which a segment begins, and this class
+    /// is the only one that knows the queue order and every segment's length - so it stamps that
+    /// number onto <see cref="TrackSegmentInfo.StartDistance"/> once, at creation, and the message
+    /// arrives complete. Subscribers read the absolute distance they need off it. Nobody
+    /// accumulates: five components used to keep private running sums of this number, agreeing
+    /// with each other only by hand.</para>
     /// </summary>
     /// <remarks> Obstacle and gap distances should be in a separate class(es).
     /// Random distances (_random) could be replaced with a list of possible distances, but a better / cleaner solution would
@@ -50,6 +59,10 @@ namespace CrawfisSoftware.TempleRun
 
         // Set when a junction direction is committed; acted on in Update, out of the dispatch.
         private bool _refillRequested = false;
+
+        // Where the next segment created will begin, measured from the start of the run. The one
+        // accumulator (see the class remarks); every other component reads absolutes off the message.
+        private float _nextSegmentStartDistance = 0f;
 
 
         protected virtual void Awake()
@@ -98,6 +111,7 @@ namespace CrawfisSoftware.TempleRun
             _maxDistance = maxDistance;
             _random = random;
             _awaitingEitherDirection = false;
+            _nextSegmentStartDistance = 0f;
 
             // Resolve the selected level's track. TrackLevelApplied is published (bridged from
             // GameFlow) before this scene and TrackManager exist, so it is Sticky and read here
@@ -210,7 +224,7 @@ namespace CrawfisSoftware.TempleRun
                     _lastSegmentDefinition = segmentDefinition;
                     _segmentIndex++;
                     var direction = segmentDefinition.Direction;
-                    return new TrackSegmentInfo(segmentDefinition, direction);
+                    return NewSegment(segmentDefinition, direction);
                 }
             }
 
@@ -234,7 +248,27 @@ namespace CrawfisSoftware.TempleRun
             // Inline definitions skip the registry, so they must be normalized explicitly —
             // otherwise TurnFailureDistance stays 0 and the player fails the turn immediately.
             TrackSegmentLibrary.Normalize(fallbackDef);
-            return new TrackSegmentInfo(fallbackDef, fallbackDef.Direction);
+            return NewSegment(fallbackDef, fallbackDef.Direction);
+        }
+
+        /// <summary>
+        /// Builds a segment message, stamping the run-absolute distance at which it begins and
+        /// advancing the accumulator past it. Every segment is created here, so the queue order
+        /// and the distances agree by construction rather than by maintenance. A subclass that
+        /// overrides <see cref="CreateTrackSegment"/> must build its segments through this.
+        /// </summary>
+        /// <remarks>
+        /// The stamp is taken at creation rather than at activation, which is safe because a
+        /// definition's Length is fixed by TrackSegmentLibrary.Normalize when the library is
+        /// built and nothing mutates it afterwards - an Either junction included: PathProvider
+        /// resolves that segment's exit *geometry* when the player commits, and reads the
+        /// definition without writing to it.
+        /// </remarks>
+        protected TrackSegmentInfo NewSegment(TrackSegmentDefinition definition, Direction direction)
+        {
+            var segment = new TrackSegmentInfo(definition, direction, _nextSegmentStartDistance);
+            _nextSegmentStartDistance += segment.Length;
+            return segment;
         }
 
         private void UpdateRepeatTracking(string segmentId)

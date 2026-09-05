@@ -24,12 +24,6 @@ namespace CrawfisSoftware.TempleRun
     [DefaultExecutionOrder(-20)]
     internal class TurnCollisionDetector : MonoBehaviour
     {
-        // Cumulative distance at the START of the current segment. Accumulated from segment
-        // lengths rather than sampled from DistanceTracker so it matches the exact boundaries
-        // SegmentAdvanceTrigger and SegmentTransitionController use (sampling drifts forward by
-        // the per-frame overshoot, pushing the failure point past the segment exit).
-        private float _currentSegmentInitialDistance = 0f;
-        private float _previousSegmentLength = 0f;
         private float _turnFailureDistance;
         private bool _isRunning = false;
         private bool _gameStarted = false;
@@ -72,11 +66,12 @@ namespace CrawfisSoftware.TempleRun
             var trackSegmentInfo = (TrackSegmentInfo)data;
             _isCurrentSegmentStraight = trackSegmentInfo.Direction == Direction.Straight;
             _isRunning = true;
-            _currentSegmentInitialDistance += _previousSegmentLength;
-            _previousSegmentLength = trackSegmentInfo.Length;
-            // TurnPointDistance is float.MaxValue for straights (never fails) and is clamped by
-            // TrackSegmentLibrary.NormalizeSegments to stay strictly inside the segment for turns.
-            _turnFailureDistance = _currentSegmentInitialDistance + trackSegmentInfo.TurnPointDistance;
+            // Run-absolute, straight off the message: TrackManager stamped the segment's origin at
+            // creation, so this no longer keeps a private running sum that has to agree by hand with
+            // the boundaries SegmentAdvanceTrigger and SegmentTransitionController use.
+            // TurnFailureDistance is float.MaxValue for straights (never fails) and is clamped by
+            // TrackSegmentLibrary.Normalize to stay strictly inside the segment for turns.
+            _turnFailureDistance = trackSegmentInfo.TurnFailureDistance;
         }
 
         private void OnPlayerActivated(string eventName, object sender, object data)
