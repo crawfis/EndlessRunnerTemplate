@@ -10,7 +10,7 @@ conventions, and paths. For a human-facing overview, see [README.md](README.md).
 [docs/EVENTS.md](docs/EVENTS.md) (event catalog), [docs/TRACKS.md](docs/TRACKS.md) (track
 system), [docs/ADDING_A_MECHANIC.md](docs/ADDING_A_MECHANIC.md) (worked example),
 [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md) (Unity caveats).
-**Course material:** [docs/STUDENT_TASKS.md](docs/STUDENT_TASKS.md) (the 128-task catalog),
+**Course material:** [docs/STUDENT_TASKS.md](docs/STUDENT_TASKS.md) (the 130-task catalog),
 `docs/TIMEBOX_*_REQUIREMENTS.md` (the timebox assignments), and `docs/EXERCISE_*.md`
 (in-class team exercises) — students working in this repo will ask for help with these.
 
