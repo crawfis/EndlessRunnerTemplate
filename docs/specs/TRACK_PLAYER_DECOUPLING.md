@@ -1,6 +1,6 @@
 # Plan: untangle track vocabulary from player control
 
-> **Status:** plan — ready to execute, not yet started. This is the deliverable
+> **Status:** in progress — **Phase 1 complete** (2026-09-05); Phases 2-6 not started. This is the deliverable
 > [COUPLING_AUDIT.md](COUPLING_AUDIT.md) asked for (its "Produce" line), and Phase B of
 > [DOMAIN_DECOMPOSITION.md](DOMAIN_DECOMPOSITION.md#8-phasing).
 > **Verified at:** `main` @ 7faa742 (2026-09-04). The brief's evidence was gathered at PR #27
@@ -40,16 +40,24 @@ conversion is unowned, so each consumer performs it privately.**
 *segment's* start. `DistanceTracker.DistanceTravelled` is measured from the *run's* start.
 Converting between them needs one number: the distance at which the active segment began.
 
-Nobody owns that number. Three components each rebuild it, independently, from the same event:
+Nobody owns that number. **Five** components each rebuild it, independently, from the same
+event — the plan first counted three, and executing Phase 1 found two more:
 
-| File | Line | The accumulator |
-|---|---|---|
-| `Player/TurnController.cs` | 102–103 | `_segmentStartDistance += _previousSegmentLength;` |
-| `Player/TurnCollisionDetector.cs` | 75–76 | `_currentSegmentInitialDistance += _previousSegmentLength;` |
-| `Track/SegmentTransitionController.cs` | 74–75 | `_segmentStartDistance += _previousSegmentLength;` |
+| File | Line | The accumulator | Holds |
+|---|---|---|---|
+| `Player/TurnController.cs` | 102–103 | `_segmentStartDistance += _previousSegmentLength;` | segment start |
+| `Player/TurnCollisionDetector.cs` | 75–76 | `_currentSegmentInitialDistance += _previousSegmentLength;` | segment start |
+| `Track/SegmentTransitionController.cs` | 74–75 | `_segmentStartDistance += _previousSegmentLength;` | segment start |
+| `Track/SegmentAdvanceTrigger.cs` | 78 | `_currentExitDistance += _currentSegment.Length;` | segment **end** |
+| `UI/GUIController.cs` | 67 | `_trackDistance += trackSegment.Length;` | segment **end** |
 
-All three subscribe to `ActiveTrackChanging` for no other reason. Two of them then compute the
-*same derived value* — the absolute distance at which a turn is failed:
+The last two are the same accumulator one term further along — the start distance plus the
+segment's length — and the fourth is the load-bearing one: `_currentExitDistance` is what fires
+`SegmentExited` and therefore advances the whole track. That `TurnCollisionDetector`'s own
+comment says its sum exists "so it matches the exact boundaries SegmentAdvanceTrigger and
+SegmentTransitionController use" is the tell: the file names the other copies it has to stay in
+step with. All five subscribe to `ActiveTrackChanging`, three of them for no other reason. Two
+then compute the *same derived value* — the absolute distance at which a turn is failed:
 
 ```csharp
 // TurnController.cs:104
@@ -102,7 +110,7 @@ home today:
 
 | Shared concept | Home today | Home it should have |
 |---|---|---|
-| **Absolute distance along the run** | `DistanceTracker` publishes it; the conversion from segment-relative is re-derived in 3 components | **The message.** `TrackSegmentInfo` carries absolutes; `TrackManager` owns the one accumulator (§1) |
+| **Absolute distance along the run** | `DistanceTracker` publishes it; the conversion from segment-relative is re-derived in 5 components | **The message.** `TrackSegmentInfo` carries absolutes; `TrackManager` owns the one accumulator (§1) |
 | **The turn window** — may I turn, which way, by when have I failed | split between `TurnController`'s privates and `TrackSegmentInfo`'s relatives | **The message.** All three values land on `TrackSegmentInfo`; `TurnController` keeps only the *decision* |
 | **Which component owns the player transform right now** | a `Direction.Straight` test, re-derived in `MoveCharacterByDistance` and `TeleportController` independently (item #6) | **The message.** A named property on the spline payload (§3, item 6) |
 | **`Direction`** | a shared enum, referenced by both sides | fine as-is — genuinely shared vocabulary, correctly homeless |
@@ -146,7 +154,7 @@ The brief asks for three judgements per item: same root cause as which others; d
 | # | Item | Root cause | Misleads? | Verdict |
 |---|---|---|---|---|
 | 1 | `AIController` holds a `TurnController` + listens to a generation event | §1 | **Yes** — it teaches "reach into a controller, and listen to a track event for a gameplay cue". It is the file students are pointed at as the *proof* input is replaceable | **Fix now** (Phase 1) — becomes a deletion, not a rewrite |
-| 2 | Segment-relative vs absolute distances | **is** §1 | **Yes** — three copies of one accumulator is a pattern a student will copy | **Fix now** (Phase 1) |
+| 2 | Segment-relative vs absolute distances | **is** §1 | **Yes** — five copies of one accumulator is a pattern a student will copy | **Fix now** (Phase 1) |
 | 3 | `PlayerFailureAutoTurnController` calls `TurnController.ForceTurn()` | own cause: a missing event | **Yes** — a literal violation of CLAUDE.md rule 1, in a repo whose first rule that is | **Fix now** (Phase 3) — `TurnForceRequested = 44`, per the seam audit's already-agreed value |
 | 4 | Turn controllers live in `Scripts/Track/` | §1 (partly) + naming | Mildly | **Fix now** (Phase 3) — a file move with its `.meta`; costs nothing, and §2's map makes the right folder obvious |
 | 5 | A turn crosses four components and three scenes | §1 (partly) | **No** — this is the architecture working as designed | **Leave, and narrate.** After Phase 1 it crosses four components sharing *no* hidden state. Document it in ADDING_A_MECHANIC; do not restructure |
@@ -211,12 +219,20 @@ simpler, and it *reduces* the dead-member count by three instead of leaving them
 // set once by TrackManager when the segment is created.
 public float StartDistance;
 
-// and the four relative distances gain absolute siblings, computed not accumulated:
+// and the relative *positions* gain absolute siblings, computed not accumulated:
 public float TurnFailureDistance => StartDistance + (Definition?.TurnFailureDistance ?? 0f);
 public float PivotDistance       => StartDistance + (Definition?.ToPivotDistance     ?? 0f);
-public float ExitDistanceAbsolute=> StartDistance + (Definition?.ExitDistance        ?? 0f);
 public float EndDistance         => StartDistance + Length;
 ```
+
+> **Corrected while executing:** the draft listed a fourth accessor,
+> `ExitDistanceAbsolute => StartDistance + Definition.ExitDistance`. It was not built, because
+> it is wrong twice over. `Definition.ExitDistance` is a *length* — the run-out from the pivot
+> to the exit — not a position measured from the entrance, so adding the segment origin to it
+> names nothing; the absolute position of the exit is `StartDistance + Length`, which is
+> `EndDistance`. And no consumer wanted it. The same reasoning keeps `Length` and
+> `TeleportDistance` relative: both are lengths, and `TeleportDistance` is an offset past the
+> pivot that call sites add to `PivotDistance`. **Only positions get an absolute form.**
 
 The segment-relative values stay exactly where the track already reads them — on
 `Definition`, which is what the geometry builders (`ArcTurnBuilder`, `AxisAligned90Builder`) and
@@ -238,8 +254,11 @@ complete on its own.
 |---|---|
 | `Player/TurnController.cs` | `_segmentStartDistance`, `_previousSegmentLength`, `_trackDistance`; `OnTrackChanging` shrinks to two assignments |
 | `Player/TurnCollisionDetector.cs` | `_currentSegmentInitialDistance`, `_previousSegmentLength` |
-| `Track/SegmentTransitionController.cs` | `_segmentStartDistance`, `_previousSegmentLength` |
+| `Track/SegmentTransitionController.cs` | `_segmentStartDistance`, `_previousSegmentLength` (replaced by the active `TrackSegmentInfo`, kept for its absolutes) |
+| `Track/SegmentAdvanceTrigger.cs` | the `_currentExitDistance +=` accumulation (the field stays; it is now assigned `segment.EndDistance`) |
+| `UI/GUIController.cs` | the `_trackDistance +=` accumulation (likewise `segment.EndDistance`) |
 | `Player/AIController.cs` | `[SerializeField] private TurnController _turnController` **and** its `ActiveTrackChanging` subscription's second job |
+| `Player/TurnController.cs` | the now-unread public `TurnFailedDistance` / `TurnDirection` getters. `TurnAvailableDistance` is left alone: it had no reader before this phase either, so removing it is L13's business, not Phase 1's |
 
 `AIController` after Phase 1 reads its two values off the segment message it already receives:
 
@@ -319,13 +338,23 @@ Every phase ends compile-clean (`dotnet build Assembly-CSharp.csproj`), play-tes
 > the config references off `Blackboard` — is now student task L15 rather than a phase here, so
 > this holds for the plan without exception.
 
-**Phase 1 — absolute distances on the message.** (§1, §4 — the root cause.)
+**Phase 1 — absolute distances on the message.** ✅ **Done, 2026-09-05.** (§1, §4 — the root cause.)
 `TrackSegmentInfo` gains `StartDistance` and absolute accessors; `TrackManager` stamps it at
-creation; the three accumulators and `AIController`'s serialized reference are deleted.
+creation; the **five** accumulators and `AIController`'s serialized reference are deleted.
 *Verify:* the turn window must land in the same place as before — play a run with event logging
 and confirm `PlayerFailingAtTurn` fires at the same distances as a `pre-coupling-audit` run, and
 that the AI still turns. The Either junction is the sharp case: confirm a T-junction still
 commits, since its geometry is re-resolved after creation. **Net events: 0.**
+> **As executed:** eight files, no event enum / auto-flow / bridge touched (net events: 0,
+> confirmed by the diff). Both assemblies build clean and `/audit-events` is clean. One
+> behavioural detail changed deliberately and is worth knowing at review:
+> `SegmentTransitionController.OnTurnStarted` read `TeleportDistance` off
+> `_activeGeometry.Definition` for the landing *point* and off the segment-start accumulator
+> for the landing *distance*; both now come from the active segment message, so the two agree
+> by construction. In the normal case the values are identical; they differed only if the
+> geometry cache underran, a state in which the old code silently mixed one segment's origin
+> with another's definition. **Play tested and passed (owner, 2026-09-05):** the turn window
+> lands where it did, the autopilot still turns, and a T-junction still commits.
 
 **Phase 2 — name the transform-ownership rule.** (item #6.)
 Replace the `(Vector3, Vector3, Direction, float)` tuple carried by `CurrentSplineChanging` /
@@ -396,13 +425,14 @@ port the two together or not at all.
 | Document | Change | Phase |
 |---|---|---|
 | **CLAUDE.md** | The tuple-payload example (`var (point1, point2, direction, _) = ...`) is retired — replace with the `SplineSection` cast. Key-files table: `TurnCommitController` moves to the Player Controllers row | 2, 3 |
-| **docs/EVENTS.md** | `TurnForceRequested`; the difficulty renames and deletions; `TrackSegmentInfo`'s new payload shape. **New section: runtime delivery mechanics** — breadth-first drain, publish-from-inside-a-callback ordering, why grep undercounts publishers, and the TempleRun/GameFlow renumbering asymmetry | 2–6 |
-| **docs/ARCHITECTURE.md** | **Probably nothing.** Checked: "Where things live" is a four-line top-level tree that names no controller, and there is no turn-flow diagram to update. Re-read "Track generation (summary)" after Phase 1 and confirm it still reads true | 1 |
-| **docs/ADDING_A_MECHANIC.md** | No forced change — checked, it carries no payload cast. **Worth adding** as new guidance: the §2 rule, *shared derived data goes on the payload; shared decisions get one owner*. It is the lesson Phase 1 exists to teach and the walkthrough is where a student would look for it | 1, 2 |
+| **docs/EVENTS.md** | `TurnForceRequested`; the difficulty renames and deletions; **`TrackSegmentInfo`'s new payload shape — done (Phase 1)**: a note under the TempleRun catalog saying what the struct carries, that `StartDistance` is stamped once by `TrackManager`, and which accessors are run-absolute versus which stay lengths. **New section: runtime delivery mechanics** — breadth-first drain, publish-from-inside-a-callback ordering, why grep undercounts publishers, and the TempleRun/GameFlow renumbering asymmetry | 1–6 |
+| **docs/ARCHITECTURE.md** | **Nothing needed — re-read after Phase 1 and confirmed (2026-09-05).** "Track generation (summary)" describes the three-stage pipeline in terms of selection / geometry / visuals and names no distance and no controller, so it still reads true; "Where things live" is a four-line top-level tree, and there is no turn-flow diagram | 1 |
+| **docs/ADDING_A_MECHANIC.md** | **Done (Phase 1).** No forced change — checked, it carries no payload cast. Added as new guidance: the §2 rule, *shared derived data goes on the payload; shared decisions get one owner*, as a subsection at the end of §5 with the five-accumulator case as its worked example | 1, 2 |
 | **docs/STUDENT_TASKS.md** | **D8** (CoinMagnet) and **L15** (config injection) added when the exercises were approved — see §8. **L13 must be revised by Phase 5, not just renumbered:** Phase 5 deletes the three 320-block members L13 offers as its worked example of "rotten" cruft, so the task loses that example and needs a replacement drawn from the remaining 24. Dead count 28 → 24 (§6). **Revise** any task pointing at `AIController._turnController` or `TurnController.ForceTurn()` as a public seam — both are gone | 1, 3, 4, 5 |
 | **The task count (128 → 130)** | Done with the D8/L15 additions. Ten prose occurrences updated across `STUDENT_TASKS`, `TALK_OUTLINE` (four), `CLAUDE.md`, `README.md`, `TUTORIAL_SERIES`, `TIMEBOX_1_REQUIREMENTS`, `ai/timebox-1`. **Four HTML files are knowingly left stale:** `TIMEBOX_1_REQUIREMENTS.html` and `canvas/timebox1/01-overview-and-objective.html` are generated by `docs/canvas/build_timebox1.py`, which needs **pandoc on PATH** (not installed here) — regenerate, never hand-edit; the two `docs/talk/*.html` decks each quote it four times and are hand-authored, so whoever next presents should re-run TALK_OUTLINE's fact sheet | done |
+| **docs/TRACKS.md** | **Added (Phase 1), not in the original table.** The 3-point geometry table documents `TrackSegmentDefinition`, every field of which is segment-relative — the natural place to say so and to point at the message's absolute siblings. Rule stated there: *read a position off the message, a shape off the definition, never accumulate either* | 1 |
 | **docs/KNOWN_ISSUES.md** | Add the two inert power-ups if they are not fixed in the same PR as they are documented | 4 |
-| **docs/TALK_OUTLINE.md** | §1 is a better story than the one currently in the coupling slide: *three components independently recomputing the same number, because the message they all received was missing it.* That is the architecture's failure mode stated in one sentence, and its fix is a field | 1 |
+| **docs/TALK_OUTLINE.md** | **Done (Phase 1).** §1 is a better story than the one currently on the smell slide (18b): *five components independently recomputing the same number, because the message they all received was missing it.* That is the architecture's failure mode stated in one sentence, and its fix is a field. Added as a second update block on slide 18b, with a note that the deck's "answer key" `AIController` quote in `docs/talk/its-just-an-endless-runner-v2.html` needs re-quoting — the joke survives, the two lines of code do not | 1 |
 | **docs/specs/COUPLING_AUDIT.md** | Status → analysis complete, pointing here | on merge |
 | **docs/specs/DOMAIN_DECOMPOSITION.md** | Phase B → in progress/complete; §2's bridge table is the Phase C gate | on merge |
 
@@ -415,6 +445,16 @@ port the two together or not at all.
    so a creation-time `StartDistance` should stay valid — but this is asserted from reading, not
    from a play test. It is the one place Phase 1 could be wrong, and it is the first thing its
    play test must exercise.
+   → **Reading half answered while executing** (2026-09-05): `Length` is fixed by
+   `TrackSegmentLibrary.Normalize` when the library is built, and nothing mutates a
+   `TrackSegmentDefinition` afterwards. `PathProvider.OnSegmentRequested` resolves a junction's
+   exit *geometry* from the stashed pivot pose and reads the definition without writing to it,
+   so creation-time and activation-time lengths are the same object's same field. The two
+   orders also coincide: segments are created and activated through one FIFO queue that is only
+   ever appended to and dequeued, so the k-th created segment is the k-th activated — which is
+   why a creation-time stamp reproduces an activation-time accumulator exactly.
+   → **Closed** (owner play test, 2026-09-05): a T-junction commits normally under the
+   creation-time stamp. The one place Phase 1 could have been wrong was not.
 2. **CoinMagnet: implement, or delete the type?** Recommended: keep and make it a student task —
    `PowerUpType` values are serialized in `PowerUpDefinition` assets, so removing the enum member
    is the more disruptive option, and an advertised-but-unimplemented power-up is a better

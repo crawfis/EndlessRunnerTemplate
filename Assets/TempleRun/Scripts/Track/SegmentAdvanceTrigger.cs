@@ -75,7 +75,9 @@ namespace CrawfisSoftware.TempleRun
             _currentSegment = segment;
             _isRunning = true;
             _exitingFired = false;
-            _currentExitDistance += _currentSegment.Length;
+            // Run-absolute off the message. This used to accumulate segment lengths privately, and
+            // three other components kept the same sum so their boundaries would agree with it.
+            _currentExitDistance = _currentSegment.EndDistance;
 
             DistanceInterestService.Instance.Register(_currentExitDistance - TempleRunConstants.SegmentExitingTriggerDistance);
             DistanceInterestService.Instance.Register(_currentExitDistance);

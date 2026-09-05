@@ -91,6 +91,19 @@ Entrance ──ToPivotDistance──▶ Pivot ──ExitDistance──▶ Exit
 | `TurnFailureDistance` | how far past the pivot the player may go before failing a required turn. `float.MaxValue` for Straight; else `ToPivotDistance + 1`, clamped to `Length - TurnFailureMarginBeforeExit` so it stays strictly inside the segment. |
 | `TeleportDistance` | where the player "lands" after the turn animation, measured from the pivot. Must be `< ExitDistance`. Defaults to `ExitDistance * 0.5`. |
 
+> **Every distance in that table is measured from the segment's own entrance.** Consumers
+> measure from the start of the *run*, and the number that converts between the two is the
+> distance at which the segment began. `TrackManager` owns it: it stamps
+> `TrackSegmentInfo.StartDistance` once, when the segment is created, and the message carries
+> run-absolute `PivotDistance`, `TurnFailureDistance` and `EndDistance` alongside the
+> definition's relative ones.
+>
+> So the rule is: **read a position off the message, a shape off the definition, and never
+> accumulate either.** `Length` and `TeleportDistance` are lengths rather than positions, so
+> they have no absolute form. Five components used to keep private running sums of the
+> segment origin, agreeing only by hand — see
+> [TRACK_PLAYER_DECOUPLING §1](specs/TRACK_PLAYER_DECOUPLING.md).
+
 ### Normalization rules (`Normalize`, run once per definition)
 
 ```

@@ -31,9 +31,9 @@ namespace CrawfisSoftware.TempleRun
         // Tracks how many segments have been activated (consumed from the cache).
         private int _activatedCount = 0;
 
-        // Cumulative distance at the START of the current segment.
-        private float _segmentStartDistance = 0f;
-        private float _previousSegmentLength = 0f;
+        // The active segment's message, kept for its run-absolute distances. TrackManager stamps
+        // those at creation, so this class no longer keeps a private running sum of segment lengths.
+        private TrackSegmentInfo _activeSegment;
 
         private void Awake()
         {
@@ -71,8 +71,7 @@ namespace CrawfisSoftware.TempleRun
         private void OnTrackChanging(string eventName, object sender, object data)
         {
             var segmentInfo = (TrackSegmentInfo)data;
-            _segmentStartDistance += _previousSegmentLength;
-            _previousSegmentLength = segmentInfo.Length;
+            _activeSegment = segmentInfo;
             _isOnExitSection = false;
 
             // Pop the next geometry in FIFO order (lowest sequence index = next segment).
@@ -106,12 +105,14 @@ namespace CrawfisSoftware.TempleRun
             // not Pivot (the centre-line approach end). Anchoring the exit sub-spline here puts the
             // player on the tiles and lines its end up with the next segment — no sideways jump.
             // Truncate to TeleportDistance.
+            // Geometry supplies the points, the segment message supplies the distances - the same
+            // TeleportDistance on both lines, so where the player lands and how far that is agree.
             Vector3 exitDir = (_activeGeometry.ExitEnd - _activeGeometry.ExitStart).normalized;
-            Vector3 teleportLanding = _activeGeometry.ExitStart + exitDir * _activeGeometry.Definition.TeleportDistance;
+            Vector3 teleportLanding = _activeGeometry.ExitStart + exitDir * _activeSegment.TeleportDistance;
 
-            float landingDistance = _segmentStartDistance
-                + _activeGeometry.Definition.ToPivotDistance
-                + _activeGeometry.Definition.TeleportDistance;
+            // PivotDistance is run-absolute; TeleportDistance is a length past the pivot, so it
+            // stays relative and is added on.
+            float landingDistance = _activeSegment.PivotDistance + _activeSegment.TeleportDistance;
 
             var exitSpline = (_activeGeometry.ExitStart, teleportLanding, _activeGeometry.Direction, landingDistance);
             TempleRunBus.Publish(
@@ -121,7 +122,7 @@ namespace CrawfisSoftware.TempleRun
         private void OnSegmentExited(string eventName, object sender, object data)
         {
             // Publish the current sub-spline as "changed" (transition complete).
-            float landingDistance = _segmentStartDistance + _previousSegmentLength;
+            float landingDistance = _activeSegment.EndDistance;
             var currentSpline = _isOnExitSection
                 ? (_activeGeometry.ExitStart, _activeGeometry.ExitEnd, _activeGeometry.Direction, landingDistance)
                 : (_activeGeometry.ApproachStart, _activeGeometry.Pivot, Direction.Straight, landingDistance);
@@ -139,9 +140,7 @@ namespace CrawfisSoftware.TempleRun
             if (segmentInfo.Direction == Direction.Straight)
                 return 0f; // No teleport for straights.
 
-            return _segmentStartDistance
-                + segmentInfo.TurnPointDistance
-                + segmentInfo.TeleportDistance;
+            return segmentInfo.TurnFailureDistance + segmentInfo.TeleportDistance;
         }
     }
 }

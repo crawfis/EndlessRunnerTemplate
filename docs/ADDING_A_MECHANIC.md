@@ -230,6 +230,37 @@ the rule is the same — take them only if something needs them:
   tutorial hint). Without it, a rejected request is silent, which is usually fine and
   occasionally the bug.
 
+### Shared derived data goes on the payload; shared decisions get one owner
+
+Sooner or later two components need the same number. There are two right answers and one
+tempting wrong one.
+
+- **If it is *data* several components need — put it on the event they already receive.**
+  Whoever publishes the event is usually the only one who can compute it correctly, and
+  every subscriber then gets it for free.
+- **If it is a *decision* — give it exactly one owner** and let that owner announce the
+  outcome as an event. `TurnController` decides whether a turn is legal; nobody else votes.
+- **The wrong answer is for each consumer to derive it privately** from a message that
+  almost carried it.
+
+That last one does not look like a bug, which is why it spreads. The track measures
+distances from each segment's own entrance; every consumer measures from the start of the
+run. Converting between them needs one number — the distance at which the segment began —
+and because the message did not carry it, **five components each kept their own running
+sum**: two turn components, the segment-advance trigger, the transition controller, and the
+HUD. They agreed only because someone kept them agreeing by hand, and the comment that used
+to sit in `TurnController.OnTrackChanging` recorded what it cost when one of them drifted.
+
+The fix was not a new event. `TrackSegmentInfo` gained one field —
+`StartDistance`, stamped once by `TrackManager`, the only component that knows the queue
+order and every segment's length — plus the accessors that add it. Five accumulators became
+zero, `AIController` stopped holding a `[SerializeField] TurnController` to read two numbers
+off it, and no enum member was added or removed. Before you add an event to move a value
+around, check whether a message that already reaches everyone could simply carry it.
+
+The full worked example is
+[TRACK_PLAYER_DECOUPLING §1](specs/TRACK_PLAYER_DECOUPLING.md).
+
 ## 6. Wire it into a scene
 
 Add the `RollController` to the gameplay controllers object (see `TempleRunGameplay` /
