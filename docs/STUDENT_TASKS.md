@@ -1,7 +1,7 @@
 # Student Task Catalog: From Plain Runner to Polished Product
 
 The template is deliberately a *plain* runner — capsule player, primitive obstacles, flat
-track. That's the point: everything below is a well-scoped way to make it yours. **128
+track. That's the point: everything below is a well-scoped way to make it yours. **130
 tasks**, grouped by sub-specialty so a team can divide work along interests (gameplay code,
 tech art, audio, UI, systems design…). Effort tags are rough: **S** = a few days, **M** = a
 week or two, **L** = a multi-week centerpiece. Tasks are referenced as section-letter +
@@ -168,6 +168,18 @@ presentation running order. The tasks below are what those plans point at — tw
    slot instead: pick it up, carry it, spend it when *you* choose. One slot first, then N,
    then decide whether a second pickup swaps or stacks — that decision is the design. Builds
    on `IPowerUpEffect`, so the effects themselves need no changes.
+8. **Make the coin magnet actually work (S/M).** `CoinMagnetEffect` exists, is registered in
+   `PowerUpBuffController`, has its own `PowerUpType`, and *does nothing* — it sets
+   `Magnitude` as a radius that no code has ever read (audited 2026-09-04; see
+   [specs/TRACK_PLAYER_DECOUPLING.md](specs/TRACK_PLAYER_DECOUPLING.md) finding #10). Your job
+   is the missing half: while the buff is active, coins within the radius move toward the
+   player and collect. Start by deciding *where* that logic belongs — the effect object, the
+   coin, a collector on the player, or a service — and defend the choice; the answer is the
+   point of the exercise. Then decide what the magnet does to `CoinCollecting`: does a magneted
+   coin publish the same event as a touched one? Good first "real feature" task, because every
+   seam it needs already exists and nothing else in the game changes.
+   **Bonus, harder:** two of the five power-ups were dead this way. Write a test or an editor
+   check that would have caught it — a power-up whose state nothing consumes.
 
 ## E. Progression, Scores & Economy
 
@@ -455,6 +467,19 @@ expects — is part of the exercise. Read the PanelRenderer rules in
     scenes, whether both run at once (and what that does to a toggle), and collapse them into
     one. A small, self-contained lesson in why duplicated event handlers are worse than
     duplicated methods.
+15. **Move the config assets off the `Blackboard` (M).** `Blackboard` holds five
+    ScriptableObject references — `LaneConfig`, `JumpConfig`, `SlideConfig`, `DashConfig`,
+    `CoinConfig` — that are *configuration*, not run state, so they fail the one-sentence rule
+    the class was given: *the run's mutable state of record*. The repo's ruling is that **a
+    domain owns its own data**, which means each config belongs on the controller that reads
+    it, as a serialized field. Do them one at a time, play-testing each, and keep a list of
+    every Inspector step you had to perform — that list is half the deliverable, because it is
+    the cost the ruling actually imposes and the reason this was left undone. Rationale and the
+    per-config reader counts are in
+    [specs/TRACK_PLAYER_DECOUPLING.md §5](specs/TRACK_PLAYER_DECOUPLING.md).
+    **The interesting part is where you stop:** some `Blackboard` members legitimately stay
+    (`DistanceTracker`, `CurrentSpeed`, the live offsets). Argue the boundary, don't just move
+    everything.
 
 ## M. Genre Pivot: Runner → Explorer
 

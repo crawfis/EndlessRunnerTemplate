@@ -266,23 +266,32 @@ from, so it is the highest-leverage edit in the migration.
   and Unity's test framework supports async tests directly. It makes the task easier and the
   tests less flaky, and students should know that before they scope it.
 - **Two new tasks in section L**, both of which only become possible after this migration:
-  - **L15. Await an event (S/M).** Add an `Awaitable`-returning `WaitAsync(token)` to
+  - **L16. Await an event (S/M).** Add an `Awaitable`-returning `WaitAsync(token)` to
     `EventId<T>` / `EventsFor<T>`, so a controller can write
     `await JumpLanded.WaitAsync(token)` instead of subscribing, setting a flag, and
     unsubscribing. Convert two call sites, then argue the trade-off honestly: it reads far
     better, and it hides the subscription from `/audit-events` and from **List Current
     Subscribers**. Decide where the line is and document the rule you used.
-  - **L16. Async lifetime audit (S).** The `async` sibling of L11. Write the `/audit-events`
+  - **L17. Async lifetime audit (S).** The `async` sibling of L11. Write the `/audit-events`
     companion check that flags an `await` with no cancellation token, an `async void` on a
     MonoBehaviour, and a CTS that is never cancelled in `OnDestroy` — the three ways an async
     method outlives its object. Seed it by reintroducing each defect on a branch and
     confirming the check catches it.
-- **The task count moves 128 → 130.** It is quoted in eight places, all of which change
-  together: `docs/STUDENT_TASKS.md` (the intro), `docs/TALK_OUTLINE.md` (four),
-  `docs/TIMEBOX_1_REQUIREMENTS.md`, `docs/TUTORIAL_SERIES.md`, `docs/ai/timebox-1.md`,
-  `CLAUDE.md`, and `README.md`. `docs/TIMEBOX_1_REQUIREMENTS.html` and
-  `docs/TIMEBOX_2_REQUIREMENTS.html` are generated from their `.md` siblings — regenerate
-  rather than hand-edit.
+- **The task count moves 130 → 132.** (It was 128 when this plan was written; D8 and L15
+  landed first — see [TRACK_PLAYER_DECOUPLING.md](TRACK_PLAYER_DECOUPLING.md) §8. That is also
+  why the two new tasks above are numbered L16/L17 rather than L15/L16.)
+  **The "eight places" list below was short — the real count is fifteen.** Prose occurrences,
+  all of which change together:
+  `docs/STUDENT_TASKS.md` (the intro), `docs/TALK_OUTLINE.md` (**four**: two stat lines and
+  two prose mentions), `docs/TIMEBOX_1_REQUIREMENTS.md`, `docs/TUTORIAL_SERIES.md`,
+  `docs/ai/timebox-1.md`, `CLAUDE.md`, `README.md` — **and the two talk decks that the
+  original list missed**, `docs/talk/its-just-an-endless-runner.html` (four: a stat tile, a
+  speaker note, a source caption, the closing slide) and
+  `docs/talk/its-just-an-endless-runner-v2.html` (four, same shape).
+  **Generated — regenerate, never hand-edit:** `docs/TIMEBOX_1_REQUIREMENTS.html` and
+  `docs/canvas/timebox1/*.html` come from `docs/TIMEBOX_1_REQUIREMENTS.md` via
+  `python docs/canvas/build_timebox1.py`, which **requires `pandoc` on PATH**;
+  `docs/TIMEBOX_2_REQUIREMENTS.html` likewise from its `.md` sibling.
 
 ### Not affected
 

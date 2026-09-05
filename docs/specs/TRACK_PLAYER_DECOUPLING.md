@@ -176,7 +176,11 @@ shipped siblings silently do not work. A student adding a sixth effect will foll
 
 **11. The 320-block is dead; the legacy prefixed block is live.** This inverts what
 [DOMAIN_DECOMPOSITION §3](DOMAIN_DECOMPOSITION.md#3-bridge-vocabulary-translate-dont-relay)
-assumed. Reference counts outside the enum:
+assumed — though it is *not* new to the repo: **student task L13 already names these three
+members as "genuine cruft… which duplicate the `TempleRun*`-prefixed members the live code
+actually uses".** L13 was right and the decomposition analysis was wrong; this plan sides with
+L13, and Phase 5 therefore does a slice of L13's work (see §7). Reference counts outside the
+enum:
 
 | Legacy (to retire) | files | Native replacement | files |
 |---|---|---|---|
@@ -283,12 +287,14 @@ own data*, "moves out" means "moves to the concern that owns it" — not to anot
 | `ActiveSpeedMultiplier` | written, never read — but the feature is advertised | **Wired**, not deleted: one term added at `DistanceController:98` beside the dash and slide multipliers it was always meant to sit with |
 | `LaneConfig`, `JumpConfig`, `SlideConfig`, `DashConfig`, `CoinConfig` (asset refs) | they are configuration, not run state — and by the Q5 ruling, config follows its mechanic | **Serialized on the controller that reads each** — but see the deferral below |
 
-**The config references are deferred to Phase 7 and recommended as a student task.** They fail
-the sentence, so the ruling says they should move; but each move is a serialized field on a
-prefab or scene object, which means a manual Inspector step per config per host, and the win is
-tidiness rather than capability. Moving them is a *good* exercise — it is mechanical, verifiable
-by play test, and teaches the ruling — and a poor use of a maintainer's afternoon. It is written
-up as such rather than silently dropped.
+**The config references leave this plan and become a student exercise**
+([STUDENT_TASKS L15](../STUDENT_TASKS.md#l-architecture-code--tooling); owner ruling
+2026-09-05). They fail the sentence, so the ruling says they should move; but each move is a
+serialized field on a prefab or scene object, which means a manual Inspector step per config per
+host, and the win is tidiness rather than capability. Moving them is a *good* exercise — it is
+mechanical, verifiable by play test, and teaches the Q5 ruling by applying it — and a poor use of
+a maintainer's afternoon. This row stays here as the rationale a student is pointed at; the work
+is L15's, not this plan's.
 
 What remains in `Blackboard` afterwards is coherent and passes its own sentence: `GameConfig`,
 `DistanceTracker`, `CurrentSpeed`, `TrackWidthOffset`, `TileLength`, `MasterRandom`, the four
@@ -309,7 +315,9 @@ Every phase ends compile-clean (`dotnet build Assembly-CSharp.csproj`), play-tes
 > because it is unusual here. No phase adds a MonoBehaviour, and the one file move (Phase 3)
 > carries its `.meta`, so every script GUID and every scene reference survives. The only
 > serialized change is a *removal* (`AIController._turnController`), which Unity drops
-> silently and safely. Phase 7, if taken, is the exception and says so.
+> silently and safely. The one piece of work that *would* have needed Inspector steps — moving
+> the config references off `Blackboard` — is now student task L15 rather than a phase here, so
+> this holds for the plan without exception.
 
 **Phase 1 — absolute distances on the message.** (§1, §4 — the root cause.)
 `TrackSegmentInfo` gains `StartDistance` and absolute accessors; `TrackManager` stamps it at
@@ -356,10 +364,11 @@ receives its table.
 rule, the "grep undercounts publishers" trap, and the renumbering asymmetry are established
 facts that exist only in the brief and in scattered comments. They go in EVENTS.md (§7).
 
-**Phase 7 — config injection (recommended as a student task, not scheduled).** The five config
-asset references leave `Blackboard` for the controllers that read them. **This is the one phase
-with manual Inspector steps** — one serialized field per config per host object — and they must
-be enumerated in its own spec before anyone starts.
+*(There is no Phase 7. Config injection — the five config asset references leaving `Blackboard`
+for the controllers that read them — was the seventh phase in this plan's first draft and is now
+[student task L15](../STUDENT_TASKS.md#l-architecture-code--tooling) by owner ruling. Whoever
+takes it must enumerate the manual Inspector steps, one serialized field per config per host
+object, before starting.)*
 
 ### Scoring against "reduce, don't raise"
 
@@ -390,7 +399,8 @@ port the two together or not at all.
 | **docs/EVENTS.md** | `TurnForceRequested`; the difficulty renames and deletions; `TrackSegmentInfo`'s new payload shape. **New section: runtime delivery mechanics** — breadth-first drain, publish-from-inside-a-callback ordering, why grep undercounts publishers, and the TempleRun/GameFlow renumbering asymmetry | 2–6 |
 | **docs/ARCHITECTURE.md** | **Probably nothing.** Checked: "Where things live" is a four-line top-level tree that names no controller, and there is no turn-flow diagram to update. Re-read "Track generation (summary)" after Phase 1 and confirm it still reads true | 1 |
 | **docs/ADDING_A_MECHANIC.md** | No forced change — checked, it carries no payload cast. **Worth adding** as new guidance: the §2 rule, *shared derived data goes on the payload; shared decisions get one owner*. It is the lesson Phase 1 exists to teach and the walkthrough is where a student would look for it | 1, 2 |
-| **docs/STUDENT_TASKS.md** | L13's dead-member list drops from 28 to 24 (§6). **New task:** implement `CoinMagnetEffect` — it has a type, an asset hook, and a registered effect, and does nothing; a genuinely useful exercise with a visible result. **Revise** any task pointing at `AIController._turnController` or at `TurnController.ForceTurn()` as a public seam — both are gone | 1, 3, 4, 5 |
+| **docs/STUDENT_TASKS.md** | **D8** (CoinMagnet) and **L15** (config injection) added when the exercises were approved — see §8. **L13 must be revised by Phase 5, not just renumbered:** Phase 5 deletes the three 320-block members L13 offers as its worked example of "rotten" cruft, so the task loses that example and needs a replacement drawn from the remaining 24. Dead count 28 → 24 (§6). **Revise** any task pointing at `AIController._turnController` or `TurnController.ForceTurn()` as a public seam — both are gone | 1, 3, 4, 5 |
+| **The task count (128 → 130)** | Done with the D8/L15 additions. Ten prose occurrences updated across `STUDENT_TASKS`, `TALK_OUTLINE` (four), `CLAUDE.md`, `README.md`, `TUTORIAL_SERIES`, `TIMEBOX_1_REQUIREMENTS`, `ai/timebox-1`. **Four HTML files are knowingly left stale:** `TIMEBOX_1_REQUIREMENTS.html` and `canvas/timebox1/01-overview-and-objective.html` are generated by `docs/canvas/build_timebox1.py`, which needs **pandoc on PATH** (not installed here) — regenerate, never hand-edit; the two `docs/talk/*.html` decks each quote it four times and are hand-authored, so whoever next presents should re-run TALK_OUTLINE's fact sheet | done |
 | **docs/KNOWN_ISSUES.md** | Add the two inert power-ups if they are not fixed in the same PR as they are documented | 4 |
 | **docs/TALK_OUTLINE.md** | §1 is a better story than the one currently in the coupling slide: *three components independently recomputing the same number, because the message they all received was missing it.* That is the architecture's failure mode stated in one sentence, and its fix is a field | 1 |
 | **docs/specs/COUPLING_AUDIT.md** | Status → analysis complete, pointing here | on merge |
@@ -408,9 +418,19 @@ port the two together or not at all.
 2. **CoinMagnet: implement, or delete the type?** Recommended: keep and make it a student task —
    `PowerUpType` values are serialized in `PowerUpDefinition` assets, so removing the enum member
    is the more disruptive option, and an advertised-but-unimplemented power-up is a better
-   exercise than a missing one. Needs the owner's call before Phase 4 documents it as such.
+   exercise than a missing one.
+   → **Answered: student exercise** (owner, 2026-09-05). Catalogued as
+   [STUDENT_TASKS D8](../STUDENT_TASKS.md#d-power-ups--collectables). Phase 4 therefore deletes
+   `CoinMagnetActive`/`CoinMagnetRadius` from `Blackboard` and leaves `CoinMagnetEffect` in
+   place with a comment pointing at D8 — **the effect must not be quietly deleted**, because the
+   task's starting point is that the type, the asset hook and the registration already exist.
 3. **Does Phase 7 happen at all?** It follows from the Q5 ruling, so the ruling says yes
    eventually. The question is only whether a maintainer does it or a student does.
+   → **Answered: student exercise** (owner, 2026-09-05). Catalogued as
+   [STUDENT_TASKS L15](../STUDENT_TASKS.md#l-architecture-code--tooling). Phase 7 is struck from
+   this plan's schedule — §5's config-reference row stays as the *rationale* a student reads, and
+   the plan now ends at Phase 6. This also means the only phase that would have needed manual
+   Inspector steps is no longer this plan's work: **every remaining phase is Inspector-free.**
 4. **Phase C gate.** Nothing here answers whether TrackPCG should be extracted — but §2's table
    is now the evidence for that decision, and Phase 6 answers the cross-bus timing precondition
    that DOMAIN_DECOMPOSITION §2 requires before anyone tries.
