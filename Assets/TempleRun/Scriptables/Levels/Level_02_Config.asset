@@ -12,16 +12,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd01fb55015ba9f46ab84a81ad584f9c, type: 3}
   m_Name: Level_02_Config
   m_EditorClassIdentifier: Assembly-CSharp::CrawfisSoftware.GameFlow.Config.LevelConfig
-  LevelName: Level 1
+  LevelName: Level 2
   Description: The basic prototype
   Thumbnail: {fileID: 0}
   SortOrder: 0
   GameplaySceneName: TempleRunGameplay
   Difficulties:
+  - DifficultyName: Easy
+    InitialSpeed: 5
+    MaxSpeed: 80
+    Acceleration: 5
+    StartRunway: 8
+    MinTrackLength: 4
+    MaxTrackLength: 20
+    SafePreTurnDistance: 5
+    SafePostTurnDistance: 0.5
+    InputCoolDownForTurns: 1
+    NumberOfLives: 2
+    ObstacleSpawnRate: 1
+    CoinSpawnRate: 0.8
+    PowerUpSpawnRate: 0.15
+    ScoreMultiplier: 1
+    EnableAdvancedObstacles: 0
   - DifficultyName: Medium
     InitialSpeed: 5
     MaxSpeed: 80
-    Acceleration: 0.2
+    Acceleration: 5
     StartRunway: 8
     MinTrackLength: 4
     MaxTrackLength: 20
