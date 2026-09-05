@@ -1,8 +1,12 @@
 # Scoping brief: where track/segment vocabulary leaks into player control
 
-**Status:** scoping brief — **the analysis has not been done.** This document exists so the
-session that does it starts from evidence rather than a blank page.
-**Produce:** a plan, in this folder, in the style of
+**Status:** scoping brief — **analysis complete (2026-09-04).** The plan it asked for is
+[TRACK_PLAYER_DECOUPLING.md](TRACK_PLAYER_DECOUPLING.md); read that for the verdicts, the
+target design and the phasing. This file stays as the brief that framed it — the evidence
+below was gathered at PR #27 and is preserved as written, so the plan's re-verification at
+`7faa742` can be diffed against it. Three of its nine items turned out to be one root cause,
+and the plan adds three findings this brief does not have.
+**Produced:** a plan, in this folder, in the style of
 [SO_MIGRATION.md](SO_MIGRATION.md) / [AWAITABLE_MIGRATION.md](AWAITABLE_MIGRATION.md) —
 scope, target design, phasing, verification, documentation fallout.
 

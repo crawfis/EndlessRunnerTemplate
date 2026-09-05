@@ -437,17 +437,17 @@ files; it is in this PR only because it was ready). The checklist as executed:
    **RUGS:** the freeze turned out not to block a reviewed domain addition — the port
    landed in its own RunnerUGSTemplate PR (§9 Q4).
 
-**Phase B — COUPLING_AUDIT execution** ← **next; not started** (its brief still reads "the
-analysis has not been done"). Run it per its own brief, with two additions: the vocabulary
-map is drawn as the would-be TrackPCG bridge table with every row passing §3's translation
-test, and what remains of the §3 rename batch rides along, since the audit is already
-touching those files and EVENTS.md. **That batch is now one item, not three** — the two
-cheap renames (`TempleRunScenesReady → RunInitializeRequested`, `TempleRunLevelApplied →
-TrackLevelApplied`) went with Phase A; what is left is retiring the legacy
-`TempleRunConfigApplied` (300) and `TempleRunDifficulty*` (310–318) members onto the native
-320-block. Verify the cross-bus timing semantics (a small test publishing across buses from
-inside a drain) before any turn-flow change relies on them — and note that Phase A did not
-answer this question, since the countdown split cut no synchronous choreography.
+**Phase B — COUPLING_AUDIT execution** — **analysis done 2026-09-04; execution not started.**
+The plan is [TRACK_PLAYER_DECOUPLING.md](TRACK_PLAYER_DECOUPLING.md), seven phases, none of
+them needing a manual Inspector step. Both additions this section asked for were delivered:
+its §2 draws the vocabulary map **as the would-be TrackPCG bridge table** (four rows, each a
+contract), and the surviving §3 rename rides along as its Phase 5 — where it turns out to be
+simpler than assumed. The 320-block this section proposed retargeting onto is itself
+unwired (0 references for `DifficultySettingsApplied`/`Changing`/`Changed`), so the work is a
+rename of the live `TempleRunDifficulty*` members plus a delete of the duplicates, and it
+*reduces* the dead-member count. The cross-bus timing question is still open and is that
+plan's Phase 6 — Phase A did not answer it, since the countdown split cut no synchronous
+choreography.
 
 **Phase C — TrackPCG extraction, or the deliberate decision not to.** Gate: Phase B's
 bridge table is short and contract-shaped; the timing question is answered; owner decides
@@ -502,3 +502,9 @@ doc and in the PR history still points at the same question.*
    difficulty table too — which would touch `DifficultySettings`, and therefore collides
    with the difficulty-prefix retirement now scheduled in Phase B. Worth deciding before
    Phase B starts, since the two want to edit the same fields.
+   → **Answered: yes — a domain owns its own data** (owner ruling, 2026-09-04). Applied in
+   [TRACK_PLAYER_DECOUPLING.md §5](TRACK_PLAYER_DECOUPLING.md#5-position-on-blackboard-deliverable-4),
+   where it settles the `Blackboard` question: configuration follows the concern that reads
+   it, and shared mutable state must name an owner or stop existing. The collision predicted
+   above did not materialise — finding #11 there shows the difficulty retirement is a rename
+   of live members plus a delete of unwired ones, touching no tuning fields.
