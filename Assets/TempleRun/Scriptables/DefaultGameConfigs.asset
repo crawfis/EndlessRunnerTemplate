@@ -16,10 +16,10 @@ MonoBehaviour:
   - DifficultyName: Easy
     InitialSpeed: 2
     MaxSpeed: 70
-    Acceleration: 0.2
+    Acceleration: 5
     StartRunway: 8
     MinTrackLength: 8
-    MaxTrackLength: 40
+    MaxTrackLength: 24
     SafePreTurnDistance: 6
     SafePostTurnDistance: 0.3
     InputCoolDownForTurns: 0.1
