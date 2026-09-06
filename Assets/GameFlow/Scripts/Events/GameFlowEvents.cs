@@ -79,8 +79,8 @@ namespace CrawfisSoftware.GameFlow.Events
         [EventPayload(typeof(DifficultyConfig))]
         GameConfigApplied = 82,
         GameConfigApplyFailed = 83,
-        [EventPayload(typeof(int))]
-        LevelApplied = 85,                    // data: int (selected level number; gameplay maps it to a track)
+        [EventPayload(typeof(int))]  // Selected level number
+        LevelApplied = 85,                    // gameplay maps it to a track
 
         DifficultyChangeRequested = 90,
         DifficultyChanging = 91,

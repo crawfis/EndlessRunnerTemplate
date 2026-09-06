@@ -21,23 +21,23 @@ namespace CrawfisSoftware.Events
     [EventEnum]
     public enum UserInitiatedEvents
     {
-        [EventPayload(typeof(int))]
+        [EventPayload(typeof(int))]  // Player id
         UserLeftTurnRequested,
-        [EventPayload(typeof(int))]
+        [EventPayload(typeof(int))]  // Player id
         UserRightTurnRequested,
-        [EventPayload(typeof(int))]
+        [EventPayload(typeof(int))]  // Player id
         UserPauseToggle,
-        [EventPayload(typeof(int))]
+        [EventPayload(typeof(int))]  // Player id
         UserLeftLaneChangeRequested,
-        [EventPayload(typeof(int))]
+        [EventPayload(typeof(int))]  // Player id
         UserRightLaneChangeRequested,
-        [EventPayload(typeof(int))]
+        [EventPayload(typeof(int))]  // Player id
         UserJumpRequested,
-        [EventPayload(typeof(int))]
+        [EventPayload(typeof(int))]  // Player id
         UserQuitRequested,
-        [EventPayload(typeof(int))]
+        [EventPayload(typeof(int))]  // Player id
         UserSlideRequested,
-        [EventPayload(typeof(int))]
+        [EventPayload(typeof(int))]  // Player id
         UserDashRequested,
     }
 }

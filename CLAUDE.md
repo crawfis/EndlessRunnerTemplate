@@ -251,6 +251,22 @@ the enum is what tells every call site (and StrictMode) which cast is right. Eve
 payload, or a genuinely variable one, stay undeclared - no declaration means no checking,
 which is the intended default. Do not reintroduce `EventId<T>` fields in new code.
 
+**A basic-typed payload gets an inline comment saying what the value *is*.**
+`typeof(TrackSegmentInfo)` names its own meaning; `typeof(int)` does not, and a reader of
+one member should not have to find the publisher to learn whether the number is a player,
+a level or a score:
+
+```csharp
+[EventPayload(typeof(int))]  // Player id
+JumpRequested = 80,
+
+[EventPayload(typeof(float))]  // Distance travelled, run-absolute
+DistanceUpdated = 330,
+```
+
+This applies to `int`, `float`, `string`, `bool`, `long` and `double`. Domain types name
+themselves and need no comment.
+
 ### Delivery Policy - edge or level
 
 Default is `Transient`: a subscriber that arrives after the publish hears nothing. Mark an
