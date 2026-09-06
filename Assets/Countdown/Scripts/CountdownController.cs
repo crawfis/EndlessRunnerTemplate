@@ -1,6 +1,6 @@
 using CrawfisSoftware.Countdown.Events;
 
-using System.Collections;
+using System.Threading;
 
 using UnityEngine;
 using CountdownBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.Countdown.Events.CountdownEvents>;
@@ -21,7 +21,9 @@ namespace CrawfisSoftware.Countdown
         // ceremony, and a cross-assembly internal is unreachable under RUGS's asmdefs anyway.
         [SerializeField] private float _countdownSeconds = 3f;
 
-        private Coroutine _countdownCoroutine;
+        // One token source covers both restart (a second CountdownStarting cancels the
+        // countdown in flight) and destroy.
+        private CancellationTokenSource _cts;
 
         private void Awake()
         {
@@ -33,17 +35,18 @@ namespace CrawfisSoftware.Countdown
         {
             CountdownBus.Unsubscribe(
                 CountdownEvents.CountdownStarting, OnCountdownStarting);
+
+            _cts?.Cancel();
         }
 
         private void OnCountdownStarting(string eventName, object sender, object data)
         {
-            if (_countdownCoroutine != null)
-                StopCoroutine(_countdownCoroutine);
-
-            _countdownCoroutine = StartCoroutine(CountdownRoutine(_countdownSeconds));
+            _cts?.Cancel();
+            _cts = new CancellationTokenSource();
+            _ = CountdownRoutine(_countdownSeconds, _cts.Token);
         }
 
-        private IEnumerator CountdownRoutine(float seconds)
+        private async Awaitable CountdownRoutine(float seconds, CancellationToken token)
         {
             // CountdownStarting says the countdown was asked for; CountdownStarted says the
             // clock is actually running. Anything that must not fire on a cancelled start
@@ -56,7 +59,7 @@ namespace CrawfisSoftware.Countdown
 
             while (t > 0f)
             {
-                yield return null;
+                await Awaitable.NextFrameAsync(token);
                 t -= Time.deltaTime;
                 int currentSecond = Mathf.FloorToInt(t);
                 if (currentSecond != lastReportedSecond)
@@ -66,8 +69,6 @@ namespace CrawfisSoftware.Countdown
                         CountdownEvents.CountdownTick, this, currentSecond);
                 }
             }
-
-            _countdownCoroutine = null;
 
             // Only CountdownEnding is published here - CountdownEnding -> CountdownEnded is
             // auto-chained. That link is where a "GO!" flash or a start-line delay goes, and

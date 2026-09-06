@@ -1,7 +1,7 @@
 using CrawfisSoftware.Events;
 using CrawfisSoftware.TempleRun.GameConfig;
 
-using System.Collections;
+using System.Threading;
 
 using UnityEngine;
 using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
@@ -19,7 +19,10 @@ namespace CrawfisSoftware.TempleRun
     internal class LaneOffsetController : MonoBehaviour
     {
         [SerializeField] private LaneChangeController _laneChangeController;
-        private Coroutine _lerpCoroutine;
+
+        // One token source covers both restart (a new lane change cancels the lerp in flight)
+        // and destroy, so the lerp never needs destroyCancellationToken as well.
+        private CancellationTokenSource _cts;
 
         private void Start()
         {
@@ -36,27 +39,28 @@ namespace CrawfisSoftware.TempleRun
             TempleRunBus.Unsubscribe(
                 TempleRunEvents.LaneChangingRight, OnLaneChangingRight);
 
-            if (_lerpCoroutine != null)
-                StopCoroutine(_lerpCoroutine);
+            _cts?.Cancel();
         }
 
         private void OnLaneChangingLeft(string eventName, object sender, object data)
         {
             int targetLane = (int)data;
             float targetOffset = -targetLane * Blackboard.Instance.LaneConfig.LaneWidth;
-            _lerpCoroutine = StartCoroutine(
-                LerpToOffset(targetOffset, TempleRunEvents.LaneChangedLeft, data));
+            _cts?.Cancel();
+            _cts = new CancellationTokenSource();
+            _ = LerpToOffset(targetOffset, TempleRunEvents.LaneChangedLeft, data, _cts.Token);
         }
 
         private void OnLaneChangingRight(string eventName, object sender, object data)
         {
             int targetLane = (int)data;
             float targetOffset = -targetLane * Blackboard.Instance.LaneConfig.LaneWidth;
-            _lerpCoroutine = StartCoroutine(
-                LerpToOffset(targetOffset, TempleRunEvents.LaneChangedRight, data));
+            _cts?.Cancel();
+            _cts = new CancellationTokenSource();
+            _ = LerpToOffset(targetOffset, TempleRunEvents.LaneChangedRight, data, _cts.Token);
         }
 
-        private IEnumerator LerpToOffset(float targetOffset, TempleRunEvents completionEvent, object data)
+        private async Awaitable LerpToOffset(float targetOffset, TempleRunEvents completionEvent, object data, CancellationToken token)
         {
             LaneConfig config = Blackboard.Instance.LaneConfig;
             float startOffset = _laneChangeController.LateralLaneOffset;
@@ -69,12 +73,11 @@ namespace CrawfisSoftware.TempleRun
                 float t = Mathf.Clamp01(elapsed / duration);
                 float curvedT = config.LaneChangeCurve.Evaluate(t);
                 _laneChangeController.LateralLaneOffset = Mathf.Lerp(startOffset, targetOffset, curvedT);
-                yield return null;
+                await Awaitable.NextFrameAsync(token);
             }
 
             // Snap to exact target
             _laneChangeController.LateralLaneOffset = targetOffset;
-            _lerpCoroutine = null;
 
             TempleRunBus.Publish(completionEvent, this, data);
         }
