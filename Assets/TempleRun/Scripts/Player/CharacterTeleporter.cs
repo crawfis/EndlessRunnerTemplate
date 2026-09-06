@@ -7,7 +7,7 @@ namespace CrawfisSoftware.TempleRun
     /// <summary>
     /// Moves the Character smoothly from the current position to the start of the new spline.
     ///    Dependency: EventsFor<TempleRunEvents>
-    ///    Subscribes: TeleportStarted
+    ///    Subscribes: TeleportStarted (data: TeleportInfo)
     /// </summary>
     public class CharacterTeleporter : MonoBehaviour
     {
@@ -23,15 +23,15 @@ namespace CrawfisSoftware.TempleRun
 
         private void OnTeleportStarted(string eventName, object sender, object data)
         {
-            var (teleportTime, splineData) = ((float, object))data;
-            var (point1, point2, _, _) = ((Vector3, Vector3, Direction, float))splineData;
-            Vector3 targetDirection = (point2 - point1).normalized;
+            var teleport = (TeleportInfo)data;
+            Vector3 targetDirection = teleport.Destination.Heading;
             // Land in the player's current lane, not on the centre line: offset the target
             // perpendicular to the new heading. Without this the turn dumps the player onto the
             // centre of the new segment regardless of the lane they were running in.
-            var targetPosition = new Vector3(point1.x, _yPosition, point1.z) + LaneOffset(targetDirection);
+            Vector3 landing = teleport.Destination.Start;
+            var targetPosition = new Vector3(landing.x, _yPosition, landing.z) + LaneOffset(targetDirection);
             Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
-            StartCoroutine(SmoothlyTeleport(teleportTime, targetPosition, targetRotation));
+            StartCoroutine(SmoothlyTeleport(teleport.Duration, targetPosition, targetRotation));
         }
 
         // Matches MoveCharacterByDistance.GetLateralOffset so the position the teleport lands on is

@@ -57,6 +57,9 @@ namespace CrawfisSoftware.TempleRun
         // gate and publishes Starting. TurnCommitController commits an Either junction and
         // publishes Started; the teleport onto the new spline is the turn's duration, and
         // TeleportController publishes Ending when it lands. Only Ending -> Ended is chained.
+        // Started carries the run-absolute distance the turn was committed at; the terminal rungs
+        // carry nothing. Ending used to forward the exit spline, which no subscriber read and
+        // which parked track vocabulary on a player event.
         // Renumbered from the old 50-56 layout, which had no *Started rungs and left the
         // terminal rungs stranded at 58/59. Safe because no TempleRunEvents member is
         // serialized in a scene or prefab - unlike GameFlowEvents, which is.
@@ -141,7 +144,14 @@ namespace CrawfisSoftware.TempleRun
         SplineSegmentReleased = 205,
 
         CurrentSplineChangeRequested = 220,
+        // The path the player is on and - via SplineSection.TeleportOwnsTransform - who writes
+        // their transform while it is current. That rule used to be a Direction comparison each
+        // subscriber made for itself against an unnamed four-slot tuple.
+        [EventPayload(typeof(SplineSection))]
         CurrentSplineChanging = 221,
+        // Published at segment exit. No subscriber today; the declaration is what tells the next
+        // one, and StrictMode, what it will receive.
+        [EventPayload(typeof(SplineSection))]
         CurrentSplineChanged = 222,
 
         // ---------- Track generation (segments/tiles) ----------
@@ -161,10 +171,16 @@ namespace CrawfisSoftware.TempleRun
 
         // ---------- Teleportation ----------
         TeleportRequested = 280,
+        // Duration plus destination. The terminal rungs carry the destination alone: by the time
+        // the teleport ends its duration is spent and nothing reads it.
+        [EventPayload(typeof(TeleportInfo))]
         TeleportStarting = 281,
+        [EventPayload(typeof(TeleportInfo))]
         TeleportStarted = 282,
         TeleportEndRequested = 283,
+        [EventPayload(typeof(SplineSection))]
         TeleportEnding = 284,
+        [EventPayload(typeof(SplineSection))]
         TeleportEnded = 285,
 
         // ---------- Bridged from GameFlow ----------

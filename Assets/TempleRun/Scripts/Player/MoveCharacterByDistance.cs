@@ -10,10 +10,10 @@ namespace CrawfisSoftware.TempleRun
     /// </summary>
     /// <remarks>
     /// CurrentSplineChanging (not CurrentSplineChanged) is intentional: Changing fires at the
-    /// start of each sub-spline with point1 = sub-spline start and distance ≈ start distance,
-    /// giving a correct anchor. Changed fires at segment END with point1 = segment start but
-    /// distance = exit distance, which would reset the anchor backward. For turn segments,
-    /// Changing fires twice (approach + exit); each call correctly re-anchors to the new sub-spline.
+    /// start of each section, so Section.Start is where the player actually is and the anchor is
+    /// correct. Changed fires at segment END carrying the section's original start, which would
+    /// reset the anchor backward. For turn segments, Changing fires twice (approach + exit); each
+    /// call correctly re-anchors to the new section.
     /// </remarks>
     public class MoveCharacterByDistance : MonoBehaviour
     {
@@ -33,19 +33,17 @@ namespace CrawfisSoftware.TempleRun
 
         private void OnSplineChanging(string eventName, object sender, object data)
         {
-            var (point1, point2, direction, _) = ((Vector3, Vector3, Direction, float))data;
-            _currentDirection = (point2 - point1).normalized;
-            _lastAnchorPoint = point1;
+            var section = (SplineSection)data;
+            _currentDirection = section.Heading;
+            _lastAnchorPoint = section.Start;
             _lastAnchorDistance = Blackboard.Instance.DistanceTracker.DistanceTravelled;
-            // Re-anchor always; only place the player when nobody else is going to.
-            // A non-Straight spline change is a turn's exit, and TeleportController starts a
-            // teleport for exactly those - CharacterTeleporter then lerps the player onto this
-            // spline over the teleport duration. Snapping here first made that lerp run from the
-            // destination to the destination, so the move was real but took zero frames.
-            if (direction != Direction.Straight) return;
+            // Re-anchor always; only place the player when nobody else is going to. Who that is
+            // is named on the message - see SplineSection.TeleportOwnsTransform, which is where
+            // the reason this must not snap now lives.
+            if (section.TeleportOwnsTransform) return;
 
             float yPos = _yPosition + Blackboard.Instance.JumpHeightOffset + Blackboard.Instance.SlideHeightOffset;
-            Vector3 basePos = new Vector3(point1.x, yPos, point1.z);
+            Vector3 basePos = new Vector3(section.Start.x, yPos, section.Start.z);
             basePos += GetLateralOffset();
             _objectToMove.localPosition = basePos;
             SetRotation(_currentDirection);

@@ -73,18 +73,19 @@ namespace CrawfisSoftware.TempleRun
         }
 
         /// <summary>
-        /// Snaps the distance tracker to the LandingDistance provided by
-        /// SegmentTransitionController via the event data tuple.
+        /// Snaps the distance tracker to the section's LandingDistance, stamped by
+        /// SegmentTransitionController when it published the exit section.
         /// </summary>
         private void OnTeleportEnded(string eventName, object sender, object data)
         {
             _isMoving = true;
-            var (_, _, _, landingDistance) = ((Vector3, Vector3, Direction, float))data;
-            if (landingDistance > 0f)
-            {
-                float delta = landingDistance - Blackboard.Instance.DistanceTracker.DistanceTravelled;
-                Blackboard.Instance.DistanceTracker.UpdateDistance(delta);
-            }
+            // A teleport only ever runs onto a section that owns the transform, and every such
+            // section carries a real landing. The old `> 0f` test read a sentinel the approach
+            // section used to park in an unnamed fourth tuple slot; approaches never reached
+            // here, and no longer carry one.
+            var section = (SplineSection)data;
+            float delta = section.LandingDistance - Blackboard.Instance.DistanceTracker.DistanceTravelled;
+            Blackboard.Instance.DistanceTracker.UpdateDistance(delta);
         }
 
         IEnumerator UpdateAfterGameStart()

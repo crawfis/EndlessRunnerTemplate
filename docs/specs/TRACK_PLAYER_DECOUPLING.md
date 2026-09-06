@@ -1,6 +1,6 @@
 # Plan: untangle track vocabulary from player control
 
-> **Status:** in progress — **Phase 1 complete** (2026-09-05); Phases 2-6 not started. This is the deliverable
+> **Status:** in progress — **Phases 1 and 2 complete** (2026-09-05, 2026-09-06); Phases 3-6 not started. This is the deliverable
 > [COUPLING_AUDIT.md](COUPLING_AUDIT.md) asked for (its "Produce" line), and Phase B of
 > [DOMAIN_DECOMPOSITION.md](DOMAIN_DECOMPOSITION.md#8-phasing).
 > **Verified at:** `main` @ 7faa742 (2026-09-04). The brief's evidence was gathered at PR #27
@@ -158,7 +158,7 @@ The brief asks for three judgements per item: same root cause as which others; d
 | 3 | `PlayerFailureAutoTurnController` calls `TurnController.ForceTurn()` | own cause: a missing event | **Yes** — a literal violation of CLAUDE.md rule 1, in a repo whose first rule that is | **Fix now** (Phase 3) — `TurnForceRequested = 44`, per the seam audit's already-agreed value |
 | 4 | Turn controllers live in `Scripts/Track/` | §1 (partly) + naming | Mildly | **Fix now** (Phase 3) — a file move with its `.meta`; costs nothing, and §2's map makes the right folder obvious |
 | 5 | A turn crosses four components and three scenes | §1 (partly) | **No** — this is the architecture working as designed | **Leave, and narrate.** After Phase 1 it crosses four components sharing *no* hidden state. Document it in ADDING_A_MECHANIC; do not restructure |
-| 6 | `Direction.Straight` decides which component writes the transform | §1's shape (a derived fact re-derived) | **Yes** — load-bearing and invisible; the comment at `MoveCharacterByDistance.cs:40–44` exists because it was learned the hard way | **Fix now** (Phase 2) — name it on the payload |
+| 6 | `Direction.Straight` decides which component writes the transform | §1's shape (a derived fact re-derived) | **Yes** — load-bearing and invisible; the comment at `MoveCharacterByDistance.cs:40–44` exists because it was learned the hard way | **Done** (Phase 2, 2026-09-06) — named on the payload as `SplineSection.TeleportOwnsTransform` |
 | 7 | Behaviour depends on breadth-first delivery order | own cause: undocumented runtime mechanics | **Yes**, by omission — the mechanic is not in any doc | **Leave the code; fix the docs** (Phase 6). It is also the precondition for a TrackPCG split, so it must be written down before Phase C is considered |
 | 8 | `Blackboard` mixes config, state and a controller reference | own cause | **Yes** — the controller reference teaches components to reach each other through a global | **Fix now** (Phase 4) — see §5 |
 | 9 | Precedent: remove Blackboard entries rather than add | — | — | **Adopt as a rule** (§5) |
@@ -356,7 +356,7 @@ commits, since its geometry is re-resolved after creation. **Net events: 0.**
 > with another's definition. **Play tested and passed (owner, 2026-09-05):** the turn window
 > lands where it did, the autopilot still turns, and a T-junction still commits.
 
-**Phase 2 — name the transform-ownership rule.** (item #6.)
+**Phase 2 — name the transform-ownership rule.** ✅ **Done, 2026-09-06.** (item #6.)
 Replace the `(Vector3, Vector3, Direction, float)` tuple carried by `CurrentSplineChanging` /
 `CurrentSplineChanged` with a `SplineSection` struct whose members are named, and which exposes
 the convention as a property (`TeleportOwnsTransform => Direction != Direction.Straight`), so
@@ -365,6 +365,30 @@ re-deriving the same rule. *This also retires a documented gotcha:* CLAUDE.md cu
 the four-element tuple cast as the example of a tuple payload. **Net events: 0.**
 *Verify:* turns land the player in-lane with no snap — the exact defect the comment at
 `MoveCharacterByDistance.cs:40–44` records.
+> **As executed:** ten files, no enum member added or removed (net events: 0), both assemblies
+> build clean. Two structs, not one: `SplineSection` (Track/) replaces the four-element tuple,
+> and `TeleportInfo` (Player/) replaces the `(float, object)` that wrapped it — the wrapper had
+> to change anyway, since its second slot *was* the tuple, and `CharacterTeleporter` was casting
+> twice to unwrap it.
+>
+> Three things the plan did not name, all of them the same sentinel wearing different clothes,
+> all removed:
+> - `Turn*Ending` forwarded the exit section to **no subscribers at all**. It now publishes
+>   `null`. Track vocabulary is off the turn ladder.
+> - `DistanceController`'s `if (landingDistance > 0f)` was reading the `0` an approach parked in
+>   the unnamed fourth slot. Approaches never reach `TeleportEnded`, so the branch was dead;
+>   `LandingDistance` is now documented as meaningful only when `TeleportOwnsTransform`, and the
+>   guard is gone.
+> - `SegmentTransitionController.ComputeLandingDistance` computed that unread value from
+>   `TurnFailureDistance + TeleportDistance`, while the exit section — the one actually read —
+>   uses `PivotDistance + TeleportDistance`. Two formulas for one question, neither consulted.
+>   Deleted; `SplineSection.Approach(start, end)` says the same thing by construction.
+>
+> Confirmed by grep across `Assets/**/*.cs` **and** the scenes/prefabs (no string-keyed
+> subscription to any of these names exists), so the code search is complete. CLAUDE.md's tuple
+> cast example is retired as the plan predicted, and replaced by the general rule: *prefer a
+> named struct over a tuple for any payload with more than one part.*
+> **Not yet play-tested** — owner verification pending.
 
 **Phase 3 — remove the last direct call, and move two files.** (items #3, #4.)
 Add `TurnForceRequested = 44` (the seam audit's agreed value; 50–59 is full);

@@ -1,4 +1,4 @@
-# CLAUDE.md - AI Assistant Guide for EndlessRunner
+﻿# CLAUDE.md - AI Assistant Guide for EndlessRunner
 
 This file is the concrete working guide for AI assistants — **any** AI assistant or coding
 agent, not just Claude — working with the EndlessRunner codebase: an open-source Unity 6.5
@@ -395,9 +395,9 @@ private static readonly (X From, X To)[] ChainTable = ...; // static readonly: P
 | Auto-Event Flow | `Assets/TempleRun/Scripts/Events/TempleRunAutoEventFlow.cs`, `Input2TempleRunAutoEventBridge.cs` |
 | Config | `Assets/TempleRun/Scripts/Config/Blackboard.cs`, `TempleRunGameConfig.cs`, `GameDifficultyManager.cs`, `DifficultySettings.cs`, `SetGameDifficulty.cs`, `LoadDefaultGameConfigs.cs`, `SpawnPrefabRegistry.cs`, `TempleRunConstants.cs`, per-mechanic configs (`CoinConfig.cs`, `DashConfig.cs`, `JumpConfig.cs`, `LaneConfig.cs`, `SlideConfig.cs`, `PowerUpDefinition.cs`, `PowerUpType.cs`) |
 | Player Controllers | `Assets/TempleRun/Scripts/Player/TurnController.cs` (the turn gate only), `JumpController.cs`, `SlideController.cs`, `DashController.cs`, `LaneChangeController.cs`, `PlayerLifeController.cs`, `PowerUpBuffController.cs`, `DistanceController.cs`, `MoveCharacterByDistance.cs`, `PauseController.cs`, `PlayerPauseController.cs`, `AIController.cs` |
-| Player Support | `Assets/TempleRun/Scripts/Player/` — collision detectors (`ObstacleCollisionDetector.cs`, `CollectableCollisionDetector.cs`, `TurnCollisionDetector.cs`), `CoinCollectionController.cs`, motion shaping (`JumpArcController.cs`, `SlideArcController.cs`, `DashSpeedController.cs`, `LaneOffsetController.cs`), failure/teleport (`PlayerFailedController.cs`, `PlayerFailureAutoTurnController.cs`, `TeleportController.cs`, `CharacterTeleporter.cs`); `Assets/TempleRun/Scripts/GameTime.cs` (pausable gameplay clock) |
+| Player Support | `Assets/TempleRun/Scripts/Player/` — collision detectors (`ObstacleCollisionDetector.cs`, `CollectableCollisionDetector.cs`, `TurnCollisionDetector.cs`), `CoinCollectionController.cs`, motion shaping (`JumpArcController.cs`, `SlideArcController.cs`, `DashSpeedController.cs`, `LaneOffsetController.cs`), failure/teleport (`PlayerFailedController.cs`, `PlayerFailureAutoTurnController.cs`, `TeleportController.cs`, `CharacterTeleporter.cs`, `TeleportInfo.cs`); `Assets/TempleRun/Scripts/GameTime.cs` (pausable gameplay clock) |
 | Power-Up Effects | `Assets/TempleRun/Scripts/PowerUps/IPowerUpEffect.cs`, `PowerUpEffectBase.cs`, `SpeedBoostEffect.cs`, `ScoreMultiplierEffect.cs`, `CoinMagnetEffect.cs`, `CoinDoublerEffect.cs`, `ShieldEffect.cs` |
-| Track Generation | `Assets/TempleRun/Scripts/Track/TurnCommitController.cs` (takes a turn from Starting through the Either-junction commit to Ending), `TrackManager.cs` (+ `TrackManagerAbstract.cs`, `TrackManagerForTiles.cs`, `TrackManagerList.cs` variants), `PathProvider.cs`, `SegmentTransitionController.cs`, `SegmentAdvanceTrigger.cs`, `TrackSegmentLibrary.cs`, `TrackLibraryLoader.cs`, `TrackSegmentInfo.cs`, `Direction.cs`, `DistanceTracker.cs`, `DistanceInterestService.cs`, `SegmentGeometryData.cs`; SO classes `TrackSegmentSO.cs`, `TrackSegmentRegistrySO.cs`, `TrackLevelSO.cs`, `TrackLevelRegistrySO.cs` |
+| Track Generation | `Assets/TempleRun/Scripts/Track/TurnCommitController.cs` (takes a turn from Starting through the Either-junction commit to Ending), `TrackManager.cs` (+ `TrackManagerAbstract.cs`, `TrackManagerForTiles.cs`, `TrackManagerList.cs` variants), `PathProvider.cs`, `SegmentTransitionController.cs`, `SegmentAdvanceTrigger.cs`, `TrackSegmentLibrary.cs`, `TrackLibraryLoader.cs`, `TrackSegmentInfo.cs`, `Direction.cs`, `DistanceTracker.cs`, `DistanceInterestService.cs`, `SegmentGeometryData.cs`, `SplineSection.cs`; SO classes `TrackSegmentSO.cs`, `TrackSegmentRegistrySO.cs`, `TrackLevelSO.cs`, `TrackLevelRegistrySO.cs` |
 | Segment Selection | `Assets/TempleRun/Scripts/Track/Selection/` — `ISegmentSelector.cs` + `ISegmentPool.cs` (pluggable policy seam), `WeightedDifficultySelector.cs` (default, wired in `TrackManager`), `DistanceRampSelector.cs`, `WaveSelector.cs`, `AuthoredSequenceSelector.cs` |
 | Track Geometry | `Assets/TempleRun/Scripts/Track/Geometry/` — `IPathSegmentBuilder.cs`, `AxisAligned90Builder.cs`, `ArcTurnBuilder.cs`, `PathPose.cs`, `PathSpan.cs`, `PathSegmentResult.cs`, `CardinalDirections.cs` |
 | Spawners | `Assets/TempleRun/Scripts/Track/SpawnerBase.cs`, `CoinSpawner.cs`, `ObstacleSpawner.cs`, `PowerUpSpawner.cs`, `PowerUpIdentifier.cs` |
@@ -424,9 +424,12 @@ private static readonly (X From, X To)[] ChainTable = ...; // static readonly: P
 ### Event Subscriptions
 - **ALWAYS** unsubscribe in `OnDestroy()` - failure causes errors after scene unload
 - Event handler signature: `(string eventName, object sender, object data)`
-- Cast data explicitly: `var score = (float)data;` or, for tuple payloads,
-  `var (point1, point2, direction, _) = ((Vector3, Vector3, Direction, float))data;`
-  (the `CurrentSplineChanging` payload — see `MoveCharacterByDistance.cs`)
+- Cast data explicitly: `var score = (float)data;`, or `var section = (SplineSection)data;` for a
+  struct payload (the `CurrentSplineChanging` payload — see `MoveCharacterByDistance.cs`)
+- **Prefer a named struct over a tuple for any payload with more than one part.** A tuple's slots
+  have no names, so every rule about them gets restated in each subscriber's comments instead of
+  on the payload — which is how four components came to re-derive
+  `SplineSection.TeleportOwnsTransform` by hand
 
 ### Scene Loading
 - All scenes load **additively** from the persistent Boot scene (`0_BootStrap_Game_Only`)
