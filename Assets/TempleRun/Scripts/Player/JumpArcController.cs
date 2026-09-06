@@ -9,8 +9,8 @@ namespace CrawfisSoftware.TempleRun
     /// Drives the jump arc by writing to Blackboard.JumpHeightOffset each frame.
     /// Follows the LaneOffsetController pattern (a per-frame Awaitable lerp with AnimationCurve).
     ///    Dependencies: Blackboard, JumpConfig
-    ///    Subscribes: TempleRunEvents.JumpStarting
-    ///    Publishes: TempleRunEvents.JumpStarted (at arc apex)
+    ///    Subscribes: TempleRunEvents.JumpStarting (JumpStarted follows by auto-chain - liftoff is
+    ///                the start; there is no warm-up for this controller to announce)
     ///    Publishes: TempleRunEvents.JumpEnding (arc complete; JumpEnded follows by auto-chain)
     /// </summary>
     internal class JumpArcController : MonoBehaviour
@@ -46,8 +46,6 @@ namespace CrawfisSoftware.TempleRun
             AnimationCurve curve = config != null ? config.JumpCurve : AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
 
             float elapsed = 0f;
-            bool apexPublished = false;
-            float halfDuration = duration * 0.5f;
 
             while (elapsed < duration)
             {
@@ -55,14 +53,6 @@ namespace CrawfisSoftware.TempleRun
                 float t = Mathf.Clamp01(elapsed / duration);
                 float curveValue = curve.Evaluate(t);
                 Blackboard.Instance.JumpHeightOffset = curveValue * height;
-
-                // Publish JumpStarted at the apex (halfway point)
-                if (!apexPublished && elapsed >= halfDuration)
-                {
-                    apexPublished = true;
-                    TempleRunBus.Publish(
-                        TempleRunEvents.JumpStarted, this, null);
-                }
 
                 await Awaitable.NextFrameAsync(destroyCancellationToken);
             }

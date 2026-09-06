@@ -123,11 +123,16 @@ namespace CrawfisSoftware.TempleRun.Events
             // ================================================================================
             // JumpRequested -> JumpStarting is NOT auto-chained. See the validation-gate note at
             // the top of this table: chaining it would launch a second jump while one is
-            // already in the air. JumpController publishes JumpStarting once its checks pass.
-            // JumpStarting -> JumpStarted: Published by JumpArcController (at arc apex)
-            // JumpStarting -> JumpStarted -> JumpEnding: published by JumpArcController as the arc
-            // reaches each rung. The last link is chained and left open: a landing recovery - a
-            // hook, or a delay before control returns - goes there, with no controller edit.
+            // already in the air. JumpController publishes JumpStarting once its checks pass
+            // (and JumpFailed when they do not; nothing chains from a refusal).
+            // JumpStarting -> JumpStarted is chained: a jump has no warm-up, so "started" is
+            // liftoff. (It used to be published by JumpArcController at the arc's apex, which
+            // made the jump the odd one out - slide and dash both say Started at liftoff.) The
+            // link is left open for a wind-up someone adds later, with no controller edit.
+            (TempleRunEvents.JumpStarting, TempleRunEvents.JumpStarted),
+            // JumpStarted -> JumpEnding: published by JumpArcController when the arc completes.
+            // The last link is chained and left open: a landing recovery - a hook, or a delay
+            // before control returns - goes there, with no controller edit.
             (TempleRunEvents.JumpEnding, TempleRunEvents.JumpEnded),
 
             // ================================================================================

@@ -37,7 +37,7 @@ regeneration commands are in the [fact sheet](#fact-sheet-verified-numbers) at t
 1. **"It's *Just* an Endless Runner"** — *what a simple game is actually made of.*
    Plays directly on the underestimation everyone in the room has lived.
 2. **"Nobody Calls Anybody"** — *a whole game built on events.* Architecture-forward.
-3. **"210 Events, One Rule"** — numbers-forward, punchy, invites the question.
+3. **"211 Events, One Rule"** — numbers-forward, punchy, invites the question.
 
 ## The spine
 
@@ -83,8 +83,8 @@ If a slide doesn't advance one of those, cut it.
 ### Slide 4 — The iceberg (the numbers slide)
 Reveal progressively — start with what the player sees, then what it took:
 - **What players see:** seven verbs. Run, turn, switch lanes, jump, slide, dash, collect.
-- **What it took:** **210 named events** across **4 isolated domains** · **152 C# scripts**
-  · **15 scenes** loaded additively · **49 auto-chain rules** and **19 bridge mappings**
+- **What it took:** **211 named events** across **4 isolated domains** · **153 C# scripts**
+  · **15 scenes** loaded additively · **50 auto-chain rules** and **19 bridge mappings**
   declared as data · **17 track-segment assets + 5 level rulesets** with zero code ·
   **7 UI panels** · and a **132-task catalog** of what it still takes to become a
   *polished* product (the catalog even continues into the cloud sibling as sections Q–X).
@@ -95,8 +95,8 @@ Reveal progressively — start with what the player sees, then what it took:
   of work, opposite slopes.
 
 ### Slide 5 — Where the mass actually is
-- Re-sort the same 210 events by *job*, not domain: **Playing it** (the verbs, crashes,
-  pickups, dying, plus raw input) = 73 · **Building the world** (track segments, splines,
+- Re-sort the same 211 events by *job*, not domain: **Playing it** (the verbs, crashes,
+  pickups, dying, plus raw input) = 74 · **Building the world** (track segments, splines,
   geometry, recycling, teleport) = 30 · **Running the show** (all of GameFlow plus
   countdown, pause, run lifecycle, bridged difficulty) = 107.
 - **The game you play is a third of the game you build.** Over half the vocabulary is
@@ -121,8 +121,8 @@ Reveal progressively — start with what the player sees, then what it took:
 ### Slide 7 — Anatomy of a jump
 - Walk the chain as a diagram, one hop at a time:
   `space bar → UserJumpRequested → (input bridge) → JumpRequested → JumpController
-  validates (already airborne? cooldown?) → publishes JumpStarting → JumpArcController
-  drives the arc → JumpStarted`.
+  validates (already airborne?) → publishes JumpStarting, or JumpFailed → (chain)
+  JumpStarted → JumpArcController drives the arc → JumpEnding → (chain) JumpEnded`.
 - Highlight the **gate**: the hop from *Requested* to *Starting* is deliberately manual —
   the controller earns it by validating. (Programmers get the full rule in Act III.)
 - The payoff line, verbatim from the repo: **adding "play a sound on jump" is a new
@@ -147,7 +147,7 @@ Reveal progressively — start with what the player sees, then what it took:
   skeptic raises it). Most logged events have no listener, deliberately: we
   over-*designed* — named the full vocabulary up front — we did not over-*engineer*, since
   an unused event costs one line in an enum and no machinery. Real numbers from the repo:
-  **210 events, ~138 with no subscriber, ~31 auto-chain targets that fire into an empty
+  **211 events, ~139 with no subscriber, ~32 auto-chain targets that fire into an empty
   room on every single run.**
 - Two flavors of silence, and only one is a hole:
   - **Never fires** — the `*Failed` / `*Cancelled` family (`SaveFailed`, `QuitCancelled`,
@@ -263,7 +263,7 @@ stretch break — Act IV has ScriptableObjects and Act V has robots."
 
 ### Slide 16 — [TECH] Control flow as data: auto-chains
 - Within a domain, event progressions are declared in a flat table of `(From, To)` pairs
-  — 22 entries in GameFlow, 25 in TempleRun, 2 in Countdown. Show a five-row excerpt.
+  — 22 entries in GameFlow, 26 in TempleRun, 2 in Countdown. Show a five-row excerpt.
 - Pairs, not a dictionary — **one event may declare several consequences.** War story: the
   old dictionary allowed exactly one successor per event; developers who found a slot
   taken published the second consequence by hand inside controllers — which is how
@@ -287,7 +287,7 @@ stretch break — Act IV has ScriptableObjects and Act V has robots."
 - The trap: `Paused`/`Resumed` each mark a moment, not the state — stickiness can't fix
   that; a late subscriber gets whichever half fired last. Carry the current state in one
   value-carrying event instead.
-- The discipline stat: **2 sticky events out of 210.** And upgrades are evidence-driven:
+- The discipline stat: **2 sticky events out of 211.** And upgrades are evidence-driven:
   an in-editor audit (`Window > Events > Upgrade Audit`) reports which events actually
   had late subscribers after a play session. Measure, then upgrade.
 
@@ -586,13 +586,13 @@ regenerates the event catalog.
 
 | Claim | Value | How counted |
 |-------|-------|-------------|
-| Events total | **210** | 74 GameFlow + 121 TempleRun + 6 Countdown (explicit `= n` members) + 9 UserInitiated |
-| C# scripts | **152** (167 with vendored ThirdParty) | `*.cs` under `Assets/`, excluding `ThirdParty/` |
+| Events total | **211** | 74 GameFlow + 122 TempleRun + 6 Countdown (explicit `= n` members) + 9 UserInitiated |
+| C# scripts | **153** (168 with vendored ThirdParty) | `*.cs` under `Assets/`, excluding `ThirdParty/` |
 | Scenes | **15** | `*.unity` under `Assets/` |
-| Auto-chain entries | **49** | 22 in `GameFlowAutoEventFlow` + 25 in `TempleRunAutoEventFlow` + 2 in `CountdownAutoEventFlow` |
+| Auto-chain entries | **50** | 22 in `GameFlowAutoEventFlow` + 26 in `TempleRunAutoEventFlow` + 2 in `CountdownAutoEventFlow` |
 | Bridge mappings | **19** | 8 in `TempleRunGameFlowBridge` (3 TR→GF + 5 GF→TR) + 9 in `Input2TempleRunAutoEventBridge` + 1 in `CountdownGameFlowBridge` + 1 in `Countdown2TempleRunBridge` |
 | Track data | **17 segments, 5 levels** | assets in `Assets/TempleRun/Scriptables/Track/` |
-| Sticky events | **2 of 210** | `TrackLevelApplied` (née `TempleRunLevelApplied`), `TempleRunDifficultySettingsApplied` |
+| Sticky events | **2 of 211** | `TrackLevelApplied` (née `TempleRunLevelApplied`), `TempleRunDifficultySettingsApplied` |
 | UI panels | **6 UXML** | `*.uxml` under `Assets/` |
 | AI skills | **7** | `.claude/skills/*/SKILL.md` |
 | Student tasks | **132** (sections A–P; RUGS continues Q–X) | [STUDENT_TASKS.md](STUDENT_TASKS.md) |

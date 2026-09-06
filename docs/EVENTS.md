@@ -104,7 +104,7 @@ Publisher: `TempleRunBus` (`EventsFor<TempleRunEvents>`).
 | Turning | `TurnLeftRequested`(50) *(data: int player id)*, `TurnLeftStarting`(51) *(data: float run-absolute distance the turn was taken at)*, `TurnLeftStarted`(52) *(same float, forwarded)*, `TurnLeftEnding`(53), `TurnLeftEnded`(54), `TurnRightRequested`(55) *(data: int player id)*, `TurnRightStarting`(56) *(data: float, as left)*, `TurnRightStarted`(57) *(same float, forwarded)*, `TurnRightEnding`(58), `TurnRightEnded`(59) |
 | Slide | `SlideRequested`(60) *(data: int player id)*, `SlideStarting`(61), `SlideStarted`(62), `SlideEndRequested`(63), `SlideEnding`(64), `SlideEnded`(65) |
 | Dash | `DashRequested`(70) *(data: int player id)*, `DashStarting`(71), `DashStarted`(72), `DashEnding`(73), `DashEnded`(74) |
-| Jump | `JumpRequested`(80) *(data: int player id)*, `JumpStarting`(81), `JumpStarted`(82), `JumpEndRequested`(83), `JumpEnding`(84), `JumpEnded`(85) |
+| Jump | `JumpRequested`(80) *(data: int player id)*, `JumpStarting`(81), `JumpStarted`(82), `JumpEndRequested`(83), `JumpEnding`(84), `JumpEnded`(85), `JumpFailed`(86) *(data: int player id, forwarded from the refused request)* |
 | Lane change | `LaneChangeLeftRequested`(100) *(data: int player id)*, `LaneChangingLeft`(101), `LaneChangedLeft`(102), `LaneChangeRightRequested`(103) *(data: int player id)*, `LaneChangingRight`(104), `LaneChangedRight`(105), `LaneChangeLeftFailed`(106), `LaneChangeRightFailed`(107) |
 | Hazards | `ObstacleHit`(120), `ObstacleRecoveryRequested`(121), `ObstacleRecovering`(122), `ObstacleRecovered`(123) |
 | Coins | `CoinCollectRequested`(140), `CoinCollecting`(141), `CoinCollected`(142) |
@@ -260,6 +260,7 @@ TurnLeftEnding             → TurnLeftEnded
 TurnRightEnding            → TurnRightEnded
 SlideEnding                → SlideEnded
 DashEnding                 → DashEnded
+JumpStarting               → JumpStarted
 JumpEnding                 → JumpEnded
 TeleportStarting           → TeleportStarted
 TeleportEnding             → TeleportEnded
@@ -277,7 +278,7 @@ publishes its own `*Starting` once its checks pass:
 
 | Event | Gate | Published by |
 |-------|------|--------------|
-| `JumpStarting` | not already airborne | `JumpController` |
+| `JumpStarting` | not already airborne (a refusal publishes `JumpFailed`) | `JumpController` |
 | `SlideStarting` | not sliding, cooldown elapsed | `SlideController` |
 | `DashStarting` | not dashing, cooldown elapsed | `DashController` |
 | `LaneChangingLeft` / `Right` | lane boundary, none in flight | `LaneChangeController` |

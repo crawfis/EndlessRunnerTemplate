@@ -117,6 +117,10 @@ namespace CrawfisSoftware.TempleRun
         JumpEndRequested = 83,
         JumpEnding = 84,
         JumpEnded = 85,
+        // The gate said no (already airborne). JumpRequested is the bridge's raw translation
+        // of the input, so a refused request would otherwise be silent.
+        [EventPayload(typeof(int))]  // Player id, forwarded from the refused JumpRequested
+        JumpFailed = 86,
 
         // ---------- Player movement: lane change ----------
         [EventPayload(typeof(int))]  // Player id

@@ -92,9 +92,9 @@ event**; systems that care **subscribe** and react. The jump button doesn't call
 controller — it publishes `UserJumpRequested`, which `Input2TempleRunAutoEventBridge`
 translates to `JumpRequested`. `JumpController` subscribes, validates the request (no jumping
 while already airborne), and publishes `JumpStarting` itself once the check passes —
-deliberately *not* auto-chained, so the validation gate can reject; `JumpArcController`
-subscribes to that, actually drives the
-jump arc, and publishes `JumpStarted` partway through. Adding "play a sound on jump" later is
+deliberately *not* auto-chained, so the validation gate can reject (and publish `JumpFailed`
+when it does); `JumpArcController` subscribes to that and actually drives the jump arc, while
+`JumpStarted` arrives by auto-chain at liftoff. Adding "play a sound on jump" later is
 just a new subscriber to `JumpStarted` — zero edits to either controller. No component holds
 a reference to a component in another system, so any system can be rewritten, replaced, or
 deleted without touching the others.
