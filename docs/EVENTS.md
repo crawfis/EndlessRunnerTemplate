@@ -185,7 +185,7 @@ Publisher: `UserInputBus` (`EventsFor<UserInitiatedEvents>`). Implicit values 0â
 `UserLeftLaneChangeRequested`(3), `UserRightLaneChangeRequested`(4), `UserJumpRequested`(5),
 `UserQuitRequested`(6), `UserSlideRequested`(7), `UserDashRequested`(8)
 
->>>MARK<<< It is the one fact an input
+> **Every member carries the player id (`int`), and nothing else.** It is the one fact an input
 > request always has and a handler can never recover on its own. Three payload types used to
 > share these nine members: most carried the id, `UserPauseToggle` and `UserQuitRequested`
 > carried `UnityEngine.Time.time`, and `AIController` published the run distance on the same two

@@ -35,7 +35,9 @@ namespace CrawfisSoftware.TempleRun
         PlayerResuming = 24,
         PlayerResumed = 25,
         // Bridged from UserInitiatedEvents.UserPauseToggle. PauseController resolves the toggle
-        // against its own state into PlayerPauseRequested or PlayerResumeRequested.
+        // against its own state into PlayerPauseRequested or PlayerResumeRequested - neither of
+        // which carries the id onward, because nothing downstream is per-player yet.
+        [EventPayload(typeof(int))]
         PlayerPauseToggleRequested = 26,
         //PlayerPause = PlayerPaused, // Legacy naming
         //PlayerResume = PlayerResumed, // Legacy naming
@@ -48,6 +50,9 @@ namespace CrawfisSoftware.TempleRun
         TempleRunStartRequested = 38,
         TempleRunStarting = 39,
         TempleRunStarted = 40,
+        // Deliberately undeclared: two sources with different payloads. The bridge forwards the
+        // player id from UserQuitRequested; the ChainTable also reaches it from PlayerDied, which
+        // carries the score. A genuinely variable payload stays undeclared - see CLAUDE.md.
         TempleRunEndRequested = 41,
         TempleRunEnding = 42,
         TempleRunEnded = 43,
@@ -66,11 +71,16 @@ namespace CrawfisSoftware.TempleRun
         // (52-55 previously held TurnLeftEnding/TurnRightRequested/Starting/Ending; 56 held
         // SegmentRequested, now 340 with the rest of the segment vocabulary; 57 was a removed
         // StraightSegmentCompleted.)
+        // The eight rungs below marked (int) are the bridge's translations of an input request,
+        // and the bridge forwards its payload unchanged - so the player id the input source
+        // published arrives here. They have no other publisher.
+        [EventPayload(typeof(int))]
         TurnLeftRequested = 50,
         TurnLeftStarting = 51,
         TurnLeftStarted = 52,
         TurnLeftEnding = 53,
         TurnLeftEnded = 54,
+        [EventPayload(typeof(int))]
         TurnRightRequested = 55,
         TurnRightStarting = 56,
         TurnRightStarted = 57,
@@ -78,6 +88,7 @@ namespace CrawfisSoftware.TempleRun
         TurnRightEnded = 59,
 
         // ---------- Player movement: slide ----------
+        [EventPayload(typeof(int))]
         SlideRequested = 60,
         SlideStarting = 61,
         SlideStarted = 62,
@@ -86,6 +97,7 @@ namespace CrawfisSoftware.TempleRun
         SlideEnded = 65,
 
         // ---------- Player movement: dash ----------
+        [EventPayload(typeof(int))]
         DashRequested = 70,
         DashStarting = 71,
         DashStarted = 72,
@@ -93,6 +105,7 @@ namespace CrawfisSoftware.TempleRun
         DashEnded = 74,
 
         // ---------- Player movement: jump ----------
+        [EventPayload(typeof(int))]
         JumpRequested = 80,
         JumpStarting = 81,
         JumpStarted = 82,
@@ -101,9 +114,11 @@ namespace CrawfisSoftware.TempleRun
         JumpEnded = 85,
 
         // ---------- Player movement: lane change ----------
+        [EventPayload(typeof(int))]
         LaneChangeLeftRequested = 100,
         LaneChangingLeft = 101,
         LaneChangedLeft = 102,
+        [EventPayload(typeof(int))]
         LaneChangeRightRequested = 103,
         LaneChangingRight = 104,
         LaneChangedRight = 105,

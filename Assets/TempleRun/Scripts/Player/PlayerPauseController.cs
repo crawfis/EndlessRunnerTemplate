@@ -42,10 +42,12 @@ namespace CrawfisSoftware.TempleRun
 
         public void TogglePauseResume()
         {
+            // No payload. This used to carry UnityEngine.Time.time, which no subscriber read and
+            // any of them could read for itself.
             if (_isPaused)
-                TempleRunBus.Publish(TempleRunEvents.PlayerResumeRequested, this, UnityEngine.Time.time);
+                TempleRunBus.Publish(TempleRunEvents.PlayerResumeRequested, this, null);
             else
-                TempleRunBus.Publish(TempleRunEvents.PlayerPauseRequested, this, UnityEngine.Time.time);
+                TempleRunBus.Publish(TempleRunEvents.PlayerPauseRequested, this, null);
         }
 
         private void OnPause(string eventName, object sender, object data)

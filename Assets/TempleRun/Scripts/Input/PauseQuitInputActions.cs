@@ -36,12 +36,12 @@ namespace CrawfisSoftware.TempleRun.Input
 
         private void TEMP_GameQuit(InputAction.CallbackContext obj)
         {
-            UserInputBus.Publish(UserInitiatedEvents.UserQuitRequested, this, UnityEngine.Time.time);
+            UserInputBus.Publish(UserInitiatedEvents.UserQuitRequested, this, PlayerNumber);
         }
 
         private void PauseResumeToggle_performed(InputAction.CallbackContext obj)
         {
-            UserInputBus.Publish(UserInitiatedEvents.UserPauseToggle, this, UnityEngine.Time.time);
+            UserInputBus.Publish(UserInitiatedEvents.UserPauseToggle, this, PlayerNumber);
         }
     }
 }

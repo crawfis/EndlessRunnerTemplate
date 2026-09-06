@@ -22,14 +22,20 @@ namespace CrawfisSoftware.TempleRun
     ///                stop asking for it
     ///    Subscribes: TempleRunEvents.ActiveTrackChanging — a new segment: a new turn to ask for,
     ///                its direction, and the distance by which it must be taken
-    ///    Publishes: UserInitiatedEvents.UserLeftTurnRequested
-    ///    Publishes: UserInitiatedEvents.UserRightTurnRequested
+    ///    Publishes: UserInitiatedEvents.UserLeftTurnRequested (data: int player id)
+    ///    Publishes: UserInitiatedEvents.UserRightTurnRequested (data: int player id)
     /// </summary>
     public class AIController : MonoBehaviour
     {
         [Tooltip("Distance from far wall to turn. Should be between (0,opening size]. Can try to turn easy but the difficulty config will determine if possible.")]
         [SerializeField] private float _turnDistance = .1f;
         [SerializeField] private bool _isEnabled = true;
+
+        // The player this autopilot stands in for. An input source publishes the id and nothing
+        // else, exactly as the Scripts/Input/ classes do - which is what lets it substitute for
+        // one. It used to publish the run distance here instead, putting a second payload type on
+        // events the input classes were already publishing an id on.
+        private const int PlayerNumber = 0;
 
         private bool _gameStarted = false;
 
@@ -79,10 +85,10 @@ namespace CrawfisSoftware.TempleRun
             switch (_nextTrackDirection)
             {
                 case Direction.Left:
-                    UserInputBus.Publish(UserInitiatedEvents.UserLeftTurnRequested, this, distance);
+                    UserInputBus.Publish(UserInitiatedEvents.UserLeftTurnRequested, this, PlayerNumber);
                     break;
                 default:
-                    UserInputBus.Publish(UserInitiatedEvents.UserRightTurnRequested, this, distance);
+                    UserInputBus.Publish(UserInitiatedEvents.UserRightTurnRequested, this, PlayerNumber);
                     break;
             }
         }

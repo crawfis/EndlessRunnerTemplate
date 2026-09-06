@@ -41,7 +41,8 @@ namespace CrawfisSoftware.TempleRun
             // Real time, because GameTime is frozen for the duration of the hitch.
             yield return new WaitForSecondsRealtime(TempleRunConstants.ResumeDelay);
             _hitchCoroutine = null;
-            TempleRunBus.Publish(TempleRunEvents.PlayerFailed, this, UnityEngine.Time.time);
+            // No payload: the clock it used to carry was read by nobody and readable by anyone.
+            TempleRunBus.Publish(TempleRunEvents.PlayerFailed, this, null);
         }
 
         private void OnDestroy()
