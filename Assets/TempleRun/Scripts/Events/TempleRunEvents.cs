@@ -35,7 +35,9 @@ namespace CrawfisSoftware.TempleRun
         PlayerResuming = 24,
         PlayerResumed = 25,
         // Bridged from UserInitiatedEvents.UserPauseToggle. PauseController resolves the toggle
-        // against its own state into PlayerPauseRequested or PlayerResumeRequested.
+        // against its own state into PlayerPauseRequested or PlayerResumeRequested - neither of
+        // which carries the id onward, because nothing downstream is per-player yet.
+        [EventPayload(typeof(int))]  // Player id
         PlayerPauseToggleRequested = 26,
         //PlayerPause = PlayerPaused, // Legacy naming
         //PlayerResume = PlayerResumed, // Legacy naming
@@ -48,6 +50,9 @@ namespace CrawfisSoftware.TempleRun
         TempleRunStartRequested = 38,
         TempleRunStarting = 39,
         TempleRunStarted = 40,
+        // Deliberately undeclared: two sources with different payloads. The bridge forwards the
+        // player id from UserQuitRequested; the ChainTable also reaches it from PlayerDied, which
+        // carries the score. A genuinely variable payload stays undeclared - see CLAUDE.md.
         TempleRunEndRequested = 41,
         TempleRunEnding = 42,
         TempleRunEnded = 43,
@@ -57,17 +62,25 @@ namespace CrawfisSoftware.TempleRun
         // gate and publishes Starting. TurnCommitController commits an Either junction and
         // publishes Started; the teleport onto the new spline is the turn's duration, and
         // TeleportController publishes Ending when it lands. Only Ending -> Ended is chained.
+        // Started carries the run-absolute distance the turn was committed at; the terminal rungs
+        // carry nothing. Ending used to forward the exit spline, which no subscriber read and
+        // which parked track vocabulary on a player event.
         // Renumbered from the old 50-56 layout, which had no *Started rungs and left the
         // terminal rungs stranded at 58/59. Safe because no TempleRunEvents member is
         // serialized in a scene or prefab - unlike GameFlowEvents, which is.
         // (52-55 previously held TurnLeftEnding/TurnRightRequested/Starting/Ending; 56 held
         // SegmentRequested, now 340 with the rest of the segment vocabulary; 57 was a removed
         // StraightSegmentCompleted.)
+        // The eight rungs below marked (int) are the bridge's translations of an input request,
+        // and the bridge forwards its payload unchanged - so the player id the input source
+        // published arrives here. They have no other publisher.
+        [EventPayload(typeof(int))]  // Player id
         TurnLeftRequested = 50,
         TurnLeftStarting = 51,
         TurnLeftStarted = 52,
         TurnLeftEnding = 53,
         TurnLeftEnded = 54,
+        [EventPayload(typeof(int))]  // Player id
         TurnRightRequested = 55,
         TurnRightStarting = 56,
         TurnRightStarted = 57,
@@ -75,6 +88,7 @@ namespace CrawfisSoftware.TempleRun
         TurnRightEnded = 59,
 
         // ---------- Player movement: slide ----------
+        [EventPayload(typeof(int))]  // Player id
         SlideRequested = 60,
         SlideStarting = 61,
         SlideStarted = 62,
@@ -83,6 +97,7 @@ namespace CrawfisSoftware.TempleRun
         SlideEnded = 65,
 
         // ---------- Player movement: dash ----------
+        [EventPayload(typeof(int))]  // Player id
         DashRequested = 70,
         DashStarting = 71,
         DashStarted = 72,
@@ -90,6 +105,7 @@ namespace CrawfisSoftware.TempleRun
         DashEnded = 74,
 
         // ---------- Player movement: jump ----------
+        [EventPayload(typeof(int))]  // Player id
         JumpRequested = 80,
         JumpStarting = 81,
         JumpStarted = 82,
@@ -98,9 +114,11 @@ namespace CrawfisSoftware.TempleRun
         JumpEnded = 85,
 
         // ---------- Player movement: lane change ----------
+        [EventPayload(typeof(int))]  // Player id
         LaneChangeLeftRequested = 100,
         LaneChangingLeft = 101,
         LaneChangedLeft = 102,
+        [EventPayload(typeof(int))]  // Player id
         LaneChangeRightRequested = 103,
         LaneChangingRight = 104,
         LaneChangedRight = 105,
@@ -141,7 +159,14 @@ namespace CrawfisSoftware.TempleRun
         SplineSegmentReleased = 205,
 
         CurrentSplineChangeRequested = 220,
+        // The path the player is on and - via SplineSection.TeleportOwnsTransform - who writes
+        // their transform while it is current. That rule used to be a Direction comparison each
+        // subscriber made for itself against an unnamed four-slot tuple.
+        [EventPayload(typeof(SplineSection))]
         CurrentSplineChanging = 221,
+        // Published at segment exit. No subscriber today; the declaration is what tells the next
+        // one, and StrictMode, what it will receive.
+        [EventPayload(typeof(SplineSection))]
         CurrentSplineChanged = 222,
 
         // ---------- Track generation (segments/tiles) ----------
@@ -161,10 +186,16 @@ namespace CrawfisSoftware.TempleRun
 
         // ---------- Teleportation ----------
         TeleportRequested = 280,
+        // Duration plus destination. The terminal rungs carry the destination alone: by the time
+        // the teleport ends its duration is spent and nothing reads it.
+        [EventPayload(typeof(TeleportInfo))]
         TeleportStarting = 281,
+        [EventPayload(typeof(TeleportInfo))]
         TeleportStarted = 282,
         TeleportEndRequested = 283,
+        [EventPayload(typeof(SplineSection))]
         TeleportEnding = 284,
+        [EventPayload(typeof(SplineSection))]
         TeleportEnded = 285,
 
         // ---------- Bridged from GameFlow ----------
@@ -181,9 +212,9 @@ namespace CrawfisSoftware.TempleRun
         // A level: the selected track level is state, self-describing, and published once - before
         // the gameplay scene (and TrackManager) exists. Retained so TrackManager can read it at init
         // with TryGetLast instead of it being parked in a Blackboard field.
-        [EventPayload(typeof(int))]
+        [EventPayload(typeof(int))]  // Selected track level number
         [EventDelivery(EventDelivery.Sticky)]
-        TrackLevelApplied = 304,              // data: int (the selected track level number, bridged from GameFlow)
+        TrackLevelApplied = 304,              // bridged from GameFlow
 
         // ---------- Difficulty (bridged to/from GameFlow) ----------
         // A level: this IS the difficulty table, not a transition into one. GameDifficultyManager
@@ -200,7 +231,7 @@ namespace CrawfisSoftware.TempleRun
         TempleRunDifficultyChanged = 314,
         TempleRunDifficultyChangeFailed = 316,
         // The requested difficulty's name, resolved against the selected level's variants.
-        [EventPayload(typeof(string))]
+        [EventPayload(typeof(string))]  // Difficulty name
         TempleRunDifficultyChangeRequested = 318,
 
         // ---------- New difficulty events (direct, non-legacy) ----------
@@ -212,7 +243,7 @@ namespace CrawfisSoftware.TempleRun
         DifficultyChangeFailed = 323,
 
         // ---------- Distance tracking (for achievements/UGS) ----------
-        [EventPayload(typeof(float))]
+        [EventPayload(typeof(float))]  // Distance travelled, run-absolute
         DistanceUpdated = 330,
 
         // ---------- Segment lifecycle ----------

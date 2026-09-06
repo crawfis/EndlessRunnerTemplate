@@ -110,9 +110,9 @@ Publisher: `TempleRunBus` (`EventsFor<TempleRunEvents>`).
 | Coins | `CoinCollectRequested`(140), `CoinCollecting`(141), `CoinCollected`(142) |
 | Power-up collect | `PowerUpCollectRequested`(160), `PowerUpCollecting`(161), `PowerUpCollected`(162) |
 | Power-up activate | `PowerUpActivateRequested`(180), `PowerUpActivating`(181), `PowerUpActivated`(182), `PowerUpDeactivateRequested`(183), `PowerUpDeactivating`(184), `PowerUpDeactivated`(185) |
-| Splines | `SplineSegmentCreateRequested`(200), `SplineSegmentCreating`(201), `SplineSegmentCreated`(202) *(data: SplineSegmentData)*, `SplineSegmentReleaseRequested`(203), `SplineSegmentReleasing`(204), `SplineSegmentReleased`(205), `CurrentSplineChangeRequested`(220), `CurrentSplineChanging`(221), `CurrentSplineChanged`(222) |
+| Splines | `SplineSegmentCreateRequested`(200), `SplineSegmentCreating`(201), `SplineSegmentCreated`(202) *(data: SplineSegmentData)*, `SplineSegmentReleaseRequested`(203), `SplineSegmentReleasing`(204), `SplineSegmentReleased`(205), `CurrentSplineChangeRequested`(220), `CurrentSplineChanging`(221) *(data: SplineSection)*, `CurrentSplineChanged`(222) *(data: SplineSection)* |
 | Track segments | `TrackSegmentCreateRequested`(240), `TrackSegmentCreating`(241), `TrackSegmentCreated`(242) *(data: TrackSegmentInfo)*, `TrackSegmentRecycleRequested`(243), `TrackSegmentRecycling`(244), `TrackSegmentRecycled`(245), `ActiveTrackChangeRequested`(260), `ActiveTrackChanging`(261) *(data: TrackSegmentInfo)*, `ActiveTrackChanged`(262) *(data: TrackSegmentInfo)* |
-| Teleport | `TeleportRequested`(280), `TeleportStarting`(281), `TeleportStarted`(282), `TeleportEndRequested`(283), `TeleportEnding`(284), `TeleportEnded`(285) |
+| Teleport | `TeleportRequested`(280), `TeleportStarting`(281) *(data: TeleportInfo)*, `TeleportStarted`(282) *(data: TeleportInfo)*, `TeleportEndRequested`(283), `TeleportEnding`(284) *(data: SplineSection)*, `TeleportEnded`(285) *(data: SplineSection)* |
 | Bridged from GameFlow | `TempleRunConfigApplied`(300) *(data: DifficultyConfig)*, `RunInitializeRequested`(302), `TrackLevelApplied`(304) *(data: int selected level number; **sticky** — replayed to late subscribers, read by `TrackManager` via `TryGetLast`)* |
 | Difficulty (bridged) | `TempleRunDifficultySettingsApplied`(310) *(data: IList&lt;DifficultyConfig&gt;; **sticky**)*, `TempleRunDifficultyChanging`(312) *(data: DifficultyConfig)*, `TempleRunDifficultyChanged`(314) *(data: DifficultyConfig)*, `TempleRunDifficultyChangeFailed`(316), `TempleRunDifficultyChangeRequested`(318) *(data: string difficulty name)* |
 | Difficulty (direct) | `DifficultySettingsApplied`(320), `DifficultyChanging`(321), `DifficultyChanged`(322), `DifficultyChangeFailed`(323) *(data: DifficultyConfig)* |
@@ -134,6 +134,26 @@ Publisher: `TempleRunBus` (`EventsFor<TempleRunEvents>`).
 > [ADDING_A_MECHANIC](ADDING_A_MECHANIC.md#shared-derived-data-goes-on-the-payload-shared-decisions-get-one-owner):
 > the conversion arrives on the message, so no subscriber performs it — and five that used to
 > keep private running sums no longer can drift apart.
+
+> **`SplineSection` names who writes the player's transform.** The path the player follows
+> arrives one straight section at a time: an *approach*, entrance to pivot, always
+> `Direction.Straight`; then, if the segment turns, an *exit* from the shifted pivot along the
+> new heading. `SegmentTransitionController` is the only publisher of both.
+>
+> The section's `TeleportOwnsTransform` (`Direction != Straight`) is the load-bearing member.
+> A turn's exit is teleported onto, so `TeleportController` starts a teleport and
+> `CharacterTeleporter` lerps the player over its duration — which means
+> `MoveCharacterByDistance` must re-anchor but *not* place the player, or the lerp runs from the
+> destination to the destination and the move takes zero frames. Both components used to reach
+> that conclusion privately, from a `Direction` slot in an unnamed four-element tuple. They now
+> read one property.
+>
+> `LandingDistance` is run-absolute and meaningful only when `TeleportOwnsTransform` is true;
+> `DistanceController` snaps the tracker to it on `TeleportEnded`. An approach carries no
+> landing, because nothing teleports onto one. `TeleportStarting`/`TeleportStarted` wrap the
+> section in a `TeleportInfo` that adds the duration; the terminal rungs carry the section
+> alone. The turn ladder's own terminal rungs carry **nothing** — `Turn*Ending` used to forward
+> the exit section, which no subscriber read and which put track vocabulary on a player event.
 
 ### Two starts: "systems up" and "player go"
 
@@ -164,6 +184,23 @@ Publisher: `UserInputBus` (`EventsFor<UserInitiatedEvents>`). Implicit values 0�
 `UserLeftTurnRequested`(0), `UserRightTurnRequested`(1), `UserPauseToggle`(2),
 `UserLeftLaneChangeRequested`(3), `UserRightLaneChangeRequested`(4), `UserJumpRequested`(5),
 `UserQuitRequested`(6), `UserSlideRequested`(7), `UserDashRequested`(8)
+
+> **Every member carries the player id (`int`), and nothing else.** It is the one fact an input
+> request always has and a handler can never recover on its own. Three payload types used to
+> share these nine members: most carried the id, `UserPauseToggle` and `UserQuitRequested`
+> carried `UnityEngine.Time.time`, and `AIController` published the run distance on the same two
+> turn events the input classes published the id on. None was read; none said *who* asked. The
+> clock is deliberately not carried — any handler can read it.
+>
+> The bridge forwards a payload unchanged, so the id arrives on the TempleRun event too, and
+> those eight mirrors (`TurnLeftRequested`(50), `TurnRightRequested`(55), `SlideRequested`(60),
+> `DashRequested`(70), `JumpRequested`(80), `LaneChangeLeftRequested`(100),
+> `LaneChangeRightRequested`(103), `PlayerPauseToggleRequested`(26)) declare it as well — the
+> bridge is their only publisher. `TempleRunEndRequested`(41) is the exception and stays
+> undeclared: the ChainTable also reaches it from `PlayerDied`, which carries the score.
+>
+> The template is single-player and every source publishes `0`. The declaration is what makes a
+> second player a wiring change rather than a payload redesign.
 
 ---
 

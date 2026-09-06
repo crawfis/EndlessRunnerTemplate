@@ -1,4 +1,4 @@
-# CLAUDE.md - AI Assistant Guide for EndlessRunner
+﻿# CLAUDE.md - AI Assistant Guide for EndlessRunner
 
 This file is the concrete working guide for AI assistants — **any** AI assistant or coding
 agent, not just Claude — working with the EndlessRunner codebase: an open-source Unity 6.5
@@ -251,6 +251,22 @@ the enum is what tells every call site (and StrictMode) which cast is right. Eve
 payload, or a genuinely variable one, stay undeclared - no declaration means no checking,
 which is the intended default. Do not reintroduce `EventId<T>` fields in new code.
 
+**A basic-typed payload gets an inline comment saying what the value *is*.**
+`typeof(TrackSegmentInfo)` names its own meaning; `typeof(int)` does not, and a reader of
+one member should not have to find the publisher to learn whether the number is a player,
+a level or a score:
+
+```csharp
+[EventPayload(typeof(int))]  // Player id
+JumpRequested = 80,
+
+[EventPayload(typeof(float))]  // Distance travelled, run-absolute
+DistanceUpdated = 330,
+```
+
+This applies to `int`, `float`, `string`, `bool`, `long` and `double`. Domain types name
+themselves and need no comment.
+
 ### Delivery Policy - edge or level
 
 Default is `Transient`: a subscriber that arrives after the publish hears nothing. Mark an
@@ -352,10 +368,10 @@ CrawfisSoftware.Utility / .Utilities / .Utility.Testing / .Test - _Common utilit
 CrawfisSoftware.Scriptables / .AssetManagement / .Spawners - vendored ThirdParty code
 ```
 
-Two known strays declare a namespace that doesn't match their folder:
-`Assets/GameFlow/Scripts/Config/PlayerPrefKeys.cs` (namespace `CrawfisSoftware.TempleRun.GameConfig`)
-and `Assets/_Common/Utility/DebugLog.cs` (namespace `CrawfisSoftware.TempleRun`). Use the
-declared namespace when referencing them.
+One known stray declares a namespace that doesn't match its folder:
+`Assets/_Common/Utility/DebugLog.cs` (namespace `CrawfisSoftware.TempleRun`). Use the
+declared namespace when referencing it. (`PlayerPrefKeys.cs` was the other; it moved to
+`Assets/TempleRun/Scripts/Config/` to match its namespace and its only caller.)
 
 ### Field Naming
 ```csharp
@@ -384,7 +400,7 @@ private static readonly (X From, X To)[] ChainTable = ...; // static readonly: P
 | Event Bus | `EventsFor<GameFlowEvents>`, aliased as `GameFlowBus` |
 | Auto-Event Flow | `Assets/GameFlow/Scripts/Events/GameFlowAutoEventFlow.cs` |
 | Bridge | `Assets/GameFlow/Scripts/TempleRunSpecific/TempleRunGameFlowBridge.cs`, `Assets/GameFlow/Scripts/CountdownSpecific/CountdownGameFlowBridge.cs` |
-| Game State / Config | `Assets/GameFlow/Scripts/Config/GameState.cs`, `GameConstants.cs`, `PlayerPrefKeys.cs`, `LevelConfig.cs`, `LevelConfigApplier.cs`, `LevelRegistry.cs`, `LevelProgressManager.cs`, `LevelProgressData.cs` |
+| Game State / Config | `Assets/GameFlow/Scripts/Config/GameState.cs`, `GameConstants.cs`, `LevelConfig.cs`, `LevelConfigApplier.cs`, `LevelRegistry.cs`, `LevelProgressManager.cs`, `LevelProgressData.cs` |
 | UI Controllers | `Assets/GameFlow/Scripts/UI/MainMenuController.cs`, `MainMenuPanelController.cs`, `LevelSelectorController.cs`, `LevelSelectorPanelController.cs`, `GameFlowUIPanelController.cs` (loading screen + game-over overlay; the countdown overlay lives in the Countdown domain) |
 | UI Toolkit Assets | `Assets/GameFlow/UI Toolkit/UI/UXML/` (MainMenu, LevelSelector, LoadingScreen, HUD, GameOver overlay) + USS; `Assets/TempleRun/UI Toolkit/TempleRunDistances.uxml`; `Assets/Countdown/UI Toolkit/Countdown.uxml` |
 | Game Control | `Assets/GameFlow/Scripts/GameControl/QuitController.cs`, `UnloadNonActiveScenes.cs`, `LoadSceneAdditively.cs` |
@@ -393,11 +409,11 @@ private static readonly (X From, X To)[] ChainTable = ...; // static readonly: P
 | Event Enums | `Assets/TempleRun/Scripts/Events/TempleRunEvents.cs`, `UserInitiatedEvents.cs` |
 | Event Bus | `EventsFor<TempleRunEvents>` / `EventsFor<UserInitiatedEvents>`, aliased as `TempleRunBus` / `UserInputBus` |
 | Auto-Event Flow | `Assets/TempleRun/Scripts/Events/TempleRunAutoEventFlow.cs`, `Input2TempleRunAutoEventBridge.cs` |
-| Config | `Assets/TempleRun/Scripts/Config/Blackboard.cs`, `TempleRunGameConfig.cs`, `GameDifficultyManager.cs`, `DifficultySettings.cs`, `SetGameDifficulty.cs`, `LoadDefaultGameConfigs.cs`, `SpawnPrefabRegistry.cs`, `TempleRunConstants.cs`, per-mechanic configs (`CoinConfig.cs`, `DashConfig.cs`, `JumpConfig.cs`, `LaneConfig.cs`, `SlideConfig.cs`, `PowerUpDefinition.cs`, `PowerUpType.cs`) |
+| Config | `Assets/TempleRun/Scripts/Config/Blackboard.cs`, `TempleRunGameConfig.cs`, `GameDifficultyManager.cs`, `DifficultySettings.cs`, `SetGameDifficulty.cs`, `LoadDefaultGameConfigs.cs`, `PlayerPrefKeys.cs`, `SpawnPrefabRegistry.cs`, `TempleRunConstants.cs`, per-mechanic configs (`CoinConfig.cs`, `DashConfig.cs`, `JumpConfig.cs`, `LaneConfig.cs`, `SlideConfig.cs`, `PowerUpDefinition.cs`, `PowerUpType.cs`) |
 | Player Controllers | `Assets/TempleRun/Scripts/Player/TurnController.cs` (the turn gate only), `JumpController.cs`, `SlideController.cs`, `DashController.cs`, `LaneChangeController.cs`, `PlayerLifeController.cs`, `PowerUpBuffController.cs`, `DistanceController.cs`, `MoveCharacterByDistance.cs`, `PauseController.cs`, `PlayerPauseController.cs`, `AIController.cs` |
-| Player Support | `Assets/TempleRun/Scripts/Player/` — collision detectors (`ObstacleCollisionDetector.cs`, `CollectableCollisionDetector.cs`, `TurnCollisionDetector.cs`), `CoinCollectionController.cs`, motion shaping (`JumpArcController.cs`, `SlideArcController.cs`, `DashSpeedController.cs`, `LaneOffsetController.cs`), failure/teleport (`PlayerFailedController.cs`, `PlayerFailureAutoTurnController.cs`, `TeleportController.cs`, `CharacterTeleporter.cs`); `Assets/TempleRun/Scripts/GameTime.cs` (pausable gameplay clock) |
+| Player Support | `Assets/TempleRun/Scripts/Player/` — collision detectors (`ObstacleCollisionDetector.cs`, `CollectableCollisionDetector.cs`, `TurnCollisionDetector.cs`), `CoinCollectionController.cs`, motion shaping (`JumpArcController.cs`, `SlideArcController.cs`, `DashSpeedController.cs`, `LaneOffsetController.cs`), failure/teleport (`PlayerFailedController.cs`, `PlayerFailureAutoTurnController.cs`, `TeleportController.cs`, `CharacterTeleporter.cs`, `TeleportInfo.cs`); `Assets/TempleRun/Scripts/GameTime.cs` (pausable gameplay clock) |
 | Power-Up Effects | `Assets/TempleRun/Scripts/PowerUps/IPowerUpEffect.cs`, `PowerUpEffectBase.cs`, `SpeedBoostEffect.cs`, `ScoreMultiplierEffect.cs`, `CoinMagnetEffect.cs`, `CoinDoublerEffect.cs`, `ShieldEffect.cs` |
-| Track Generation | `Assets/TempleRun/Scripts/Track/TurnCommitController.cs` (takes a turn from Starting through the Either-junction commit to Ending), `TrackManager.cs` (+ `TrackManagerAbstract.cs`, `TrackManagerForTiles.cs`, `TrackManagerList.cs` variants), `PathProvider.cs`, `SegmentTransitionController.cs`, `SegmentAdvanceTrigger.cs`, `TrackSegmentLibrary.cs`, `TrackLibraryLoader.cs`, `TrackSegmentInfo.cs`, `Direction.cs`, `DistanceTracker.cs`, `DistanceInterestService.cs`, `SegmentGeometryData.cs`; SO classes `TrackSegmentSO.cs`, `TrackSegmentRegistrySO.cs`, `TrackLevelSO.cs`, `TrackLevelRegistrySO.cs` |
+| Track Generation | `Assets/TempleRun/Scripts/Track/TurnCommitController.cs` (takes a turn from Starting through the Either-junction commit to Ending), `TrackManager.cs` (+ `TrackManagerAbstract.cs`, `TrackManagerForTiles.cs`, `TrackManagerList.cs` variants), `PathProvider.cs`, `SegmentTransitionController.cs`, `SegmentAdvanceTrigger.cs`, `TrackSegmentLibrary.cs`, `TrackLibraryLoader.cs`, `TrackSegmentInfo.cs`, `Direction.cs`, `DistanceTracker.cs`, `DistanceInterestService.cs`, `SegmentGeometryData.cs`, `SplineSection.cs`; SO classes `TrackSegmentSO.cs`, `TrackSegmentRegistrySO.cs`, `TrackLevelSO.cs`, `TrackLevelRegistrySO.cs` |
 | Segment Selection | `Assets/TempleRun/Scripts/Track/Selection/` — `ISegmentSelector.cs` + `ISegmentPool.cs` (pluggable policy seam), `WeightedDifficultySelector.cs` (default, wired in `TrackManager`), `DistanceRampSelector.cs`, `WaveSelector.cs`, `AuthoredSequenceSelector.cs` |
 | Track Geometry | `Assets/TempleRun/Scripts/Track/Geometry/` — `IPathSegmentBuilder.cs`, `AxisAligned90Builder.cs`, `ArcTurnBuilder.cs`, `PathPose.cs`, `PathSpan.cs`, `PathSegmentResult.cs`, `CardinalDirections.cs` |
 | Spawners | `Assets/TempleRun/Scripts/Track/SpawnerBase.cs`, `CoinSpawner.cs`, `ObstacleSpawner.cs`, `PowerUpSpawner.cs`, `PowerUpIdentifier.cs` |
@@ -424,9 +440,12 @@ private static readonly (X From, X To)[] ChainTable = ...; // static readonly: P
 ### Event Subscriptions
 - **ALWAYS** unsubscribe in `OnDestroy()` - failure causes errors after scene unload
 - Event handler signature: `(string eventName, object sender, object data)`
-- Cast data explicitly: `var score = (float)data;` or, for tuple payloads,
-  `var (point1, point2, direction, _) = ((Vector3, Vector3, Direction, float))data;`
-  (the `CurrentSplineChanging` payload — see `MoveCharacterByDistance.cs`)
+- Cast data explicitly: `var score = (float)data;`, or `var section = (SplineSection)data;` for a
+  struct payload (the `CurrentSplineChanging` payload — see `MoveCharacterByDistance.cs`)
+- **Prefer a named struct over a tuple for any payload with more than one part.** A tuple's slots
+  have no names, so every rule about them gets restated in each subscriber's comments instead of
+  on the payload — which is how four components came to re-derive
+  `SplineSection.TeleportOwnsTransform` by hand
 
 ### Scene Loading
 - All scenes load **additively** from the persistent Boot scene (`0_BootStrap_Game_Only`)
@@ -532,7 +551,7 @@ Assets/
 │   │   ├── Events/                   # GameFlowEvents, GameFlowAutoEventFlow
 │   │   ├── TempleRunSpecific/        # TempleRunGameFlowBridge (bridges TempleRun <-> GameFlow)
 │   │   ├── CountdownSpecific/        # CountdownGameFlowBridge (GameStarting -> CountdownStartRequested)
-│   │   ├── Config/                   # GameState, GameConstants, PlayerPrefKeys, LevelConfig(+Applier), LevelRegistry, LevelProgressManager/Data
+│   │   ├── Config/                   # GameState, GameConstants, LevelConfig(+Applier), LevelRegistry, LevelProgressManager/Data
 │   │   ├── GameControl/              # QuitController, UnloadNonActiveScenes, LoadSceneAdditively
 │   │   ├── UI/                       # MainMenu + LevelSelector controllers and panel controllers, GameFlowUIPanelController
 │   │   └── SceneManagement/          # DynamicLevelSceneLoader, FireEventAfterSceneLoads/WhenSceneCloses, CloseSceneOnEvent, LoadSceneAfterGameControlEvent
@@ -542,7 +561,7 @@ Assets/
 ├── TempleRun/                        # Gameplay domain
 │   ├── Scripts/
 │   │   ├── Events/                   # TempleRunEvents, UserInitiatedEvents, TempleRunAutoEventFlow, Input2TempleRunAutoEventBridge
-│   │   ├── Config/                   # Blackboard, TempleRunGameConfig, GameDifficultyManager, per-mechanic configs, SpawnPrefabRegistry
+│   │   ├── Config/                   # Blackboard, TempleRunGameConfig, GameDifficultyManager, PlayerPrefKeys, per-mechanic configs, SpawnPrefabRegistry
 │   │   ├── Player/                   # Turn/Jump/Slide/Dash/Lane/Life controllers, collision detectors, distance, pause, teleport, AI
 │   │   ├── PowerUps/                 # IPowerUpEffect strategy: PowerUpEffectBase + five concrete effects
 │   │   ├── Track/                    # TrackManager (+variants), PathProvider, SegmentTransitionController, spawners, SO classes, TrackLibraryLoader
