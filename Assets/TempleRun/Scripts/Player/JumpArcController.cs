@@ -1,7 +1,5 @@
 using CrawfisSoftware.TempleRun.GameConfig;
 
-using System.Collections;
-
 using UnityEngine;
 using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
 
@@ -9,7 +7,7 @@ namespace CrawfisSoftware.TempleRun
 {
     /// <summary>
     /// Drives the jump arc by writing to Blackboard.JumpHeightOffset each frame.
-    /// Follows the LaneOffsetController pattern (coroutine-based lerp with AnimationCurve).
+    /// Follows the LaneOffsetController pattern (a per-frame Awaitable lerp with AnimationCurve).
     ///    Dependencies: Blackboard, JumpConfig
     ///    Subscribes: TempleRunEvents.JumpStarting
     ///    Publishes: TempleRunEvents.JumpStarted (at arc apex)
@@ -17,8 +15,6 @@ namespace CrawfisSoftware.TempleRun
     /// </summary>
     internal class JumpArcController : MonoBehaviour
     {
-        private Coroutine _jumpCoroutine;
-
         private void Awake()
         {
             TempleRunBus.Subscribe(
@@ -30,9 +26,6 @@ namespace CrawfisSoftware.TempleRun
             TempleRunBus.Unsubscribe(
                 TempleRunEvents.JumpStarting, OnJumpStarting);
 
-            if (_jumpCoroutine != null)
-                StopCoroutine(_jumpCoroutine);
-
             // Reset offset on destroy so it doesn't persist across scene loads
             if (Blackboard.Instance != null)
                 Blackboard.Instance.JumpHeightOffset = 0f;
@@ -40,14 +33,12 @@ namespace CrawfisSoftware.TempleRun
 
         private void OnJumpStarting(string eventName, object sender, object data)
         {
-            // If somehow a jump is already running, stop it first
-            if (_jumpCoroutine != null)
-                StopCoroutine(_jumpCoroutine);
-
-            _jumpCoroutine = StartCoroutine(RunJumpArc());
+            // Fire and forget. Reentrancy is JumpController's job: its gate is what makes
+            // JumpStarting non-reentrant, so nothing here checks for a jump already running.
+            _ = RunJumpArc();
         }
 
-        private IEnumerator RunJumpArc()
+        private async Awaitable RunJumpArc()
         {
             JumpConfig config = Blackboard.Instance.JumpConfig;
             float height = config != null ? config.JumpHeight : 3f;
@@ -73,12 +64,11 @@ namespace CrawfisSoftware.TempleRun
                         TempleRunEvents.JumpStarted, this, null);
                 }
 
-                yield return null;
+                await Awaitable.NextFrameAsync(destroyCancellationToken);
             }
 
             // Snap to ground
             Blackboard.Instance.JumpHeightOffset = 0f;
-            _jumpCoroutine = null;
 
             // Only JumpEnding is published here - JumpEnding -> JumpEnded is auto-chained.
             // That link is deliberately left in the ChainTable so a landing recovery (a hook,
