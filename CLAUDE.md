@@ -10,7 +10,7 @@ conventions, and paths. For a human-facing overview, see [README.md](README.md).
 [docs/EVENTS.md](docs/EVENTS.md) (event catalog), [docs/TRACKS.md](docs/TRACKS.md) (track
 system), [docs/ADDING_A_MECHANIC.md](docs/ADDING_A_MECHANIC.md) (worked example),
 [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md) (Unity caveats).
-**Course material:** [docs/STUDENT_TASKS.md](docs/STUDENT_TASKS.md) (the 130-task catalog),
+**Course material:** [docs/STUDENT_TASKS.md](docs/STUDENT_TASKS.md) (the 132-task catalog),
 `docs/TIMEBOX_*_REQUIREMENTS.md` (the timebox assignments; `docs/ai/timebox-*.md` are the
 same assignments assembled as context to hand an AI assistant), and `docs/EXERCISE_*.md`
 (in-class team exercises) — students working in this repo will ask for help with these.
@@ -438,7 +438,7 @@ private static readonly (X From, X To)[] ChainTable = ...; // static readonly: P
 | **Shared/Common** | |
 | Auto-Event Base | `Assets/_Common/Events/AutoEventFlowBase.cs` — `EventChainDispatcher<TSource, TDest>` + `AutoEventFlowBase<TSource, TDest>`; the one dispatch implementation, shared by all seven flow/bridge classes |
 | Shared Config | `Assets/_Common/Config/DifficultyConfig.cs` |
-| Utilities | `Assets/_Common/Utility/Logger.cs`, `EventLoggerDump.cs`, `DebugEventFileLogger.cs`, `DebugLog.cs`, `TimedEvent.cs`, `TextureExtensions.cs`; `Assets/_Common/Events/EventHistory.cs`; test helpers in `Assets/_Common/Test/` |
+| Utilities | `Assets/_Common/Utility/Logger.cs`, `EventLoggerDump.cs`, `DebugEventFileLogger.cs`, `DebugLog.cs`, `TimedEvent.cs`, `TextureExtensions.cs`, `Wait.cs` (`Wait.ForSecondsRealtime`, the unscaled Awaitable wait); `Assets/_Common/Events/EventHistory.cs`; test helpers in `Assets/_Common/Test/` |
 | Vendored | `Assets/ThirdParty/CrawfisSoftware/` — Random providers, AssetManagement helpers, editor tools (screenshots, play-first-scene, dev-build toggle), `Spawners/GridSpawner.cs`, `ScriptableInt.cs` |
 
 ## Gotchas and Warnings
@@ -452,6 +452,27 @@ private static readonly (X From, X To)[] ChainTable = ...; // static readonly: P
   have no names, so every rule about them gets restated in each subscriber's comments instead of
   on the payload — which is how four components came to re-derive
   `SplineSection.TeleportOwnsTransform` by hand
+
+### Async and coroutines
+- This project uses Unity's `Awaitable`, not coroutines: `async Awaitable Foo()`, started
+  with `_ = Foo();`. There are no `StartCoroutine` / `IEnumerator` / `yield` sites left
+  (the `IEnumerator` hits in the generated `Input/GameControls.cs` and
+  `Input/LeftRightJumpSlide.cs` are `IEnumerable` implementations, not coroutines).
+- **Every `await` takes a token.** A coroutine died with its MonoBehaviour; an async method
+  does not. Pass `destroyCancellationToken`, or the controller's own
+  `CancellationTokenSource` where a restart is real (`LaneOffsetController`,
+  `CountdownController`, `Metronome`, `DistanceController`, `PowerUpBuffController`) — that
+  CTS is cancelled in `OnDestroy` and covers both cases; never link the two.
+- **Never `async void`.** `async void` routes a cancellation into Unity's unhandled-exception
+  path and logs an error every time a scene unloads; `Awaitable`-returning methods absorb it.
+- Realtime vs scaled is load-bearing because pause sets `Time.timeScale = 0`.
+  `Awaitable.WaitForSecondsAsync` is scaled (never completes while paused);
+  `Wait.ForSecondsRealtime` (`Assets/_Common/Utility/Wait.cs`) is the unscaled wait for the
+  quit delay, the failure hitch, the auto-turn delay, the teleport and the UI overlays.
+  `NextFrameAsync` is frame-based, so a paused per-frame loop keeps ticking with
+  `Time.deltaTime` at 0 and its arc freezes.
+- No pre-emptive `catch (OperationCanceledException)`: add the one-line catch only where a
+  cancelled await actually surfaces in the console on scene unload.
 
 ### Scene Loading
 - All scenes load **additively** from the persistent Boot scene (`0_BootStrap_Game_Only`)
@@ -542,7 +563,7 @@ Assets/
 │   ├── Config/                       # DifficultyConfig (domain-neutral, namespace CrawfisSoftware.Config)
 │   ├── Events/                       # AutoEventFlowBase + EventChainDispatcher, EventHistory
 │   ├── Test/                         # Test_AutoFireEvent, Test_AutoFireEventOnStart
-│   └── Utility/                      # Logger, EventLoggerDump, DebugEventFileLogger, DebugLog, TimedEvent, TextureExtensions
+│   └── Utility/                      # Logger, EventLoggerDump, DebugEventFileLogger, DebugLog, TimedEvent, TextureExtensions, Wait
 │
 ├── Countdown/                        # Session-ceremony domain (the pre-run 3...2...1)
 │   ├── Scripts/

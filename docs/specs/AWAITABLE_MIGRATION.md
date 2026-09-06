@@ -1,6 +1,8 @@
 # Plan: replace coroutines with Unity's `Awaitable`
 
-**Status:** proposal / ready to execute
+**Status:** implemented on branch `awaitable-migration` (2026-09-06) — phases 0–3 each built
+clean and phase 4 landed; **the play session in [Verification](#verification) is still owed
+before merge.** [What changed against the plan](#what-changed-against-the-plan) is at the end.
 **Baseline tag:** `pre-awaitable-migration` — the coroutine implementation as it shipped.
 Diff any file below against that tag to see the before/after as a teaching example.
 **Why:** the project is on **Unity 6.6** (`6000.6`), where `Awaitable` is the native
@@ -17,14 +19,16 @@ their careers. The conversion is also a net *reduction* in code — most of the
 
 ## Scope
 
-**20 files, 26 `StartCoroutine` sites**, in four shapes. (The `IEnumerator` hits in
-`Input/GameControls.cs` and `Input/LeftRightJumpSlide.cs` are generated `IEnumerable`
-implementations, not coroutines — leave them alone.)
+**20 files, 23 coroutine methods, 31 `StartCoroutine` call sites**, in four shapes. (An
+earlier draft said 26 sites: it counted the input classes by helper method and the rest by
+call site. The per-file table below was always right; only the headline was off.) (The
+`IEnumerator` hits in `Input/GameControls.cs` and `Input/LeftRightJumpSlide.cs` are generated
+`IEnumerable` implementations, not coroutines — leave them alone.)
 
 | Shape | Files |
 |-------|-------|
-| **A. Delay, then do one thing** | `QuitController`, `LoadSceneAfterGameControlEvent`, `TimedEvent`, `GameFlowUIPanelController` (×2), `TeleportController`, `PlayerFailedController`, `PlayerFailureAutoTurnController`, `PrefabSpawnerAbstract`, `MovementInputActions` (3 cooldown helpers), `SwipeDetectorActions` |
-| **B. Per-frame loop that ends** | `JumpArcController`, `SlideArcController`, `DashSpeedController`, `LaneOffsetController`, `CharacterTeleporter`, `CountdownController` |
+| **A. Delay, then do one thing** | `QuitController`, `LoadSceneAfterGameControlEvent`, `TimedEvent`, `GameFlowUIPanelController` (×2), `TeleportController`, `PlayerFailedController`, `PlayerFailureAutoTurnController`, `PrefabSpawnerAbstract`, `MovementInputActions` (3 cooldown helpers, 7 call sites), `SwipeDetectorActions` (1 helper, 4 call sites) |
+| **B. Per-frame loop that ends** | `JumpArcController`, `SlideArcController`, `DashSpeedController`, `LaneOffsetController` (1 helper, 2 call sites), `CharacterTeleporter`, `CountdownController` |
 | **C. Long-lived loop with an explicit stop** | `Metronome`, `DistanceController`, `PowerUpBuffController` (one timer per active buff) |
 | **D. Wait on an `AsyncOperation`** | `UnloadNonActiveScenes` |
 
@@ -38,7 +42,7 @@ implementations, not coroutines — leave them alone.)
 | `yield return new WaitForEndOfFrame()` | `await Awaitable.EndOfFrameAsync(token)` |
 | `yield return new WaitForSeconds(s)` | `await Awaitable.WaitForSecondsAsync(s, token)` |
 | `yield return new WaitForSecondsRealtime(s)` | **no built-in** — `await Wait.ForSecondsRealtime(s, token)`, see below |
-| `while (!op.isDone) yield return null` | `await op;` — Unity 6 awaits `AsyncOperation` directly |
+| `while (!op.isDone) yield return null` | `await Awaitable.FromAsyncOperation(op, token);` — Unity 6 can also `await op;` directly, but a bare `await op` carries no token, and Rule 1 says every await does |
 | `yield break` | `return` |
 
 `PauseController` / `PlayerPauseController` set `Time.timeScale = 0`, so the scaled vs.
@@ -138,7 +142,7 @@ private async Awaitable RunJumpArc()
     }
 
     Blackboard.Instance.JumpHeightOffset = 0f;
-    TempleRunBus.Publish(TempleRunEvents.JumpEnded, this, null);
+    TempleRunBus.Publish(TempleRunEvents.JumpEnding, this, null);   // JumpEnded follows by chain
 }
 ```
 
@@ -153,8 +157,8 @@ signature, swap the `yield`, drop `using System.Collections;`.
 | File | Note |
 |------|------|
 | `Player/DashSpeedController.cs` | Keep the deliberate one-frame defer (`yield return null; …; continue;` that dodges an event cycle) verbatim as an `await …NextFrameAsync(…); … continue;`. It looks like a wart; it isn't. |
-| `Player/DistanceController.cs` | `WaitForEndOfFrame` → `EndOfFrameAsync`. `while (true)` loop; CTS started in `OnGameStarted`, cancelled in `OnGameOver` and `OnDestroy` — replaces `DeleteCoroutine()`. |
-| `Player/PowerUpBuffController.cs` | `Dictionary<PowerUpType, CancellationTokenSource>`. Cancel + replace on re-collect; cancel all in `OnTempleRunEnded`. |
+| `Player/DistanceController.cs` | `WaitForEndOfFrame` → `EndOfFrameAsync`. `while (true)` loop; CTS started in `OnPlayerActivated` (cancelling any earlier one first), cancelled in `OnGameOver` and `OnDestroy` — replaces `DeleteCoroutine()`. |
+| `Player/PowerUpBuffController.cs` | `Dictionary<PowerUpType, CancellationTokenSource>`. Cancel + replace on re-collect; `OnPowerUpDeactivating` cancels the entry as it removes it, so "entry present ⇔ timer running" holds; cancel all in `OnTempleRunEnded` **and** `OnDestroy` (the latter is what the L17 audit will look for). |
 | `Countdown/Scripts/CountdownController.cs` | CTS; the loop body is otherwise unchanged. |
 | `Player/CharacterTeleporter.cs` | Per-frame loop on `GameTime.Instance.deltaTime` → `NextFrameAsync(destroyCancellationToken)`. |
 | `Player/PlayerFailedController.cs` | `_hitchCoroutine != null` was doubling as "a hitch is already running" — keep that as a plain `bool _hitching`. Realtime wait. `StopAllCoroutines()` in `OnDestroy` goes away. |
@@ -162,7 +166,8 @@ signature, swap the `yield`, drop `using System.Collections;`.
 | `Audio/Metronome.cs` | CTS; the `StopCoroutine(null)` guard in `StopMetronome` becomes `_cts?.Cancel()` and the comment explaining the guard can go — `?.` covers it. |
 | `Input/MovementInputActions.cs`, `Input/SwipeDetectorActions.cs` | Three (resp. one) cooldown helpers; scaled waits, as today. `destroyCancellationToken` is what stops a cooldown from touching a disposed `InputAction`. |
 | `TrackVisuals/PrefabSpawnerAbstract.cs` | Per-object delayed destroy. Cancellation leaves the object alive, exactly as `StopCoroutine` does today — scene unload destroys it either way. |
-| `GameControl/UnloadNonActiveScenes.cs` | The biggest win: the nested `while (!op.isDone)` collapses to `foreach (var op in unloadOperations) await op;`. |
+| `GameControl/UnloadNonActiveScenes.cs` | The biggest win: the nested `while (!op.isDone)` collapses to `foreach (var op in unloadOperations) await Awaitable.FromAsyncOperation(op, destroyCancellationToken);` — see the API table for why not a bare `await op`. |
+| `SceneManagement/LoadSceneAfterGameControlEvent.cs` | Once the method is `async`, the compiler flags the un-awaited `SceneManager.LoadSceneAsync(...)` (CS4014, because `AsyncOperation` is now awaitable). It was fire-and-forget before too, so it becomes `_ = SceneManager.LoadSceneAsync(...)`. |
 | `UI/GameFlowUIPanelController.cs` | Two realtime waits. `ShowGameOver()` stays sync and fires the async part with `_ =`. |
 | `_Common/Utility/TimedEvent.cs` | Keeps the `_useRealtime` branch — one arm `Wait.ForSecondsRealtime`, the other `Awaitable.WaitForSecondsAsync`. |
 
@@ -212,15 +217,16 @@ appears, never pre-emptively.
 Three changes, all in the worked dodge-roll example — this is the file every student copies
 from, so it is the highest-leverage edit in the migration.
 
-> **Baseline:** this assumes the full-event-ladder sweep has already landed on `main` — that
-> is what put `RollEnding` into the sample and pointed the end rungs at
-> `CountdownController`. Both edits touch the same twelve lines, so land that first and
-> rebase, rather than resolving them against each other.
+> **Baseline (as found on 2026-09-06):** the full-event-ladder sweep had landed, and the
+> sample had moved on from what an earlier draft of this plan assumed. The `RollController`
+> in §5 now publishes only `RollStarting` and `RollEnding`; `RollStarted` and `RollEnded`
+> arrive by chain, and the teardown (`_isRolling = false`) comes *before* `RollEnding`, as
+> the "leave every link chained" rule requires. The edit below is written against that
+> file, not the older one — only the wait changes.
 
-- **§5, the `RollController` sample.** Replace the last two methods verbatim — the rest of
-  the class (the `Awake`/`OnDestroy` subscribe pair, the `_isRolling` gate) is unchanged.
-  Note that only the *wait* changes: all four publish rungs and the `RollEnding`-before-
-  `_isRolling` ordering survive the port exactly as the ladder sweep left them.
+- **§5, the `RollController` sample.** Replace the last two methods; the rest of the class
+  (the `Awake`/`OnDestroy` subscribe pair, the `_isRolling` gate) is unchanged, and so are
+  the two publish rungs and their ordering.
 
   ```csharp
       private void OnRollRequested(string e, object sender, object data)
@@ -228,32 +234,35 @@ from, so it is the highest-leverage edit in the migration.
           if (_isRolling) return;             // the validation gate
           _isRolling = true;
           TempleRunBus.Publish(TempleRunEvents.RollStarting, this, null);
-          _ = RollRoutine();                  // fire and forget - see the note below
+          _ = RollRoutine();                  // fire and forget; RollStarted arrives by chain
       }
 
       private async Awaitable RollRoutine()
       {
-          TempleRunBus.Publish(TempleRunEvents.RollStarted, this, null);
           // ...animate / adjust Blackboard offsets over time...
           await Awaitable.WaitForSecondsAsync(rollDuration, destroyCancellationToken);
 
+          _isRolling = false;                 // teardown first - see below
           TempleRunBus.Publish(TempleRunEvents.RollEnding, this, null);
-          _isRolling = false;                 // state clears between the two rungs
-          TempleRunBus.Publish(TempleRunEvents.RollEnded, this, null);
+          // RollEnded is not published here. (RollEnding, RollEnded) is in the ChainTable,
+          // so the link stays open for a recovery window someone adds later.
       }
   ```
 
-  Then add two sentences of prose under the block, because this sample is where students
-  meet both rules for the first time: an async method — unlike a coroutine — does **not**
-  die with its MonoBehaviour, which is what `destroyCancellationToken` is for; and the
-  method returns `Awaitable` rather than `void` so a cancellation is absorbed instead of
-  logged as an unhandled exception.
-- **§2, "…is published by the controller when the animation/coroutine actually reaches that
-  point"**: reword `coroutine` → `async method`.
-- **§5 lead-in**, which points at `DashController` / `SlideController` for structure and
-  `CountdownController` for the end rungs: all three are converted by the end of phase 3, so
-  land this doc edit in phase 4 and not earlier — otherwise the walkthrough teaches a pattern
-  the very files it names don't use yet.
+  Then a short paragraph under the block, because this sample is where students meet both
+  rules for the first time: an async method — unlike a coroutine — does **not** die with
+  its MonoBehaviour, which is what `destroyCancellationToken` is for; the method returns
+  `Awaitable` rather than `void` so a cancellation is absorbed instead of logged as an
+  unhandled exception; and `WaitForSecondsAsync` is scaled, with `Wait.ForSecondsRealtime`
+  as the unscaled wait.
+- **§2, "Nobody has to find, understand or re-time your coroutine"**: reword `coroutine` →
+  `async method`.
+- **§5 lead-in.** It says only "Model it on `DashController` / `SlideController`" — the
+  two *gate* controllers, which own no coroutine and are untouched by this migration. (An
+  earlier draft expected it to name `CountdownController` for the end rungs; it does not.)
+  The sample itself resembles the arc controllers, so it still lands in phase 4, after
+  `DashSpeedController` / `SlideArcController` are converted — otherwise the walkthrough
+  teaches a pattern the code it resembles doesn't use yet.
 
 ### `docs/STUDENT_TASKS.md`
 
@@ -266,12 +275,20 @@ from, so it is the highest-leverage edit in the migration.
   and Unity's test framework supports async tests directly. It makes the task easier and the
   tests less flaky, and students should know that before they scope it.
 - **Two new tasks in section L**, both of which only become possible after this migration:
-  - **L16. Await an event (S/M).** Add an `Awaitable`-returning `WaitAsync(token)` to
-    `EventId<T>` / `EventsFor<T>`, so a controller can write
-    `await JumpLanded.WaitAsync(token)` instead of subscribing, setting a flag, and
-    unsubscribing. Convert two call sites, then argue the trade-off honestly: it reads far
-    better, and it hides the subscription from `/audit-events` and from **List Current
-    Subscribers**. Decide where the line is and document the rule you used.
+  - **L16. Await an event (S/M).** Add an `Awaitable`-returning `WaitAsync(eventEnum, token)`
+    for `EventsFor<T>`, so a controller can write
+    `await TempleRunBus.WaitAsync(TempleRunEvents.JumpEnded, token)` instead of subscribing,
+    setting a flag, and unsubscribing. (An earlier draft hung this off `EventId<T>`; that
+    type was removed and is banned — CLAUDE.md, *Typed Payloads* — so the task is
+    `EventsFor<T>`-only.) `EventsFor<T>` is a static class in the EventsPublisher package, so
+    the default home is a static helper in `Assets/_Common/Events` that infers the bus from
+    the enum — `await EventAwaiter.WaitAsync(TempleRunEvents.JumpEnded, token)` — built on a
+    subscribe-once handler that completes an `AwaitableCompletionSource` and unsubscribes,
+    plus a token registration that unsubscribes on cancel. Putting it on `EventsFor<T>`
+    itself, so the bus-alias form reads, is a package change: ask the owner first. Convert two
+    call sites, then argue the trade-off honestly: it reads far better, and it hides the
+    subscription from `/audit-events` and from **List Current Subscribers**. Decide where the
+    line is and document the rule you used.
   - **L17. Async lifetime audit (S).** The `async` sibling of L11. Write the `/audit-events`
     companion check that flags an `await` with no cancellation token, an `async void` on a
     MonoBehaviour, and a CTS that is never cancelled in `OnDestroy` — the three ways an async
@@ -287,11 +304,16 @@ from, so it is the highest-leverage edit in the migration.
   `docs/ai/timebox-1.md`, `CLAUDE.md`, `README.md` — **and the two talk decks that the
   original list missed**, `docs/talk/its-just-an-endless-runner.html` (four: a stat tile, a
   speaker note, a source caption, the closing slide) and
-  `docs/talk/its-just-an-endless-runner-v2.html` (four, same shape).
+  `docs/talk/its-just-an-endless-runner-v2.html` (four, same shape). The decks had never
+  been moved to 130 — they still said 128 — so they went 128 → 132 in one step. (The
+  `130-series` mentions in `docs/EVENTS.md` and task E-series are event numbers, not the
+  task count; leave them.)
   **Generated — regenerate, never hand-edit:** `docs/TIMEBOX_1_REQUIREMENTS.html` and
   `docs/canvas/timebox1/*.html` come from `docs/TIMEBOX_1_REQUIREMENTS.md` via
   `python docs/canvas/build_timebox1.py`, which **requires `pandoc` on PATH**;
-  `docs/TIMEBOX_2_REQUIREMENTS.html` likewise from its `.md` sibling.
+  `docs/TIMEBOX_2_REQUIREMENTS.html` likewise from its `.md` sibling (untouched here: the
+  Timebox 2 text carries no task count). `docs/ai/timebox-1.md` is a Canvas pull snapshot
+  (`pull_from_canvas.py`), so its count is hand-edited like any other prose.
 
 ### Not affected
 
@@ -299,3 +321,41 @@ from, so it is the highest-leverage edit in the migration.
 requirement docs, and every `.claude/skills/*/SKILL.md` — none of them mention coroutines.
 The `docs/event-review/*.html` retrospectives quote code from the `pre-event-seam-audit` tag
 and are deliberately frozen; leave them.
+
+## What changed against the plan
+
+Executed 2026-09-06 on branch `awaitable-migration`, phases 0–4 in order, `dotnet build`
+after each (clean every time; the one warning, `PlayerLifeController._playerID` unused, is
+pre-existing). Everything above was updated in place; this is the list of where the landed
+code or docs differ from the plan as first written, so the diff against
+`pre-awaitable-migration` reads without surprises.
+
+- **Counts.** 31 `StartCoroutine` call sites in 23 coroutine methods, not 26 sites; the
+  per-file table was already right. The two talk decks were still at 128 tasks, not 130.
+- **`UnloadNonActiveScenes`** awaits `Awaitable.FromAsyncOperation(op, destroyCancellationToken)`
+  rather than a bare `await op`, so Rule 1 holds without exception.
+- **`LoadSceneAfterGameControlEvent`** discards the `LoadSceneAsync` result (`_ =`) — the only
+  compiler warning the migration produced (CS4014), and the call was fire-and-forget before.
+- **`PowerUpBuffController`** also cancels a buff's CTS when `OnPowerUpDeactivating` removes
+  its entry, and cancels every remaining one in `OnDestroy`. Today only the timer itself
+  reaches `OnPowerUpDeactivating`, so the first is a no-op on every live path; it just keeps
+  "entry present ⇔ timer running" true if a cleanse mechanic ever publishes the request.
+- **`Metronome` / `DistanceController`** cancel any earlier CTS before starting a new loop,
+  the same restart shape as `LaneOffsetController`; the coroutine versions would have run
+  two loops if `PlayerActivated` ever fired twice.
+- **`LaneOffsetController`'s** restart cancel never fires in practice: `LaneChangeController`
+  gates on `_isChanging` until the completion event, so no lerp is in flight when the next
+  request arrives. It is kept because `TempleRunStarting` resets that gate.
+- **L16** is `EventsFor<T>`-only (no `EventId<T>`), with the placement rule spelled out:
+  the default is a helper in `Assets/_Common/Events`; adding to the package needs the
+  owner's OK.
+- **ADDING_A_MECHANIC** §5 sample: written against the file as it is (two publish rungs, the
+  rest chained, teardown before `RollEnding`), not the older four-rung sample the plan
+  quoted; the lead-in names no converted file.
+- **Build mechanics.** The Editor only regenerates `Assembly-CSharp.csproj` on focus, so
+  until it did, the phase 0 and 1 builds ran against a throwaway copy of the csproj with the
+  `Wait.cs` `Compile` item added (deleted after each build). `Wait.cs.meta` was written by
+  hand with a fresh GUID, as `/generate-segments` does for its assets. From phase 2 on the
+  Editor had regenerated the real csproj and the builds used it.
+- **No `catch (OperationCanceledException)` was needed** at build time; whether one is
+  needed at all is what the exit-Play-Mode-mid-run check in Verification decides.

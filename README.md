@@ -69,7 +69,7 @@ subscribing to named events.
 | [docs/EVENTS.md](docs/EVENTS.md) | Full event catalog: every event, value, auto-chain, and bridge mapping |
 | [docs/TRACKS.md](docs/TRACKS.md) | Track generation pipeline, ScriptableObject data model, and segment geometry |
 | [docs/ADDING_A_MECHANIC.md](docs/ADDING_A_MECHANIC.md) | End-to-end walkthrough: adding a gameplay mechanic |
-| [docs/STUDENT_TASKS.md](docs/STUDENT_TASKS.md) | Task catalog: 130 scoped projects, by sub-specialty, to take the runner to a polished product |
+| [docs/STUDENT_TASKS.md](docs/STUDENT_TASKS.md) | Task catalog: 132 scoped projects, by sub-specialty, to take the runner to a polished product |
 | [docs/TIMEBOX_1_REQUIREMENTS.md](docs/TIMEBOX_1_REQUIREMENTS.md) | The Timebox&nbsp;1 assignment (Studio Setup &amp; Greenlight): five phases, effort budget, git/AI setup, deliverable owners, team plans for 5/6/7/9+, and the presentation running order |
 | [docs/TIMEBOX_2_REQUIREMENTS.md](docs/TIMEBOX_2_REQUIREMENTS.md) | The Timebox&nbsp;2 assignment (Design Wide, Build Narrow): the over-design pass, systems and seams, the design freeze, the greybox rule, sprint math, and agentic engineering |
 | [docs/TIMEBOX_3_PLUS_REQUIREMENTS.md](docs/TIMEBOX_3_PLUS_REQUIREMENTS.md) | The Timebox&nbsp;3+ rhythm, reused every timebox: re-ranking, capture and before/after, video diary, light marketing, and graduating from greybox |
