@@ -1,8 +1,7 @@
 using CrawfisSoftware.Events;
 using CrawfisSoftware.GameFlow.Events;
 using CrawfisSoftware.GameFlow.GameConfig;
-
-using System.Collections;
+using CrawfisSoftware.Utility;
 
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -12,7 +11,8 @@ namespace CrawfisSoftware.GameFlow.UI
 {
     /// <summary>
     /// GameFlow-domain UI panel controller. Manages loading screen and game over overlay.
-    /// Countdown and HUD are now managed by Countdown-domain CountdownUIController.
+    /// The countdown overlay belongs to the Countdown domain (CountdownUIController); the distance
+    /// HUD belongs to TempleRun (GUIController).
     ///    Dependencies: PanelRenderer (gameOver + loading panels), GameConstants
     ///    Subscribes: GameFlowEvents.GameStarting, GameFlowEvents.GameStarted, GameFlowEvents.GameEnding
     ///    Publishes: GameFlowEvents.LoadingScreenShown, GameFlowEvents.LoadingScreenHidden, GameFlowEvents.GameEnded
@@ -43,7 +43,7 @@ namespace CrawfisSoftware.GameFlow.UI
             GameFlowBus.Subscribe(GameFlowEvents.GameStarted, OnGameStarted);
             GameFlowBus.Subscribe(GameFlowEvents.GameEnding, OnGameEnding);
 
-            StartCoroutine(ShowLoadingRoutine(GameConstants.DefaultLoadingDisplayTime));
+            _ = ShowLoadingRoutine(GameConstants.DefaultLoadingDisplayTime);
         }
 
         private void OnEnable()
@@ -104,10 +104,10 @@ namespace CrawfisSoftware.GameFlow.UI
             ShowGameOver();
         }
 
-        private IEnumerator ShowLoadingRoutine(float seconds)
+        private async Awaitable ShowLoadingRoutine(float seconds)
         {
             GameFlowBus.Publish(GameFlowEvents.LoadingScreenShown, this, null);
-            yield return new WaitForSecondsRealtime(seconds);
+            await Wait.ForSecondsRealtime(seconds, destroyCancellationToken);
             if (_isSignedIn)
                 Go(UIState.Menu);
             else
@@ -125,12 +125,12 @@ namespace CrawfisSoftware.GameFlow.UI
         {
             if (!gameOverUI) { Debug.LogWarning("GameOver UXML not set"); return; }
             SetGameOverVisible(true);
-            StartCoroutine(ShowGameOverRoutine());
+            _ = ShowGameOverRoutine();
         }
 
-        private IEnumerator ShowGameOverRoutine()
+        private async Awaitable ShowGameOverRoutine()
         {
-            yield return new WaitForSecondsRealtime(GameConstants.GameOverDisplayTime);
+            await Wait.ForSecondsRealtime(GameConstants.GameOverDisplayTime, destroyCancellationToken);
             GameFlowBus.Publish(GameFlowEvents.GameEnded, this, null);
             Go(UIState.None);
         }

@@ -1,6 +1,5 @@
 using CrawfisSoftware.TempleRun.GameConfig;
-
-using System.Collections;
+using CrawfisSoftware.Utility;
 
 using UnityEngine;
 using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
@@ -18,7 +17,6 @@ namespace CrawfisSoftware.TempleRun
     internal class PlayerFailureAutoTurnController : MonoBehaviour
     {
         [SerializeField] private TurnController _turnController;
-        private Coroutine _advanceTrackCoroutine;
 
         private void Awake()
         {
@@ -30,20 +28,19 @@ namespace CrawfisSoftware.TempleRun
             if (data is float)
             {
                 // Note: This starts immediately and runs in parallel with pause behavior.
-                _advanceTrackCoroutine = StartCoroutine(AdvanceAfterFailure());
+                _ = AdvanceAfterFailure();
             }
         }
 
-        private IEnumerator AdvanceAfterFailure()
+        private async Awaitable AdvanceAfterFailure()
         {
             // Wait until pause is almost over before advancing the player to the next track segment.
-            yield return new WaitForSecondsRealtime(TempleRunConstants.DelayAfterFailureBeforeAutoTurning);
+            await Wait.ForSecondsRealtime(TempleRunConstants.DelayAfterFailureBeforeAutoTurning, destroyCancellationToken);
             _turnController.ForceTurn();
         }
 
         private void OnDestroy()
         {
-            StopAllCoroutines(); // Saved them so could call individually instead.
             TempleRunBus.Unsubscribe(TempleRunEvents.PlayerFailingAtTurn, OnPlayerFailing);
         }
     }

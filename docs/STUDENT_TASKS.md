@@ -1,7 +1,7 @@
 # Student Task Catalog: From Plain Runner to Polished Product
 
 The template is deliberately a *plain* runner — capsule player, primitive obstacles, flat
-track. That's the point: everything below is a well-scoped way to make it yours. **130
+track. That's the point: everything below is a well-scoped way to make it yours. **133
 tasks**, grouped by sub-specialty so a team can divide work along interests (gameplay code,
 tech art, audio, UI, systems design…). Effort tags are rough: **S** = a few days, **M** = a
 week or two, **L** = a multi-week centerpiece. Tasks are referenced as section-letter +
@@ -80,7 +80,7 @@ presentation running order. The tasks below are what those plans point at — tw
     durations, camera FOV/follow-lag across difficulty levels; document before/after and
     playtest results.
 
-14. **Cinemachine camera rig (M).** Cinemachine 3.1.7 ships as a dependency and is used
+14. **Cinemachine camera rig (M).** Cinemachine 6.6.0 ships as a dependency and is used
     *nowhere* — the camera is a plain child of the player. Build a real rig: separate cameras
     for running, jumping, dashing, turning and death, blended by state, with Impulse for
     landings and hits. Cinemachine 3.0 broke most of the 2.x API and most tutorials with it,
@@ -401,7 +401,8 @@ expects — is part of the exercise. Read the PanelRenderer rules in
    destroy a group on `ActiveTrackChanged` with a cursor starting at `-1`. `SpawnerBase`'s
    own docstring admits it — "Mirrors `PrefabSpawnerAbstract`". Extract the shared
    segment-lifetime bookkeeping into one base; the subclasses differ only in what they
-   instantiate and whether deletion is immediate or delayed. Same shape as the
+   instantiate and whether deletion is immediate or delayed (`SpawnerBase` destroys inline,
+   `PrefabSpawnerAbstract` awaits `_debugDestroyDelayTime` first). Same shape as the
    `AutoEventFlowBase` consolidation, and it teaches the spawner lifecycle the way that one
    taught event dispatch.
 2. **Generalized object pooling (M).** One pooling service for obstacles, coins, VFX, and
@@ -414,7 +415,10 @@ expects — is part of the exercise. Read the PanelRenderer rules in
    almost free — the playback half is the project.
 5. **Play-mode test suite (M).** Because everything is events, you can drive the game
    headlessly: publish inputs, assert state transitions, catch auto-chain regressions.
-   Build the harness and 10 meaningful tests.
+   Build the harness and 10 meaningful tests. Know this before you scope it: gameplay is
+   `Awaitable`-based now, so the harness can `await` a mechanic to completion instead of
+   yielding a fixed number of frames, and Unity's test framework runs async tests directly —
+   easier to write, and far less flaky.
 6. **In-game event console (S/M).** Debug overlay streaming the event log live (filter by
    domain), plus a "publish arbitrary event" panel. Every other team will thank you.
 7. **Difficulty director (L).** Replace static difficulty with a director that watches
@@ -480,6 +484,39 @@ expects — is part of the exercise. Read the PanelRenderer rules in
     **The interesting part is where you stop:** some `Blackboard` members legitimately stay
     (`DistanceTracker`, `CurrentSpeed`, the live offsets). Argue the boundary, don't just move
     everything.
+16. **Await an event (S/M).** Add an `Awaitable`-returning `WaitAsync(eventEnum, token)` for
+    `EventsFor<T>`, so a controller can write
+    `await TempleRunBus.WaitAsync(TempleRunEvents.JumpEnded, token)` instead of subscribing,
+    setting a flag, and unsubscribing. `EventsFor<T>` is a static class in the EventsPublisher
+    package, so the default home is a static helper in `Assets/_Common/Events` that infers the
+    bus from the enum — `await EventAwaiter.WaitAsync(TempleRunEvents.JumpEnded, token)` — built
+    on a subscribe-once handler that completes an `AwaitableCompletionSource` and unsubscribes,
+    plus a token registration that unsubscribes on cancel. Putting it on `EventsFor<T>` itself,
+    so the bus-alias form above reads, is a package change: ask the owner first. Convert two
+    call sites, then argue the trade-off honestly: it reads far better, and it hides the
+    subscription from `/audit-events` and from **List Current Subscribers**. Decide where the
+    line is and document the rule you used.
+17. **Async lifetime audit (S).** The `async` sibling of L11. Write the `/audit-events`
+    companion check that flags an `await` with no cancellation token, an `async void` on a
+    MonoBehaviour, and a `CancellationTokenSource` that is never cancelled in `OnDestroy` —
+    the three ways an async method outlives its object (CLAUDE.md, *Async and coroutines*).
+    Seed it by reintroducing each defect on a branch and confirming the check catches it.
+18. **Score every way a run ends (S/M).** A run ends two ways, and the ladder carries a
+    different payload for each: `PlayerLifeController` stamps the final distance onto
+    `PlayerDied`, which chains into `TempleRunEndRequested`, but a quit (`UserQuitRequested`,
+    bridged straight into that same rung) forwards the raw input's player id. So
+    `TempleRunEndRequested` / `Ending` / `Ended` and `GameEnding` are "score or player id" and
+    are deliberately undeclared. In RUGS, whose `UGSGameFlowBridge` must hand
+    `GameServiceEvents.SessionEnding` a float, a quit is scored as 0 by hand. Make the ladder
+    honest: give the quit its own TempleRun cause event (`TempleRunQuitRequested`, int player
+    id, the same shape as `PlayerPauseToggleRequested`), let `PlayerLifeController` — the
+    owner of the final score — turn it into `TempleRunEndRequested` with the real distance,
+    declare `[EventPayload(typeof(float))]  // Final score` down the whole ladder and on
+    `GameEnding`, and delete RUGS's 0. The reason it matters beyond this template: for a game
+    with progression, quitting is where a save and a score submission have to happen (E3, O2,
+    O6), so the quit rung must carry real data. Decide whether a quit *should* count for the
+    leaderboard — this template says it is a testing convenience and does not — and write
+    that decision on the enum.
 
 ## M. Genre Pivot: Runner → Explorer
 

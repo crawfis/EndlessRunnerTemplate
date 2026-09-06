@@ -10,7 +10,7 @@ namespace CrawfisSoftware.TempleRun
     /// Handles double-tap input detection for dash activation.
     /// Two taps within the window (0.3s) triggers a dash.
     ///    Dependencies: LeftRightJumpSlide input action map
-    ///    Publishes: UserInitiatedEvents.DashRequested
+    ///    Publishes: UserInitiatedEvents.UserDashRequested
     /// </summary>
     public class DashInputActions : MonoBehaviour
     {

@@ -62,11 +62,20 @@ Choose the appropriate subset. Not all features need all states. For example:
 - Values within a group are sequential
 - Add a category comment header: `// ---------- Feature Name ----------`
 - Exception — `UserInitiatedEvents`: implicit sequential values with a `User` prefix and no
-  categories; just append at the end
+  categories; just append at the end, with `[EventPayload(typeof(int))]  // Player id` on the
+  member — every member carries the player id and nothing else
 
 ### Step 5: Edit the enum file
 
 Add the new events to the enum. Place them in a logical location (near related features or at the end).
+
+- If a member carries data, declare it on the member: `[EventPayload(typeof(T))]`. For `int`,
+  `float`, `string`, `bool`, `long` or `double` add an inline comment saying what the value
+  *is* (`[EventPayload(typeof(int))]  // Player id`). A member with no payload, or a genuinely
+  variable one, stays undeclared. Do not mint `EventId<T>` fields at call sites.
+- Add `[EventDelivery(EventDelivery.Sticky)]` only if the member is a *level* (a state that is
+  self-describing on its own); a transition stays `Transient`. See CLAUDE.md "Typed Payloads"
+  and "Delivery Policy".
 
 ### Step 6: Ask about auto-chaining and bridges
 

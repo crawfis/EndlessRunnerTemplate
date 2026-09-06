@@ -23,7 +23,7 @@ design, documentation, and process — not features.
 
 **You have 1.5 weeks.** Task IDs like **A4** or **I12** point into the [Student Task
 Catalog](https://github.com/crawfis/EndlessRunnerTemplate/blob/main/docs/STUDENT_TASKS.md) —
-130 scoped projects grouped by sub-specialty. This document says how many to take, who takes
+133 scoped projects grouped by sub-specialty. This document says how many to take, who takes
 them, and everything else that is due.
 
 **The five phases:**
@@ -389,7 +389,7 @@ and write it down:
 ### Systems architecture
 
 - **Decoupling.** Where does the Observer pattern — an event bus — separate UI from gameplay?
-  The template answers this one way (three event domains, auto-chaining, one bridge per domain
+  The template answers this one way (four event domains, auto-chaining, one bridge per domain
   crossing), described in
   [ARCHITECTURE.md](https://github.com/crawfis/EndlessRunnerTemplate/blob/main/docs/ARCHITECTURE.md).
   Say whether you are adopting that, and why.

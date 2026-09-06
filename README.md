@@ -44,13 +44,13 @@ subscribing to named events.
 
 ## Requirements
 
-- **Unity 6.5** (the `6000.5` stream), Universal Render Pipeline. Developed on Unity 6.5;
-  open it with the latest 6.5 patch you have installed.
+- **Unity 6.6** (the `6000.6` stream), Universal Render Pipeline. Developed on Unity 6.6;
+  open it with the latest 6.6 patch you have installed.
 - Git (the project pulls two dependencies as git packages — see below).
 
 ## Getting Started
 
-1. Clone the repository and open it in Unity 6.5.
+1. Clone the repository and open it in Unity 6.6.
 2. Open `Assets/GameFlow/Scenes/Boot/0_BootStrap_Game_Only.unity`.
 3. Enter Play Mode. The bootstrap scene loads the UI and gameplay scenes additively and
    takes you to the main menu → level select → gameplay.
@@ -69,7 +69,7 @@ subscribing to named events.
 | [docs/EVENTS.md](docs/EVENTS.md) | Full event catalog: every event, value, auto-chain, and bridge mapping |
 | [docs/TRACKS.md](docs/TRACKS.md) | Track generation pipeline, ScriptableObject data model, and segment geometry |
 | [docs/ADDING_A_MECHANIC.md](docs/ADDING_A_MECHANIC.md) | End-to-end walkthrough: adding a gameplay mechanic |
-| [docs/STUDENT_TASKS.md](docs/STUDENT_TASKS.md) | Task catalog: 130 scoped projects, by sub-specialty, to take the runner to a polished product |
+| [docs/STUDENT_TASKS.md](docs/STUDENT_TASKS.md) | Task catalog: 133 scoped projects, by sub-specialty, to take the runner to a polished product |
 | [docs/TIMEBOX_1_REQUIREMENTS.md](docs/TIMEBOX_1_REQUIREMENTS.md) | The Timebox&nbsp;1 assignment (Studio Setup &amp; Greenlight): five phases, effort budget, git/AI setup, deliverable owners, team plans for 5/6/7/9+, and the presentation running order |
 | [docs/TIMEBOX_2_REQUIREMENTS.md](docs/TIMEBOX_2_REQUIREMENTS.md) | The Timebox&nbsp;2 assignment (Design Wide, Build Narrow): the over-design pass, systems and seams, the design freeze, the greybox rule, sprint math, and agentic engineering |
 | [docs/TIMEBOX_3_PLUS_REQUIREMENTS.md](docs/TIMEBOX_3_PLUS_REQUIREMENTS.md) | The Timebox&nbsp;3+ rhythm, reused every timebox: re-ranking, capture and before/after, video diary, light marketing, and graduating from greybox |
@@ -92,9 +92,9 @@ event**; systems that care **subscribe** and react. The jump button doesn't call
 controller — it publishes `UserJumpRequested`, which `Input2TempleRunAutoEventBridge`
 translates to `JumpRequested`. `JumpController` subscribes, validates the request (no jumping
 while already airborne), and publishes `JumpStarting` itself once the check passes —
-deliberately *not* auto-chained, so the validation gate can reject; `JumpArcController`
-subscribes to that, actually drives the
-jump arc, and publishes `JumpStarted` partway through. Adding "play a sound on jump" later is
+deliberately *not* auto-chained, so the validation gate can reject (and publish `JumpFailed`
+when it does); `JumpArcController` subscribes to that and actually drives the jump arc, while
+`JumpStarted` arrives by auto-chain at liftoff. Adding "play a sound on jump" later is
 just a new subscriber to `JumpStarted` — zero edits to either controller. No component holds
 a reference to a component in another system, so any system can be rewritten, replaced, or
 deleted without touching the others.

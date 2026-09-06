@@ -6,7 +6,7 @@ using UnityEngine;
 namespace CrawfisSoftware.TempleRun.GameConfig
 {
     /// <summary>
-    /// Maps PrefabTag strings (from track segment JSON) to Unity prefab references.
+    /// Maps PrefabTag strings (from the track segment ScriptableObjects) to Unity prefab references.
     /// Decouples data-driven track definitions from Unity asset GUIDs.
     ///
     ///   Usage: Assign in the Inspector, then look up at runtime:

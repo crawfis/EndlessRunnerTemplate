@@ -1,5 +1,10 @@
 # Phase 3 — Scene component swap checklist (do in the Unity Inspector)
 
+**Status:** executed (`8fd3d7d`, merged as `b83b4c3`, 2026-07-22). The play-test section at the
+end was superseded before merge: panels now stay enabled and show/hide via `root.style.display`
+(`0c4059d`) — see [../KNOWN_ISSUES.md](../KNOWN_ISSUES.md) and Pattern 2 of
+[../playbooks/uidocument-to-panel-renderer.md](../playbooks/uidocument-to-panel-renderer.md).
+
 Phases 1–2 (the C# controller changes) are done on branch `feature/panel-renderer`. All 7
 controllers now expect a **`PanelRenderer`** instead of a `UIDocument`. This checklist makes the
 in-editor swap mechanical.

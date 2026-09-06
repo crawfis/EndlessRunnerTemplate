@@ -8,7 +8,7 @@ using CrawfisSoftware.TempleRun.Track;
 namespace CrawfisSoftware.TempleRun
 {
     // =========================================================================
-    // String constants (JSON-compatible — used by JsonUtility serialization)
+    // String constants (the definition stores these fields as plain strings)
     // =========================================================================
 
     /// <summary>Values for <see cref="TrackSegmentDefinition.SpawnMode"/>.</summary>
@@ -32,7 +32,7 @@ namespace CrawfisSoftware.TempleRun
     }
 
     // =========================================================================
-    // Data classes (JSON-serializable)
+    // Data classes (plain runtime definitions; TrackLibraryLoader builds them from the ScriptableObjects)
     // =========================================================================
 
     /// <summary>

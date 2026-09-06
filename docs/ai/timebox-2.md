@@ -196,7 +196,7 @@ a player is" is a design decision with teeth.
 **3. Draw the seams.** Which systems talk, in which direction, and by what means — a call, an
 event, a shared data asset. Then mark the pairs that are **forbidden** from talking directly.
 Those forbidden pairs are your architecture; everything else is arrangement. The runner
-template makes the same choice explicitly: three event domains, no cross-domain references
+template makes the same choice explicitly: four event domains, no cross-domain references
 except in one bridge file, so gameplay can be rewritten without touching UI. It could and
 should be split into many more systems (i.e., event Enums).
 

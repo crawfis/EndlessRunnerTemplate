@@ -1,6 +1,6 @@
 # Spec: Strategy Interfaces for Segment Selection & Power-Ups
 
-**Status:** proposal / design exploration (not implemented)
+**Status:** implemented (Part A `709d4b1` + PR #9, Part B `fa85967`; merged as `5a819b1`, 2026-07-22) — the "where does policy live" question below is still open
 **Scope:** two independent extension points — `ISegmentSelector` and `IPowerUpEffect`. They
 share a theme (replace a baked-in switch/algorithm with pluggable strategies) but ship separately.
 

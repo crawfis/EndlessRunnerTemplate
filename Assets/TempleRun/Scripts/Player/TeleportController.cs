@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿using CrawfisSoftware.Utility;
 
 using UnityEngine;
 using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
@@ -37,17 +37,17 @@ namespace CrawfisSoftware.TempleRun
             var section = (SplineSection)data;
             if (!section.TeleportOwnsTransform)
                 return;
-            StartCoroutine(TeleportWithDelay(section));
+            _ = TeleportWithDelay(section);
         }
 
-        private IEnumerator TeleportWithDelay(SplineSection section)
+        private async Awaitable TeleportWithDelay(SplineSection section)
         {
             // This teleport has no warm-up and no wind-down of its own, so it publishes only the
             // *ing rungs and lets the chain carry each to its *ed. Both links stay open: a VFX
             // wind-up belongs in Starting -> Started, an arrival sting in Ending -> Ended, and
             // either can be added without this controller or its subscribers changing.
             TempleRunBus.Publish(TempleRunEvents.TeleportStarting, this, new TeleportInfo(_teleportDuration, section));
-            yield return new WaitForSecondsRealtime(_teleportDuration);
+            await Wait.ForSecondsRealtime(_teleportDuration, destroyCancellationToken);
             TempleRunBus.Publish(TempleRunEvents.TeleportEnding, this, section);
 
             // The turn ends here, not where it was committed. This teleport only runs for a

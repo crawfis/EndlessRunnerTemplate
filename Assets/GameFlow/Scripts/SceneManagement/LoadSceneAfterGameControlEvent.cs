@@ -1,7 +1,7 @@
 ﻿using CrawfisSoftware.Events;
+using CrawfisSoftware.Utility;
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
@@ -31,13 +31,14 @@ namespace CrawfisSoftware.GameFlow.SceneManagement
             if (_delayInSeconds <= 0f)
                 SceneManager.LoadSceneAsync(_sceneName, _loadadditively ? LoadSceneMode.Additive : LoadSceneMode.Single);
             else
-                StartCoroutine(DelayedLoadScene());
+                _ = DelayedLoadScene();
         }
 
-        private IEnumerator DelayedLoadScene()
+        private async Awaitable DelayedLoadScene()
         {
-            yield return new WaitForSecondsRealtime(_delayInSeconds);
-            SceneManager.LoadSceneAsync(_sceneName, _loadadditively ? LoadSceneMode.Additive : LoadSceneMode.Single);
+            await Wait.ForSecondsRealtime(_delayInSeconds, destroyCancellationToken);
+            // Fire and forget, as the undelayed branch is: nothing here waits for the load.
+            _ = SceneManager.LoadSceneAsync(_sceneName, _loadadditively ? LoadSceneMode.Additive : LoadSceneMode.Single);
         }
     }
 }

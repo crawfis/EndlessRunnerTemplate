@@ -27,6 +27,7 @@ Use the skill so numbering/naming stay consistent:
 It adds a lifecycle group to `TempleRunEvents.cs`, e.g. in a free range:
 ```csharp
 // ---------- Player movement: roll ----------
+[EventPayload(typeof(int))]  // Player id
 RollRequested = 90,
 RollStarting  = 91,
 RollStarted   = 92,
@@ -35,6 +36,7 @@ RollEnded     = 94,
 ```
 And a raw-input event to `UserInitiatedEvents.cs`:
 ```csharp
+[EventPayload(typeof(int))]  // Player id
 UserRollRequested,
 ```
 
@@ -71,7 +73,7 @@ This is the point of the whole design, so it is worth being blunt about: **a lin
 in the `ChainTable` is a seam somebody else can open.** A teammate who wants a beat between
 `RollEnding` and `RollEnded` — a recovery window, a hook, a delay — adds their entry by
 breaking that one link. Your controller does not change. The `RollEnded` subscribers do not
-change. Nobody has to find, understand or re-time your coroutine.
+change. Nobody has to find, understand or re-time your async method.
 
 Publishing both rungs yourself, back to back, takes that away:
 
@@ -173,13 +175,13 @@ internal class RollController : MonoBehaviour
         if (_isRolling) return;             // the validation gate
         _isRolling = true;
         TempleRunBus.Publish(TempleRunEvents.RollStarting, this, null);
-        StartCoroutine(RollRoutine());          // RollStarted arrives by chain
+        _ = RollRoutine();                  // fire and forget; RollStarted arrives by chain
     }
 
-    private System.Collections.IEnumerator RollRoutine()
+    private async Awaitable RollRoutine()
     {
         // ...animate / adjust Blackboard offsets over time...
-        yield return new WaitForSeconds(rollDuration);
+        await Awaitable.WaitForSecondsAsync(rollDuration, destroyCancellationToken);
 
         _isRolling = false;                 // teardown first - see below
         TempleRunBus.Publish(TempleRunEvents.RollEnding, this, null);
@@ -190,6 +192,15 @@ internal class RollController : MonoBehaviour
 ```
 Keep visuals/audio out of here — other components subscribe to `RollStarted` / `RollEnded` to
 play effects. That separation is the whole point.
+
+Two things about the wait, because this is where you meet both rules for the first time.
+An async method — unlike a coroutine — does **not** die with its MonoBehaviour, which is
+what `destroyCancellationToken` is for: every `await` in this project passes it (or the
+controller's own `CancellationTokenSource`, where a restart is real). And the method returns
+`Awaitable` rather than `void`, so a cancellation on scene unload is absorbed instead of
+logged as an unhandled exception — never `async void`. `WaitForSecondsAsync` is scaled and so
+freezes under pause; the unscaled wait is `Wait.ForSecondsRealtime` (see CLAUDE.md, *Async
+and coroutines*).
 
 ### Publish every rung you declared
 

@@ -1,5 +1,4 @@
 using CrawfisSoftware.TempleRun.GameConfig;
-using System.Collections;
 using UnityEngine;
 using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
 
@@ -7,7 +6,7 @@ namespace CrawfisSoftware.TempleRun
 {
     /// <summary>
     /// Drives the slide animation by writing to Blackboard.SlideHeightOffset and Blackboard.CurrentSlideMultiplier each frame.
-    /// Follows the JumpArcController pattern (coroutine-based lerp with AnimationCurve).
+    /// Follows the JumpArcController pattern (a per-frame Awaitable lerp with AnimationCurve).
     /// Simultaneously animates:
     ///   - SlideHeightOffset: from 0 to -SlideConfig.SlideHeightOffset (crouching motion)
     ///   - CurrentSlideMultiplier: from 1.0 to SlideConfig.SlideSpeedMultiplier (speed boost)
@@ -18,8 +17,6 @@ namespace CrawfisSoftware.TempleRun
     /// </summary>
     internal class SlideArcController : MonoBehaviour
     {
-        private Coroutine _slideCoroutine;
-
         private void Awake()
         {
             TempleRunBus.Subscribe(
@@ -31,9 +28,6 @@ namespace CrawfisSoftware.TempleRun
             TempleRunBus.Unsubscribe(
                 TempleRunEvents.SlideStarting, OnSlideStarting);
 
-            if (_slideCoroutine != null)
-                StopCoroutine(_slideCoroutine);
-
             // Reset offsets on destroy so they don't persist across scene loads
             if (Blackboard.Instance != null)
             {
@@ -44,22 +38,19 @@ namespace CrawfisSoftware.TempleRun
 
         private void OnSlideStarting(string eventName, object sender, object data)
         {
-            // If somehow a slide is already running, stop it first
-            if (_slideCoroutine != null)
-                StopCoroutine(_slideCoroutine);
-
-            _slideCoroutine = StartCoroutine(RunSlideArc());
+            // Fire and forget. Reentrancy is SlideController's job: its gate is what makes
+            // SlideStarting non-reentrant, so nothing here checks for a slide already running.
+            _ = RunSlideArc();
         }
 
-        private IEnumerator RunSlideArc()
+        private async Awaitable RunSlideArc()
         {
             SlideConfig config = Blackboard.Instance.SlideConfig;
             if (config == null)
             {
                 Debug.LogError("SlideArcController: SlideConfig is null! Animation cannot proceed.");
-                _slideCoroutine = null;
                 TempleRunBus.Publish(TempleRunEvents.SlideEnding, this, null);
-                yield break;
+                return;
             }
 
             float heightOffset = config.SlideHeightOffset;
@@ -88,13 +79,12 @@ namespace CrawfisSoftware.TempleRun
                         TempleRunEvents.SlideStarted, this, null);
                 }
 
-                yield return null;
+                await Awaitable.NextFrameAsync(destroyCancellationToken);
             }
 
             // Snap to normal state
             Blackboard.Instance.SlideHeightOffset = 0f;
             Blackboard.Instance.CurrentSlideMultiplier = 1.0f;
-            _slideCoroutine = null;
 
             // Only SlideEnding is published here - SlideEnding -> SlideEnded is auto-chained.
             // That link is left open on purpose: a stand-up animation or a brief recovery window

@@ -56,7 +56,7 @@ DIRECT COUPLING:
 
 For each event in all four enums, search if it is:
 - Published anywhere (`Publish([EnumName].[EventName]`; also count publishes through a
-  variable, e.g. `endingEvent` in `TurnController` — count references to the member, not
+  variable, e.g. `startedEvent` in `TurnCommitController` — count references to the member, not
   just call sites)
 - Subscribed to anywhere (`Subscribe([EnumName].[EventName]`)
 - Referenced in an auto-chain or bridge mapping

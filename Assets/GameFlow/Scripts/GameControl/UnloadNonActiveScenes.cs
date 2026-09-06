@@ -1,7 +1,6 @@
 ﻿using CrawfisSoftware.Events;
 using CrawfisSoftware.GameFlow.Events;
 
-using System.Collections;
 using System.Collections.Generic;
 
 using UnityEngine;
@@ -32,10 +31,10 @@ namespace CrawfisSoftware.GameFlow.GameControl
             {
                 GameFlowBus.Unsubscribe(_unloadScenesTriggerEvent, OnGameOver);
             }
-            StartCoroutine(UnloadScenesAsync());
+            _ = UnloadScenesAsync();
         }
 
-        private IEnumerator UnloadScenesAsync()
+        private async Awaitable UnloadScenesAsync()
         {
             // Unload all active scenes after scene _lastSceneToKeepIndex.
             // This does this in parallel and allows yielding until all are done.
@@ -53,14 +52,10 @@ namespace CrawfisSoftware.GameFlow.GameControl
                     }
                 }
             }
-            // Wait for all unloads to finish
+            // Wait for all unloads to finish. FromAsyncOperation rather than a bare `await op`
+            // so this await carries a token like every other one in the project.
             foreach (var op in unloadOperations)
-            {
-                while (!op.isDone)
-                {
-                    yield return null;
-                }
-            }
+                await Awaitable.FromAsyncOperation(op, destroyCancellationToken);
             GameFlowBus.Publish(_scenesUnloadedEvent, this, null);
         }
     }

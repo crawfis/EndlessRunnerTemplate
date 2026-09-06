@@ -65,7 +65,7 @@ unused in the repo** is a ready-made lesson about pacing as a swappable policy.
 
 ## The sessions
 
-Eleven sessions, ~2 hours each (≈22 hours). Sized for a 10–12 week course module, a two-day
+Ten sessions, ~2 hours each (≈20 hours; S7 is retired, see below). Sized for a 10–12 week course module, a two-day
 workshop plus follow-up, or self-paced.
 
 ### S0 · Read your own game *(45 min warm-up)*
@@ -76,7 +76,7 @@ circled. *Lesson: the game already tells you everything it did — most projects
 ### S1 · Camera and speed — the cheapest 40% of feel
 Cinemachine rig with separate cameras for running / jumping / dashing / turning / death,
 blended by state; Impulse on landings; FOV kick and speed lines. *(A14, F2)*
-**Cinemachine 3.1.7 already ships as a dependency and is used nowhere** — the camera is a
+**Cinemachine 6.6.0 already ships as a dependency and is used nowhere** — the camera is a
 plain child of the player. Rubric **R1, R7**. Scorecard target: **0 gameplay lines.**
 
 ### S2 · Juice hour — six features, six files ⭐
@@ -109,13 +109,13 @@ Authored set-piece segments (B8), write your own `ISegmentSelector` (B3), expose
 `Connections` with dead-end validation (B9) — then **A/B two pacing policies using the
 robot's death data**. Rubric **R1, R3**. *Lesson: strategy pattern, then measurement.*
 
-### S7 · The retry loop — highest leverage in the series
-Game-over celebration and progress-to-next-unlock (I4), **instant retry that restarts the
-run without reloading the scene set**, revive (A12), run summary. And the set piece:
-**fix the bug from the talk** — `CountdownEnded → GameStarted → TempleRunStartRequested`
-crosses the bridge and comes straight back. GameFlow should own "started"; gameplay should
-only report *ready*. Rubric **R5, R6**. *Lesson: re-entry is where lifecycle bugs live —
-and the talk's own red arrow is now your exercise.*
+### S7 · Retired
+Retired 2026-09-06. Its set piece was **fixing the bug from the talk** —
+`CountdownEnded → GameStarted → TempleRunStartRequested` crossing the bridge and coming
+straight back — and the template fixed that itself when the countdown became its own domain
+(commit `4e600c5`; see [KNOWN_ISSUES.md](KNOWN_ISSUES.md)). Its retry-loop items — game-over
+celebration and progress-to-next-unlock (I4), instant retry without reloading the scene set,
+revive (A12), run summary (rubric **R5, R6**) — are unscheduled.
 
 ### S8 · A reason to come back
 Persistent best and a coin economy (section E), unlockables gated on progress, a daily
@@ -158,7 +158,7 @@ machine, at the end of every session — which is a far stronger teaching move t
 
 ## Honest risks
 
-- **Tag maintenance.** Eleven session tags against an evolving template is real, recurring
+- **Tag maintenance.** Ten session tags against an evolving template is real, recurring
   work, and every refactor of `main` risks breaking a chapter. Mitigation: cut the tutorial
   from a `tutorial/` branch that tracks tagged template releases, not `main`.
 - **Unity version churn.** Cinemachine 3 already broke most 2.x tutorials; UI Toolkit and
@@ -180,7 +180,7 @@ machine, at the end of every session — which is a far stronger teaching move t
   beyond a handful of particles.
 - It is the natural hands-on companion to the talk, and it gives the talk's closing slide a
   real call to action instead of "clone it."
-- It validates the format — scorecard, two lanes, rubric — before committing to eleven
+- It validates the format — scorecard, two lanes, rubric — before committing to ten
   chapters.
 
 After that, **S1 and S4** complete a "Feel" mini-course: three sessions, half a day, camera
@@ -192,19 +192,18 @@ lines R1, R2, R4, R6, R7 — most of what makes a runner playable.
 - **A closing CTA that isn't "clone it":** *"The talk is the trailer. The tutorial is the
   game."* One line on the final slide, pointing here.
 - **A sequel talk with data:** *"The Other 95%: we built the good version — here's what it
-  cost."* The scorecards across eleven sessions become the evidence: how many features were
+  cost."* The scorecards across ten sessions become the evidence: how many features were
   purely additive, where the architecture actually charged us, and which rubric lines were
   cheap versus expensive to move. That is a talk nobody else can give, because nobody else
   has the scorecards.
-- **A better honesty slide.** By S7 the countdown bug is fixed *by learners*, which turns
-  the talk's most self-aware moment into a before/after instead of a confession.
 
 ## Related material already in the repo
 
-- [STUDENT_TASKS.md](STUDENT_TASKS.md) — the 130-task catalog every session draws from
+- [STUDENT_TASKS.md](STUDENT_TASKS.md) — the 133-task catalog every session draws from
 - [ADDING_A_MECHANIC.md](ADDING_A_MECHANIC.md) — the recipe S4 runs end to end
 - [TIMEBOX_1_REQUIREMENTS.md](TIMEBOX_1_REQUIREMENTS.md) — the course assignment this would
   slot alongside; the sessions are deliberately smaller than a timebox task
-- [KNOWN_ISSUES.md](KNOWN_ISSUES.md) — the countdown smell S7 fixes
+- [KNOWN_ISSUES.md](KNOWN_ISSUES.md) — the countdown smell, since resolved in the template
+  (which is why S7 is retired)
 - [EXERCISE_DRAW_THE_BOUNDARY.md](EXERCISE_DRAW_THE_BOUNDARY.md) — the discussion exercise
-  that pairs with S7's boundary argument
+  on where the countdown belongs

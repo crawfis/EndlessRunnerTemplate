@@ -1,6 +1,5 @@
 using CrawfisSoftware.TempleRun.GameConfig;
-
-using System.Collections;
+using CrawfisSoftware.Utility;
 
 using UnityEngine;
 using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
@@ -21,7 +20,7 @@ namespace CrawfisSoftware.TempleRun
     /// </summary>
     internal class PlayerFailedController : MonoBehaviour
     {
-        private Coroutine _hitchCoroutine;
+        private bool _hitching;
 
         private void Awake()
         {
@@ -32,22 +31,22 @@ namespace CrawfisSoftware.TempleRun
         {
             // Guard: ignore if a hitch is already running (e.g. turn failure + obstacle hit in
             // the same frame). The first one owns the timing.
-            if (_hitchCoroutine != null) return;
-            _hitchCoroutine = StartCoroutine(FailureHitch());
+            if (_hitching) return;
+            _hitching = true;
+            _ = FailureHitch();
         }
 
-        private IEnumerator FailureHitch()
+        private async Awaitable FailureHitch()
         {
             // Real time, because GameTime is frozen for the duration of the hitch.
-            yield return new WaitForSecondsRealtime(TempleRunConstants.ResumeDelay);
-            _hitchCoroutine = null;
+            await Wait.ForSecondsRealtime(TempleRunConstants.ResumeDelay, destroyCancellationToken);
+            _hitching = false;
             // No payload: the clock it used to carry was read by nobody and readable by anyone.
             TempleRunBus.Publish(TempleRunEvents.PlayerFailed, this, null);
         }
 
         private void OnDestroy()
         {
-            StopAllCoroutines();
             TempleRunBus.Unsubscribe(TempleRunEvents.PlayerFailing, OnPlayerFailing);
         }
     }

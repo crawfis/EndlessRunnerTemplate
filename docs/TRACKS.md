@@ -219,6 +219,9 @@ with the same sequence index.
   `Assets > Create > CrawfisSoftware > TempleRun > Track Segment` / `Track Segment Registry` /
   `Track Level` / `Track Level Registry`. Add a new segment to a level by adding it to the registry and tagging it (or
   listing its id in the level's `ActiveSegmentIds`).
+- **Bulk creation:** `/generate-segments` (`.claude/skills/generate-segments/SKILL.md`) writes a
+  batch of `TrackSegmentSO` assets by direction, length range, difficulty range, and tags, and
+  registers them in `TrackSegmentRegistry.asset`.
 - **Migration:** the segments and levels were converted from the legacy JSON by the one-shot
   `CrawfisSoftware > Track > Import JSON -> ScriptableObjects` importer
   (`Assets/TempleRun/Editor/TrackDataImporter.cs`).

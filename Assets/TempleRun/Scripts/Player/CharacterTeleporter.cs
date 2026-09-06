@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
 
 namespace CrawfisSoftware.TempleRun
@@ -31,7 +30,7 @@ namespace CrawfisSoftware.TempleRun
             Vector3 landing = teleport.Destination.Start;
             var targetPosition = new Vector3(landing.x, _yPosition, landing.z) + LaneOffset(targetDirection);
             Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
-            StartCoroutine(SmoothlyTeleport(teleport.Duration, targetPosition, targetRotation));
+            _ = SmoothlyTeleport(teleport.Duration, targetPosition, targetRotation);
         }
 
         // Matches MoveCharacterByDistance.GetLateralOffset so the position the teleport lands on is
@@ -43,7 +42,7 @@ namespace CrawfisSoftware.TempleRun
             return laneOffset * Vector3.Cross(direction, Vector3.up).normalized;
         }
 
-        private IEnumerator SmoothlyTeleport(float teleportTime, Vector3 targetPosition, Quaternion targetDirection)
+        private async Awaitable SmoothlyTeleport(float teleportTime, Vector3 targetPosition, Quaternion targetDirection)
         {
             float timeRemaining = teleportTime;
             float maxTurnRate = 90f / teleportTime;
@@ -57,7 +56,7 @@ namespace CrawfisSoftware.TempleRun
                 Quaternion rotation = Quaternion.Slerp(initialRotation, targetDirection, t);
                 _objectToMove.SetLocalPositionAndRotation(position, rotation);
                 timeRemaining -= GameTime.Instance.deltaTime;
-                yield return null;
+                await Awaitable.NextFrameAsync(destroyCancellationToken);
             }
             _objectToMove.localPosition = targetPosition;
             _objectToMove.localRotation = targetDirection;

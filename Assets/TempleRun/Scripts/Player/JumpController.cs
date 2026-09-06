@@ -10,6 +10,7 @@ namespace CrawfisSoftware.TempleRun
     ///    Subscribes: TempleRunEvents.JumpRequested (from bridge translating UserInitiated)
     ///    Subscribes: TempleRunEvents.JumpEnded (clear _isJumping)
     ///    Publishes: TempleRunEvents.JumpStarting (only once validation passes)
+    ///    Publishes: TempleRunEvents.JumpFailed (validation refused; data: int player id)
     /// </summary>
     internal class JumpController : MonoBehaviour
     {
@@ -36,7 +37,15 @@ namespace CrawfisSoftware.TempleRun
 
         private void OnJumpRequested(string eventName, object sender, object data)
         {
-            if (_isJumping) return;
+            if (_isJumping)
+            {
+                // The gate said no. Say so - JumpRequested is the bridge's raw translation of the
+                // input, so without this a refused request would be silent. The player id is
+                // forwarded from the request.
+                TempleRunBus.Publish(
+                    TempleRunEvents.JumpFailed, this, data);
+                return;
+            }
 
             _isJumping = true;
 

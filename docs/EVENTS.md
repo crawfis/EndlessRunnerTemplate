@@ -73,7 +73,7 @@ unlock criteria, star ratings) and **E10** (world-map level select) both build o
 
 ## CountdownEvents (session ceremony)
 
-Publisher: `CountdownBus` (`EventsFor<CountdownEvents>`). Implicit values 0–5.
+Publisher: `CountdownBus` (`EventsFor<CountdownEvents>`). Explicit values 0–5.
 
 | Category | Members (value) |
 |----------|-----------------|
@@ -99,13 +99,13 @@ Publisher: `TempleRunBus` (`EventsFor<TempleRunEvents>`).
 | Category | Members (value) |
 |----------|-----------------|
 | Player lifecycle | `PlayerFailRequested`(0), `PlayerFailing`(1), `PlayerFailed`(2), `PlayerDeathRequested`(3), `PlayerDying`(4), `PlayerDied`(5), `PlayerReviveRequested`(6), `PlayerReviving`(7), `PlayerRevived`(8), `PlayerFailingAtTurn`(12), `PlayerFailingAtObstacle`(13), `PlayerActivateRequested`(14) *(bridged from `CountdownEnded`)*, `PlayerActivating`(15), `PlayerActivated`(16) |
-| Pause / Resume | `PlayerPauseRequested`(20), `PlayerPausing`(21), `PlayerPaused`(22), `PlayerResumeRequested`(23), `PlayerResuming`(24), `PlayerResumed`(25), `PlayerPauseToggleRequested`(26) *(bridged from `UserPauseToggle`; `PauseController` resolves it against current state)* |
+| Pause / Resume | `PlayerPauseRequested`(20), `PlayerPausing`(21), `PlayerPaused`(22), `PlayerResumeRequested`(23), `PlayerResuming`(24), `PlayerResumed`(25), `PlayerPauseToggleRequested`(26) *(data: int player id; bridged from `UserPauseToggle`; `PauseController` resolves it against current state)* |
 | Game lifecycle | `TempleRunStartRequested`(38), `TempleRunStarting`(39), `TempleRunStarted`(40), `TempleRunEndRequested`(41), `TempleRunEnding`(42), `TempleRunEnded`(43) |
-| Turning | `TurnLeftRequested`(50), `TurnLeftStarting`(51), `TurnLeftStarted`(52), `TurnLeftEnding`(53), `TurnLeftEnded`(54), `TurnRightRequested`(55), `TurnRightStarting`(56), `TurnRightStarted`(57), `TurnRightEnding`(58), `TurnRightEnded`(59) |
-| Slide | `SlideRequested`(60), `SlideStarting`(61), `SlideStarted`(62), `SlideEndRequested`(63), `SlideEnding`(64), `SlideEnded`(65) |
-| Dash | `DashRequested`(70), `DashStarting`(71), `DashStarted`(72), `DashEnding`(73), `DashEnded`(74) |
-| Jump | `JumpRequested`(80), `JumpStarting`(81), `JumpStarted`(82), `JumpEndRequested`(83), `JumpEnding`(84), `JumpEnded`(85) |
-| Lane change | `LaneChangeLeftRequested`(100), `LaneChangingLeft`(101), `LaneChangedLeft`(102), `LaneChangeRightRequested`(103), `LaneChangingRight`(104), `LaneChangedRight`(105), `LaneChangeLeftFailed`(106), `LaneChangeRightFailed`(107) |
+| Turning | `TurnLeftRequested`(50) *(data: int player id)*, `TurnLeftStarting`(51) *(data: float run-absolute distance the turn was taken at)*, `TurnLeftStarted`(52) *(same float, forwarded)*, `TurnLeftEnding`(53), `TurnLeftEnded`(54), `TurnRightRequested`(55) *(data: int player id)*, `TurnRightStarting`(56) *(data: float, as left)*, `TurnRightStarted`(57) *(same float, forwarded)*, `TurnRightEnding`(58), `TurnRightEnded`(59) |
+| Slide | `SlideRequested`(60) *(data: int player id)*, `SlideStarting`(61), `SlideStarted`(62), `SlideEndRequested`(63), `SlideEnding`(64), `SlideEnded`(65) |
+| Dash | `DashRequested`(70) *(data: int player id)*, `DashStarting`(71), `DashStarted`(72), `DashEnding`(73), `DashEnded`(74) |
+| Jump | `JumpRequested`(80) *(data: int player id)*, `JumpStarting`(81), `JumpStarted`(82), `JumpEndRequested`(83), `JumpEnding`(84), `JumpEnded`(85), `JumpFailed`(86) *(data: int player id, forwarded from the refused request)* |
+| Lane change | `LaneChangeLeftRequested`(100) *(data: int player id)*, `LaneChangingLeft`(101), `LaneChangedLeft`(102), `LaneChangeRightRequested`(103) *(data: int player id)*, `LaneChangingRight`(104), `LaneChangedRight`(105), `LaneChangeLeftFailed`(106), `LaneChangeRightFailed`(107) |
 | Hazards | `ObstacleHit`(120), `ObstacleRecoveryRequested`(121), `ObstacleRecovering`(122), `ObstacleRecovered`(123) |
 | Coins | `CoinCollectRequested`(140), `CoinCollecting`(141), `CoinCollected`(142) |
 | Power-up collect | `PowerUpCollectRequested`(160), `PowerUpCollecting`(161), `PowerUpCollected`(162) |
@@ -256,6 +256,14 @@ PlayerFailingAtObstacle    → PlayerFailing    PlayerFailed is published by Pla
 PlayerActivateRequested    → PlayerActivating → PlayerActivated
 TempleRunStartRequested    → TempleRunStarting → TempleRunStarted
 PlayerDied                 → TempleRunEndRequested → TempleRunEnding → TempleRunEnded
+TurnLeftEnding             → TurnLeftEnded
+TurnRightEnding            → TurnRightEnded
+SlideEnding                → SlideEnded
+DashEnding                 → DashEnded
+JumpStarting               → JumpStarted
+JumpEnding                 → JumpEnded
+TeleportStarting           → TeleportStarted
+TeleportEnding             → TeleportEnded
 CoinCollectRequested       → CoinCollecting
 PowerUpCollectRequested    → PowerUpCollecting
 PowerUpCollected           → PowerUpActivateRequested → PowerUpActivating
@@ -270,7 +278,7 @@ publishes its own `*Starting` once its checks pass:
 
 | Event | Gate | Published by |
 |-------|------|--------------|
-| `JumpStarting` | not already airborne | `JumpController` |
+| `JumpStarting` | not already airborne (a refusal publishes `JumpFailed`) | `JumpController` |
 | `SlideStarting` | not sliding, cooldown elapsed | `SlideController` |
 | `DashStarting` | not dashing, cooldown elapsed | `DashController` |
 | `LaneChangingLeft` / `Right` | lane boundary, none in flight | `LaneChangeController` |

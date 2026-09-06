@@ -18,10 +18,10 @@ event on a shared bus and other components *subscribe* to it. This is the classi
 
 ```csharp
 // The slide input doesn't know a slide controller exists:
-UserInputBus.Publish(UserInitiatedEvents.UserSlideRequested, this, null);
+UserInputBus.Publish(UserInitiatedEvents.UserSlideRequested, this, PlayerNumber);
 
 // The slide controller doesn't know what asked for the slide:
-TempleRunBus.Subscribe(TempleRunEvents.SlideStarting, OnSlideStarting);
+TempleRunBus.Subscribe(TempleRunEvents.SlideRequested, OnSlideRequested);
 ```
 
 What that buys:

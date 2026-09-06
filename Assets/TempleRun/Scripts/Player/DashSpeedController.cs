@@ -1,5 +1,4 @@
 using CrawfisSoftware.TempleRun.GameConfig;
-using System.Collections;
 using UnityEngine;
 using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
 
@@ -7,7 +6,7 @@ namespace CrawfisSoftware.TempleRun
 {
     /// <summary>
     /// Drives the dash animation by writing to Blackboard.CurrentDashMultiplier each frame.
-    /// Follows the JumpArcController pattern (coroutine-based lerp with AnimationCurve).
+    /// Follows the JumpArcController pattern (a per-frame Awaitable lerp with AnimationCurve).
     /// Animates CurrentDashMultiplier from 1.0 to DashConfig.DashSpeedMultiplier using the curve.
     ///    Dependencies: Blackboard, DashConfig
     ///    Subscribes: TempleRunEvents.DashStarting
@@ -16,8 +15,6 @@ namespace CrawfisSoftware.TempleRun
     /// </summary>
     internal class DashSpeedController : MonoBehaviour
     {
-        private Coroutine _dashCoroutine;
-
         private void Awake()
         {
             TempleRunBus.Subscribe(
@@ -29,9 +26,6 @@ namespace CrawfisSoftware.TempleRun
             TempleRunBus.Unsubscribe(
                 TempleRunEvents.DashStarting, OnDashStarting);
 
-            if (_dashCoroutine != null)
-                StopCoroutine(_dashCoroutine);
-
             // Reset multiplier on destroy so it doesn't persist across scene loads
             if (Blackboard.Instance != null)
                 Blackboard.Instance.CurrentDashMultiplier = 1.0f;
@@ -39,21 +33,18 @@ namespace CrawfisSoftware.TempleRun
 
         private void OnDashStarting(string eventName, object sender, object data)
         {
-            // If somehow a dash is already running, stop it first
-            if (_dashCoroutine != null)
-                StopCoroutine(_dashCoroutine);
-
-            _dashCoroutine = StartCoroutine(RunDashArc());
+            // Fire and forget. Reentrancy is DashController's job: its gate is what makes
+            // DashStarting non-reentrant, so nothing here checks for a dash already running.
+            _ = RunDashArc();
         }
 
-        private IEnumerator RunDashArc()
+        private async Awaitable RunDashArc()
         {
             DashConfig config = Blackboard.Instance.DashConfig;
             if (config == null)
             {
                 Debug.LogError("DashSpeedController: DashConfig is null! Animation cannot proceed.");
-                _dashCoroutine = null;
-                yield break;
+                return;
             }
 
             float speedMultiplier = config.DashSpeedMultiplier;
@@ -76,19 +67,19 @@ namespace CrawfisSoftware.TempleRun
                 if (!startPublished)
                 {
                     startPublished = true;
-                    // Defer event publishing to next frame
-                    yield return null;
+                    // Defer event publishing to next frame. This looks like a wart; it isn't -
+                    // publishing DashStarted inside DashStarting's own publish would cycle.
+                    await Awaitable.NextFrameAsync(destroyCancellationToken);
                     TempleRunBus.Publish(
                         TempleRunEvents.DashStarted, this, null);
                     continue;
                 }
 
-                yield return null;
+                await Awaitable.NextFrameAsync(destroyCancellationToken);
             }
 
             // Snap to normal state
             Blackboard.Instance.CurrentDashMultiplier = 1.0f;
-            _dashCoroutine = null;
 
             // Only DashEnding is published here - DashEnding -> DashEnded is auto-chained. That
             // link is left open on purpose: a trail fade or camera FOV ease-out belongs there,

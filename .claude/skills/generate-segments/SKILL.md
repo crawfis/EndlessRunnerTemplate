@@ -79,7 +79,9 @@ Do **not** set `TurnFailureDistance` or `TeleportDistance` — leave them 0 so `
 
 ### Step 5: Write one asset per segment
 
-For each segment, `Write` `Assets/TempleRun/Scriptables/Track/Segments/<Id>.asset`:
+For each segment, `Write` `Assets/TempleRun/Scriptables/Track/Segments/<Id>.asset` with LF line
+endings (Unity writes its YAML with LF on every platform, and `.gitattributes` pins `*.asset` /
+`*.meta` to `eol=lf`):
 
 ```yaml
 %YAML 1.1
@@ -95,7 +97,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8e4fd9825d0d99bd8f035cdcc48f65f0, type: 3}
   m_Name: left_18
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: Assembly-CSharp::CrawfisSoftware.TempleRun.TrackSegmentSO
   Id: left_18
   Direction: 0
   Weight: 1
