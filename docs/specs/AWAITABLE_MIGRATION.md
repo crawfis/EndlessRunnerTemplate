@@ -1,8 +1,12 @@
 # Plan: replace coroutines with Unity's `Awaitable`
 
-**Status:** implemented on branch `awaitable-migration` (2026-09-06) — phases 0–3 each built
-clean and phase 4 landed; **the play session in [Verification](#verification) is still owed
-before merge.** [What changed against the plan](#what-changed-against-the-plan) is at the end.
+**Status:** implemented and play-verified (branch `awaitable-migration`, 2026-09-06) — phases
+0–3 each built clean, phase 4 landed, and the full [Verification](#verification) session
+passed, including exiting Play Mode mid-run with a clean console (so no
+`catch (OperationCanceledException)` was needed anywhere). The session surfaced two older
+bugs that were fixed on the same branch: `JumpStarted` firing at the arc's apex and a refused
+jump being silent (`b27c69f`), and a pause outliving a quit so the next countdown hung
+(`7dbb18d`). [What changed against the plan](#what-changed-against-the-plan) is at the end.
 **Baseline tag:** `pre-awaitable-migration` — the coroutine implementation as it shipped.
 Diff any file below against that tag to see the before/after as a teaching example.
 **Why:** the project is on **Unity 6.6** (`6000.6`), where `Awaitable` is the native
