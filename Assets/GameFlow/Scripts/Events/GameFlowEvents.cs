@@ -116,9 +116,9 @@ namespace CrawfisSoftware.GameFlow.Events
         LevelSelectorHiding = 134,
         LevelSelectorHidden = 135,
         [EventPayload(typeof(LevelConfig))]
-        LevelSelected = 136,              // data: LevelConfig
+        LevelSelected = 136,
         [EventPayload(typeof(LevelConfig))]
-        LevelUnlocked = 137,              // data: LevelConfig (newly unlocked)
+        LevelUnlocked = 137,              // newly unlocked
         LevelProgressSaved = 138,
     }
 }
