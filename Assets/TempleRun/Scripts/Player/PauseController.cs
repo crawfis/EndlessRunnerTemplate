@@ -9,6 +9,8 @@ namespace CrawfisSoftware.TempleRun
     /// player input, AI, replay, network.
     ///    Subscribes: TempleRunEvents.PlayerPauseToggleRequested (from bridge translating
     ///                UserInitiated), TempleRunEvents.PlayerPaused, TempleRunEvents.PlayerResumed
+    ///    Subscribes: TempleRunEvents.TempleRunEnding - a run that ends while paused ends the
+    ///                pause too (see OnRunEnding)
     ///    Publishes: TempleRunEvents.PlayerPauseRequested, TempleRunEvents.PlayerResumeRequested
     /// </summary>
     public class PauseController : MonoBehaviour
@@ -23,6 +25,7 @@ namespace CrawfisSoftware.TempleRun
 
             TempleRunBus.Subscribe(TempleRunEvents.PlayerPaused, OnPause);
             TempleRunBus.Subscribe(TempleRunEvents.PlayerResumed, OnResume);
+            TempleRunBus.Subscribe(TempleRunEvents.TempleRunEnding, OnRunEnding);
         }
 
         private void OnDestroy()
@@ -31,6 +34,7 @@ namespace CrawfisSoftware.TempleRun
 
             TempleRunBus.Unsubscribe(TempleRunEvents.PlayerPaused, OnPause);
             TempleRunBus.Unsubscribe(TempleRunEvents.PlayerResumed, OnResume);
+            TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunEnding, OnRunEnding);
         }
         public void Pause()
         {
@@ -58,6 +62,18 @@ namespace CrawfisSoftware.TempleRun
         private void OnPauseToggle(string eventName, object sender, object data)
         {
             TogglePauseResume();
+        }
+
+        private void OnRunEnding(string eventName, object sender, object data)
+        {
+            // Quitting from the pause menu ends the run without anyone pressing resume, and the
+            // pause used to outlive it: Time.timeScale stayed at 0, so the next run's countdown
+            // (a scaled wait) sat at 3 until pause was toggled twice. This controller took the
+            // pause, so it releases it - through the same ladder, so every mirror of the state
+            // (GameTime's freeze, the music, GameFlow's Paused flag) is released with it. On
+            // Ending rather than Ended so the resume completes before the run is declared over.
+            if (_isPaused)
+                TempleRunBus.Publish(TempleRunEvents.PlayerResumeRequested, this, null);
         }
 
         private void OnPause(string eventName, object sender, object data)
