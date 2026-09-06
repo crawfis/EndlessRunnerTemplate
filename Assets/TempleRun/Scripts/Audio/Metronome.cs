@@ -1,6 +1,6 @@
 ﻿using GTMY.Audio;
 
-using System.Collections;
+using System.Threading;
 
 using UnityEngine;
 using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
@@ -14,7 +14,8 @@ namespace CrawfisSoftware.TempleRun.Audio
         [SerializeField] private float _speedTimeScale = 6f;
         [SerializeField] private AudioSource _audioSource;
 
-        private Coroutine _metronomeCoroutine;
+        // One token source covers both the run ending and destroy.
+        private CancellationTokenSource _cts;
         private void Awake()
         {
             var leftClipProvider = new AudioClipProvider(new System.Random());
@@ -36,31 +37,30 @@ namespace CrawfisSoftware.TempleRun.Audio
         {
             TempleRunBus.Unsubscribe(TempleRunEvents.PlayerActivated, StartMetronome);
             TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunEnded, StopMetronome);
+            _cts?.Cancel();
         }
 
         private void StartMetronome(string eventName, object sender, object eventData)
         {
             // Start the metronome ticking
-            _metronomeCoroutine = StartCoroutine(MetronomeTick());
+            _cts?.Cancel();
+            _cts = new CancellationTokenSource();
+            _ = MetronomeTick(_cts.Token);
         }
 
         private void StopMetronome(string eventName, object sender, object eventData)
         {
-            // Guard: the run can end before it started (quit from the countdown), in which
-            // case there is no coroutine and StopCoroutine(null) would throw.
-            if (_metronomeCoroutine == null) return;
-            StopCoroutine(_metronomeCoroutine);
-            _metronomeCoroutine = null;
+            _cts?.Cancel();
         }
 
-        private IEnumerator MetronomeTick()
+        private async Awaitable MetronomeTick(CancellationToken token)
         {
             while (true)
             {
                 // Play the tick sound
                 AudioManagerSingleton.Instance.PlaySfx("Metronome", 1);
                 float timeBetweenTicks = _speedTimeScale / Blackboard.Instance.CurrentSpeed; // Calculate time between ticks
-                yield return new WaitForSeconds(timeBetweenTicks);
+                await Awaitable.WaitForSecondsAsync(timeBetweenTicks, token);
             }
         }
     }

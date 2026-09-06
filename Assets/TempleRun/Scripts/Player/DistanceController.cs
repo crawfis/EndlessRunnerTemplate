@@ -1,4 +1,4 @@
-using System.Collections;
+using System.Threading;
 
 using UnityEngine;
 using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
@@ -21,7 +21,9 @@ namespace CrawfisSoftware.TempleRun
         private float _maxSpeed;
         private float _acceleration;
         private float _speed;
-        private Coroutine _coroutine;
+        // One token source covers the run ending, a restart and destroy - it replaces the
+        // old DeleteCoroutine().
+        private CancellationTokenSource _cts;
         private bool _isMoving = true;
         private int _distancePublishIndex = 0;
         private float _nextDistancePublishThreshold = 0f;
@@ -43,7 +45,7 @@ namespace CrawfisSoftware.TempleRun
             TempleRunBus.Unsubscribe(TempleRunEvents.TempleRunEnded, OnGameOver);
             TempleRunBus.Unsubscribe(TempleRunEvents.TeleportStarted, OnTeleportStarted);
             TempleRunBus.Unsubscribe(TempleRunEvents.TeleportEnded, OnTeleportEnded);
-            DeleteCoroutine();
+            _cts?.Cancel();
         }
 
         private void OnResetSpeed(string eventName, object sender, object data)
@@ -59,12 +61,14 @@ namespace CrawfisSoftware.TempleRun
             _speed = _initialSpeed;
             _distancePublishIndex = 0;
             _nextDistancePublishThreshold = DistancePublishThresholds[0];
-            _coroutine = StartCoroutine(UpdateAfterGameStart());
+            _cts?.Cancel();
+            _cts = new CancellationTokenSource();
+            _ = UpdateAfterGameStart(_cts.Token);
         }
 
         private void OnGameOver(string eventName, object sender, object data)
         {
-            DeleteCoroutine();
+            _cts?.Cancel();
         }
 
         private void OnTeleportStarted(string eventName, object sender, object data)
@@ -88,7 +92,7 @@ namespace CrawfisSoftware.TempleRun
             Blackboard.Instance.DistanceTracker.UpdateDistance(delta);
         }
 
-        IEnumerator UpdateAfterGameStart()
+        private async Awaitable UpdateAfterGameStart(CancellationToken token)
         {
             DistanceTracker _distanceTracker = Blackboard.Instance.DistanceTracker;
             while (true)
@@ -119,14 +123,8 @@ namespace CrawfisSoftware.TempleRun
                     _speed = Mathf.Clamp(_speed, _initialSpeed, _maxSpeed);
                     Blackboard.Instance.CurrentSpeed = _speed;
                 }
-                yield return new WaitForEndOfFrame();
+                await Awaitable.EndOfFrameAsync(token);
             }
-        }
-
-        private void DeleteCoroutine()
-        {
-            if (_coroutine != null) StopCoroutine(_coroutine);
-            _coroutine = null;
         }
     }
 }

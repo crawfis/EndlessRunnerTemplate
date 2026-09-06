@@ -1,8 +1,8 @@
 using CrawfisSoftware.TempleRun.GameConfig;
 using CrawfisSoftware.TempleRun.PowerUps;
 
-using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 
 using UnityEngine;
 using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
@@ -31,7 +31,9 @@ namespace CrawfisSoftware.TempleRun
     /// </summary>
     internal class PowerUpBuffController : MonoBehaviour
     {
-        private readonly Dictionary<PowerUpType, Coroutine> _activeBuffs = new();
+        // One token source per active buff. An entry is present exactly while its duration
+        // timer is running; removing one cancels the timer, re-collecting replaces it.
+        private readonly Dictionary<PowerUpType, CancellationTokenSource> _activeBuffs = new();
 
         /// <summary>
         /// The known power-up strategies. Instantiated in code (rather than a
@@ -82,6 +84,9 @@ namespace CrawfisSoftware.TempleRun
                 TempleRunEvents.ObstacleHit, OnObstacleHit);
             TempleRunBus.Unsubscribe(
                 TempleRunEvents.TempleRunEnded, OnTempleRunEnded);
+
+            foreach (CancellationTokenSource cts in _activeBuffs.Values)
+                cts.Cancel();
         }
 
         /// <summary>
@@ -114,18 +119,18 @@ namespace CrawfisSoftware.TempleRun
             PowerUpContext ctx = new PowerUpContext(Blackboard.Instance, definition);
 
             // Cancel existing buff of the same type (reset timer)
-            if (_activeBuffs.TryGetValue(definition.Type, out Coroutine existingCoroutine))
+            if (_activeBuffs.TryGetValue(definition.Type, out CancellationTokenSource existing))
             {
-                if (existingCoroutine != null)
-                    StopCoroutine(existingCoroutine);
+                existing.Cancel();
                 RemoveEffect(definition.Type, ctx);
             }
 
             ApplyEffect(definition.Type, ctx);
 
             // Start duration timer
-            Coroutine timerCoroutine = StartCoroutine(BuffDurationTimer(definition));
-            _activeBuffs[definition.Type] = timerCoroutine;
+            var cts = new CancellationTokenSource();
+            _activeBuffs[definition.Type] = cts;
+            _ = BuffDurationTimer(definition, cts.Token);
 
             TempleRunBus.Publish(
                 TempleRunEvents.PowerUpActivated, this, definition);
@@ -141,7 +146,8 @@ namespace CrawfisSoftware.TempleRun
 
             PowerUpContext ctx = new PowerUpContext(Blackboard.Instance, definition);
             RemoveEffect(definition.Type, ctx);
-            _activeBuffs.Remove(definition.Type);
+            if (_activeBuffs.Remove(definition.Type, out CancellationTokenSource cts))
+                cts.Cancel();
 
             TempleRunBus.Publish(
                 TempleRunEvents.PowerUpDeactivated, this, definition);
@@ -179,8 +185,7 @@ namespace CrawfisSoftware.TempleRun
             PowerUpContext ctx = new PowerUpContext(Blackboard.Instance, null);
             foreach (var kvp in _activeBuffs)
             {
-                if (kvp.Value != null)
-                    StopCoroutine(kvp.Value);
+                kvp.Value.Cancel();
                 RemoveEffect(kvp.Key, ctx);
             }
             _activeBuffs.Clear();
@@ -200,9 +205,9 @@ namespace CrawfisSoftware.TempleRun
                 effect.Remove(ctx);
         }
 
-        private IEnumerator BuffDurationTimer(PowerUpDefinition definition)
+        private async Awaitable BuffDurationTimer(PowerUpDefinition definition, CancellationToken token)
         {
-            yield return new WaitForSeconds(definition.Duration);
+            await Awaitable.WaitForSecondsAsync(definition.Duration, token);
 
             TempleRunBus.Publish(
                 TempleRunEvents.PowerUpDeactivateRequested, this, definition);
