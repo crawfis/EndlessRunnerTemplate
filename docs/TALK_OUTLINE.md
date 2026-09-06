@@ -86,7 +86,7 @@ Reveal progressively — start with what the player sees, then what it took:
 - **What it took:** **211 named events** across **4 isolated domains** · **153 C# scripts**
   · **15 scenes** loaded additively · **50 auto-chain rules** and **19 bridge mappings**
   declared as data · **17 track-segment assets + 5 level rulesets** with zero code ·
-  **7 UI panels** · and a **132-task catalog** of what it still takes to become a
+  **7 UI panels** · and a **133-task catalog** of what it still takes to become a
   *polished* product (the catalog even continues into the cloud sibling as sections Q–X).
 - Do NOT let this read as bloat. The pivot line: "The mechanic is a weekend. The game is
   the other 95% — and architecture decides whether that 95% builds on itself, or buries
@@ -416,7 +416,7 @@ stretch break — Act IV has ScriptableObjects and Act V has robots."
 - The division of labor: the **agent** does discovery and wiring (find the event, write
   the subscriber, place it in the right scene, pass the audit); the **artist** does what
   they're actually expert in — curves, materials, timing, mix — in the Inspector.
-- Menu of real tasks from the 132 (show as a table: task → events it subscribes to):
+- Menu of real tasks from the 133 (show as a table: task → events it subscribes to):
   - **F4 Dash & slide trails (S)** — `DashStarted/Ended`, `SlideStarted/Ended`
   - **C4 Ragdoll death (S/M)** — `PlayerDied` ("cheap drama")
   - **F5 Screen-space feedback (S)** — `ObstacleHit`, shield events, distance milestones
@@ -479,7 +479,7 @@ stretch break — Act IV has ScriptableObjects and Act V has robots."
 3. **Good seams pay three times.** The same door admits new code, new teammates (your
    artists), and new *kinds* of contributors — AI agents and cloud services included.
 - CTA: both repos are open source — clone the template, do the ADDING_A_MECHANIC
-  walkthrough, pick a task from the 132. Links + QR:
+  walkthrough, pick a task from the 133. Links + QR:
   `github.com/crawfis/EndlessRunnerTemplate` · `github.com/crawfis/RunnerUGSTemplate`.
 
 ---
@@ -595,7 +595,7 @@ regenerates the event catalog.
 | Sticky events | **2 of 211** | `TrackLevelApplied` (née `TempleRunLevelApplied`), `TempleRunDifficultySettingsApplied` |
 | UI panels | **6 UXML** | `*.uxml` under `Assets/` |
 | AI skills | **7** | `.claude/skills/*/SKILL.md` |
-| Student tasks | **132** (sections A–P; RUGS continues Q–X) | [STUDENT_TASKS.md](STUDENT_TASKS.md) |
+| Student tasks | **133** (sections A–P; RUGS continues Q–X) | [STUDENT_TASKS.md](STUDENT_TASKS.md) |
 
 Count commands (PowerShell, from repo root): scripts
 `(gci -r -filter *.cs Assets | ? FullName -notmatch ThirdParty).Count`; scenes

@@ -199,7 +199,7 @@ lines R1, R2, R4, R6, R7 — most of what makes a runner playable.
 
 ## Related material already in the repo
 
-- [STUDENT_TASKS.md](STUDENT_TASKS.md) — the 132-task catalog every session draws from
+- [STUDENT_TASKS.md](STUDENT_TASKS.md) — the 133-task catalog every session draws from
 - [ADDING_A_MECHANIC.md](ADDING_A_MECHANIC.md) — the recipe S4 runs end to end
 - [TIMEBOX_1_REQUIREMENTS.md](TIMEBOX_1_REQUIREMENTS.md) — the course assignment this would
   slot alongside; the sessions are deliberately smaller than a timebox task

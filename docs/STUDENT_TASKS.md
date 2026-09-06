@@ -1,7 +1,7 @@
 # Student Task Catalog: From Plain Runner to Polished Product
 
 The template is deliberately a *plain* runner — capsule player, primitive obstacles, flat
-track. That's the point: everything below is a well-scoped way to make it yours. **132
+track. That's the point: everything below is a well-scoped way to make it yours. **133
 tasks**, grouped by sub-specialty so a team can divide work along interests (gameplay code,
 tech art, audio, UI, systems design…). Effort tags are rough: **S** = a few days, **M** = a
 week or two, **L** = a multi-week centerpiece. Tasks are referenced as section-letter +
@@ -501,6 +501,22 @@ expects — is part of the exercise. Read the PanelRenderer rules in
     MonoBehaviour, and a `CancellationTokenSource` that is never cancelled in `OnDestroy` —
     the three ways an async method outlives its object (CLAUDE.md, *Async and coroutines*).
     Seed it by reintroducing each defect on a branch and confirming the check catches it.
+18. **Score every way a run ends (S/M).** A run ends two ways, and the ladder carries a
+    different payload for each: `PlayerLifeController` stamps the final distance onto
+    `PlayerDied`, which chains into `TempleRunEndRequested`, but a quit (`UserQuitRequested`,
+    bridged straight into that same rung) forwards the raw input's player id. So
+    `TempleRunEndRequested` / `Ending` / `Ended` and `GameEnding` are "score or player id" and
+    are deliberately undeclared. In RUGS, whose `UGSGameFlowBridge` must hand
+    `GameServiceEvents.SessionEnding` a float, a quit is scored as 0 by hand. Make the ladder
+    honest: give the quit its own TempleRun cause event (`TempleRunQuitRequested`, int player
+    id, the same shape as `PlayerPauseToggleRequested`), let `PlayerLifeController` — the
+    owner of the final score — turn it into `TempleRunEndRequested` with the real distance,
+    declare `[EventPayload(typeof(float))]  // Final score` down the whole ladder and on
+    `GameEnding`, and delete RUGS's 0. The reason it matters beyond this template: for a game
+    with progression, quitting is where a save and a score submission have to happen (E3, O2,
+    O6), so the quit rung must carry real data. Decide whether a quit *should* count for the
+    leaderboard — this template says it is a testing convenience and does not — and write
+    that decision on the enum.
 
 ## M. Genre Pivot: Runner → Explorer
 
