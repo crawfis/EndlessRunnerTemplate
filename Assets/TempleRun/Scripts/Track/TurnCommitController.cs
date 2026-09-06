@@ -60,8 +60,9 @@ namespace CrawfisSoftware.TempleRun
             => TakeTurn(Direction.Right, TempleRunEvents.TurnRightStarted, data);
 
         /// <summary>
-        /// The distance carried by the Starting rung is forwarded unchanged to Started and Ending,
-        /// so every subscriber along the ladder sees the same value for one turn.
+        /// The distance carried by the Starting rung is forwarded unchanged to Started, so both
+        /// rungs name the same run-absolute point for one turn. The terminal rungs carry nothing:
+        /// TeleportController publishes Ending with a null payload.
         /// </summary>
         private void TakeTurn(Direction direction, TempleRunEvents startedEvent, object distance)
         {

@@ -57,7 +57,7 @@ crossed into GameFlow only through a `UGSGameFlowBridge`.
 |-------|------------|----------------------|
 | Enum | `<Name>Events` | `AnalyticsEvents` |
 | File | `Assets/<Name>/Scripts/Events/<Name>Events.cs` | `Assets/Analytics/Scripts/Events/AnalyticsEvents.cs` |
-| Namespace | `CrawfisSoftware.<Name>.Events` (mirror GameFlow, the cleanest of the three) | `CrawfisSoftware.Analytics.Events` |
+| Namespace | `CrawfisSoftware.<Name>.Events` (mirror GameFlow and Countdown, the cleanest of the four) | `CrawfisSoftware.Analytics.Events` |
 | Bus alias | `using <Name>Bus = CrawfisSoftware.Events.EventsFor<...>;` per consuming file | `using AnalyticsBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.Analytics.Events.AnalyticsEvents>;` |
 | Auto-flow (optional) | `<Name>AutoEventFlow`, next to the enum | `AnalyticsAutoEventFlow` |
 | Bridge | `<Name>GameFlowBridge` (or whichever pair applies), hosted under the more application-level domain, mirroring `TempleRunSpecific/` | `Assets/GameFlow/Scripts/AnalyticsSpecific/AnalyticsGameFlowBridge.cs` |
@@ -89,7 +89,8 @@ namespace CrawfisSoftware.Analytics.Events
 - Explicit values; categories separated by `// ---------- Name ----------` comments with
   gaps of ~10 between categories.
 - Naming: `*Requested` / `*Starting`/`*ing` / `*Started`/`*ed` / `*Failed` / `*Cancelled`.
-- Declare payloads with `[EventPayload(typeof(T))]`. Add
+- Declare payloads with `[EventPayload(typeof(T))]`; a basic-typed payload (`int`, `float`,
+  `string`, `bool`, `long`, `double`) gets an inline `// what the value is` comment. Add
   `[EventDelivery(EventDelivery.Sticky)]` only for a *level* (see CLAUDE.md
   "Delivery Policy - edge or level").
 
@@ -117,7 +118,9 @@ controller validates, which silently defeats the gate.
 Copy `TempleRunGameFlowBridge.cs`: two `static readonly` pair arrays, one per direction, each
 driving an `EventChainDispatcher<TSource, TDest>` attached in `Awake()` and detached in
 `OnDestroy()`. (A bidirectional bridge cannot inherit `AutoEventFlowBase` twice, which is why
-it composes two dispatchers instead.) **Never reference the new domain's enum from another domain's code** — the bridge is
+it composes two dispatchers instead.) A one-way bridge is simpler: inherit
+`AutoEventFlowBase<TSource, TDest>` with a single pair array, as `CountdownGameFlowBridge.cs`
+and `Countdown2TempleRunBridge.cs` do. **Never reference the new domain's enum from another domain's code** — the bridge is
 the only crossing point; that is the whole point of the domain. Then add mappings with
 `/add-bridge-mapping`, and add the new bridge class to that skill's "Available Bridges"
 table.
@@ -131,13 +134,14 @@ Verified current placements — follow the pattern:
 | `GameFlowAutoEventFlow` | `0_BootStrap_Game_Only` | whole app |
 | `TempleRunGameFlowBridge` | `Game_Boot_2_Play` | menus + game session |
 | `CountdownAutoEventFlow`, `CountdownGameFlowBridge`, `Countdown2TempleRunBridge` | `Game_Boot_2_Play` (one `CountdownDomain` object) | menus + game session |
+| `CountdownController`, `CountdownUIController` (the domain's logic and overlay) | `TempleRunGameplay` | one run |
 | `TempleRunAutoEventFlow`, `Input2TempleRunAutoEventBridge` | `TempleRunGameplay` | one run |
 
 An app-lifetime domain (e.g. analytics) hosts its flow/bridge in `0_BootStrap_Game_Only`;
 session-scoped in `Game_Boot_2_Play`; gameplay-scoped in the gameplay scene. `OnDestroy`
 unsubscription is what makes the shorter lifetimes safe.
 
-### Step 7: Register the domain everywhere the current three are listed
+### Step 7: Register the domain everywhere the current four are listed
 
 This is the step people forget. Update every place that enumerates domains:
 

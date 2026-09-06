@@ -8,14 +8,14 @@ and a teaser for the UGS sibling repo.
 
 Tool-agnostic: build it in PowerPoint, Slides, or reveal.js. The mermaid diagrams in
 [ARCHITECTURE.md](ARCHITECTURE.md) can be pasted into any mermaid-capable tool or
-screenshotted as-is. All numbers are verified against `main` @ `7a0c3bb` (2026-09-01) —
+screenshotted as-is. All numbers are verified against `main` @ `f2d5733` (2026-09-06) —
 regeneration commands are in the [fact sheet](#fact-sheet-verified-numbers) at the bottom.
 
 > **The built deck lives at [talk/its-just-an-endless-runner.html](talk/its-just-an-endless-runner.html)**
 > — a self-contained HTML slide deck (open directly in a browser; no network needed).
 > Keys: `←`/`→` advance (fragments first), `N` toggles speaker notes, `F` fullscreen,
 > `Home`/`End` jump; print to PDF for a handout. The deck expands this outline to
-> **32 slides**: it adds a spaghetti-wiring contrast pair in Act II ("How every tutorial
+> **33 slides**: it adds a spaghetti-wiring contrast pair in Act II ("How every tutorial
 > wires it" + "It works. Then it rots."), a "What a direct call quietly assumes" slide
 > after the one-rule slide (sole audience · shared fate on exceptions — the bus catches a
 > throwing subscriber and keeps delivering, verified in the package source · existence,
@@ -37,7 +37,7 @@ regeneration commands are in the [fact sheet](#fact-sheet-verified-numbers) at t
 1. **"It's *Just* an Endless Runner"** — *what a simple game is actually made of.*
    Plays directly on the underestimation everyone in the room has lived.
 2. **"Nobody Calls Anybody"** — *a whole game built on events.* Architecture-forward.
-3. **"204 Events, One Rule"** — numbers-forward, punchy, invites the question.
+3. **"210 Events, One Rule"** — numbers-forward, punchy, invites the question.
 
 ## The spine
 
@@ -83,8 +83,8 @@ If a slide doesn't advance one of those, cut it.
 ### Slide 4 — The iceberg (the numbers slide)
 Reveal progressively — start with what the player sees, then what it took:
 - **What players see:** seven verbs. Run, turn, switch lanes, jump, slide, dash, collect.
-- **What it took:** **204 named events** across **3 isolated domains** · **145 C# scripts**
-  · **15 scenes** loaded additively · **38 auto-chain rules** and **19 bridge mappings**
+- **What it took:** **210 named events** across **4 isolated domains** · **152 C# scripts**
+  · **15 scenes** loaded additively · **49 auto-chain rules** and **19 bridge mappings**
   declared as data · **17 track-segment assets + 5 level rulesets** with zero code ·
   **7 UI panels** · and a **130-task catalog** of what it still takes to become a
   *polished* product (the catalog even continues into the cloud sibling as sections Q–X).
@@ -95,14 +95,14 @@ Reveal progressively — start with what the player sees, then what it took:
   of work, opposite slopes.
 
 ### Slide 5 — Where the mass actually is
-- Re-sort the same 204 events by *job*, not domain: **Playing it** (the verbs, crashes,
-  pickups, dying, plus raw input) = 67 · **Building the world** (track segments, splines,
-  geometry, recycling, teleport) = 29 · **Running the show** (all of GameFlow plus
-  countdown, pause, run lifecycle, bridged difficulty) = 108.
+- Re-sort the same 210 events by *job*, not domain: **Playing it** (the verbs, crashes,
+  pickups, dying, plus raw input) = 73 · **Building the world** (track segments, splines,
+  geometry, recycling, teleport) = 30 · **Running the show** (all of GameFlow plus
+  countdown, pause, run lifecycle, bridged difficulty) = 107.
 - **The game you play is a third of the game you build.** Over half the vocabulary is
   session ceremony — loading screens, level select, countdown, pause, quit confirmation,
   save hooks. Nothing the trailer shows.
-- Transition: "So how do 145 scripts across 15 scenes not turn into spaghetti? One rule."
+- Transition: "So how do 152 scripts across 15 scenes not turn into spaghetti? One rule."
 
 ---
 
@@ -147,7 +147,7 @@ Reveal progressively — start with what the player sees, then what it took:
   skeptic raises it). Most logged events have no listener, deliberately: we
   over-*designed* — named the full vocabulary up front — we did not over-*engineer*, since
   an unused event costs one line in an enum and no machinery. Real numbers from the repo:
-  **204 events, ~138 with no subscriber, ~31 auto-chain targets that fire into an empty
+  **210 events, ~138 with no subscriber, ~31 auto-chain targets that fire into an empty
   room on every single run.**
 - Two flavors of silence, and only one is a hole:
   - **Never fires** — the `*Failed` / `*Cancelled` family (`SaveFailed`, `QuitCancelled`,
@@ -160,13 +160,14 @@ Reveal progressively — start with what the player sees, then what it took:
 - Land it with the callback: `PlayerFailingAtObstacle` already fires on every death, so
   screen shake is **one new file in the SFX scene** — same shape as the jump sound.
 
-### Slide 10 — Three domains, one door each
+### Slide 10 — Four domains, one door each
 - Show the domain diagram (ARCHITECTURE.md mermaid): **UserInitiated** (raw input) →
-  **TempleRun** (gameplay) ↔ **GameFlow** (app lifecycle).
-- Events are grouped into three enums on three separate buses, and domain code may only
+  **TempleRun** (gameplay) ↔ **GameFlow** (app lifecycle) → **Countdown** (session
+  ceremony) → **TempleRun**.
+- Events are grouped into four enums on four separate buses, and domain code may only
   touch its own domain's events. Crossing happens in exactly **one bridge per crossing** —
-  two small files translate between vocabularies; everything else is walled off.
-- Metaphor for the room: three departments that only communicate by posting memos through
+  four small files translate between vocabularies; everything else is walled off.
+- Metaphor for the room: four departments that only communicate by posting memos through
   one mailroom. The mailroom's routing table is ~19 lines of data.
 
 ### Slide 11 — What isolation is *for*: replaceability
@@ -229,7 +230,7 @@ stretch break — Act IV has ScriptableObjects and Act V has robots."
 
 ### Slide 14 — [TECH] The bus: `EventsFor<T>`
 - One static, lazily-initialized, typed bus per domain enum; aliased per file
-  (`GameFlowBus`, `TempleRunBus`, `UserInputBus`). Subscribe in `Awake`, unsubscribe in
+  (`GameFlowBus`, `TempleRunBus`, `CountdownBus`, `UserInputBus`). Subscribe in `Awake`, unsubscribe in
   `OnDestroy`, always.
 - **No singleton GameObject, no execution-order attribute, no initialization race.**
 - War story: the previous design used per-domain singleton components with
@@ -262,7 +263,7 @@ stretch break — Act IV has ScriptableObjects and Act V has robots."
 
 ### Slide 16 — [TECH] Control flow as data: auto-chains
 - Within a domain, event progressions are declared in a flat table of `(From, To)` pairs
-  — 21 entries in GameFlow, 17 in TempleRun. Show a five-row excerpt.
+  — 22 entries in GameFlow, 25 in TempleRun, 2 in Countdown. Show a five-row excerpt.
 - Pairs, not a dictionary — **one event may declare several consequences.** War story: the
   old dictionary allowed exactly one successor per event; developers who found a slot
   taken published the second consequence by hand inside controllers — which is how
@@ -286,7 +287,7 @@ stretch break — Act IV has ScriptableObjects and Act V has robots."
 - The trap: `Paused`/`Resumed` each mark a moment, not the state — stickiness can't fix
   that; a late subscriber gets whichever half fired last. Carry the current state in one
   value-carrying event instead.
-- The discipline stat: **2 sticky events out of 204.** And upgrades are evidence-driven:
+- The discipline stat: **2 sticky events out of 210.** And upgrades are evidence-driven:
   an in-editor audit (`Window > Events > Upgrade Audit`) reports which events actually
   had late subscribers after a play session. Measure, then upgrade.
 
@@ -580,19 +581,19 @@ works at a meetup if attendees bring laptops):
 
 ## Fact sheet (verified numbers)
 
-As of `main` @ `7a0c3bb`, 2026-09-01. Re-verify before the talk; `/list-events`
+As of `main` @ `f2d5733`, 2026-09-06. Re-verify before the talk; `/list-events`
 regenerates the event catalog.
 
 | Claim | Value | How counted |
 |-------|-------|-------------|
-| Events total | **204** | 74 GameFlow + 121 TempleRun (explicit `= n` members) + 9 UserInitiated |
-| C# scripts | **145** (160 with vendored ThirdParty) | `*.cs` under `Assets/`, excluding `ThirdParty/` |
+| Events total | **210** | 74 GameFlow + 121 TempleRun + 6 Countdown (explicit `= n` members) + 9 UserInitiated |
+| C# scripts | **152** (167 with vendored ThirdParty) | `*.cs` under `Assets/`, excluding `ThirdParty/` |
 | Scenes | **15** | `*.unity` under `Assets/` |
-| Auto-chain entries | **38** | 21 in `GameFlowAutoEventFlow` + 17 in `TempleRunAutoEventFlow` |
-| Bridge mappings | **19** | 10 in `TempleRunGameFlowBridge` (4 TR→GF + 6 GF→TR) + 9 in `Input2TempleRunAutoEventBridge` |
+| Auto-chain entries | **49** | 22 in `GameFlowAutoEventFlow` + 25 in `TempleRunAutoEventFlow` + 2 in `CountdownAutoEventFlow` |
+| Bridge mappings | **19** | 8 in `TempleRunGameFlowBridge` (3 TR→GF + 5 GF→TR) + 9 in `Input2TempleRunAutoEventBridge` + 1 in `CountdownGameFlowBridge` + 1 in `Countdown2TempleRunBridge` |
 | Track data | **17 segments, 5 levels** | assets in `Assets/TempleRun/Scriptables/Track/` |
-| Sticky events | **2 of 204** | `TrackLevelApplied` (née `TempleRunLevelApplied`), `TempleRunDifficultySettingsApplied` |
-| UI panels | **7 UXML** | `*.uxml` under `Assets/` |
+| Sticky events | **2 of 210** | `TrackLevelApplied` (née `TempleRunLevelApplied`), `TempleRunDifficultySettingsApplied` |
+| UI panels | **6 UXML** | `*.uxml` under `Assets/` |
 | AI skills | **7** | `.claude/skills/*/SKILL.md` |
 | Student tasks | **130** (sections A–P; RUGS continues Q–X) | [STUDENT_TASKS.md](STUDENT_TASKS.md) |
 

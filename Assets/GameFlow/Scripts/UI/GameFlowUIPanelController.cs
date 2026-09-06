@@ -12,7 +12,8 @@ namespace CrawfisSoftware.GameFlow.UI
 {
     /// <summary>
     /// GameFlow-domain UI panel controller. Manages loading screen and game over overlay.
-    /// Countdown and HUD are now managed by Countdown-domain CountdownUIController.
+    /// The countdown overlay belongs to the Countdown domain (CountdownUIController); the distance
+    /// HUD belongs to TempleRun (GUIController).
     ///    Dependencies: PanelRenderer (gameOver + loading panels), GameConstants
     ///    Subscribes: GameFlowEvents.GameStarting, GameFlowEvents.GameStarted, GameFlowEvents.GameEnding
     ///    Publishes: GameFlowEvents.LoadingScreenShown, GameFlowEvents.LoadingScreenHidden, GameFlowEvents.GameEnded

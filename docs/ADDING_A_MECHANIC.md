@@ -27,6 +27,7 @@ Use the skill so numbering/naming stay consistent:
 It adds a lifecycle group to `TempleRunEvents.cs`, e.g. in a free range:
 ```csharp
 // ---------- Player movement: roll ----------
+[EventPayload(typeof(int))]  // Player id
 RollRequested = 90,
 RollStarting  = 91,
 RollStarted   = 92,
@@ -35,6 +36,7 @@ RollEnded     = 94,
 ```
 And a raw-input event to `UserInitiatedEvents.cs`:
 ```csharp
+[EventPayload(typeof(int))]  // Player id
 UserRollRequested,
 ```
 

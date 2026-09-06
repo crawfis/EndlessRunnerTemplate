@@ -1,6 +1,6 @@
 # Implementation spec: the Countdown domain (Phase A of DOMAIN_DECOMPOSITION.md)
 
-**Status:** approved for implementation. Analysis and rationale live in
+**Status:** implemented (PR #30, `4e600c5`; `main` @ a9ae5a2). Analysis and rationale live in
 [DOMAIN_DECOMPOSITION.md](DOMAIN_DECOMPOSITION.md) §3–§4; KNOWN_ISSUES' three countdown
 smells are the motivation. This file is the exact change list.
 

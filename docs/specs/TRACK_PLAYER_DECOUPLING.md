@@ -388,7 +388,7 @@ the four-element tuple cast as the example of a tuple payload. **Net events: 0.*
 > subscription to any of these names exists), so the code search is complete. CLAUDE.md's tuple
 > cast example is retired as the plan predicted, and replaced by the general rule: *prefer a
 > named struct over a tuple for any payload with more than one part.*
-> **Not yet play-tested** — owner verification pending.
+> **Play tested and passed (owner, 2026-09-06, PR #37):** turns land the player in-lane with no snap.
 
 **Phase 3 — remove the last direct call, and move two files.** (items #3, #4.)
 Add `TurnForceRequested = 44` (the seam audit's agreed value; 50–59 is full);

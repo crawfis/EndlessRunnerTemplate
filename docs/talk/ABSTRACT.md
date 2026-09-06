@@ -143,7 +143,7 @@ required to follow the argument — the examples are Unity, the lesson isn't.
 - **Half-day workshop variant** replaces the two demo slides in Act IV with hands-on time —
   pairs, one small task each, agent-assisted. Plan in
   [TALK_OUTLINE.md](../TALK_OUTLINE.md#if-you-run-act-v-as-a-hands-on-exercise-workshop--class-variant).
-- **A/V needs:** the presenting machine runs Unity 6.5 for the demos; the slides are a
+- **A/V needs:** the presenting machine runs Unity 6.6 for the demos; the slides are a
   single self-contained HTML file. Network is nice-to-have (one demo calls an AI agent), not
   required.
 
@@ -153,8 +153,8 @@ Some CFPs route to a technical reviewer who will want the mechanism named. One p
 kept out of the audience-facing copy:
 
 > The rule is publish/subscribe applied with zero exceptions: systems never call each other,
-> they publish named events. Concretely, the template carries **204 named events across three
-> isolated domains, 145 scripts, 15 scenes** loaded additively, with **38 auto-chain rules and
+> they publish named events. Concretely, the template carries **210 named events across four
+> isolated domains, 152 scripts, 15 scenes** loaded additively, with **49 auto-chain rules and
 > 19 cross-domain bridge mappings declared as data** rather than code. The talk covers the
 > typed bus, the request→starting→started naming ladder and its one deliberately manual
 > validation gate, control flow as inspectable tables, and delivery policy for late

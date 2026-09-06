@@ -1,8 +1,8 @@
 ﻿# CLAUDE.md - AI Assistant Guide for EndlessRunner
 
 This file is the concrete working guide for AI assistants — **any** AI assistant or coding
-agent, not just Claude — working with the EndlessRunner codebase: an open-source Unity 6.5
-(6000.5 stream) endless-runner template demonstrating an event-driven architecture. Start
+agent, not just Claude — working with the EndlessRunner codebase: an open-source Unity 6.6
+(6000.6 stream) endless-runner template demonstrating an event-driven architecture. Start
 with [AGENTS.md](AGENTS.md) for how to approach work here; this file holds the rules,
 conventions, and paths. For a human-facing overview, see [README.md](README.md).
 
@@ -11,8 +11,14 @@ conventions, and paths. For a human-facing overview, see [README.md](README.md).
 system), [docs/ADDING_A_MECHANIC.md](docs/ADDING_A_MECHANIC.md) (worked example),
 [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md) (Unity caveats).
 **Course material:** [docs/STUDENT_TASKS.md](docs/STUDENT_TASKS.md) (the 130-task catalog),
-`docs/TIMEBOX_*_REQUIREMENTS.md` (the timebox assignments), and `docs/EXERCISE_*.md`
+`docs/TIMEBOX_*_REQUIREMENTS.md` (the timebox assignments; `docs/ai/timebox-*.md` are the
+same assignments assembled as context to hand an AI assistant), and `docs/EXERCISE_*.md`
 (in-class team exercises) — students working in this repo will ask for help with these.
+**Design records:** `docs/specs/` (plans, specs and audits, each with a status line at the
+top — [TRACK_PLAYER_DECOUPLING.md](docs/specs/TRACK_PLAYER_DECOUPLING.md) is the one in
+progress: Phases 1 and 2 landed, Phase 3 has not started), `docs/playbooks/` (migration
+recipes), and [docs/TALK_OUTLINE.md](docs/TALK_OUTLINE.md) + `docs/talk/` (the conference
+talk built on this codebase).
 
 ## Quick Reference
 
@@ -153,7 +159,7 @@ When adding any new feature or behavior, you MUST follow this workflow:
 
 ## Architecture Overview
 
-Unity 6.5 endless runner demonstrating **event-driven architecture**.
+Unity 6.6 endless runner demonstrating **event-driven architecture**.
 
 **Domain Registry** — the authoritative list of event domains:
 
@@ -402,7 +408,7 @@ private static readonly (X From, X To)[] ChainTable = ...; // static readonly: P
 | Bridge | `Assets/GameFlow/Scripts/TempleRunSpecific/TempleRunGameFlowBridge.cs`, `Assets/GameFlow/Scripts/CountdownSpecific/CountdownGameFlowBridge.cs` |
 | Game State / Config | `Assets/GameFlow/Scripts/Config/GameState.cs`, `GameConstants.cs`, `LevelConfig.cs`, `LevelConfigApplier.cs`, `LevelRegistry.cs`, `LevelProgressManager.cs`, `LevelProgressData.cs` |
 | UI Controllers | `Assets/GameFlow/Scripts/UI/MainMenuController.cs`, `MainMenuPanelController.cs`, `LevelSelectorController.cs`, `LevelSelectorPanelController.cs`, `GameFlowUIPanelController.cs` (loading screen + game-over overlay; the countdown overlay lives in the Countdown domain) |
-| UI Toolkit Assets | `Assets/GameFlow/UI Toolkit/UI/UXML/` (MainMenu, LevelSelector, LoadingScreen, HUD, GameOver overlay) + USS; `Assets/TempleRun/UI Toolkit/TempleRunDistances.uxml`; `Assets/Countdown/UI Toolkit/Countdown.uxml` |
+| UI Toolkit Assets | `Assets/GameFlow/UI Toolkit/UI/UXML/` (MainMenu, LevelSelector, LoadingScreen, GameOver overlay) + USS; `Assets/TempleRun/UI Toolkit/TempleRunDistances.uxml`; `Assets/Countdown/UI Toolkit/Countdown.uxml`; `Assets/UI Toolkit/PlainUI_Styles.uss` (shared stylesheet, used by the TempleRun distance HUD) |
 | Game Control | `Assets/GameFlow/Scripts/GameControl/QuitController.cs`, `UnloadNonActiveScenes.cs`, `LoadSceneAdditively.cs` |
 | Scene Management | `Assets/GameFlow/Scripts/SceneManagement/DynamicLevelSceneLoader.cs`, `FireEventAfterSceneLoads.cs`, `FireEventWhenSceneCloses.cs`, `CloseSceneOnEvent.cs`, `LoadSceneAfterGameControlEvent.cs` |
 | **TempleRun Domain** | |
@@ -556,7 +562,7 @@ Assets/
 │   │   ├── UI/                       # MainMenu + LevelSelector controllers and panel controllers, GameFlowUIPanelController
 │   │   └── SceneManagement/          # DynamicLevelSceneLoader, FireEventAfterSceneLoads/WhenSceneCloses, CloseSceneOnEvent, LoadSceneAfterGameControlEvent
 │   ├── Scenes/Boot/                  # 0_BootStrap_Game_Only -> Game_Boot_0_Test_Initialization -> Game_Boot_1_UI -> Game_Boot_2_Play
-│   └── UI Toolkit/                   # UXML/USS: MainMenu, LevelSelector, LoadingScreen, HUD, GameOver overlay
+│   └── UI Toolkit/                   # UXML/USS: MainMenu, LevelSelector, LoadingScreen, GameOver overlay
 │
 ├── TempleRun/                        # Gameplay domain
 │   ├── Scripts/
@@ -580,6 +586,8 @@ Assets/
 │   │                                 #   TrackLevelRegistry); Levels/ (GameFlow's LevelConfig assets + LevelRegistry live here)
 │   ├── UI Toolkit/                   # TempleRunDistances.uxml
 │   └── Editor/                       # TrackDataImporter (one-shot JSON -> SO converter)
+│
+├── UI Toolkit/                       # PlainUI_Styles.uss (shared stylesheet; the TempleRun distance HUD uses it)
 │
 └── ThirdParty/CrawfisSoftware/       # Vendored utilities: Random providers, AssetManagement helpers, editor tools, GridSpawner
 ```

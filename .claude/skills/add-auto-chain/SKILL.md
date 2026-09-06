@@ -120,7 +120,9 @@ Not auto-chained (intentional):
 (GameFlowEvents.GameScenesLoaded, GameFlowEvents.GameStartRequested),
 ```
 
-**Fan-out** (one source, several consequences — fire in declaration order):
+**Fan-in** (several sources, one consequence). The flat pair list allows the reverse too —
+one source with several consequences, which fire in declaration order — but no live entry
+does that today:
 ```csharp
 (TempleRunEvents.PlayerFailingAtTurn, TempleRunEvents.PlayerFailing),
 (TempleRunEvents.PlayerFailingAtObstacle, TempleRunEvents.PlayerFailing),

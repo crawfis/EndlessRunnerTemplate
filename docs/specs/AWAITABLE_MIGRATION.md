@@ -3,7 +3,7 @@
 **Status:** proposal / ready to execute
 **Baseline tag:** `pre-awaitable-migration` — the coroutine implementation as it shipped.
 Diff any file below against that tag to see the before/after as a teaching example.
-**Why:** the project is on **Unity 6.5** (`6000.5`), where `Awaitable` is the native
+**Why:** the project is on **Unity 6.6** (`6000.6`), where `Awaitable` is the native
 frame-aware async type. Coroutines are the last piece of the template that teaches a
 Unity-only idiom: `IEnumerator` + `yield return` transfers to nothing outside the engine,
 while `async`/`await` is the same C# students will write against every API for the rest of
@@ -138,7 +138,7 @@ private async Awaitable RunJumpArc()
     }
 
     Blackboard.Instance.JumpHeightOffset = 0f;
-    TempleRunBus.Publish(TempleRunEvents.JumpLanded, this, null);
+    TempleRunBus.Publish(TempleRunEvents.JumpEnded, this, null);
 }
 ```
 
@@ -155,7 +155,7 @@ signature, swap the `yield`, drop `using System.Collections;`.
 | `Player/DashSpeedController.cs` | Keep the deliberate one-frame defer (`yield return null; …; continue;` that dodges an event cycle) verbatim as an `await …NextFrameAsync(…); … continue;`. It looks like a wart; it isn't. |
 | `Player/DistanceController.cs` | `WaitForEndOfFrame` → `EndOfFrameAsync`. `while (true)` loop; CTS started in `OnGameStarted`, cancelled in `OnGameOver` and `OnDestroy` — replaces `DeleteCoroutine()`. |
 | `Player/PowerUpBuffController.cs` | `Dictionary<PowerUpType, CancellationTokenSource>`. Cancel + replace on re-collect; cancel all in `OnTempleRunEnded`. |
-| `Player/CountdownController.cs` | CTS; the loop body is otherwise unchanged. |
+| `Countdown/Scripts/CountdownController.cs` | CTS; the loop body is otherwise unchanged. |
 | `Player/CharacterTeleporter.cs` | Per-frame loop on `GameTime.Instance.deltaTime` → `NextFrameAsync(destroyCancellationToken)`. |
 | `Player/PlayerFailedController.cs` | `_hitchCoroutine != null` was doubling as "a hitch is already running" — keep that as a plain `bool _hitching`. Realtime wait. `StopAllCoroutines()` in `OnDestroy` goes away. |
 | `Player/PlayerFailureAutoTurnController.cs` | Realtime wait; `StopAllCoroutines()` → `destroyCancellationToken`. |
@@ -172,7 +172,7 @@ Each phase ends with `dotnet build Assembly-CSharp.csproj` and a play session fr
 `Assets/GameFlow/Scenes/Boot/0_BootStrap_Game_Only`.
 
 0. **Pilot.** `Wait.cs` + `JumpArcController`. Confirm the jump arc and the
-   `JumpStarted` / `JumpLanded` timing are unchanged, and that entering and leaving Play Mode
+   `JumpStarted` / `JumpEnded` timing are unchanged, and that entering and leaving Play Mode
    leaves a clean console.
 1. **Shape B** — the five remaining per-frame loops.
 2. **Shape A** — the ten delay-then-act sites. Mostly mechanical; the two input classes are

@@ -383,7 +383,7 @@ team and write it down:
 ### Systems architecture
 
 - **Decoupling.** Where does the Observer pattern — an event bus — separate UI from gameplay?
-  The template answers this one way (three event domains, auto-chaining, one bridge per
+  The template answers this one way (four event domains, auto-chaining, one bridge per
   domain crossing), described in
   [ARCHITECTURE.md](https://github.com/crawfis/EndlessRunnerTemplate/blob/main/docs/ARCHITECTURE.md).
   Say whether you are adopting that, and why.

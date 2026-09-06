@@ -1,7 +1,9 @@
 # Plan: Migrate this project's UI from `UIDocument` to `PanelRenderer`
 
-**Status:** proposal / ready to execute
-**Why:** the project is on **Unity 6.5** (`6000.5`), where `UIDocument` is obsolete and
+**Status:** implemented (merged as `b83b4c3` from `feature/panel-renderer`, 2026-07-22) — but
+the show/hide pattern proposed below (`panel.enabled`) is not what shipped: panels stay enabled
+and hide via `root.style.display` (`0c4059d`; see [../KNOWN_ISSUES.md](../KNOWN_ISSUES.md)).
+**Why:** the project is on **Unity 6.6** (`6000.6`), where `UIDocument` is obsolete and
 `PanelRenderer` is the native replacement. This is also the fix for the blank-until-toggled Main
 Menu quirk in [../KNOWN_ISSUES.md](../KNOWN_ISSUES.md) — Panel Renderer's `UIReloaded` callback and
 content persistence remove the class of first-render bugs we worked around with `style.display`.

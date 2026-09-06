@@ -18,7 +18,10 @@ countdown writeup in [KNOWN_ISSUES.md](../KNOWN_ISSUES.md). Verified at tag
 > proposed, and §3's table carries each rename's outcome. §5, §6 and §7 were re-checked
 > against `a9ae5a2` and are **unchanged** — in particular all ten of §5's straddling files
 > still straddle, so the TrackPCG argument stands as written. Where a claim below is dated
-> to the original analysis rather than re-verified, it says so.
+> to the original analysis rather than re-verified, it says so. §1 and §2 still describe
+> the starting point as it was at `pre-coupling-audit` — three domains, the countdown
+> members at 30–36 in `TempleRunEvents`, the old mirror names — and are left as the
+> baseline the analysis reasons from.
 
 ## TL;DR of the verdicts
 
@@ -31,7 +34,7 @@ countdown writeup in [KNOWN_ISSUES.md](../KNOWN_ISSUES.md). Verified at tag
 | **Level selection / progression → its own domain** | Not now; plausible later as "Meta" | Defensible stub test, but it drags session and menu choreography with it today; in RUGS this concern belongs with the UGS domain |
 
 Recommended order: ~~**(A)** extract Countdown, introducing the `PlayerActivate*` ladder in
-TempleRun~~ **— done** → **(B) ← next:** execute the coupling audit with the future TrackPCG
+TempleRun~~ **— done** → **(B) ← in progress:** execute the coupling audit with the future TrackPCG
 bridge table as its target design, folding in what remains of the §3 vocabulary renames →
 **(C)** extract TrackPCG (or leave C as a capstone student task). Details in
 [Phasing](#8-phasing).
@@ -437,8 +440,8 @@ files; it is in this PR only because it was ready). The checklist as executed:
    **RUGS:** the freeze turned out not to block a reviewed domain addition — the port
    landed in its own RunnerUGSTemplate PR (§9 Q4).
 
-**Phase B — COUPLING_AUDIT execution** — **analysis done 2026-09-04; execution not started.**
-The plan is [TRACK_PLAYER_DECOUPLING.md](TRACK_PLAYER_DECOUPLING.md), seven phases, none of
+**Phase B — COUPLING_AUDIT execution** — **analysis done 2026-09-04; execution in progress — Phases 1–2 landed (PRs #35, #37), Phases 3–6 not started.**
+The plan is [TRACK_PLAYER_DECOUPLING.md](TRACK_PLAYER_DECOUPLING.md), six phases, none of
 them needing a manual Inspector step. Both additions this section asked for were delivered:
 its §2 draws the vocabulary map **as the would-be TrackPCG bridge table** (four rows, each a
 contract), and the surviving §3 rename rides along as its Phase 5 — where it turns out to be

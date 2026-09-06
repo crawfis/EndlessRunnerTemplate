@@ -1,6 +1,6 @@
 # Spec: `IPathSegmentBuilder` — Generalizing Track Geometry
 
-**Status:** proposal / design exploration (not implemented)
+**Status:** implemented (`9c8b0de`, merged as `5a819b1`, 2026-07-22 — `Assets/TempleRun/Scripts/Track/Geometry/`)
 **Scope:** replace the hard-wired axis-aligned 90°-turn geometry in `PathProvider` with a
 pluggable geometry builder, so curved turns, ramps, banking, and arbitrary angles become
 possible without rewriting the generator.

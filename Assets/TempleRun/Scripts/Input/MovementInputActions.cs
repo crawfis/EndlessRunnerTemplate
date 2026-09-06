@@ -12,8 +12,9 @@ namespace CrawfisSoftware.TempleRun
     /// <summary>
     /// Maps Unity Input System actions to UserInitiatedEvents.
     ///    Dependencies: Blackboard, LaneConfig, JumpConfig
-    ///    Publishes: UserInitiatedEvents.LeftTurnRequested, RightTurnRequested,
-    ///               LeftLaneChangeRequested, RightLaneChangeRequested, JumpRequested
+    ///    Publishes: UserInitiatedEvents.UserLeftTurnRequested, UserRightTurnRequested,
+    ///               UserLeftLaneChangeRequested, UserRightLaneChangeRequested, UserJumpRequested,
+    ///               UserSlideRequested, UserDashRequested
     /// </summary>
     public class MovementInputActions : MonoBehaviour
     {

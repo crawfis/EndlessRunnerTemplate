@@ -4,7 +4,7 @@
 > `TrackSegmentRegistrySO`, `TrackLevelSO`, `TrackLevelRegistrySO`) — pure data, read by
 > `TrackLibraryLoader`. Chosen granularity: one SO per segment, a registry container SO, one level
 > SO per level, and a level registry keyed by `LevelNumber`. The GameFlow→TempleRun seam is a plain
-> `int`: `LevelConfig.LevelNumber` → `LevelApplied(int)` → `TempleRunLevelApplied`, which is `Sticky`
+> `int`: `LevelConfig.LevelNumber` → `LevelApplied(int)` → `TrackLevelApplied`, which is `Sticky`
 > and read at `TrackManager` init via `TryGetLast` (GameFlow references no track type; nothing stores
 > the resolved definition). This originally parked the int on `Blackboard.SelectedLevel`; that mirror
 > was removed once the event became `Sticky`. The one-shot converter is

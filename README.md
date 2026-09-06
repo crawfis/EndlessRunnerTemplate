@@ -44,13 +44,13 @@ subscribing to named events.
 
 ## Requirements
 
-- **Unity 6.5** (the `6000.5` stream), Universal Render Pipeline. Developed on Unity 6.5;
-  open it with the latest 6.5 patch you have installed.
+- **Unity 6.6** (the `6000.6` stream), Universal Render Pipeline. Developed on Unity 6.6;
+  open it with the latest 6.6 patch you have installed.
 - Git (the project pulls two dependencies as git packages — see below).
 
 ## Getting Started
 
-1. Clone the repository and open it in Unity 6.5.
+1. Clone the repository and open it in Unity 6.6.
 2. Open `Assets/GameFlow/Scenes/Boot/0_BootStrap_Game_Only.unity`.
 3. Enter Play Mode. The bootstrap scene loads the UI and gameplay scenes additively and
    takes you to the main menu → level select → gameplay.

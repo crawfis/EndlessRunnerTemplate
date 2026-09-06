@@ -9,7 +9,8 @@ namespace CrawfisSoftware.GameFlow.Events
     /// Auto-chains GameFlow events. Entries marked with [AUTO] are active; others are published by controllers.
     ///
     /// ========================================================================================
-    /// COMPLETE GAME FLOW TIMELINE (from actual event trace)
+    /// COMPLETE GAME FLOW TIMELINE (kept in step with the chain and bridge tables; re-check
+    /// against CrawfisSoftware > Events > Log Events after changing either)
     /// ========================================================================================
     ///
     /// --- BOOT / INITIALIZATION (non-UGS) ---
@@ -25,15 +26,9 @@ namespace CrawfisSoftware.GameFlow.Events
     /// (DifficultyChanged is currently unpublished; difficulty resolution lives in TempleRun via the bridge)
     /// [Published] LoadingScreenShown -> LoadingScreenHidden
     /// [Published] MainMenuShown
-    ///
-    /// --- SIGN OUT / SIGN IN LOOP ---
-    /// [UGS] PlayerSigningOut -> PlayerSignedOut
-    /// [BRIDGE: UGS->GameFlow] PlayerSignedOut -> GameplayNotReady
-    /// [Published] MainMenuHidden
-    /// [UGS] PlayerSigningIn -> PlayerSignedIn -> PlayerAuthenticating -> PlayerAuthenticated
-    /// [BRIDGE: UGS->GameFlow] PlayerAuthenticated -> GameplayReady
-    /// [AUTO] GameplayReady -> MainMenuShowRequested -> MainMenuShowing
-    /// [Published] MainMenuShown
+    /// (The UGS template's sign-out / sign-in loop - PlayerSignedOut -> GameplayNotReady,
+    ///  PlayerAuthenticated -> GameplayReady - does not exist here; GameplayNotReady has no
+    ///  publisher in this template.)
     ///
     /// --- GAME START (user clicks Play) ---
     /// [Published] LevelSelectorShowRequested
@@ -60,23 +55,21 @@ namespace CrawfisSoftware.GameFlow.Events
     /// [TempleRun] PlayerActivateRequested -> PlayerActivating -> PlayerActivated
     ///
     /// --- GAMEPLAY LOOP (see TempleRunAutoEventFlow for gameplay events) ---
-    /// [TempleRun] TurnLeftRequested/TurnRightRequested -> TurnLeftEnding/TurnRightEnding
+    /// [TempleRun] TurnLeftRequested -> TurnLeftStarting -> TurnLeftStarted -> TurnLeftEnding -> TurnLeftEnded
+    ///             (and the same five rungs for TurnRight*)
     /// [TempleRun] TrackSegmentCreated, SplineSegmentCreated
     /// [TempleRun] ActiveTrackChanging -> CurrentSplineChanging -> TeleportStarted -> TeleportEnded -> CurrentSplineChanged
     /// [TempleRun] PlayerFailingAtTurn/AtObstacle -> PlayerFailing ... PlayerFailed
     ///             (the post-failure hitch; it has its own events and does NOT reuse pause)
     /// [TempleRun] PlayerDied
     ///
-    /// --- GAME END (triggered by PlayerDied in controller) ---
-    /// [Published] GameEnding
+    /// --- GAME END ---
+    /// [TempleRun] PlayerDied -> TempleRunEndRequested -> TempleRunEnding -> TempleRunEnded
+    /// [BRIDGE: TempleRun->GameFlow] TempleRunEnded -> GameEnding
     /// [AUTO] GameEnding -> GameScenesUnloadRequested
-    /// [BRIDGE: GameFlow->UGS] GameEnding -> ScoreUpdating
     /// [AUTO] GameScenesUnloadRequested -> GameScenesUnloading
-    /// [UGS] ScoreUpdated
-    /// [TempleRun] PlayerResume
-    /// [Published] GameScenesUnloaded
-    /// [Published] GameEnded
-    /// [BRIDGE: GameFlow->UGS] GameEnded -> LeaderboardOpening
+    /// [Published] GameScenesUnloaded            (UnloadNonActiveScenes)
+    /// [Published] GameEnded                     (GameFlowUIPanelController, after the overlay)
     ///
     /// --- POST-GAME -> BACK TO MAIN MENU (non-UGS) ---
     /// (In the UGS template this was a leaderboard/achievements/ad loop that ended in
@@ -87,9 +80,12 @@ namespace CrawfisSoftware.GameFlow.Events
     /// [Published] MainMenuShown
     ///
     /// --- QUIT ---
-    /// [Published] QuitRequested
-    /// [Published] Quitting
-    /// [Published] Quitted
+    /// [Published] QuitRequested                 (MainMenuController)
+    /// [Published] Quitting                      (UnloadNonActiveScenes on the boot scene's
+    ///                                            "Quitting" object, once every other scene is
+    ///                                            unloaded; QuitController quits the app on it)
+    /// (QuitCancelled and QuitCompleted are declared but unpublished, and
+    ///  QuitRequested -> Quitting is deliberately not chained - see the QUIT BRIDGE note below.)
     ///
     /// ========================================================================================
     /// </summary>
@@ -132,7 +128,7 @@ namespace CrawfisSoftware.GameFlow.Events
             // releases the player through the Countdown -> TempleRun bridge. No gameplay or
             // ceremony event decides GameStarted any more.
             (GameFlowEvents.GameStarting, GameFlowEvents.GameStarted),
-            // GameEnding: bridged from TempleRunEvents.TempleRunEnded by TempleRunGameFlowBridge
+            // GameEnding: bridged in from the TempleRun domain's run-ended event by TempleRunGameFlowBridge
             //             (GameEndRequested is declared but currently unpublished)
             // GameEnding -> GameEnded: Published after scenes unloaded
 

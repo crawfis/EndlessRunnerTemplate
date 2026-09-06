@@ -86,7 +86,7 @@ namespace CrawfisSoftware.TempleRun.Events
             // LANE CHANGE AUTO-CHAINS
             // ================================================================================
             // LaneChange*Requested -> LaneChanging* is NOT auto-chained. See the validation-gate
-            // note at the top of this dictionary: chaining it would walk the player past a lane
+            // note at the top of this table: chaining it would walk the player past a lane
             // boundary, or interrupt a change already in flight. LaneChangeController publishes
             // LaneChangingLeft/Right once its checks pass.
             // LaneChangingLeft -> LaneChangedLeft: Published by LaneOffsetController (after lerp completes)
@@ -96,7 +96,7 @@ namespace CrawfisSoftware.TempleRun.Events
             // SLIDE AUTO-CHAINS
             // ================================================================================
             // SlideRequested -> SlideStarting is NOT auto-chained. See the validation-gate note at
-            // the top of this dictionary: chaining it would fire SlideStarting even when
+            // the top of this table: chaining it would fire SlideStarting even when
             // SlideController rejects the request (already sliding, or still on cooldown).
             // SlideController publishes SlideStarting once its checks pass.
             // SlideStarting -> SlideStarted: Published by SlideArcController (at animation start)
@@ -122,7 +122,7 @@ namespace CrawfisSoftware.TempleRun.Events
             // JUMP AUTO-CHAINS
             // ================================================================================
             // JumpRequested -> JumpStarting is NOT auto-chained. See the validation-gate note at
-            // the top of this dictionary: chaining it would launch a second jump while one is
+            // the top of this table: chaining it would launch a second jump while one is
             // already in the air. JumpController publishes JumpStarting once its checks pass.
             // JumpStarting -> JumpStarted: Published by JumpArcController (at arc apex)
             // JumpStarting -> JumpStarted -> JumpEnding: published by JumpArcController as the arc

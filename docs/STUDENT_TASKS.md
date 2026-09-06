@@ -80,7 +80,7 @@ presentation running order. The tasks below are what those plans point at — tw
     durations, camera FOV/follow-lag across difficulty levels; document before/after and
     playtest results.
 
-14. **Cinemachine camera rig (M).** Cinemachine 3.1.7 ships as a dependency and is used
+14. **Cinemachine camera rig (M).** Cinemachine 6.6.0 ships as a dependency and is used
     *nowhere* — the camera is a plain child of the player. Build a real rig: separate cameras
     for running, jumping, dashing, turning and death, blended by state, with Impulse for
     landings and hits. Cinemachine 3.0 broke most of the 2.x API and most tutorials with it,

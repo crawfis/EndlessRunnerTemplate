@@ -1,5 +1,8 @@
 # Implementation Plan: Extension-Point Refactors
 
+**Status:** implemented — A, B and C all landed (`fa85967`, `709d4b1`, `9c8b0de`; merged as
+`5a819b1`, 2026-07-22). M4 / Phase C4 (movement by arc length) not started.
+
 A sequenced, **behaviour-preserving** plan to implement the three extension points from the
 specs:
 

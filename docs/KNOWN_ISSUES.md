@@ -6,7 +6,7 @@ know about them — plus, at the end, the architecture smells that *are* ours.
 ## Unity 6000.5: UIDocument → Panel Renderer migration — RESOLVED (migrated)
 
 **Status: resolved.** All UI is migrated from `UIDocument` to `PanelRenderer` (merged to `main`
-under Unity 6000.5.2f1; the project is now on 6000.5.7f1). The notes below are kept as the record of what bit us, so the pattern is not
+under Unity 6000.5.2f1; the project is now on 6000.6.0f1). The notes below are kept as the record of what bit us, so the pattern is not
 re-broken when adding panels. Reusable guide:
 [playbooks/uidocument-to-panel-renderer.md](playbooks/uidocument-to-panel-renderer.md);
 per-scene record: [Phase 3 checklist](specs/PANEL_RENDERER_PHASE3_CHECKLIST.md).
@@ -76,7 +76,9 @@ extracting the countdown into its own **Countdown** event domain (`CountdownEven
 - **#2** — The home was chosen: neither GameFlow nor TempleRun, but its own session-ceremony
   domain, recorded in the Domain Registry.
 - **#3** — Controller and UXML now live together: `CountdownController`,
-  `CountdownUIController`, and `Countdown.uxml` are all under `Assets/Countdown/`.
+  `CountdownUIController`, and `Countdown.uxml` are all under `Assets/Countdown/`. The other
+  asset the writeup names, GameFlow's `Gameplay/HUD.uxml`, was referenced by nothing (the
+  distance HUD is TempleRun's `TempleRunDistances.uxml`) and was deleted on 2026-09-06.
 
 The original writeup is kept below as course material — the smell, why it mattered, and why
 it was worth writing down before it was fixed. Read it as the "before" picture; the "after"

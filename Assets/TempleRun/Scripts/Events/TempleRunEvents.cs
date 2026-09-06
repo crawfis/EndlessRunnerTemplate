@@ -62,9 +62,10 @@ namespace CrawfisSoftware.TempleRun
         // gate and publishes Starting. TurnCommitController commits an Either junction and
         // publishes Started; the teleport onto the new spline is the turn's duration, and
         // TeleportController publishes Ending when it lands. Only Ending -> Ended is chained.
-        // Started carries the run-absolute distance the turn was committed at; the terminal rungs
-        // carry nothing. Ending used to forward the exit spline, which no subscriber read and
-        // which parked track vocabulary on a player event.
+        // Starting carries the run-absolute distance at which the gate let the turn through, and
+        // Started forwards it unchanged; the terminal rungs carry nothing. Ending used to forward
+        // the exit spline, which no subscriber read and which parked track vocabulary on a
+        // player event.
         // Renumbered from the old 50-56 layout, which had no *Started rungs and left the
         // terminal rungs stranded at 58/59. Safe because no TempleRunEvents member is
         // serialized in a scene or prefab - unlike GameFlowEvents, which is.
@@ -76,13 +77,17 @@ namespace CrawfisSoftware.TempleRun
         // published arrives here. They have no other publisher.
         [EventPayload(typeof(int))]  // Player id
         TurnLeftRequested = 50,
+        [EventPayload(typeof(float))]  // Run-absolute distance the turn was taken at
         TurnLeftStarting = 51,
+        [EventPayload(typeof(float))]  // Run-absolute distance the turn was taken at
         TurnLeftStarted = 52,
         TurnLeftEnding = 53,
         TurnLeftEnded = 54,
         [EventPayload(typeof(int))]  // Player id
         TurnRightRequested = 55,
+        [EventPayload(typeof(float))]  // Run-absolute distance the turn was taken at
         TurnRightStarting = 56,
+        [EventPayload(typeof(float))]  // Run-absolute distance the turn was taken at
         TurnRightStarted = 57,
         TurnRightEnding = 58,
         TurnRightEnded = 59,

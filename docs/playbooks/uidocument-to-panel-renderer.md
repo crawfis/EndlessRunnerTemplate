@@ -41,7 +41,7 @@ project in 6.5 may prompt or auto-migrate; doing it deliberately avoids surprise
 | `_doc.visualTreeAsset` | `_panel.visualTreeAsset` |
 | `_doc.sortingOrder` | (set via `panelSettings` / inspector) |
 | `gameObject.AddComponent<UIDocument>()` | `gameObject.AddComponent<PanelRenderer>()` |
-| show/hide via `rootVisualElement.style.display` | **`_panel.enabled = true/false`** (teardown/rebuild; re-caches on the next `UIReloaded`) |
+| show/hide via `rootVisualElement.style.display` | keep the `PanelRenderer` **enabled** and toggle `style.display` on the cached root — see Pattern 2 below (`_panel.enabled` teardown/rebuild is unreliable) |
 
 ### Callback registration
 

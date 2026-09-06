@@ -180,8 +180,6 @@ The running order is a suggestion; the right column is what should be covered.
 
 | Time | Block | Who | Must cover |
 |---|---|---|---|
-| Time | Block | Who | Must cover |
-|---|---|---|---|
 | 0:00–0:04 | **Where we were, where we are** (4m) | presenter 1 | last timebox's one sentence and whether you hit it; **play last timebox's episode** as the recap, then **play the new episode as this talk's teaser**; the before/after pair |
 | 0:04–0:16 | **What we implemented** (12m) | both | the technical block — see below. This is the bulk of the talk |
 | 0:16–0:25 | **Demo** (9m) | presenter 2 | the loop as it stands now, played end to end, driven by a presenter |
