@@ -56,7 +56,7 @@ namespace CrawfisSoftware.GameFlow.UI
 
         // Show/hide via the root's style.display; the PanelRenderer stays enabled at all times.
         // See the UUM-146174 note in MainMenuPanelController for why we avoid toggling enabled.
-        private void OnUIReload(PanelRenderer renderer, VisualElement root)
+        private void OnUIReload(PanelRenderer renderer, VisualElement root, int version)
         {
             _root = root;
             ApplyVisibility();

@@ -54,7 +54,7 @@ namespace CrawfisSoftware.Countdown.UI
         // Show/hide via the root's style.display; the PanelRenderer stays enabled at all times so
         // its tree is never torn down (avoids Unity bug UUM-146174). The callback re-caches the
         // label on every reload and re-applies the current visibility.
-        private void OnUIReload(PanelRenderer renderer, VisualElement root)
+        private void OnUIReload(PanelRenderer renderer, VisualElement root, int version)
         {
             _root = root;
             _countdownLabel = root.Q<Label>("Countdown");

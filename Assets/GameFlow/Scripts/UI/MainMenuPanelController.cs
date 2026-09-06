@@ -53,7 +53,7 @@ namespace CrawfisSoftware.GameFlow.UI
         // tree down, and Unity bug UUM-146174 means a later enable may not re-fire UIReloaded (blank
         // panel). Re-applying our own _visible state on every reload also avoids any race with when
         // the tree first arrives relative to a show/hide event.
-        private void OnUIReload(PanelRenderer renderer, VisualElement root)
+        private void OnUIReload(PanelRenderer renderer, VisualElement root, int version)
         {
             _root = root;
             ApplyVisibility();

@@ -69,13 +69,13 @@ namespace CrawfisSoftware.GameFlow.UI
             if (gameOverUI) gameOverUI.UnregisterUIReloadCallback(OnGameOverUIReload);
         }
 
-        private void OnLoadingUIReload(PanelRenderer renderer, VisualElement root)
+        private void OnLoadingUIReload(PanelRenderer renderer, VisualElement root, int version)
         {
             _loadingRoot = root;
             ApplyLoading();
         }
 
-        private void OnGameOverUIReload(PanelRenderer renderer, VisualElement root)
+        private void OnGameOverUIReload(PanelRenderer renderer, VisualElement root, int version)
         {
             _gameOverRoot = root;
             ApplyGameOver();
