@@ -1,8 +1,6 @@
 using CrawfisSoftware.TempleRun.Input;
 using CrawfisSoftware.Events;
 
-using System.Collections;
-
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UserInputBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.Events.UserInitiatedEvents>;
@@ -101,72 +99,75 @@ namespace CrawfisSoftware.TempleRun
         {
             _leftAction.Disable();
             UserInputBus.Publish(UserInitiatedEvents.UserLeftTurnRequested, this, PlayerNumber);
-            StartCoroutine(EnableAfterDelay(_leftAction));
+            _ = EnableAfterDelay(_leftAction);
         }
 
         private void RightAction_performed(InputAction.CallbackContext obj)
         {
             _rightAction.Disable();
             UserInputBus.Publish(UserInitiatedEvents.UserRightTurnRequested, this, PlayerNumber);
-            StartCoroutine(EnableAfterDelay(_rightAction));
+            _ = EnableAfterDelay(_rightAction);
         }
 
         private void LaneLeftAction_performed(InputAction.CallbackContext obj)
         {
             _laneLeftAction.Disable();
             UserInputBus.Publish(UserInitiatedEvents.UserLeftLaneChangeRequested, this, PlayerNumber);
-            StartCoroutine(EnableLaneAfterDelay(_laneLeftAction));
+            _ = EnableLaneAfterDelay(_laneLeftAction);
         }
 
         private void LaneRightAction_performed(InputAction.CallbackContext obj)
         {
             _laneRightAction.Disable();
             UserInputBus.Publish(UserInitiatedEvents.UserRightLaneChangeRequested, this, PlayerNumber);
-            StartCoroutine(EnableLaneAfterDelay(_laneRightAction));
+            _ = EnableLaneAfterDelay(_laneRightAction);
         }
 
         private void JumpAction_performed(InputAction.CallbackContext obj)
         {
             _jumpAction.Disable();
             UserInputBus.Publish(UserInitiatedEvents.UserJumpRequested, this, PlayerNumber);
-            StartCoroutine(EnableJumpAfterDelay(_jumpAction));
+            _ = EnableJumpAfterDelay(_jumpAction);
         }
 
         private void SlideAction_performed(InputAction.CallbackContext obj)
         {
             _slideAction.Disable();
             UserInputBus.Publish(UserInitiatedEvents.UserSlideRequested, this, PlayerNumber);
-            StartCoroutine(EnableAfterDelay(_slideAction));
+            _ = EnableAfterDelay(_slideAction);
         }
 
         private void DashAction_performed(InputAction.CallbackContext obj)
         {
             _dashAction.Disable();
             UserInputBus.Publish(UserInitiatedEvents.UserDashRequested, this, PlayerNumber);
-            StartCoroutine(EnableAfterDelay(_dashAction));
+            _ = EnableAfterDelay(_dashAction);
         }
 
-        private IEnumerator EnableAfterDelay(InputAction actionToEnable)
+        // Scaled waits, as before: a cooldown does not tick down while the game is paused.
+        // destroyCancellationToken is what stops a cooldown from calling Enable() on an
+        // InputAction that OnDestroy has already disposed.
+        private async Awaitable EnableAfterDelay(InputAction actionToEnable)
         {
-            yield return new WaitForSeconds(Blackboard.Instance.GameConfig.InputCoolDownForTurns);
+            await Awaitable.WaitForSecondsAsync(Blackboard.Instance.GameConfig.InputCoolDownForTurns, destroyCancellationToken);
             actionToEnable.Enable();
         }
 
-        private IEnumerator EnableLaneAfterDelay(InputAction actionToEnable)
+        private async Awaitable EnableLaneAfterDelay(InputAction actionToEnable)
         {
             float cooldown = Blackboard.Instance.LaneConfig != null
                 ? Blackboard.Instance.LaneConfig.LaneChangeCooldown
                 : 0.3f;
-            yield return new WaitForSeconds(cooldown);
+            await Awaitable.WaitForSecondsAsync(cooldown, destroyCancellationToken);
             actionToEnable.Enable();
         }
 
-        private IEnumerator EnableJumpAfterDelay(InputAction actionToEnable)
+        private async Awaitable EnableJumpAfterDelay(InputAction actionToEnable)
         {
             float cooldown = Blackboard.Instance.JumpConfig != null
                 ? Blackboard.Instance.JumpConfig.JumpCooldown
                 : 0.6f;
-            yield return new WaitForSeconds(cooldown);
+            await Awaitable.WaitForSecondsAsync(cooldown, destroyCancellationToken);
             actionToEnable.Enable();
         }
     }

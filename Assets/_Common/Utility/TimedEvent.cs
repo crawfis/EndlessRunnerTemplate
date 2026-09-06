@@ -1,7 +1,5 @@
 ﻿using CrawfisSoftware.Events;
 
-using System.Collections;
-
 using UnityEngine;
 
 namespace CrawfisSoftware.Utility
@@ -14,20 +12,19 @@ namespace CrawfisSoftware.Utility
 
         private void Start()
         {
-            StartCoroutine(FireEvent());
+            _ = FireEvent();
         }
-        private IEnumerator FireEvent()
+        private async Awaitable FireEvent()
         {
             if (_useRealtime)
             {
-                yield return new WaitForSecondsRealtime(_delayInSeconds);
+                await Wait.ForSecondsRealtime(_delayInSeconds, destroyCancellationToken);
             }
             else
             {
-                yield return new WaitForSeconds(_delayInSeconds);
+                await Awaitable.WaitForSecondsAsync(_delayInSeconds, destroyCancellationToken);
             }
-                EventsPublisher.Instance.PublishEvent(_eventName, this, null);
-            yield break;
+            EventsPublisher.Instance.PublishEvent(_eventName, this, null);
         }
     }
 }

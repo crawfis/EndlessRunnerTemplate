@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 using UnityEngine;
 using TempleRunBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.TempleRun.TempleRunEvents>;
@@ -119,14 +118,17 @@ namespace CrawfisSoftware.TempleRun
             if (_currentTrackID >= 0 && _spawnedTracks.TryGetValue(_currentTrackID, out var tracks))
             {
                 for (int i = 0; i < tracks.Count; i++)
-                    StartCoroutine(DeactivateCoroutine(tracks[i], _debugDestroyDelayTime));
+                    _ = DeactivateAfterDelay(tracks[i], _debugDestroyDelayTime);
                 _spawnedTracks.Remove(_currentTrackID);
             }
             _currentTrackID++;
         }
-        private IEnumerator DeactivateCoroutine(GameObject target, float delay)
+
+        // Cancellation (this spawner being destroyed) leaves the object alive, exactly as
+        // StopCoroutine did - the scene unload that destroyed the spawner destroys it too.
+        private async Awaitable DeactivateAfterDelay(GameObject target, float delay)
         {
-            yield return new WaitForSeconds(delay);
+            await Awaitable.WaitForSecondsAsync(delay, destroyCancellationToken);
             target?.SetActive(false);
             Destroy(target);
         }

@@ -1,8 +1,6 @@
 ﻿using CrawfisSoftware.TempleRun.Input;
 using CrawfisSoftware.Events;
 
-using System.Collections;
-
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UserInputBus = CrawfisSoftware.Events.EventsFor<CrawfisSoftware.Events.UserInitiatedEvents>;
@@ -106,33 +104,35 @@ namespace CrawfisSoftware.TempleRun
         {
             _swipePressed.Disable();
             UserInputBus.Publish(UserInitiatedEvents.UserLeftTurnRequested, this, PlayerNumber);
-            StartCoroutine(EnableAfterDelay(_swipePressed));
+            _ = EnableAfterDelay(_swipePressed);
         }
 
         private void RightAction_performed()
         {
             _swipePressed.Disable();
             UserInputBus.Publish(UserInitiatedEvents.UserRightTurnRequested, this, PlayerNumber);
-            StartCoroutine(EnableAfterDelay(_swipePressed));
+            _ = EnableAfterDelay(_swipePressed);
         }
 
         private void JumpAction_performed()
         {
             _swipePressed.Disable();
             UserInputBus.Publish(UserInitiatedEvents.UserJumpRequested, this, PlayerNumber);
-            StartCoroutine(EnableAfterDelay(_swipePressed));
+            _ = EnableAfterDelay(_swipePressed);
         }
 
         private void SlideAction_performed()
         {
             _swipePressed.Disable();
             UserInputBus.Publish(UserInitiatedEvents.UserSlideRequested, this, PlayerNumber);
-            StartCoroutine(EnableAfterDelay(_swipePressed));
+            _ = EnableAfterDelay(_swipePressed);
         }
 
-        private IEnumerator EnableAfterDelay(InputAction actionToEnable)
+        // Scaled wait, as before; destroyCancellationToken keeps a cooldown from touching a
+        // disposed InputAction - see MovementInputActions.
+        private async Awaitable EnableAfterDelay(InputAction actionToEnable)
         {
-            yield return new WaitForSeconds(Blackboard.Instance.GameConfig.InputCoolDownForTurns);
+            await Awaitable.WaitForSecondsAsync(Blackboard.Instance.GameConfig.InputCoolDownForTurns, destroyCancellationToken);
             actionToEnable.Enable();
         }
     }
