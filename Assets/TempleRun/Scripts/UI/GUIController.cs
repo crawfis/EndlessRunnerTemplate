@@ -38,7 +38,7 @@ namespace CrawfisSoftware.TempleRun
 
         // The PanelRenderer surfaces its visual tree only through this callback (it has no
         // root-tree property). Cache the HUD labels here; Update() guards until they arrive.
-        private void OnUIReload(PanelRenderer renderer, VisualElement root)
+        private void OnUIReload(PanelRenderer renderer, VisualElement root, int version)
         {
             _root = root;
             _leftDeathDistanceLabel = root.Q<Label>("_leftDeathDistance");

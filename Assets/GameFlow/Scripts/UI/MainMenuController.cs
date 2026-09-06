@@ -35,7 +35,7 @@ namespace CrawfisSoftware.GameFlow.UI
         // The PanelRenderer surfaces its visual tree only through this callback (it has no
         // root-tree property). It can fire again on LiveReload, so wiring is idempotent:
         // unhook before re-hooking.
-        private void OnUIReload(PanelRenderer renderer, VisualElement root)
+        private void OnUIReload(PanelRenderer renderer, VisualElement root, int version)
         {
             _root = root;
 

@@ -50,7 +50,7 @@ namespace CrawfisSoftware.GameFlow.UI
         // root-tree property). It can fire again on LiveReload, so wiring is idempotent.
         // We (re)populate here as well so cards exist even if the tree arrives after a
         // LevelSelectorShowing event (callback-timing safety).
-        private void OnUIReload(PanelRenderer renderer, VisualElement root)
+        private void OnUIReload(PanelRenderer renderer, VisualElement root, int version)
         {
             _root = root;
             _levelContainer = root.Q<VisualElement>("LevelContainer");
