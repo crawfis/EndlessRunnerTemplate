@@ -110,6 +110,7 @@ build, and choosing which tenth is the skill.**
 | **Risk register** — updated, with owners | producer or scrum master |
 | **Retro** — three actions, each with an owner and a date | scrum master |
 | **Tech debt log** — what you knowingly deferred, and why | tech lead |
+| **Team and roles slide** — every member's hat this timebox, presenters marked | deck owner + scrum master |
 | **Presentation, demo, printed 4-up handout, peer evaluations** | deck owner + presenters |
 
 ## Design wide: over-generate, then converge
@@ -252,8 +253,9 @@ the new repository:
   have. Which clause did you break most often? Fix the clause or fix the behavior, and say
   which in the presentation.
 - Carry the **retro actions** from Timebox 1. An action nobody checks is theatre.
-- **Rotate the hats.** New scrum master, new presenters, new demo owner. This timebox adds
-  three worth naming: a **build/CI owner**, a **playtest owner**, and an **AI lead**.
+- **Rotate the hats.** New scrum master, new demo owner, and two new presenters — both of them
+  people who have not presented yet. This timebox adds three hats worth naming: a **build/CI
+  owner**, a **playtest owner**, and an **AI lead**.
 
 Everything from Timebox 1 that was about *the runner* stays behind. Everything that was about
 *how you work* comes with you.
@@ -372,18 +374,35 @@ enough to find out.
 
 ## The presentation
 
-**Budget: 35–40 minutes plus about 25 minutes of questions**, as in Timebox 1. New presenters.
+**Budget: 35–40 minutes plus about 25 minutes of questions**, as in Timebox 1.
+
+**Two presenters carry the whole thing, and they are two people who did not present in
+Timebox 1.** They deliver every block, they drive the demo, and they answer every question —
+including questions about systems they did not build. Each hat owns its material and briefs
+the presenters beforehand, but nobody else takes the mic. Keep sending up two people who
+have not presented yet, every timebox, until the whole team has — everyone should be at the
+mic once or twice over the semester.
+
+**The presenters introduce themselves; a roles slide accounts for everyone else.** The
+whole-team stand-up round ends with Timebox 1: from here on the two presenters give their
+own names and what they owned this timebox, and the slide behind them is the **team and
+roles slide** — every member with the hat they wore *this* timebox, the two presenters
+marked on it. Two minutes, and the room knows who did what and who it is hearing from,
+without the whole team standing up. Rebuild that slide each timebox instead of reusing
+Timebox 1's: the hats moved, and the slide is the record of the rotation.
+
 The running order is a suggestion; the right column is what should be covered.
 
 | Time | Block | Who | Must cover |
 |---|---|---|---|
-| 0:00–0:02 | The sprint goal | presenter 1 | the one sentence, and whether you hit it — say it plainly either way |
-| 0:02–0:10 | **Design wide → design chosen** (8m) | design owner | the funnel: how many stories you generated, how many made MVP, what you cut and why; the "not this game" list; the pillars the survivors serve |
-| 0:10–0:17 | **Systems and separation** (7m) | tech lead | the systems map, the seams and the forbidden pairs, the replace test, and what the Stretch 2 pressure test told you |
-| 0:17–0:26 | **The greybox demo** (9m) | demo owner | the core loop, played end to end, by a human, live or recorded |
-| 0:26–0:31 | Process and engineering (5m) | scrum master | estimates vs. actuals, velocity, scope cuts, risk register, Definition of Done, review turnaround, tests and the build check |
-| 0:31–0:36 | Agentic engineering (5m) | AI lead | AI in the design half and in the build half, the contract, the skill you wrote, the run log, and the honest verdict |
-| 0:36–0:40 | Playtest and next timebox (4m) | presenter 2 | what testers actually did, the change you shipped because of it, the next goal and its risks |
+| 0:00–0:02 | **Presenters and the team** (2m) | both | each presenter: name and the hat they wore this timebox; then the **team and roles slide** — everyone's hat this timebox, presenters marked |
+| 0:02–0:04 | The sprint goal | presenter 1 | the one sentence, and whether you hit it — say it plainly either way |
+| 0:04–0:12 | **Design wide → design chosen** (8m) | presenter 1 | the funnel: how many stories you generated, how many made MVP, what you cut and why; the "not this game" list; the pillars the survivors serve |
+| 0:12–0:19 | **Systems and separation** (7m) | presenter 2 | the systems map, the seams and the forbidden pairs, the replace test, and what the Stretch 2 pressure test told you |
+| 0:19–0:28 | **The greybox demo** (9m) | presenter 2 | the core loop, played end to end, by a human, live or recorded |
+| 0:28–0:33 | Process and engineering (5m) | presenter 1 | estimates vs. actuals, velocity, scope cuts, risk register, Definition of Done, review turnaround, tests and the build check |
+| 0:33–0:38 | Agentic engineering (5m) | presenter 1 | AI in the design half and in the build half, the contract, the skill you wrote, the run log, and the honest verdict |
+| 0:38–0:42 | Playtest and next timebox (4m) | presenter 2 | what testers actually did, the change you shipped because of it, the next goal and its risks |
 
 **Demo the loop, not the features.** A tour of six systems that never connect is the classic
 failure here. One continuous play session that a stranger could follow beats six disconnected
@@ -403,7 +422,10 @@ is a better slide than any list, and it is the clearest evidence that your team 
 - Three Stretch 2 stories walked through the systems map before the freeze.
 - An actual recorded time spent next to every estimate.
 - The `.github/` config, standards, and AI policy copied into the new repo on day one.
-- Hats rotated — new scrum master, new presenters, new demo owner, plus build/CI, playtest, AI lead.
+- Hats rotated — new scrum master, new demo owner, two presenters who have not presented
+  before, plus build/CI, playtest, AI lead.
+- The team and roles slide, rebuilt for this timebox's hats, with the presenters marked — and
+  the presenters introducing themselves before the sprint goal.
 - Three outside playtesters, and the one change you made because of them.
 - The retro's three actions, each with a name and a date on it.
 - The freeze, the tag, and a build that runs from a fresh clone on someone else's machine.

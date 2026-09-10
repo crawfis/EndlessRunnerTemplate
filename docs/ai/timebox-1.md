@@ -78,7 +78,7 @@ one.
 |----|----|----|
 | **Scrum master** | standups, the board, the deadline calendar, unblocking (clearing whatever is stopping someone from finishing — a missing decision, a stalled review, whoever has the asset — by routing it, not ruling on it), the retro (the end-of-timebox look back, which from Timebox 2 on produces three actions with owners and dates). The process owner, not the decision maker | every timebox |
 | **Deck owner** | assembles the deck from everyone's artifacts, owns the menu and game flow charts, prints the 4-up copy, uploads it after class | every timebox |
-| **Presenter ×2** | carry the deck after the whole-team intros; able to answer on any slide, not just their own | every timebox |
+| **Presenter ×2** | deliver every block after the whole-team intros, the demo included; briefed by each hat on its material, and able to answer on any slide, not just their own | every timebox |
 | **Demo & video owner** | cuts the build, records the run, owns the fallback video and the machine it plays from | every timebox |
 | **Integrator** | the repository: setup, branch protection, large-file storage, the freeze and the tag, and the fresh-clone check that it still plays | rarely |
 | **Tech lead** | architecture doc, coding standards, the AI policy and audit, and sign-off on every third-party import | rarely |
@@ -196,7 +196,8 @@ a document; a charter answered together is an agreement.
   to ask "what is everyone working on?"
 - **Seeking help.** Name the path: teammate first, then the team channel, then the instructor.
   A student stuck for three days in silence is a process failure, not a personal one.
-- **First presenters.** Pick them now; they rotate every timebox.
+- **First presenters.** Pick two now. Two *different* teammates present each timebox, so track
+  who has gone — across the semester that works out to once or twice at the mic each.
 - **Bios.** One slide each: what aspects of game *programming* interest you.
 - **S.M.A.R.T. goals** at three levels: individual, team, and project. Specific, Measurable,
   Achievable, Relevant, Time-bound — see the
@@ -508,8 +509,14 @@ Optimize for what each person *learns* and for what the team can demo, not for w
 
 **Budget: 35–40 minutes of presentation plus about 25 minutes of questions and discussion.**
 Thirty-five is a floor, not a ceiling — larger teams should plan on longer, and any team may
-run longer when it has more to show. Everyone introduces themselves; then **two presenters**
-carry the deck, with hand-offs for the demo and the AI block.
+run longer when it has more to show.
+
+**The whole team introduces itself; then everyone but the two presenters sits down.**
+Those two deliver every remaining block — logistics, vision, the demo, the architecture,
+the AI story, the metrics — and field every question, including questions about work they
+did not do themselves. Each hat still owns its material and briefs the presenter who will
+deliver it, but nobody else takes the mic. Being briefed on a system you did not build and
+having to explain it out loud is how a team comes to understand its own project.
 
 The running order is a suggestion; the right-hand column is what the pitch has to cover
 somewhere. Rehearse it once with a timer so you know which blocks are really five minutes and
@@ -518,12 +525,18 @@ which are two.
 | Time | Block | Who | Must cover |
 |----|----|----|----|
 | 0:00–0:03 | Team intros | everyone, ~25 s each | name, which part of game programming you want, one thing about your machine |
-| 0:03–0:08 | **Studio logistics** (5m) | presenter 1 | studio name, logo, mission; the charter — core hours, conflict resolution, communication agreements, broken-build rule; who wears which hat |
+| 0:03–0:08 | **Studio logistics** (5m) | presenter 1 | studio name, logo, mission; the charter — core hours, conflict resolution, communication agreements, broken-build rule; the **team and roles slide** — every member and the hat they wear this timebox, with the two presenters marked |
 | 0:08–0:18 | **Core vision** (10m) | presenter 1 | the hook, the pillars, target audience, the gameplay loop, brand and art-direction boards, MVP versus stretch \#1/#2 |
-| 0:18–0:25 | **Pipeline validation** (7m) | demo & video owner | the repo, PR history, branch protection, the freeze tag — then the runner itself: menu, language switch, each member's features, the credits screen |
+| 0:18–0:25 | **Pipeline validation** (7m) | presenter 2 | the repo, PR history, branch protection, the freeze tag — then the runner itself: menu, language switch, each member's features, the credits screen |
 | 0:25–0:30 | **Technical architecture** (5m) | presenter 2 | systems/UML diagram, event domains and where UI is decoupled, ScriptableObject data, menu and game flow charts, keyboard *and* gamepad mappings (justify skipping the gamepad) |
-| 0:30–0:34 | **AI approach and policy** (4m) | tech lead | the four roles and what each produced, the team policy, how AI code is reviewed, the code audit before/after, one thing it got wrong |
-| 0:34–0:42 | **Production metrics** (8m) | scrum master | backlog math against the hour budget, commits and lines of code as of the freeze tag, review turnaround, scrum cadence, S.M.A.R.T. goals for Sprint 2, risk assessment, and the art/audio resources you want the class's help finding |
+| 0:30–0:34 | **AI approach and policy** (4m) | presenter 1 | the four roles and what each produced, the team policy, how AI code is reviewed, the code audit before/after, one thing it got wrong |
+| 0:34–0:42 | **Production metrics** (8m) | presenter 2 | backlog math against the hour budget, commits and lines of code as of the freeze tag, review turnaround, scrum cadence, S.M.A.R.T. goals for Sprint 2, risk assessment, and the art/audio resources you want the class's help finding |
+
+**The hats brief; the presenters speak.** The demo & video owner still cuts the build and
+owns the fallback video, the tech lead still owns the audit, the scrum master still owns
+the metrics — and each of them hands a presenter the two-minute version plus the backup
+slides. If a hat ends up at the front of the room delivering its own block, the rotation
+has broken.
 
 **Scaling.** Intros run about 25 seconds a person, so a nine-person team spends four minutes
 there. Add that to the total rather than squeezing the demo — a bigger team has more work to
@@ -567,7 +580,9 @@ Five rules make these work:
 - **Presenters are not the deck owner** (teams of 6+). Whoever assembles the slides has already
   internalized them; make a second person able to explain them out loud.
 - **Everyone rotates.** Presenter, scrum master, and demo owner rotate every timebox — track
-  who has served, so the last timebox isn't four people's first turn at once.
+  who has served, so the last timebox isn't four people's first turn at once. Presenting is the
+  one hat everybody wears: two people who have not presented yet go each timebox, until the
+  whole team has, which lands at once or twice each over the semester.
 - **Anything tagged M or L in the catalog is a spike, not a feature.** Nobody has a week of
   build time this timebox, so the deliverable is a written one — a one-page teardown, an event
   map, and an estimated task breakdown Timebox 2 can build from — not a half-finished system.
@@ -649,8 +664,9 @@ makes that possible, since pods publish and subscribe rather than calling each o
   explorer pivot), or **N1** (split-screen), and deliver it as a written design plus event map
   plus task breakdown. That document is what the other eight build against in Timebox 2 — a far
   better slide than three more S tasks.
-- **Presenters: one per pod**, so the deck is defended by the people who built the thing. The
-  deck owner never presents at this size.
+- **Presenters: still two, one from each build pod**, so the deck is defended by the people who
+  built the thing, with production briefing them on the process and metrics blocks. The deck
+  owner never presents at this size.
 - **Reviews: two approvals** — your pod lead, plus one person from the other pod. The cross-pod
   reviewer is not a formality; they are the one who notices when your pod reaches across the
   domain boundary instead of publishing an event.

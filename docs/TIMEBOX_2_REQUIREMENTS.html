@@ -206,6 +206,10 @@ plan to              = build hours × 0.7      &lt;-- the number your sprint may
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">tech lead</td>
 </tr>
 <tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Team and roles slide</strong> — every member's hat this timebox, presenters marked</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">deck owner + scrum master</td>
+</tr>
+<tr>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Presentation, demo, printed 4-up handout, peer evaluations</strong></td>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">deck owner + presenters</td>
 </tr>
@@ -262,7 +266,7 @@ plan to              = build hours × 0.7      &lt;-- the number your sprint may
 <p>The story list is not just a plan — it is the pressure test for your architecture. This is the most transferable thing in the whole timebox: <strong>the shape of your systems is decided now, cheaply, on paper, or later, expensively, in code.</strong></p>
 <p><strong>1. Name the systems, not the classes.</strong> A system is a responsibility — scoring, progression, spawning, input, save/load, audio, UI presentation. Ten to twenty is normal. Group your stories under them; a story that fits under none is telling you about a system you have not named.</p>
 <p><strong>2. For each system, write three lines:</strong> what it owns, what it needs to know, and <strong>what it must never know</strong>. The third line is the one that does the work. "Scoring must never know what a player is" is a design decision with teeth.</p>
-<p><strong>3. Draw the seams.</strong> Which systems talk, in which direction, and by what means — a call, an event, a shared data asset. Then mark the pairs that are <strong>forbidden</strong> from talking directly. Those forbidden pairs are your architecture; everything else is arrangement. The runner template makes the same choice explicitly: three event domains, no cross-domain references except in one bridge file, so gameplay can be rewritten without touching UI. It could and should be split into many more systems (i.e., event Enums).</p>
+<p><strong>3. Draw the seams.</strong> Which systems talk, in which direction, and by what means — a call, an event, a shared data asset. Then mark the pairs that are <strong>forbidden</strong> from talking directly. Those forbidden pairs are your architecture; everything else is arrangement. The runner template makes the same choice explicitly: four event domains, no cross-domain references except in one bridge file, so gameplay can be rewritten without touching UI. It could and should be split into many more systems (i.e., event Enums).</p>
 <p><strong>4. Apply the replace test.</strong> Name one system you could delete tonight and rewrite tomorrow without touching any other. If you cannot name one, you have drawn a diagram, not a separation.</p>
 <p><strong>5. Decide what is data, not code.</strong> Which numbers belong in ScriptableObjects or config files so they can be tuned without a rebuild — and, later, by someone who is not a programmer. Anything you expect to playtest and change belongs here.</p>
 <p><strong>6. Pressure-test against what you are not building.</strong> Take three stories from <strong>Stretch 2</strong> — features you have deliberately deferred — and walk them through your systems map. Which seams hold? Which one would force you to edit five systems? That is the whole payoff of over-designing: an architecture validated against features that do not exist yet, while changing it is still free.</p>
@@ -285,7 +289,7 @@ plan to              = build hours × 0.7      &lt;-- the number your sprint may
 <li>Copy the coding standards, the technical standards doc, and the AI policy.</li>
 <li>Re-read the <strong>charter</strong>. It was written by people who had never worked together. Now you have. Which clause did you break most often? Fix the clause or fix the behavior, and say which in the presentation.</li>
 <li>Carry the <strong>retro actions</strong> from Timebox 1. An action nobody checks is theatre.</li>
-<li><strong>Rotate the hats.</strong> New scrum master, new presenters, new demo owner. This timebox adds three worth naming: a <strong>build/CI owner</strong>, a <strong>playtest owner</strong>, and an <strong>AI lead</strong>.</li>
+<li><strong>Rotate the hats.</strong> New scrum master, new demo owner, and two new presenters — both of them people who have not presented yet. This timebox adds three hats worth naming: a <strong>build/CI owner</strong>, a <strong>playtest owner</strong>, and an <strong>AI lead</strong>.</li>
 </ul>
 <p>Everything from Timebox 1 that was about <em>the runner</em> stays behind. Everything that was about <em>how you work</em> comes with you.</p>
 <h2 id="running-the-sprint">Running the sprint</h2>
@@ -325,7 +329,10 @@ plan to              = build hours × 0.7      &lt;-- the number your sprint may
 <li><strong>Ship one change because of it</strong>, and name that change in the presentation. That single slide — "they all did X, so we changed Y" — is the most convincing evidence in your deck that you are building a game rather than a program.</li>
 </ul>
 <h2 id="the-presentation">The presentation</h2>
-<p><strong>Budget: 35–40 minutes plus about 25 minutes of questions</strong>, as in Timebox 1. New presenters. The running order is a suggestion; the right column is what should be covered.</p>
+<p><strong>Budget: 35–40 minutes plus about 25 minutes of questions</strong>, as in Timebox 1.</p>
+<p><strong>Two presenters carry the whole thing, and they are two people who did not present in Timebox 1.</strong> They deliver every block, they drive the demo, and they answer every question — including questions about systems they did not build. Each hat owns its material and briefs the presenters beforehand, but nobody else takes the mic. Keep sending up two people who have not presented yet, every timebox, until the whole team has — everyone should be at the mic once or twice over the semester.</p>
+<p><strong>The presenters introduce themselves; a roles slide accounts for everyone else.</strong> The whole-team stand-up round ends with Timebox 1: from here on the two presenters give their own names and what they owned this timebox, and the slide behind them is the <strong>team and roles slide</strong> — every member with the hat they wore <em>this</em> timebox, the two presenters marked on it. Two minutes, and the room knows who did what and who it is hearing from, without the whole team standing up. Rebuild that slide each timebox instead of reusing Timebox 1's: the hats moved, and the slide is the record of the rotation.</p>
+<p>The running order is a suggestion; the right column is what should be covered.</p>
 <table style="border-collapse:collapse;width:100%;margin:1em 0;">
 <thead>
 <tr>
@@ -338,42 +345,48 @@ plan to              = build hours × 0.7      &lt;-- the number your sprint may
 <tbody>
 <tr>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">0:00–0:02</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Presenters and the team</strong> (2m)</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">both</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">each presenter: name and the hat they wore this timebox; then the <strong>team and roles slide</strong> — everyone's hat this timebox, presenters marked</td>
+</tr>
+<tr>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">0:02–0:04</td>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">The sprint goal</td>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">presenter 1</td>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">the one sentence, and whether you hit it — say it plainly either way</td>
 </tr>
 <tr>
-<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">0:02–0:10</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">0:04–0:12</td>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Design wide → design chosen</strong> (8m)</td>
-<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">design owner</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">presenter 1</td>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">the funnel: how many stories you generated, how many made MVP, what you cut and why; the "not this game" list; the pillars the survivors serve</td>
 </tr>
 <tr>
-<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">0:10–0:17</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">0:12–0:19</td>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>Systems and separation</strong> (7m)</td>
-<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">tech lead</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">presenter 2</td>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">the systems map, the seams and the forbidden pairs, the replace test, and what the Stretch 2 pressure test told you</td>
 </tr>
 <tr>
-<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">0:17–0:26</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">0:19–0:28</td>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;"><strong>The greybox demo</strong> (9m)</td>
-<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">demo owner</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">presenter 2</td>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">the core loop, played end to end, by a human, live or recorded</td>
 </tr>
 <tr>
-<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">0:26–0:31</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">0:28–0:33</td>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Process and engineering (5m)</td>
-<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">scrum master</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">presenter 1</td>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">estimates vs. actuals, velocity, scope cuts, risk register, Definition of Done, review turnaround, tests and the build check</td>
 </tr>
 <tr>
-<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">0:31–0:36</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">0:33–0:38</td>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Agentic engineering (5m)</td>
-<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">AI lead</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">presenter 1</td>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">AI in the design half and in the build half, the contract, the skill you wrote, the run log, and the honest verdict</td>
 </tr>
 <tr>
-<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">0:36–0:40</td>
+<td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">0:38–0:42</td>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">Playtest and next timebox (4m)</td>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">presenter 2</td>
 <td style="border:1px solid #c7cdd1;padding:6px 10px;vertical-align:top;">what testers actually did, the change you shipped because of it, the next goal and its risks</td>
@@ -392,7 +405,8 @@ plan to              = build hours × 0.7      &lt;-- the number your sprint may
 <li>Three Stretch 2 stories walked through the systems map before the freeze.</li>
 <li>An actual recorded time spent next to every estimate.</li>
 <li>The <code>.github/</code> config, standards, and AI policy copied into the new repo on day one.</li>
-<li>Hats rotated — new scrum master, new presenters, new demo owner, plus build/CI, playtest, AI lead.</li>
+<li>Hats rotated — new scrum master, new demo owner, two presenters who have not presented before, plus build/CI, playtest, AI lead.</li>
+<li>The team and roles slide, rebuilt for this timebox's hats, with the presenters marked — and the presenters introducing themselves before the sprint goal.</li>
 <li>Three outside playtesters, and the one change you made because of them.</li>
 <li>The retro's three actions, each with a name and a date on it.</li>
 <li>The freeze, the tag, and a build that runs from a fresh clone on someone else's machine.</li>

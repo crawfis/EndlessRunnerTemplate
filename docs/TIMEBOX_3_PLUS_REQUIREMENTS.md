@@ -62,6 +62,7 @@ hours per timebox, for one person**. If they cost more, cut them, not the sprint
 | **Systems map** — updated where reality diverged from it | tech lead |
 | **Agent run log**, and any change to the contract | AI lead |
 | **Retro** — three actions with owners and dates; last timebox's actions reviewed | scrum master |
+| **Team and roles slide** — every member's hat this timebox, presenters marked | deck owner + scrum master |
 | **Presentation, printed 4-up handout, peer evaluations** | deck owner + presenters |
 
 ## Design, now that you have a backlog
@@ -167,26 +168,36 @@ Compressed from Timebox 2; the mechanics are unchanged.
 
 ## The presentation
 
-**35–40 minutes plus about 25 minutes of questions.** New presenters each time.
+**35–40 minutes plus about 25 minutes of questions.** Two new presenters each time.
 
 **Two presenters carry the whole thing.** They deliver every block, they drive the demo, and
 they answer every question — including questions about systems they did not build. They are
-presenting *as* the team, not introducing it. Each hat still owns its material and briefs the
-presenters beforehand; nobody else takes the mic. This is deliberate: preparing to explain
-someone else's system is how the team ends up understanding its own project, and it is why the
-presenters rotate every timebox.
+presenting *as* the team rather than introducing it member by member. Each hat still owns its material and briefs
+the presenters beforehand; nobody else takes the mic. This is deliberate: preparing to
+explain someone else's system is how the team ends up understanding its own project, and it
+is why the presenters rotate every timebox. Two people who have not presented yet take it
+each time, until the whole team has; on most team sizes that comes round twice, so everyone
+presents once or twice across the semester.
+
+**The two of them introduce themselves, and a roles slide accounts for everyone else.**
+Names and what each owned this timebox, no more — then the **team and roles slide**: every
+member with the hat they wore *this* timebox, the two presenters marked on it. Rebuild it
+every timebox instead of carrying the last one forward; the hats moved, and that slide is
+the running record of the rotation — which is also how the class, and the instructor, can
+see that everyone has taken a turn.
 
 The running order is a suggestion; the right column is what should be covered.
 
 | Time | Block | Who | Must cover |
 |---|---|---|---|
-| 0:00–0:04 | **Where we were, where we are** (4m) | presenter 1 | last timebox's one sentence and whether you hit it; **play last timebox's episode** as the recap, then **play the new episode as this talk's teaser**; the before/after pair |
-| 0:04–0:16 | **What we implemented** (12m) | both | the technical block — see below. This is the bulk of the talk |
-| 0:16–0:25 | **Demo** (9m) | presenter 2 | the loop as it stands now, played end to end, driven by a presenter |
-| 0:25–0:29 | Design and playtest (4m) | presenter 1 | what testers did, what you changed because of it, how the backlog was re-ranked, what you cut |
-| 0:29–0:34 | **Process and metrics** (5m) | presenter 2 | the numbers — see below — plus velocity trend, estimates vs. actuals, the scope you cut, and the top risks |
-| 0:34–0:37 | Agentic engineering (3m) | presenter 1 | the run log in one slide, what changed in the agent contract, what you stopped letting it do |
-| 0:37–0:40 | Next timebox and risks (3m) | presenter 2 | the next one-sentence goal, the top three risks, and what you need from the class |
+| 0:00–0:02 | **Presenters and the team** (2m) | both | each presenter: name and the hat they wore this timebox; then the **team and roles slide** — everyone's hat this timebox, presenters marked |
+| 0:02–0:06 | **Where we were, where we are** (4m) | presenter 1 | last timebox's one sentence and whether you hit it; **play last timebox's episode** as the recap, then **play the new episode as this talk's teaser**; the before/after pair |
+| 0:06–0:18 | **What we implemented** (12m) | both | the technical block — see below. This is the bulk of the talk |
+| 0:18–0:27 | **Demo** (9m) | presenter 2 | the loop as it stands now, played end to end, driven by a presenter |
+| 0:27–0:31 | Design and playtest (4m) | presenter 1 | what testers did, what you changed because of it, how the backlog was re-ranked, what you cut |
+| 0:31–0:36 | **Process and metrics** (5m) | presenter 2 | the numbers — see below — plus velocity trend, estimates vs. actuals, the scope you cut, and the top risks |
+| 0:36–0:39 | Agentic engineering (3m) | presenter 1 | the run log in one slide, what changed in the agent contract, what you stopped letting it do |
+| 0:39–0:42 | Next timebox and risks (3m) | presenter 2 | the next one-sentence goal, the top three risks, and what you need from the class |
 
 **Both videos open the talk.** Last timebox's episode is the recap; the new one is the teaser
 that sets up everything the next thirty minutes explains. Two minutes total, and the room knows
@@ -243,6 +254,8 @@ disconnected clips — every single timebox.
 - The tag, and a build someone else actually ran.
 - The video diary, cut and posted.
 - **Both** episodes queued and ready — last timebox's as the recap, the new one as the teaser.
+- The team and roles slide, rebuilt for this timebox's hats, with the presenters marked — and
+  the presenters introducing themselves before anything else.
 - The living pitch, rewritten — not copied from last time.
 - Last timebox's three retro actions, reviewed out loud before new ones are written.
 - Printed 4-up handout and peer evaluations, before class.
