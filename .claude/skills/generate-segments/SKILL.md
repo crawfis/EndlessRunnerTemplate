@@ -1,7 +1,7 @@
 ---
 name: generate-segments
 description: Generate track segment ScriptableObject assets (TrackSegmentSO) and register them in the TrackSegmentRegistrySO. Prompt-driven creation of segments by direction, length range, difficulty range, and tags.
-allowed-tools: Read, Write, Edit, Grep, Glob
+allowed-tools: Bash, Read, Write, Edit, Grep, Glob
 argument-hint: <description> (e.g., "20 easy left-turns, lengths 8-20")
 ---
 
@@ -12,11 +12,24 @@ Generate new track segment definitions as **ScriptableObject assets** and add th
 segment, gathered into the registry (see [docs/TRACKS.md](../../../docs/TRACKS.md#the-data-model)).
 
 Assets live in:
-- Segments: `Assets/TempleRun/Scriptables/Track/Segments/<Id>.asset` (+ `.meta`)
+- Segments: `Assets/TempleRun/Scriptables/Track/Segments/<Id>.asset`
 - Registry: `Assets/TempleRun/Scriptables/Track/TrackSegmentRegistry.asset`
 
-> These assets are created by the one-shot `CrawfisSoftware > Track > Import JSON -> ScriptableObjects`
-> importer. If they don't exist yet, run that importer first (or say so and stop).
+**Unity creates these assets, not you.** This skill drives the running Editor through the Unity
+CLI, so Unity mints the GUIDs, writes the YAML, and keeps the field layout correct. Never
+hand-write a `.asset` or `.meta` for a segment — that is how GUID collisions and silent field
+drift got introduced before.
+
+## Prerequisites
+
+A running Editor with `com.unity.pipeline` installed:
+
+```bash
+unity pipeline list
+```
+
+`Server Reachable` must be `true` for this project. If it isn't, see the prerequisites section of
+[verify-unity](../verify-unity/SKILL.md) and stop — do not fall back to hand-written YAML.
 
 ## Arguments
 
@@ -29,14 +42,21 @@ Assets live in:
 
 ### Step 1: Read the current pool
 
-- `Glob` `Assets/TempleRun/Scriptables/Track/Segments/*.asset` and read a few to learn the field
-  layout, `Id` naming pattern (`left_28`, `right_12`, ...), tags in use, and existing ids (to avoid
-  collisions).
-- Read `Assets/TempleRun/Scriptables/Track/TrackSegmentRegistry.asset` — you will append the new
-  segments to its `Segments` list.
-- Read `Assets/TempleRun/Scripts/Track/TrackSegmentSO.cs.meta` and confirm the script guid is
-  `8e4fd9825d0d99bd8f035cdcc48f65f0` (used in every generated `.asset`). If it differs, use the
-  value from the `.meta`.
+List the existing segments so you can match the id naming pattern and avoid collisions:
+
+```bash
+unity cmd find_assets --type TrackSegmentSO --limit 500 --no-banner --result-only
+```
+
+Read one to learn the current field layout and the tags in use, and read the registry you will
+append to:
+
+```bash
+unity cmd get_serialized_fields --target "Assets/TempleRun/Scriptables/Track/Segments/<some>.asset" --no-banner --result-only
+unity cmd get_serialized_fields --target "Assets/TempleRun/Scriptables/Track/TrackSegmentRegistry.asset" --no-banner --result-only
+```
+
+Note the registry's `Segments` `arrayLength` — new entries append **after** it.
 
 ### Step 2: Parse the user request
 
@@ -65,8 +85,8 @@ length. `Normalize` fills the rest (`TurnFailureDistance`, `TeleportDistance`) a
 
 Do **not** set `TurnFailureDistance` or `TeleportDistance` — leave them 0 so `Normalize` derives them.
 
-**Direction enum value** (written as an int in YAML): `Left = 0`, `Right = 1`, `Straight = 2`,
-`Either = 3`.
+**Direction enum value** (pass the int; Unity resolves it to the enum): `Left = 0`, `Right = 1`,
+`Straight = 2`, `Either = 3`.
 
 ### Step 4: Distribute & tag
 
@@ -77,96 +97,136 @@ Do **not** set `TurnFailureDistance` or `TeleportDistance` — leave them 0 so `
 - **Tags**: 0–2 beginner · 2–4 easy · 4–6 medium · 6–8 hard · 8–10 expert (or the user's tags).
 - **MaxRepeat**: beginner/easy 2 · medium 3 · hard/expert 4.
 
-### Step 5: Write one asset per segment
+### Step 5: Create each asset
 
-For each segment, `Write` `Assets/TempleRun/Scriptables/Track/Segments/<Id>.asset` with LF line
-endings (Unity writes its YAML with LF on every platform, and `.gitattributes` pins `*.asset` /
-`*.meta` to `eol=lf`):
+For each segment, create it and set its fields. The path passed to `create_asset` is relative to
+the authoring root (`Assets`); every other command takes the full `Assets/...` path.
 
-```yaml
-%YAML 1.1
-%TAG !u! tag:unity3d.com,2011:
---- !u!114 &11400000
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8e4fd9825d0d99bd8f035cdcc48f65f0, type: 3}
-  m_Name: left_18
-  m_EditorClassIdentifier: Assembly-CSharp::CrawfisSoftware.TempleRun.TrackSegmentSO
-  Id: left_18
-  Direction: 0
-  Weight: 1
-  MaxRepeat: 2
-  DifficultyRating: 3
-  Tags:
-  - easy
-  ToPivotDistance: 17
-  ExitDistance: 1
-  TeleportDistance: 0
-  TurnFailureDistance: 0
-  TurnRadius: 0
-  Role: Normal
-  SpeedMultiplier: 1
-  BlockedLanes: []
-  LaneHeights: []
-  ActiveLanes: []
-  SpawnMode: Procedural
-  SpawnSlots: []
-  VisualTheme:
-  SpawnSeed: 0
+```bash
+unity cmd create_asset \
+  --path "TempleRun/Scriptables/Track/Segments/left_18.asset" \
+  --type "CrawfisSoftware.TempleRun.TrackSegmentSO" \
+  --confirm true --no-banner --result-only
 ```
 
-And `Write` its `.meta` at `<Id>.asset.meta` with a **unique** 32-hex guid (generate a distinct
-random-looking hex string per asset; `Grep` the guid across `Assets/` to confirm it's unused):
+`create_asset` returns the GUID Unity minted — you never invent one:
 
-```yaml
-fileFormatVersion: 2
-guid: <32-hex-unique>
-NativeFormatImporter:
-  externalObjects: {}
-  mainObjectFileID: 11400000
-  userData:
-  assetBundleName:
-  assetBundleVariant:
+```json
+{ "assetPath": "Assets/.../left_18.asset", "guid": "6c7b2951...", "fileId": 11400000 }
 ```
+
+Then set the fields, using the full asset path as `--target`:
+
+```bash
+SEG="Assets/TempleRun/Scriptables/Track/Segments/left_18.asset"
+
+unity cmd set_serialized_field --target "$SEG" --field Id               --value "left_18" --no-banner --result-only
+unity cmd set_serialized_field --target "$SEG" --field Direction        --value 0         --no-banner --result-only
+unity cmd set_serialized_field --target "$SEG" --field ToPivotDistance  --value 17        --no-banner --result-only
+unity cmd set_serialized_field --target "$SEG" --field ExitDistance     --value 1         --no-banner --result-only
+unity cmd set_serialized_field --target "$SEG" --field DifficultyRating --value 3         --no-banner --result-only
+unity cmd set_serialized_field --target "$SEG" --field MaxRepeat        --value 2         --no-banner --result-only
+unity cmd set_serialized_field --target "$SEG" --field Weight           --value 1         --no-banner --result-only
+```
+
+**`Tags` is a `List<string>`** — size it, then set each element:
+
+```bash
+unity cmd set_serialized_field --target "$SEG" --field "Tags.Array.size"    --value 1      --no-banner --result-only
+unity cmd set_serialized_field --target "$SEG" --field "Tags.Array.data[0]" --value "easy" --no-banner --result-only
+```
+
+Leave `TeleportDistance`, `TurnFailureDistance` and `TurnRadius` alone (they default to 0, which is
+what `Normalize` expects). `Role` defaults to `Normal` and `SpeedMultiplier` to 1.
 
 ### Step 6: Register the segments
 
-`Edit` `TrackSegmentRegistry.asset` to append one reference per new segment to the `Segments`
-sequence, using each asset's `.meta` guid:
+Grow the registry's `Segments` array once, then assign each new segment by path. With `N` existing
+entries and `M` new ones, resize to `N + M`:
 
-```yaml
-  Segments:
-  - {fileID: 11400000, guid: <existing-segment-guid>, type: 2}
-  - {fileID: 11400000, guid: <new-segment-guid>, type: 2}
+```bash
+REG="Assets/TempleRun/Scriptables/Track/TrackSegmentRegistry.asset"
+
+unity cmd set_serialized_field --target "$REG" --field "Segments.Array.size" --value 42 --no-banner --result-only
 ```
 
-A segment is only in a level's pool if a `TrackLevelSO` selects it — by a matching tag in
-`ActiveSegmentTags`, or by its id in `ActiveSegmentIds`. Make sure the tags you assigned line up
-with the levels that should use these segments.
+Then, for each new segment at its index (starting at `N`), assign an object reference by path:
 
-### Step 7: Summarize
+```bash
+unity cmd set_serialized_field --target "$REG" \
+  --field "Segments.Array.data[41]" \
+  --value '{"path":"Assets/TempleRun/Scriptables/Track/Segments/left_18.asset"}' \
+  --no-banner --result-only
+```
+
+Resizing only appends empty slots; existing entries keep their index and are not disturbed.
+
+### Step 7: Save to disk — REQUIRED
+
+**`set_serialized_field` only mutates the in-memory object.** Until assets are saved, the `.asset`
+files on disk still hold their old values and git sees nothing. Flush once, at the end:
+
+```bash
+unity cmd eval --code 'UnityEditor.AssetDatabase.SaveAssets(); return "saved";' --timeout 60 --no-banner --result-only
+```
+
+The `--timeout 60` is not optional — main-thread work times out at 5 s by default and returns
+`Main thread operation timed out after 5000ms`.
+
+### Step 8: Verify
+
+Never report success from the command envelopes alone — they return a result object even when a
+value didn't land where you expected. Read back, and check the disk:
+
+```bash
+unity cmd get_serialized_fields --target "$SEG" --no-banner --result-only
+unity cmd get_serialized_fields --target "$REG" --no-banner --result-only
+git status --porcelain Assets/TempleRun/Scriptables/Track/
+```
+
+Confirm that:
+- `Direction` resolved to the enum name you intended (`0` → `"Left"`)
+- `Tags` holds the tags you set
+- the registry's `arrayLength` grew by exactly `M`, with no `null` entries
+- git shows the new `.asset` + `.meta` files
+
+Then check the console:
+
+```bash
+unity cmd console --tail 20 --level error --no-banner --result-only
+```
+
+### Step 9: Summarize
 
 ```
 Generated N segments:
   [id]  Dir=[L/R/S/E]  Length=[len]  d=[difficulty]  Tags=[tags]
   ...
 
-Wrote assets to: Assets/TempleRun/Scriptables/Track/Segments/
-Registered in:    Assets/TempleRun/Scriptables/Track/TrackSegmentRegistry.asset  (M total)
+Created in:    Assets/TempleRun/Scriptables/Track/Segments/   (Unity-minted GUIDs)
+Registered in: Assets/TempleRun/Scriptables/Track/TrackSegmentRegistry.asset  (M total)
+Saved:         AssetDatabase.SaveAssets()
+Console:       0 errors
 ```
 
 Then remind the user:
-- **Unity** will import the new assets on next focus; check the Console for errors.
-- **RUGS parity:** copy the new `.asset` + `.meta` files and the edited `TrackSegmentRegistry.asset`
-  into `../RunnerUGSTemplate` — do **not** re-generate there (that would mint different guids). See
-  the port-to-RUGS project note.
-- To include the segments in a level, add their tag/id to the relevant `TrackLevelSO` asset.
+- **RUGS parity:** copy the new `.asset` + `.meta` files and the updated `TrackSegmentRegistry.asset`
+  into `../RunnerUGSTemplate` — do **not** re-run this skill there (that would mint *different*
+  GUIDs for the same logical segments). See the port-to-RUGS project note.
+- To include the segments in a level, add their tag/id to the relevant `TrackLevelSO` asset. A
+  segment is only in a level's pool if a `TrackLevelSO` selects it — by a matching tag in
+  `ActiveSegmentTags`, or by its id in `ActiveSegmentIds`.
+
+## Notes
+
+- **Bulk runs.** For large counts, `unity cmd batch` can group operations, but asset creation
+  mutates outside the Undo system, so it requires `transactional=false`. A straightforward loop of
+  individual calls is simpler and easier to recover from — prefer it unless the count is large
+  enough to matter.
+- **Deleting a bad batch.** `unity cmd delete_asset --asset <path> --confirm true` removes an asset
+  and its `.meta` cleanly, keeping the AssetDatabase consistent. Do this rather than deleting files
+  by hand. Remember to shrink or reassign the registry's `Segments` array afterwards so it has no
+  `null` entries.
 
 ## Examples
 

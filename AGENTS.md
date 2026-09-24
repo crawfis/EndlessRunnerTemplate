@@ -10,12 +10,21 @@ every AI tool, and its event-system rules are mandatory for every change.
 
 - **Skills are plain markdown, usable from anywhere.** The event-workflow procedures live
   in `.claude/skills/<name>/SKILL.md` (`list-events`, `add-event`, `add-auto-chain`,
-  `add-bridge-mapping`, `add-event-domain`, `audit-events`, `generate-segments`). Claude
+  `add-bridge-mapping`, `add-event-domain`, `audit-events`, `generate-segments`,
+  `verify-unity`). Claude
   Code runs them as
   slash commands; from any other tool (Copilot, Cursor, Codex, Gemini, …), open the skill
   file and follow it as a step-by-step checklist — the steps are ordinary Read/Grep/Edit
   work and assume nothing Claude-specific. Wherever a doc says `/add-event`, read it as
   "follow `.claude/skills/add-event/SKILL.md`".
+- **Drive the real Editor, don't guess.** This project has `com.unity.pipeline` installed, so
+  the `unity` CLI can compile, read the console, author assets and run Play Mode against the
+  running Editor. Verify C# changes with `/verify-unity` rather than asserting from inspection,
+  and let `create_asset` mint assets rather than hand-writing `.asset` YAML. The CLI is the
+  portable door — it works from any tool with a shell, which is why skills are written against
+  it rather than against MCP. See
+  [CLAUDE.md](CLAUDE.md#unity-cli-and-the-pipeline-package) for the loop, the gotchas, and the
+  safety rules.
 - **Pointer files:** `GEMINI.md` and `.github/copilot-instructions.md` exist only to route
   those tools to this file pair. Keep them thin pointers — extend AGENTS.md / CLAUDE.md
   instead, and mirror any change to the shared pointer text in both.
