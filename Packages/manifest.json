@@ -4,16 +4,17 @@
     "com.gamesthatmoveyou.audiomanager": "https://github.com/crawfis/GTMY.Audio.git",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.2d.tilemap": "1.0.0",
-    "com.unity.ai.navigation": "2.0.14",
+    "com.unity.ai.navigation": "2.0.15",
     "com.unity.cinemachine": "6.6.0",
     "com.unity.collab-proxy": "2.13.6",
     "com.unity.device-simulator.devices": "1.0.1",
     "com.unity.ide.rider": "3.0.40",
     "com.unity.ide.visualstudio": "2.0.28",
-    "com.unity.inputsystem": "1.20.0",
+    "com.unity.inputsystem": "1.20.1",
     "com.unity.localization": "1.5.13",
     "com.unity.mobile.android-logcat": "1.4.7",
     "com.unity.multiplayer.center": "2.0.1",
+    "com.unity.pipeline": "0.8.0-exp.1",
     "com.unity.recorder": "5.1.7",
     "com.unity.render-pipelines.universal": "17.6.0",
     "com.unity.test-framework": "1.8.0",
@@ -54,8 +55,7 @@
     "com.unity.modules.vehicles": "1.0.0",
     "com.unity.modules.video": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
-    "com.unity.modules.xr": "1.0.0",
-    "com.unity.pipeline": "0.7.0-exp.1"
+    "com.unity.modules.xr": "1.0.0"
   },
   "testables": [
     "com.crawfissoftware.eventspublisher"
