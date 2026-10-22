@@ -17,7 +17,7 @@ their careers. The conversion is also a net *reduction* in code — most of the
 `private Coroutine _x` fields and their `StopCoroutine` bookkeeping disappear.
 
 > **How to use:** this doc is written to double as a session prompt — paste it whole into a
-> fresh Claude Code session, or point one at the file. Read [CLAUDE.md](../../CLAUDE.md)
+> fresh Claude Code session, or point one at the file. Read [AGENTS.md](../../AGENTS.md)
 > first. No events, auto-chains or bridges change, so the event rules are unaffected — but
 > the `OnDestroy` unsubscribe rule still applies to every file you touch.
 

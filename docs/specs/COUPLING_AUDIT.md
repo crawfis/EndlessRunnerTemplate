@@ -11,7 +11,7 @@ and the plan adds three findings this brief does not have.
 scope, target design, phasing, verification, documentation fallout.
 
 > **How to use:** paste this whole file into a fresh Claude Code session, or point one at it.
-> Read [CLAUDE.md](../../CLAUDE.md) first; the event-system rules are mandatory and this work
+> Read [AGENTS.md](../../AGENTS.md) first; the event-system rules are mandatory and this work
 > must not weaken them. Tag `pre-coupling-audit` before executing anything, per the repo's
 > convention, so every converted file diffs against the before state as a teaching example.
 

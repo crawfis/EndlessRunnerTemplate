@@ -128,3 +128,20 @@ surface is 19 lines in two bridge files, so the flaw is one readable line in a t
 (`TempleRunGameFlowBridge.cs`) rather than a coupling buried in a controller, and the fix is
 an edit to that table plus a folder move. A codebase where systems called each other
 directly would have the same flaw and no place to point at it.
+
+## Singletons
+
+- `Blackboard.Instance` - TempleRun runtime state
+- `GameState` - MonoBehaviour singleton (`GameState.Instance`); its flags and
+  `SelectedLevel` are static members
+- `EventsFor<T>` - Static, lazily initialized event buses. Not singletons: no scene object,
+  no execution-order attribute, no initialization race.
+
+## Dead and placeholder files (don't be misled by grep hits)
+
+- `Assets/GameFlow/Scripts/Config/BlackboardGameFlow.cs` - fully commented out
+- `Assets/TempleRun/Scripts/Config/DifficultyConfig.cs` - fully commented out; the live
+  class is `Assets/_Common/Config/DifficultyConfig.cs` (namespace `CrawfisSoftware.Config`)
+- `Assets/GameFlow/Scenes/Boot/Game_Boot_0_Initialization.unity` - not in Build Settings;
+  the boot chain uses `Game_Boot_0_Test_Initialization` (unverified: check the Build Settings
+  list in the Editor)

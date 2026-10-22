@@ -74,8 +74,8 @@ Add the new events to the enum. Place them in a logical location (near related f
   *is* (`[EventPayload(typeof(int))]  // Player id`). A member with no payload, or a genuinely
   variable one, stays undeclared. Do not mint `EventId<T>` fields at call sites.
 - Add `[EventDelivery(EventDelivery.Sticky)]` only if the member is a *level* (a state that is
-  self-describing on its own); a transition stays `Transient`. See CLAUDE.md "Typed Payloads"
-  and "Delivery Policy".
+  self-describing on its own); a transition stays `Transient`. See `docs/EVENT_BUS_PATTERNS_AND_PAYLOADS.md`
+  ("Typed payloads" and "Delivery policy").
 
 ### Step 6: Ask about auto-chaining and bridges
 

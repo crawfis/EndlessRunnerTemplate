@@ -148,7 +148,7 @@ phase carries a prompt for the role it needs:
   you change afterwards? That is the slide the class will actually learn from.
 
 A worked example ships in this repository:
-[`CLAUDE.md`](https://github.com/crawfis/EndlessRunnerTemplate/blob/main/CLAUDE.md) is an AI
+[`AGENTS.md`](https://github.com/crawfis/EndlessRunnerTemplate/blob/main/AGENTS.md) is an AI
 contract — architecture rules, folder map, a required workflow — alongside skills
 (`/list-events`, `/add-event`, `/audit-events`, `/generate-segments`) that encode the
 project's conventions so an assistant follows them instead of inventing its own. Read it as a
@@ -373,7 +373,7 @@ team and write it down:
 - **Naming conventions.** PascalCase versus camelCase for classes, methods, fields,
   properties, and serialized fields. The template's own convention — `_underscorePrefix` for
   private fields, PascalCase properties — is in
-  [`CLAUDE.md`](https://github.com/crawfis/EndlessRunnerTemplate/blob/main/CLAUDE.md); adopt
+  [`AGENTS.md`](https://github.com/crawfis/EndlessRunnerTemplate/blob/main/AGENTS.md); adopt
   it or replace it deliberately.
 - **Folder structure.** The exact hierarchy under `Assets/`, and where third-party material
   lives (see `_THIRD_PARTY/` above).

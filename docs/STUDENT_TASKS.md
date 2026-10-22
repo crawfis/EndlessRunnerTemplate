@@ -26,7 +26,7 @@ presentation running order. The tasks below are what those plans point at — tw
 
 **The one rule still applies.** Whatever you build, systems communicate through events
 (see [ARCHITECTURE.md](ARCHITECTURE.md)). Start every feature with the
-[required skills workflow](../CLAUDE.md#required-skills-workflow): `/list-events` →
+[required skills workflow](../AGENTS.md#required-skills-workflow): `/list-events` →
 `/add-event` → implement → `/audit-events`. The walkthrough in
 [ADDING_A_MECHANIC.md](ADDING_A_MECHANIC.md) is the recipe.
 
@@ -499,7 +499,7 @@ expects — is part of the exercise. Read the PanelRenderer rules in
 17. **Async lifetime audit (S).** The `async` sibling of L11. Write the `/audit-events`
     companion check that flags an `await` with no cancellation token, an `async void` on a
     MonoBehaviour, and a `CancellationTokenSource` that is never cancelled in `OnDestroy` —
-    the three ways an async method outlives its object (CLAUDE.md, *Async and coroutines*).
+    the three ways an async method outlives its object (AGENTS.md, *Code Style*).
     Seed it by reintroducing each defect on a branch and confirming the check catches it.
 18. **Score every way a run ends (S/M).** A run ends two ways, and the ladder carries a
     different payload for each: `PlayerLifeController` stamps the final distance onto

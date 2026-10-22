@@ -334,7 +334,7 @@
 <li><strong>Prompt frameworks.</strong> If you use BMad or another structured method for the PRD and story breakdown, say which, and how it went.</li>
 <li><strong>The retro.</strong> Where did it save you an hour? Where was it confidently wrong, and what did you change afterwards? That is the slide the class will actually learn from.</li>
 </ul>
-<p>A worked example ships in this repository: <a href="https://github.com/crawfis/EndlessRunnerTemplate/blob/main/CLAUDE.md"><code>CLAUDE.md</code></a> is an AI contract — architecture rules, folder map, a required workflow — alongside skills (<code>/list-events</code>, <code>/add-event</code>, <code>/audit-events</code>, <code>/generate-segments</code>) that encode the project's conventions so an assistant follows them instead of inventing its own. Read it as a model for the contract you will write for <em>your</em> game, whichever assistant you use.</p>
+<p>A worked example ships in this repository: <a href="https://github.com/crawfis/EndlessRunnerTemplate/blob/main/AGENTS.md"><code>AGENTS.md</code></a> is an AI contract — architecture rules, folder map, a required workflow — alongside skills (<code>/list-events</code>, <code>/add-event</code>, <code>/audit-events</code>, <code>/generate-segments</code>) that encode the project's conventions so an assistant follows them instead of inventing its own. Read it as a model for the contract you will write for <em>your</em> game, whichever assistant you use.</p>
 <h2 id="phase-1--logistics-and-the-team-charter">Phase 1 — Logistics and the team charter</h2>
 <p><strong>Goal: define HOW you work before you define WHAT you work on.</strong></p>
 <p>Do not just list names. You need a <strong>Team Charter</strong> — a working agreement that covers availability, conflict resolution, and communication agreements.</p>
@@ -442,7 +442,7 @@ Identity 2: The Game Art Direction
 <h3 id="technical-standards">Technical standards</h3>
 <p>Owner: <strong>tech lead</strong>. Use the Lead Architect role to draft the checklist, then decide as a team and write it down:</p>
 <ul>
-<li><strong>Naming conventions.</strong> PascalCase versus camelCase for classes, methods, fields, properties, and serialized fields. The template's own convention — <code>_underscorePrefix</code> for private fields, PascalCase properties — is in <a href="https://github.com/crawfis/EndlessRunnerTemplate/blob/main/CLAUDE.md"><code>CLAUDE.md</code></a>; adopt it or replace it deliberately.</li>
+<li><strong>Naming conventions.</strong> PascalCase versus camelCase for classes, methods, fields, properties, and serialized fields. The template's own convention — <code>_underscorePrefix</code> for private fields, PascalCase properties — is in <a href="https://github.com/crawfis/EndlessRunnerTemplate/blob/main/AGENTS.md"><code>AGENTS.md</code></a>; adopt it or replace it deliberately.</li>
 <li><strong>Folder structure.</strong> The exact hierarchy under <code>Assets/</code>, and where third-party material lives (see <code>_THIRD_PARTY/</code> above).</li>
 <li><strong>Scene naming.</strong> A convention with a load order in it — <code>00_Boot</code>, <code>01_Menu</code>, <code>02_Play</code> — and where additive scenes fit. The template's own scheme (<code>0_BootStrap_Game_Only</code>, <code>Game_Boot_0/1/2</code>, then the gameplay scenes) is a worked example of the same idea.</li>
 </ul>
