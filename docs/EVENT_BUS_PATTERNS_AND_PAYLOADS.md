@@ -1,8 +1,7 @@
 # Event Bus Patterns and Payloads
 
 How to subscribe, publish, declare payloads, choose a delivery policy and wire auto-chains.
-The rules these snippets serve are in [AGENTS.md](../AGENTS.md); the full event list is in
-[EVENTS.md](EVENTS.md).
+The rules these snippets serve are in [AGENTS.md](../AGENTS.md).
 
 ## Bus aliases
 
