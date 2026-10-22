@@ -91,8 +91,8 @@ namespace CrawfisSoftware.Analytics.Events
 - Naming: `*Requested` / `*Starting`/`*ing` / `*Started`/`*ed` / `*Failed` / `*Cancelled`.
 - Declare payloads with `[EventPayload(typeof(T))]`; a basic-typed payload (`int`, `float`,
   `string`, `bool`, `long`, `double`) gets an inline `// what the value is` comment. Add
-  `[EventDelivery(EventDelivery.Sticky)]` only for a *level* (see CLAUDE.md
-  "Delivery Policy - edge or level").
+  `[EventDelivery(EventDelivery.Sticky)]` only for a *level* (see
+  `docs/EVENT_BUS_PATTERNS_AND_PAYLOADS.md`, "Delivery policy: edge or level").
 
 ### Step 3: The bus — nothing to build
 
@@ -145,8 +145,9 @@ unsubscription is what makes the shorter lifetimes safe.
 
 This is the step people forget. Update every place that enumerates domains:
 
-- `CLAUDE.md` — the Domain Registry table (Architecture Overview), Domain Isolation table,
-  Namespaces block, Key Files table, folder tree
+- `AGENTS.md` — the Domain Isolation table
+- `docs/ARCHITECTURE.md` — the Domain Registry table (Event domains)
+- `docs/CODEBASE_MAP_AND_KEY_FILES.md` — Namespaces block, Key Files table, folder tree
 - Skills — `list-events` (Step 1/2 tables), `add-event` (Step 1 table), `add-auto-chain`
   (auto-flow files table), `add-bridge-mapping` (Available Bridges), `audit-events`
   (Check 6 + Files to Scan)
@@ -170,5 +171,5 @@ Created domain: [Name]
   Flow:    [path, or "none yet — no same-domain progressions"]
   Bridge:  [path]  ([n] mappings [Name]->X, [m] mappings X->[Name])
   Host:    [scene]  (lifetime: [app | session | run])
-  Registered in: CLAUDE.md, 5 skills, 2 pointer files, ARCHITECTURE.md, EVENTS.md, README.md
+  Registered in: AGENTS.md, 5 skills, 2 pointer files, ARCHITECTURE.md, CODEBASE_MAP_AND_KEY_FILES.md, EVENTS.md, README.md
 ```

@@ -130,7 +130,7 @@ argument. It contains, in order:
 
 > **Where the data lives:** run the `list-events` skill (or read [EVENTS.md](EVENTS.md))
 > for the full catalog with auto-chains and bridge mappings; the Domain Registry table sits
-> at the top of [CLAUDE.md](../CLAUDE.md)'s Architecture Overview; the decision gate for
+> at the top of [ARCHITECTURE.md](ARCHITECTURE.md)'s Event domains; the decision gate for
 > new domains is Step 0 of
 > [`.claude/skills/add-event-domain/SKILL.md`](../.claude/skills/add-event-domain/SKILL.md).
 > All of it is plain markdown — every AI tool, and every human, can read it.

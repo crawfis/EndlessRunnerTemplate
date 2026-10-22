@@ -17,7 +17,7 @@ Scan the codebase for violations of the event-driven architecture. This skill ch
 
 ### Check 1: Missing OnDestroy Unsubscriptions
 
-Search for classes that call `Subscribe` or `SubscribeToAll` but do NOT have a corresponding `Unsubscribe` or `UnsubscribeFromAll` in `OnDestroy()`. Also flag any `EventId<T>` static field (`Bus.Id<T>(...)`) as a finding in itself — that pattern was removed by owner ruling (2026-09); call sites go through the bus alias directly.
+Search for classes that call `Subscribe` or `SubscribeToAll` but do NOT have a corresponding `Unsubscribe` or `UnsubscribeFromAll` in `OnDestroy()`. Also flag any `EventId<T>` static field (`Bus.Id<T>(...)`) as a finding in itself — call sites go through the bus alias directly.
 
 **Pattern to find:**
 ```
@@ -149,8 +149,8 @@ DOMAIN ISOLATION VIOLATION:
 
 ### Check 7: Domain Registry Drift
 
-The curated domain list lives in two mirrored tables: `CLAUDE.md` (Architecture Overview,
-"Domain Registry") and the top of `docs/EVENTS.md`.
+The curated domain list lives in two mirrored tables: `docs/ARCHITECTURE.md` ("Event
+domains") and the top of `docs/EVENTS.md`.
 
 1. Grep `\[EventEnum\]` across `Assets/**/*.cs`. Every hit must be in a file matching the
    placement convention `Assets/*/Scripts/Events/*Events.cs` — an event enum anywhere else
@@ -161,7 +161,7 @@ The curated domain list lives in two mirrored tables: `CLAUDE.md` (Architecture 
 **Report format:**
 ```
 REGISTRY DRIFT:
-  [EnumName] at [File] is not listed in [CLAUDE.md | docs/EVENTS.md] registry
+  [EnumName] at [File] is not listed in [docs/ARCHITECTURE.md | docs/EVENTS.md] registry
   (or) [EnumName] declared outside Assets/*/Scripts/Events/ at [File]
   (or) Registry row [Domain] has no matching [EventEnum] enum
 ```

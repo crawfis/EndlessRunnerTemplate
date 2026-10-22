@@ -52,7 +52,7 @@ namespace CrawfisSoftware.TempleRun
         TempleRunStarted = 40,
         // Deliberately undeclared: two sources with different payloads. The bridge forwards the
         // player id from UserQuitRequested; the ChainTable also reaches it from PlayerDied, which
-        // carries the score. A genuinely variable payload stays undeclared - see CLAUDE.md.
+        // carries the score. A genuinely variable payload stays undeclared - see AGENTS.md.
         TempleRunEndRequested = 41,
         TempleRunEnding = 42,
         TempleRunEnded = 43,

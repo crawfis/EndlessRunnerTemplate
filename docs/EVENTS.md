@@ -4,7 +4,7 @@ A checked-in reference of every event in the template, its numeric value, and ho
 flow between domains. This is a snapshot for browsing; the source of truth is the enum files,
 and the `/list-events` skill regenerates this on demand.
 
-**Domain registry** (mirrored from CLAUDE.md's Architecture Overview — update both together):
+**Domain registry** (mirrored from the Event domains table in [ARCHITECTURE.md](ARCHITECTURE.md) — update both together):
 
 | Domain | Enum (bus alias) | Purpose | Flow / bridge hosting (lifetime) | Bridges |
 |--------|------------------|---------|----------------------------------|---------|

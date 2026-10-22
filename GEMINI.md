@@ -1,17 +1,17 @@
 # GEMINI.md
 
 > Thin pointer, kept in sync with `.github/copilot-instructions.md`. The real guidance
-> lives in the two files below — extend those, not this file.
+> lives in AGENTS.md — extend that, not this file.
 
-This repository keeps its AI-agent guidance in two root files, written for **any** coding
-agent (not just the tools they are named after):
+This repository keeps its AI-agent guidance in one root file, written for **any** coding
+agent (not just the tools it is named after):
 
-1. **[AGENTS.md](AGENTS.md)** — how to approach work here (design-first, docs are part of
-   the change).
-2. **[CLAUDE.md](CLAUDE.md)** — the mandatory concrete guide: event-system rules, coding
-   conventions, key file paths.
+**[AGENTS.md](AGENTS.md)** holds the mandatory rules (event system, domain isolation, skills
+workflow), the code conventions, and a map of the reference docs under `docs/`
+(`docs/ARCHITECTURE.md`, `docs/CODEBASE_MAP_AND_KEY_FILES.md`,
+`docs/EVENT_BUS_PATTERNS_AND_PAYLOADS.md`, `docs/UNITY_CLI_AND_PIPELINE_PACKAGE.md`).
 
-Read both before changing code. The non-negotiable core:
+Read it before changing code. The non-negotiable core:
 
 - **ALL cross-system communication goes through the typed event bus** (`EventsFor<T>`) —
   never direct method calls, `FindObjectOfType`, `SendMessage`, or cross-scene

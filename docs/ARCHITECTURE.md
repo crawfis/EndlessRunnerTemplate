@@ -1,8 +1,8 @@
 # Architecture
 
 How the pieces fit together. For the concrete event lists see [EVENTS.md](EVENTS.md); for the
-track system see [TRACKS.md](TRACKS.md); for the AI-assistant conventions see
-[../CLAUDE.md](../CLAUDE.md).
+track system see [TRACKS.md](TRACKS.md); for the AI-assistant rules see
+[../AGENTS.md](../AGENTS.md); for the file map see [CODEBASE_MAP_AND_KEY_FILES.md](CODEBASE_MAP_AND_KEY_FILES.md).
 
 ## The big idea
 
@@ -38,6 +38,15 @@ What that buys:
 The cost is indirection: you can't ctrl-click from cause to effect, and an event with no
 subscriber fails silently. The template mitigates that with strict naming conventions, a
 checked-in [event catalog](EVENTS.md), and audit tooling (`/audit-events`).
+
+### Why isolation: replaceability
+
+The rule's purpose is **replaceability**: a domain that talks only through events can be
+swapped for a completely different implementation — a new track generator, or a
+deterministic autopilot / replayed recording instead of a human (`AIController` already
+publishes the same `UserInitiatedEvents` the input actions do) — or stubbed out with a
+trivial fake, without touching code on the other side. The additive scene composition makes
+this concrete: replacing a domain is loading a different scene that speaks the same events.
 
 ## Design vocabulary
 
@@ -93,7 +102,7 @@ flowchart TD
   and [ADDING_A_MECHANIC.md](ADDING_A_MECHANIC.md#2-chain-the-whole-ladder-then-break-the-links-you-need).
 - **The bridge** (`TempleRunGameFlowBridge`) is the single sanctioned crossing between
   TempleRun and GameFlow. Domain code translates a foreign event into a local one there,
-  then subscribes to the local event. See the [Domain Isolation Rule](../CLAUDE.md#domain-isolation-rule).
+  then subscribes to the local event. See the [Domain Isolation Rule](../AGENTS.md#domain-isolation-rule).
 - **The countdown bridges** (`CountdownGameFlowBridge`, `Countdown2TempleRunBridge`) are the
   worked example of what a bridge mapping should *say*. The countdown is neither app logic
   nor gameplay, so it is its own domain: GameFlow's `GameStarting` becomes
@@ -212,4 +221,4 @@ Assets/
 └── TempleRun/  gameplay: events, player mechanics, track generation, input, visuals
 ```
 
-See [../CLAUDE.md](../CLAUDE.md) for the full folder breakdown and file reference.
+See [CODEBASE_MAP_AND_KEY_FILES.md](CODEBASE_MAP_AND_KEY_FILES.md) for the full folder tree and file reference.

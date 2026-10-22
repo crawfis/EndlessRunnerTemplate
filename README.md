@@ -38,7 +38,7 @@ subscribing to named events.
 - **Full runner mechanics.** Turns, lane changes, jump, slide, dash, obstacles, coins,
   power-ups (speed, score multiplier, coin magnet, coin doubler, shield), countdown, and a level selector
   with unlock/best-score persistence.
-- **AI-assistant tooling.** Guides for AI agents (`AGENTS.md`, `CLAUDE.md`) plus seven
+- **AI-assistant tooling.** Guides for AI agents (`AGENTS.md`, plus a thin `CLAUDE.md`) plus seven
   skills that enforce and automate the event-system conventions — plain-markdown
   procedures any coding agent can follow (Claude Code runs them as slash commands).
 
@@ -78,7 +78,7 @@ subscribing to named events.
 | [docs/canvas/](docs/canvas/) | Every assignment rendered as Canvas-ready HTML — one page per section, plus a build script per timebox to regenerate |
 | [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md) | Unity 6.5 caveats (UIDocument/Panel Renderer, build order, JsonUtility) |
 | [AGENTS.md](AGENTS.md) | How AI agents should approach work here — any tool, not just Claude |
-| [CLAUDE.md](CLAUDE.md) | AI-assistant guide: conventions and the event-system rules (written for every AI tool; Claude Code additionally runs the skills as slash commands) |
+| [AGENTS.md](AGENTS.md) | AI-assistant guide: the event-system rules and conventions, written for every AI tool (Claude Code additionally runs the skills as slash commands via the thin [CLAUDE.md](CLAUDE.md)) |
 | [docs/specs/](docs/specs/) | Design specs and migration plans for proposed changes |
 | [docs/playbooks/](docs/playbooks/) | Portable, project-agnostic upgrade guides (e.g. UIDocument → PanelRenderer) |
 | [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md) | Issue forms, labels, branch/PR conventions, and the Kanban workflow |
@@ -120,7 +120,7 @@ must never reference another domain's events directly anywhere else. That isolat
 core discipline of the template, and the payoff is replaceability: GameFlow only knows about
 `GameFlowEvents`, so the entire TempleRun game underneath it could be swapped for a
 different game and GameFlow's menus, level select, and session management wouldn't need to
-change a line. See the [Domain Isolation Rule](CLAUDE.md#domain-isolation-rule) for the full
+change a line. See the [Domain Isolation Rule](AGENTS.md#domain-isolation-rule) for the full
 rule and how to fix a violation.
 
 ```
@@ -188,7 +188,7 @@ follow as a checklist; in Claude Code they are also slash commands:
 - `/add-event-domain` — stand up a whole new event domain (rare; decision gate inside)
 - `/generate-segments` — author track segments
 
-See [CLAUDE.md](CLAUDE.md) for the full architecture guide and conventions.
+See [AGENTS.md](AGENTS.md) for the rules and conventions, and [docs/CODEBASE_MAP_AND_KEY_FILES.md](docs/CODEBASE_MAP_AND_KEY_FILES.md) for the file map.
 
 ### A good first exercise
 

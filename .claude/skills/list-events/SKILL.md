@@ -69,7 +69,7 @@ Bus: EventsFor<[Domain]Events>
 **Notes**: Show `(target of auto-chain from X)` or `(target of bridge from Domain.X)` for events that are targets.
 
 When regenerating `docs/EVENTS.md` from this output, preserve and refresh the Domain
-Registry table at the top of that file (mirrored from CLAUDE.md's Architecture Overview)
+Registry table at the top of that file (mirrored from the Event domains table in `docs/ARCHITECTURE.md`)
 before the per-domain sections.
 
 ### Step 5: Show available value ranges

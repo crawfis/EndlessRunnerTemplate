@@ -14,7 +14,7 @@
 > `LevelConfig.LevelNumber`s, then delete `Assets/TempleRun/Resources/`. See
 > [TRACKS.md](../TRACKS.md#the-data-model).
 > **How to use:** this doc is written to double as a session prompt — paste it whole into a fresh
-> Claude Code session, or point one at the file. Read [CLAUDE.md](../../CLAUDE.md) first; the
+> Claude Code session, or point one at the file. Read [AGENTS.md](../../AGENTS.md) first; the
 > event-system rules are mandatory.
 
 ## Goal

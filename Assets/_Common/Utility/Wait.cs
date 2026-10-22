@@ -8,7 +8,7 @@ namespace CrawfisSoftware.Utility
     /// The waits Unity's Awaitable does not ship. Every await in this project takes a
     /// CancellationToken - a MonoBehaviour's destroyCancellationToken, or a controller's own
     /// CancellationTokenSource - so an async method dies with its object the way a coroutine
-    /// did. See CLAUDE.md, "Async and coroutines".
+    /// did. See AGENTS.md, "Code Style".
     /// </summary>
     public static class Wait
     {

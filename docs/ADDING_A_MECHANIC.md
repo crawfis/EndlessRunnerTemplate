@@ -199,8 +199,8 @@ what `destroyCancellationToken` is for: every `await` in this project passes it 
 controller's own `CancellationTokenSource`, where a restart is real). And the method returns
 `Awaitable` rather than `void`, so a cancellation on scene unload is absorbed instead of
 logged as an unhandled exception — never `async void`. `WaitForSecondsAsync` is scaled and so
-freezes under pause; the unscaled wait is `Wait.ForSecondsRealtime` (see CLAUDE.md, *Async
-and coroutines*).
+freezes under pause; the unscaled wait is `Wait.ForSecondsRealtime` (see AGENTS.md, *Code
+Style*).
 
 ### Publish every rung you declared
 

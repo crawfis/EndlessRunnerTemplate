@@ -392,7 +392,7 @@ stretch break — Act IV has ScriptableObjects and Act V has robots."
 ## Act V — The AI-Driven Studio (~9 min)
 
 ### Slide 21 — This codebase supports AI coworkers
-- The repo ships `AGENTS.md` + `CLAUDE.md` (conventions any AI tool can read) and **seven
+- The repo ships `AGENTS.md` + a thin `CLAUDE.md` (conventions any AI tool can read) and **seven
   skills** — step-by-step procedures stored as plain markdown, runnable as slash commands
   in Claude Code or followed as checklists by any other agent (Copilot, Cursor, Codex…).
 - The mandated loop for *any* feature: `/list-events` → `/add-event` → implement →
